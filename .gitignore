@@ -1,0 +1,145 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+.conda/
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints/
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+coverage.xml
+*.cover
+*.log
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# Environments
+.env
+.env.local
+.env.*.local
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# Project-specific
+data/
+!data/.gitkeep
+results/
+!results/.gitkeep
+wandb/
+checkpoints/
+outputs/
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+logs/
+*.log
+
+# Trained models (unless specifically tracked)
+trained_saes/
+models/
+!models/.gitkeep
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+
+# Documentation builds
+docs/_build/
+docs/.doctrees/
+site/
+
+# Large data files
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+*.npy
+*.npz
+
+# Weights & Biases
+wandb/
+.wandb/
+
+# MLflow
+mlruns/
+
+# Cloud credentials
+*credentials*.json
+*.pem
+*.key
+!public_key.pem
+
+# Slurm job outputs (if using HPC)
+slurm-*.out
+*.sbatch.log

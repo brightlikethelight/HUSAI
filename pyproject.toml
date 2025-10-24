@@ -1,0 +1,183 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "husai"
+version = "0.1.0"
+description = "Hunting for Stable AI Features: Investigating reproducibility in Sparse Autoencoders"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "Bright Liu", email = "brightliu@college.harvard.edu"}
+]
+keywords = [
+    "mechanistic-interpretability",
+    "sparse-autoencoders",
+    "transformers",
+    "ai-safety",
+    "interpretability",
+    "feature-discovery"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    "torch>=2.5.1",
+    "transformers>=4.57.1",
+    "datasets>=4.3.0",
+    "accelerate>=1.11.0",
+    "transformer-lens>=2.16.1",
+    "sae-lens>=6.17.0",
+    "einops>=0.8.1",
+    "jaxtyping>=0.3.1",
+    "wandb>=0.22.2",
+    "numpy>=2.3.4",
+    "scipy>=1.16.2",
+    "pandas>=2.3.3",
+    "scikit-learn>=1.7.2",
+    "matplotlib>=3.10.7",
+    "seaborn>=0.13.2",
+    "plotly>=6.3.1",
+    "tqdm>=4.66.0",
+    "pyyaml>=6.0",
+    "rich>=13.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
+    "pytest-xdist>=3.5.0",
+    "black>=25.9.0",
+    "isort>=7.0.0",
+    "flake8>=7.3.0",
+    "mypy>=1.18.2",
+    "pre-commit>=4.3.0",
+    "ipython>=8.20.0",
+    "jupyterlab>=4.4.10",
+]
+docs = [
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.5.0",
+    "mkdocstrings[python]>=0.24.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/HUSAI"
+Documentation = "https://github.com/yourusername/HUSAI/docs"
+Repository = "https://github.com/yourusername/HUSAI"
+Issues = "https://github.com/yourusername/HUSAI/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+  | wandb
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+known_first_party = ["src"]
+skip_glob = ["wandb/*", "*.ipynb"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "--showlocals",
+]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "gpu: marks tests that require GPU",
+]
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__init__.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = false
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "transformer_lens.*",
+    "sae_lens.*",
+    "circuitsvis.*",
+    "wandb.*",
+    "umap.*",
+]
+ignore_missing_imports = true
+
+[tool.bandit]
+exclude_dirs = ["tests", "notebooks"]
+skips = ["B101"]  # Allow assert statements in code
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    "wandb",
+    "build",
+    "dist",
+]
