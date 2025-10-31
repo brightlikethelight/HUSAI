@@ -104,7 +104,9 @@ logs/
 
 # Trained models (unless specifically tracked)
 trained_saes/
-models/
+# Note: Only ignore top-level models/ directory for trained weights
+# src/models/ contains source code and should be tracked
+/models/
 !models/.gitkeep
 
 # Temporary files
