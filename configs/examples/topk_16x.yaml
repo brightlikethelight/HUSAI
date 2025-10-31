@@ -1,0 +1,37 @@
+# Example configuration for TopK SAE with 16x expansion
+# This config demonstrates training a TopK SAE with larger feature set
+
+experiment_name: topk_16x_seed123
+wandb_project: husai-sae-stability
+save_dir: results/topk_16x_seed123
+checkpoint_frequency: 10  # Save checkpoint every 10 epochs
+log_frequency: 50  # Log metrics every 50 training steps
+
+# Dataset configuration
+dataset:
+  modulus: 113  # Prime modulus for modular arithmetic
+  num_samples: 100000  # More samples for larger model
+  train_split: 0.85  # 85% train, 15% validation
+  seed: 123  # Different seed for diversity
+
+# Transformer architecture (model we'll train SAE on)
+transformer:
+  n_layers: 2  # Same 2-layer transformer
+  d_model: 128  # 128-dimensional residual stream
+  n_heads: 4  # 4 attention heads
+  d_mlp: 512  # 4x expansion in MLP
+  vocab_size: 117  # modulus + 4 (BOS, EOS, EQUALS, PLUS tokens)
+  max_seq_len: 7  # Sequence format: [BOS, a, +, b, =, c, EOS]
+  activation: gelu  # Use GELU activation
+
+# SAE configuration
+sae:
+  architecture: topk  # TopK SAE (keep top-k activations)
+  input_dim: 128  # Must match transformer d_model
+  expansion_factor: 16  # 16x expansion (128 -> 2048 features)
+  sparsity_level: 64  # Keep top 64 features (k=64)
+  learning_rate: 0.0001  # Lower LR for larger model
+  batch_size: 512  # Larger batch size
+  num_epochs: 20  # More epochs for convergence
+  k: 64  # Number of active features (TopK specific)
+  seed: 123  # Random seed for reproducibility

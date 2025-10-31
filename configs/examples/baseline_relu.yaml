@@ -1,0 +1,37 @@
+# Example configuration for baseline ReLU SAE experiment
+# This config demonstrates training a standard ReLU-based SAE on modular arithmetic
+
+experiment_name: baseline_relu_seed42
+wandb_project: husai-sae-stability
+save_dir: results/baseline_relu_seed42
+checkpoint_frequency: 5  # Save checkpoint every 5 epochs
+log_frequency: 100  # Log metrics every 100 training steps
+
+# Dataset configuration
+dataset:
+  modulus: 113  # Prime modulus for modular arithmetic
+  num_samples: 50000  # Total samples to generate
+  train_split: 0.9  # 90% train, 10% validation
+  seed: 42  # Random seed for reproducibility
+
+# Transformer architecture (model we'll train SAE on)
+transformer:
+  n_layers: 2  # Small 2-layer transformer
+  d_model: 128  # 128-dimensional residual stream
+  n_heads: 4  # 4 attention heads (d_head = 32)
+  d_mlp: 512  # 4x expansion in MLP (standard ratio)
+  vocab_size: 117  # modulus + 4 (BOS, EOS, EQUALS, PLUS tokens)
+  max_seq_len: 7  # Sequence format: [BOS, a, +, b, =, c, EOS]
+  activation: relu  # Use ReLU activation
+
+# SAE configuration
+sae:
+  architecture: relu  # ReLU-based SAE (L1 penalty for sparsity)
+  input_dim: 128  # Must match transformer d_model
+  expansion_factor: 8  # 8x expansion (128 -> 1024 features)
+  sparsity_level: 0.001  # Target L1 coefficient
+  learning_rate: 0.0003  # Adam learning rate
+  batch_size: 256  # Training batch size
+  num_epochs: 10  # Number of training epochs
+  l1_coefficient: 0.001  # L1 penalty coefficient (ReLU SAE specific)
+  seed: 42  # Random seed for reproducibility

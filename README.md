@@ -5,6 +5,8 @@
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
 [![PyTorch 2.5.1](https://img.shields.io/badge/PyTorch-2.5.1-EE4C2C.svg)](https://pytorch.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![Status](https://img.shields.io/badge/Status-Foundation_Complete_(20%25)-yellow)
+![Phase](https://img.shields.io/badge/Phase-Implementation_Starting-blue)
 
 ---
 
@@ -22,17 +24,29 @@ If the features we're finding are just artifacts of our measurement process rath
 
 We're taking a systematic, ground-truth-based approach:
 
-### Phase 1: Controlled Experiments (Weeks 1-8)
+### Phase 0: Foundation ✅ (Week 1 - COMPLETE)
+- Production-ready modular arithmetic dataset with 2 token formats
+- Pydantic configuration system with validation
+- 85 passing tests
+- Comprehensive documentation
+
+### Phase 1: Implementation 🔄 (Weeks 2-4 - IN PROGRESS)
+- Transformer model + training loop
+- SAE architectures (ReLU, TopK, BatchTopK)
+- W&B experiment tracking
+- Initial validation experiments
+
+### Phase 2: Controlled Experiments 📋 (Weeks 5-10 - PLANNED)
 - Train **50+ SAEs** on modular arithmetic tasks where we know the "right answer" (Fourier transforms)
 - Systematically vary: random seeds, architectures (ReLU, TopK, BatchTopK), sparsity levels, widths
 - Track complete training trajectories — when do features crystallize vs diverge?
 
-### Phase 2: Deep Analysis (Weeks 9-14)
+### Phase 3: Deep Analysis 📋 (Weeks 11-16 - PLANNED)
 - Measure feature consistency across seeds using state-of-the-art matching algorithms (PW-MCC, MMCS)
 - Test whether SAEs recover known Fourier circuits
 - Explore geometric structure of learned feature spaces
 
-### Phase 3: Building Better Tools (Weeks 15-20)
+### Phase 4: Building Better Tools 📋 (Weeks 17-20 - PLANNED)
 - If Goldilocks zone exists: create guidelines for reproducible SAE training
 - If features remain unstable: develop metrics to characterize uncertainty
 - Open-source everything with clean, reusable code
@@ -84,6 +98,34 @@ We're taking a systematic, ground-truth-based approach:
    python -c "import torch; print(f'PyTorch: {torch.__version__}, CUDA: {torch.cuda.is_available()}')"
    python -c "import transformer_lens; import sae_lens; print('TransformerLens and SAELens loaded successfully')"
    ```
+
+---
+
+## ✅ Current Capabilities (What Works Now)
+
+**You can currently:**
+- ✅ Generate modular arithmetic datasets (`src/data/modular_arithmetic.py`)
+  ```python
+  from src.data.modular_arithmetic import create_dataloaders
+  train_loader, test_loader = create_dataloaders(modulus=113, batch_size=512)
+  ```
+- ✅ Create and validate experiment configurations (`src/utils/config.py`)
+  ```python
+  from src.utils.config import ExperimentConfig
+  config = ExperimentConfig.from_yaml("configs/examples/baseline_relu.yaml")
+  ```
+- ✅ Run 85 passing tests on implemented modules
+  ```bash
+  make test  # All tests pass!
+  ```
+
+**Coming in Weeks 2-4 (Implementation Phase):**
+- 🔄 Transformer model + training loop
+- 🔄 SAE architectures (ReLU, TopK, BatchTopK)
+- 🔄 Training scripts and experiment pipelines
+- 🔄 Feature analysis and matching tools
+
+See [`IMPLEMENTATION_ROADMAP.md`](IMPLEMENTATION_ROADMAP.md) for detailed timeline.
 
 ---
 
