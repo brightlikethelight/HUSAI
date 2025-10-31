@@ -64,7 +64,7 @@ We're taking a systematic, ground-truth-based approach:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/HUSAI.git
+   git clone https://github.com/brightlikethelight/HUSAI.git
    cd HUSAI
    ```
 
@@ -361,7 +361,7 @@ Special thanks to researchers who made their code and data publicly available.
 ## 📬 Contact
 
 **Project Lead:** Bright Liu (brightliu@college.harvard.edu)
-**GitHub:** [HUSAI Repository](https://github.com/yourusername/HUSAI)
+**GitHub:** [HUSAI Repository](https://github.com/brightlikethelight/HUSAI)
 
 ---
 
@@ -370,7 +370,7 @@ Special thanks to researchers who made their code and data publicly available.
 **Current Phase:** Week 1 - Foundation & Setup
 **Last Updated:** October 23, 2025
 
-See [GitHub Issues](https://github.com/yourusername/HUSAI/issues) for current tasks and progress.
+See [GitHub Issues](https://github.com/brightlikethelight/HUSAI/issues) for current tasks and progress.
 
 ---
 
