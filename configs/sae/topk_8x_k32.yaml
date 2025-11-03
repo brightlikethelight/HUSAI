@@ -1,0 +1,49 @@
+# TopK SAE Configuration for Research Experiments
+# Architecture: TopK with k=32, 8x expansion
+# Use this for multi-seed stability experiments
+
+experiment_name: topk_layer1_seed42
+wandb_project: husai-sae-stability
+save_dir: results/saes/topk_seed42
+checkpoint_frequency: 5  # Save every 5 epochs
+log_frequency: 50  # Log every 50 steps
+
+# Dataset configuration (modular arithmetic)
+dataset:
+  modulus: 113  # Prime modulus p=113
+  num_samples: 50000  # Full dataset size
+  train_split: 0.9  # 90% train, 10% val
+  seed: 42
+
+# Transformer architecture (matches trained model)
+transformer:
+  n_layers: 2
+  d_model: 128
+  n_heads: 4
+  d_mlp: 512
+  vocab_size: 117  # p + 4 special tokens
+  max_seq_len: 7
+  activation: gelu  # Standard for transformers
+
+# SAE configuration - TopK Architecture
+sae:
+  architecture: topk
+  input_dim: 128  # Must match transformer d_model
+  expansion_factor: 8  # 128 * 8 = 1024 features
+  k: 32  # Keep top-32 activations (explicit sparsity)
+  learning_rate: 3e-4  # 0.0003 (standard for SAEs)
+  batch_size: 256  # Training batch size
+  num_epochs: 20  # Full training
+  seed: 42  # Change for multi-seed experiments
+  
+# TopK-specific parameters
+topk:
+  aux_loss_coefficient: 0.03125  # 1/32 for dead neuron revival
+  dead_threshold: 10  # Feature dead if <10 activations per epoch
+  
+# Training configuration
+training:
+  normalize_decoder: true  # CRITICAL: normalize after every step
+  track_dead_neurons: true
+  log_explained_variance: true
+  save_best_checkpoint: true
