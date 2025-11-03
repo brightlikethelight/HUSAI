@@ -42,7 +42,7 @@ import json
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.models.sae import SAEWrapper
+from src.models.simple_sae import TopKSAE, ReLUSAE
 from src.analysis.feature_matching import (
     compute_feature_overlap_matrix,
     compute_feature_statistics,
@@ -51,34 +51,71 @@ from src.analysis.feature_matching import (
 )
 
 
+class SimpleWrapper:
+    """Minimal wrapper to match interface for feature matching."""
+    def __init__(self, sae):
+        self.sae = sae
+
+
+def load_sae_from_checkpoint(path: Path, architecture: str = "topk"):
+    """Load simple SAE from checkpoint.
+
+    Args:
+        path: Path to checkpoint .pt file
+        architecture: "topk" or "relu"
+
+    Returns:
+        SimpleWrapper containing loaded SAE
+    """
+    checkpoint = torch.load(path, map_location='cpu')
+
+    # SimpleSAE saves config as top-level keys, not nested
+    d_model = checkpoint['d_model']
+    d_sae = checkpoint['d_sae']
+
+    if architecture == "topk":
+        k = checkpoint['k']
+        sae = TopKSAE(d_model=d_model, d_sae=d_sae, k=k)
+    elif architecture == "relu":
+        l1_coef = checkpoint['l1_coef']
+        sae = ReLUSAE(d_model=d_model, d_sae=d_sae, l1_coef=l1_coef)
+    else:
+        raise ValueError(f"Unknown architecture: {architecture}")
+
+    sae.load_state_dict(checkpoint['model_state_dict'])
+    return SimpleWrapper(sae)
+
+
 def load_saes_from_dir(
     sae_dir: Path,
-    pattern: str = "*.pt"
-) -> List[SAEWrapper]:
+    pattern: str = "*/sae_final.pt",
+    architecture: str = "topk"
+) -> List:
     """Load all SAE checkpoints matching pattern from directory.
-    
+
     Args:
-        sae_dir: Directory containing SAE checkpoints
-        pattern: Glob pattern for checkpoint files
-        
+        sae_dir: Directory containing SAE checkpoint subdirectories
+        pattern: Glob pattern for checkpoint files (default: */sae_final.pt)
+        architecture: "topk" or "relu"
+
     Returns:
         saes: List of loaded SAE wrappers
     """
     sae_dir = Path(sae_dir)
     checkpoint_paths = sorted(sae_dir.glob(pattern))
-    
+
     if not checkpoint_paths:
         raise ValueError(f"No SAE checkpoints found in {sae_dir} with pattern {pattern}")
-    
-    print(f"Loading {len(checkpoint_paths)} SAEs from {sae_dir}...")
-    
+
+    print(f"Loading {len(checkpoint_paths)} {architecture.upper()} SAEs from {sae_dir}...")
+
     saes = []
     for path in checkpoint_paths:
-        print(f"  Loading {path.name}...")
-        sae = SAEWrapper.load_checkpoint(path)
+        print(f"  Loading {path.parent.name}/{path.name}...")
+        sae = load_sae_from_checkpoint(path, architecture=architecture)
         saes.append(sae)
-    
-    print(f"Successfully loaded {len(saes)} SAEs")
+
+    print(f"✅ Successfully loaded {len(saes)} SAEs")
     return saes
 
 
@@ -96,8 +133,15 @@ def main():
     parser.add_argument(
         "--pattern",
         type=str,
-        default="*.pt",
-        help="Glob pattern for SAE checkpoint files (default: *.pt)"
+        default="*/sae_final.pt",
+        help="Glob pattern for SAE checkpoint files (default: */sae_final.pt)"
+    )
+    parser.add_argument(
+        "--architecture",
+        type=str,
+        default="topk",
+        choices=["topk", "relu"],
+        help="SAE architecture type (default: topk)"
     )
     parser.add_argument(
         "--topk-dir",
@@ -154,8 +198,8 @@ def main():
         print("="*60)
         
         # Load SAEs
-        topk_saes = load_saes_from_dir(args.topk_dir, args.pattern)
-        relu_saes = load_saes_from_dir(args.relu_dir, args.pattern)
+        topk_saes = load_saes_from_dir(args.topk_dir, args.pattern, architecture="topk")
+        relu_saes = load_saes_from_dir(args.relu_dir, args.pattern, architecture="relu")
         
         # Compare architectures
         comparison = compare_architectures(
@@ -182,7 +226,7 @@ def main():
         print("="*60)
         
         # Load SAEs
-        saes = load_saes_from_dir(args.sae_dir, args.pattern)
+        saes = load_saes_from_dir(args.sae_dir, args.pattern, architecture=args.architecture)
         
         # Compute overlap matrix
         print("\nComputing feature overlap matrix...")
