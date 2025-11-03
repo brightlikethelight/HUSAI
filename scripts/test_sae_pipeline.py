@@ -58,7 +58,10 @@ def test_pipeline(transformer_checkpoint: Path, verbose: bool = True):
         config = extras.get("config")
         modulus = config.dataset.modulus if config else 113
         
-        print(f"  ✅ Loaded transformer: {model.n_parameters:,} parameters")
+        # Count parameters manually
+        n_params = sum(p.numel() for p in model.parameters())
+        
+        print(f"  ✅ Loaded transformer: {n_params:,} parameters")
         print(f"  ✅ Modulus: {modulus}")
         results["tests_passed"] += 1
         results["details"]["transformer_load"] = "PASS"
@@ -75,7 +78,7 @@ def test_pipeline(transformer_checkpoint: Path, verbose: bool = True):
         train_loader, _ = create_dataloaders(
             modulus=modulus,
             batch_size=128,
-            train_split=0.9,
+            train_fraction=0.9,
             seed=42
         )
         
@@ -85,10 +88,10 @@ def test_pipeline(transformer_checkpoint: Path, verbose: bool = True):
             for i, (batch, _) in enumerate(train_loader):
                 if i >= 10:  # Just 10 batches for testing
                     break
-                _, cache = model.run_with_cache(batch)
-                act = cache[f"blocks.1.hook_resid_post"]  # Layer 1
+                # Use our get_activations method
+                act = model.get_activations(batch, layer=1, activation_name="resid_post")
                 activations.append(act[:, -2, :])  # Answer position
-        
+
         activations = torch.cat(activations, dim=0)
         
         print(f"  ✅ Extracted activations: {activations.shape}")
