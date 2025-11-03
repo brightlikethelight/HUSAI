@@ -135,8 +135,9 @@ class ModularArithmeticTransformer(nn.Module):
         # Run model with caching
         _, cache = self.model.run_with_cache(tokens)
 
-        # Extract activation
-        activation_key = f"{activation_name}.{layer}"
+        # Extract activation using TransformerLens naming convention
+        # TransformerLens uses format: "blocks.{layer}.hook_{activation_name}"
+        activation_key = f"blocks.{layer}.hook_{activation_name}"
         activations = cache[activation_key]
 
         return activations
@@ -159,7 +160,8 @@ class ModularArithmeticTransformer(nn.Module):
 
         activations_dict = {}
         for layer in range(self.config.n_layers):
-            activation_key = f"{activation_name}.{layer}"
+            # TransformerLens uses format: "blocks.{layer}.hook_{activation_name}"
+            activation_key = f"blocks.{layer}.hook_{activation_name}"
             activations_dict[layer] = cache[activation_key]
 
         return activations_dict
