@@ -1,0 +1,76 @@
+{
+  "modulus": 113,
+  "n_samples": 1000,
+  "checkpoint": "results/transformer_5000ep/transformer_best.pt",
+  "results": [
+    {
+      "location": "embed",
+      "overall_overlap": 0.24832628667354584,
+      "activation_shape": [
+        1000,
+        7,
+        128
+      ],
+      "activation_mean": 0.0005171574302949011,
+      "activation_std": 0.07043983787298203,
+      "n_samples": 1000,
+      "d_model": 128
+    },
+    {
+      "location": "blocks.0.attn",
+      "overall_overlap": 0.25080469250679016,
+      "activation_shape": [
+        1000,
+        7,
+        128
+      ],
+      "activation_mean": -0.027263537049293518,
+      "activation_std": 0.4678172767162323,
+      "n_samples": 1000,
+      "d_model": 128
+    },
+    {
+      "location": "blocks.0.hook_resid_post",
+      "overall_overlap": 0.25910285115242004,
+      "activation_shape": [
+        1000,
+        7,
+        128
+      ],
+      "activation_mean": -0.132985457777977,
+      "activation_std": 1.0763376951217651,
+      "n_samples": 1000,
+      "d_model": 128
+    },
+    {
+      "location": "blocks.1.attn",
+      "overall_overlap": 0.3057194650173187,
+      "activation_shape": [
+        1000,
+        7,
+        128
+      ],
+      "activation_mean": -0.035300154238939285,
+      "activation_std": 0.49315592646598816,
+      "n_samples": 1000,
+      "d_model": 128
+    },
+    {
+      "location": "blocks.1.hook_resid_post",
+      "overall_overlap": 0.2539665102958679,
+      "activation_shape": [
+        1000,
+        7,
+        128
+      ],
+      "activation_mean": -0.1588156670331955,
+      "activation_std": 1.4817674160003662,
+      "n_samples": 1000,
+      "d_model": 128
+    }
+  ],
+  "best_location": "blocks.1.attn",
+  "best_overlap": 0.3057194650173187,
+  "current_sae_location": "blocks.1.hook_resid_post",
+  "current_sae_overlap": 0.2539665102958679
+}
