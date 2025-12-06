@@ -199,49 +199,34 @@ This suggests SAEs learn the RIGHT SUBSPACE but not the RIGHT BASIS within that 
 
 ---
 
-## 🔬 VERIFIED: Layer 0 Results Are Real
+## 🔬 UPDATE: Layer 0 Anomaly RESOLVED
 
-I checked the actual results file:
+**The Layer 0 PWMCC = 0.047 was a COMPUTATION BUG, not a real phenomenon!**
 
-```json
-// results/cross_layer_validation/layer0_stability_results.json
-{
-  "mean_overlap": 0.04663,
-  "std_overlap": 0.00195,
-  "n_saes": 5
-}
-```
+### Root Cause
+The `cross_layer_validation.py` used **activation-based PWMCC**, which fails for TopK SAEs:
+- TopK SAEs activate only k=32 out of 1024 features per sample
+- Each feature is zero for 96.9% of samples
+- Normalizing mostly-zero vectors produces artificially low cosine similarities
 
-**All 10 pairwise comparisons cluster tightly around 0.047:**
-- 42 vs 123: 0.0488
-- 42 vs 456: 0.0479
-- 42 vs 789: 0.0482
-- ... (all between 0.043 and 0.049)
-
-This is NOT noise - it's a systematic phenomenon!
-
----
-
-## 🧠 Interpretation: Why Layer 0 is BELOW Random
-
-The PWMCC uses `.abs()` on cosine similarities, so anti-correlated features (cos=-0.3) would show as 0.3.
-
-Getting 0.047 means features are nearly **ORTHOGONAL** (cos ≈ 0), not anti-correlated!
-
-**This suggests:** Layer 0 SAEs find completely different, orthogonal feature directions across seeds. The optimization landscape at Layer 0 has many equally-good but orthogonal solutions.
-
----
-
-## 📊 The Complete Picture
+### Corrected Results
+Using **decoder-based PWMCC** (the correct method):
 
 | Layer | Trained PWMCC | Random PWMCC | Interpretation |
 |-------|---------------|--------------|----------------|
-| Layer 0 | 0.047 | 0.30 | **6× BELOW random** - orthogonal features |
-| Layer 1 | 0.302 | 0.30 | **AT random** - no learning above chance |
+| Layer 0 | **0.309** | 0.30 | **AT random** |
+| Layer 1 | 0.302 | 0.30 | **AT random** |
 
-**The story isn't "SAEs are unstable" - it's "SAE learning dynamics are layer-dependent":**
-- Layer 0: SAEs find orthogonal solutions (BELOW random)
-- Layer 1: SAEs don't converge (AT random)
+### Key Insight
+**ALL layers show random-baseline stability.** There are NO layer-dependent effects.
+SAE instability is universal across the transformer.
+
+### Methodological Lesson
+For TopK SAEs (or any sparse SAEs):
+- ❌ **Don't use** activation-based PWMCC
+- ✅ **Do use** decoder-based PWMCC (compares decoder weight columns directly)
+
+See `LAYER0_DIAGNOSIS.md` for full investigation details.
 
 ---
 
