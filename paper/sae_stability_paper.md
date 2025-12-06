@@ -215,12 +215,27 @@ Features start at random baseline (0.30) and monotonically increase throughout t
 
 ### 4.7 Architectural Comparison
 
-Unlike Paulo & Belrose (2025) who found TopK more unstable than ReLU on LLMs, we observe no practical difference. This suggests two possibilities:
+Unlike Paulo & Belrose (2025) who found TopK more unstable than ReLU on LLMs, we observe no practical difference in PWMCC. However, **feature sensitivity differs dramatically**:
 
-1. On simpler, more constrained tasks, architectural differences become negligible
-2. With matched sparsity levels (L0 = 32 for TopK, L0 ≈ 427 for ReLU but both optimized), the training dynamics converge
+| Architecture | PWMCC | Sensitivity |
+|--------------|-------|-------------|
+| TopK | 0.302 | 0.059 |
+| ReLU | 0.300 | 0.465 |
 
-Further investigation would require testing across multiple complexity levels and sparsity configurations.
+TopK features show very low sensitivity (6%), meaning they rarely activate on semantically similar inputs. ReLU features show moderate sensitivity (47%), suggesting better generalization. This may be because TopK's explicit sparsity constraint forces features to be more input-specific.
+
+### 4.8 Intervention Validation: Instability ≠ Failure
+
+A critical finding: **unstable features have significant causal effects**.
+
+We selected 10 stable features (high PWMCC) and 10 unstable features (low PWMCC), then measured accuracy drop when ablating each feature:
+
+| Feature Type | Mean Effect | p-value |
+|--------------|-------------|---------|
+| Stable | 0.073 ± 0.056 | - |
+| Unstable | 0.047 ± 0.041 | 0.008 |
+
+Unstable features show significant causal effects (t=3.43, p=0.008), and effect sizes are not significantly different from stable features (p=0.29). This demonstrates that **instability does not mean the features are wrong**—different decompositions can all be causally valid.
 
 ---
 
