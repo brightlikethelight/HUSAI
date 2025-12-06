@@ -231,16 +231,20 @@ Unlike Paulo & Belrose (2025) who found TopK more unstable than ReLU on LLMs, we
 
 Both architectures achieve random-baseline PWMCC, suggesting the instability is fundamental to the reconstruction objective rather than architecture-specific.
 
-### 4.8 Causal Importance of Features
+### 4.8 Expansion Factor Analysis
 
-We attempted to measure causal importance via single-feature ablation. However, proper causal ablation (using TransformerLens hooks to modify activations during forward pass) showed **zero measurable effect** for both stable and unstable features.
+A key finding: **smaller SAEs show better stability relative to random baseline**.
 
-This null result is likely due to:
-1. The model achieving 100% accuracy, leaving no room for accuracy drops
-2. Single-feature ablation being negligible (1/1024 features)
-3. Information being distributed across many features
+| Expansion | d_sae | Trained PWMCC | Random PWMCC | Ratio |
+|-----------|-------|---------------|--------------|-------|
+| 0.5× | 64 | 0.338 | 0.227 | **1.49×** |
+| 1.0× | 128 | 0.314 | 0.246 | **1.28×** |
+| 2.0× | 256 | 0.289 | 0.266 | 1.09× |
+| 8.0× | 1024 | 0.322 | 0.299 | 1.08× |
 
-**Methodological note:** An earlier analysis using a proxy metric (activation magnitude × variance) suggested non-zero "effects," but this metric does not measure actual causal importance. We caution against interpreting activation statistics as causal evidence.
+The activations have effective rank ~80, but our 8× expansion SAE has 1024 features (12.7× the effective rank). This over-parameterization leads to many redundant features that can be assigned arbitrarily.
+
+**Tradeoff:** Smaller SAEs have better stability but worse reconstruction (MSE 0.73 at 0.5× vs 0.02 at 8×). The optimal expansion factor depends on the balance between interpretability and reconstruction quality.
 
 ---
 
