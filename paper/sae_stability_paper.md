@@ -152,12 +152,19 @@ This demonstrates complete decoupling between reconstruction quality and feature
 
 ### 4.3 Validation Against Literature
 
-Our PWMCC~0.30 finding validates Paulo & Belrose's (2025) observation of 30% feature sharing in large language models, now confirmed in a controlled setting. This cross-validates the phenomenon across:
-- Model scales (8B parameters → 300K parameters)
-- Tasks (language modeling → modular arithmetic)
-- Architectures (standard transformer → grokking transformer)
+Our PWMCC~0.30 finding relates to Paulo & Belrose's (2025) observation of feature instability in large language models. However, our results are **more extreme**:
 
-The consistency across these dimensions suggests feature instability is fundamental to SAE training dynamics, not specific to any particular setting.
+| Metric | Our Results | Paulo & Belrose (LLMs) |
+|--------|-------------|------------------------|
+| Mean matched similarity | 0.29 | ~0.5-0.7 |
+| % shared (>0.5) | **0%** | ~65% |
+| % shared (>0.7) | **0%** | ~35% |
+
+Using Hungarian matching (optimal 1-to-1 feature alignment), we find **zero features** exceed 0.5 cosine similarity across seeds. This suggests modular arithmetic SAEs exhibit even greater instability than LLM SAEs, possibly because:
+
+1. The task is simpler, admitting more equivalent solutions
+2. The model is smaller, with less structure to constrain features
+3. The SAE expansion factor (8×) may be excessive for the task complexity
 
 ### 4.4 Evidence for Underconstrained Reconstruction
 
