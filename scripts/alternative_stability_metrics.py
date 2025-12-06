@@ -38,7 +38,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from src.models.simple_sae import TopKSAE, ReLUSAE
 from src.models.transformer import ModularArithmeticTransformer
 from src.data.modular_arithmetic import create_dataloaders
-from src.utils.config import ExperimentConfig
 
 # Paths
 BASE_DIR = Path(__file__).parent.parent
@@ -78,8 +77,18 @@ class MetricResults:
     topk_overlap: float = None
 
 
-def load_transformer():
-    """Load the trained transformer model."""
+def get_activations(p=113, layer_idx=1, position=2, max_samples=5000):
+    """Extract activations from transformer.
+
+    Args:
+        p: Modulus for dataset
+        layer_idx: Which layer to extract from
+        position: Which position (2 = after op token)
+        max_samples: Maximum number of samples to extract
+
+    Returns:
+        Tensor of shape [n_samples, d_model]
+    """
     # Try multiple possible paths
     possible_paths = [
         RESULTS_DIR / 'checkpoints' / 'transformer_grokking.pt',
@@ -96,73 +105,39 @@ def load_transformer():
     if model_path is None:
         raise FileNotFoundError(f"Transformer model not found in any of: {possible_paths}")
 
-    checkpoint = torch.load(model_path, map_location=DEVICE)
-
-    # Create a minimal experiment config with just the transformer architecture
-    config_dict = checkpoint['config']
-
-    # Create ExperimentConfig with minimal required fields
-    from src.utils.config import TransformerConfig as TConfig, ModularArithmeticConfig, SAEConfig as SConfig
-
-    transformer_config = TConfig(**config_dict)
-
-    # Create a minimal experiment config
-    full_config = ExperimentConfig(
-        experiment_name="eval",
-        wandb_project="eval",
-        save_dir=str(RESULTS_DIR),
-        checkpoint_frequency=1000,
-        log_frequency=100,
-        dataset=ModularArithmeticConfig(modulus=113, num_samples=5000, train_split=0.5, seed=42),
-        transformer=transformer_config,
-        sae=SConfig(
-            architecture="topk",
-            input_dim=config_dict['d_model'],
-            expansion_factor=8,
-            k=32
-        )
-    )
-
-    model = ModularArithmeticTransformer(full_config, device=DEVICE)
-    model.model.load_state_dict(checkpoint['model_state_dict'])
+    # Load model using ModularArithmeticTransformer's load_checkpoint method
+    model, _ = ModularArithmeticTransformer.load_checkpoint(model_path, device=DEVICE)
     model.eval()
-
     print(f"  ✓ Loaded transformer from {model_path}")
 
-    return model
-
-
-def get_activations(p=113, layer_idx=1, position=2, max_samples=5000):
-    """Extract activations from transformer.
-
-    Args:
-        p: Modulus for dataset
-        layer_idx: Which layer to extract from
-        position: Which position (2 = after op token)
-        max_samples: Maximum number of samples to extract
-
-    Returns:
-        Tensor of shape [n_samples, d_model]
-    """
-    # Load model
-    model = load_transformer()
-
     # Create dataset
-    train_loader, _ = create_dataloaders(p=p, batch_size=256, device=DEVICE)
+    train_loader, _ = create_dataloaders(
+        modulus=p,
+        fraction=1.0,
+        train_fraction=0.8,
+        batch_size=256,
+        seed=42,
+        format="sequence",
+        num_workers=0
+    )
 
     activations = []
     n_samples = 0
 
     with torch.no_grad():
-        for batch_data in train_loader:
-            # Unpack based on what create_dataloaders returns
-            if isinstance(batch_data, tuple):
-                x_batch, y_batch = batch_data
+        for batch in train_loader:
+            # Unpack the batch (x, y)
+            if isinstance(batch, (list, tuple)):
+                x_batch = batch[0]
             else:
-                x_batch = batch_data['input_ids']
+                x_batch = batch
 
             x_batch = x_batch.to(DEVICE)
+
+            # Get activations using the model's method
             layer_acts = model.get_activations(x_batch, layer=layer_idx)
+
+            # Extract specific position
             position_acts = layer_acts[:, position, :]
             activations.append(position_acts.cpu())
 
