@@ -102,7 +102,7 @@ def load_transformer():
     config_dict = checkpoint['config']
 
     # Create ExperimentConfig with minimal required fields
-    from src.utils.config import TransformerConfig as TConfig, DatasetConfig, SAEConfig
+    from src.utils.config import TransformerConfig as TConfig, ModularArithmeticConfig, SAEConfig as SConfig
 
     transformer_config = TConfig(**config_dict)
 
@@ -113,9 +113,9 @@ def load_transformer():
         save_dir=str(RESULTS_DIR),
         checkpoint_frequency=1000,
         log_frequency=100,
-        dataset=DatasetConfig(p=113, frac_train=0.5),
+        dataset=ModularArithmeticConfig(modulus=113, num_samples=5000, train_split=0.5, seed=42),
         transformer=transformer_config,
-        sae=SAEConfig(
+        sae=SConfig(
             architecture="topk",
             input_dim=config_dict['d_model'],
             expansion_factor=8,
