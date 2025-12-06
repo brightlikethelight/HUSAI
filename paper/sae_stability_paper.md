@@ -347,7 +347,7 @@ Our study has several limitations:
 
 1. **Limited seeds:** While 5 seeds per architecture with tight variance suggest robust phenomena, larger-scale studies may reveal additional nuances.
 
-2. **Single task:** We focus on modular arithmetic. While this validates Paulo & Belrose's LLM findings in a controlled setting, real language models may exhibit different stability profiles.
+2. **Simple tasks only:** We tested modular arithmetic and sequence copying—both simple algorithmic tasks. While we validated task-independence within this class, real language models with semantic structure may exhibit different stability profiles (as suggested by Paulo & Belrose's 65% shared features on LLMs).
 
 3. **Two architectures:** We tested TopK and ReLU, but other variants (e.g., Gated SAEs, JumpReLU) remain unexplored.
 
@@ -379,19 +379,29 @@ Song et al.'s (2025) demonstration that 0.80 PWMCC is achievable shows this prob
 
 ## References
 
-[To be filled with full citations]
+- Paulo, G., & Belrose, N. (2025). Sparse Autoencoders Trained on the Same Data Learn Different Features. *arXiv:2501.16615*. https://arxiv.org/abs/2501.16615
 
-- Paulo & Belrose (2025). arXiv:2501.16615
-- Song et al. (2025). arXiv:2505.20254
-- Templeton et al. (2024). Scaling Monosemanticity
-- Gao et al. (2024). Scaling Sparse Autoencoders
-- Bricken et al. (2023). Towards Monosemanticity
-- Cunningham et al. (2023). Sparse Autoencoders Find Interpretable Features
-- Nanda et al. (2023). Progress measures for grokking
-- Power et al. (2022). Grokking
-- Elhage et al. (2022). Toy Models of Superposition
-- Olah (2023). Mechanistic interpretability blog post
-- Olshausen & Field (1996). Emergence of simple-cell receptive field properties by learning a sparse code for natural images. Nature, 381(6583), 607-609.
+- Song, X., et al. (2025). Feature Consistency in Sparse Autoencoders. *arXiv:2505.20254*. https://arxiv.org/abs/2505.20254
+
+- Li, T. E., & Ren, J. (2025). Time-Aware Feature Selection: Adaptive Temporal Masking for Stable Sparse Autoencoder Training. *arXiv:2510.08855*. https://arxiv.org/abs/2510.08855
+
+- Zhang, Y., et al. (2025). Interpretability Illusions with Sparse Autoencoders: Evaluating Robustness of Concept Representations. *arXiv:2505.16004*. https://arxiv.org/abs/2505.16004
+
+- Templeton, A., et al. (2024). Scaling Monosemanticity: Extracting Interpretable Features from Claude 3 Sonnet. Anthropic.
+
+- Gao, L., et al. (2024). Scaling and Evaluating Sparse Autoencoders. OpenAI. *arXiv:2406.04093*.
+
+- Bricken, T., et al. (2023). Towards Monosemanticity: Decomposing Language Models With Dictionary Learning. Anthropic.
+
+- Cunningham, H., et al. (2023). Sparse Autoencoders Find Highly Interpretable Features in Language Models. *arXiv:2309.08600*. https://arxiv.org/abs/2309.08600
+
+- Nanda, N., et al. (2023). Progress measures for grokking via mechanistic interpretability. *ICLR 2023*.
+
+- Power, A., et al. (2022). Grokking: Generalization beyond overfitting on small algorithmic datasets. *arXiv:2201.02177*.
+
+- Elhage, N., et al. (2022). Toy Models of Superposition. Anthropic.
+
+- Olshausen, B. A., & Field, D. J. (1996). Emergence of simple-cell receptive field properties by learning a sparse code for natural images. *Nature*, 381(6583), 607-609.
 
 ---
 
