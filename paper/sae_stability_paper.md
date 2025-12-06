@@ -215,27 +215,25 @@ Features start at random baseline (0.30) and monotonically increase throughout t
 
 ### 4.7 Architectural Comparison
 
-Unlike Paulo & Belrose (2025) who found TopK more unstable than ReLU on LLMs, we observe no practical difference in PWMCC. However, **feature sensitivity differs dramatically**:
+Unlike Paulo & Belrose (2025) who found TopK more unstable than ReLU on LLMs, we observe no practical difference in PWMCC:
 
-| Architecture | PWMCC | Sensitivity |
-|--------------|-------|-------------|
-| TopK | 0.302 | 0.059 |
-| ReLU | 0.300 | 0.465 |
+| Architecture | PWMCC | Sparsity (L0) |
+|--------------|-------|---------------|
+| TopK | 0.302 | 32 (fixed) |
+| ReLU | 0.300 | ~400 |
 
-TopK features show very low sensitivity (6%), meaning they rarely activate on semantically similar inputs. ReLU features show moderate sensitivity (47%), suggesting better generalization. This may be because TopK's explicit sparsity constraint forces features to be more input-specific.
+Both architectures achieve random-baseline PWMCC, suggesting the instability is fundamental to the reconstruction objective rather than architecture-specific.
 
-### 4.8 Intervention Validation: Instability ≠ Failure
+### 4.8 Causal Importance of Features
 
-A critical finding: **unstable features have significant causal effects**.
+We attempted to measure causal importance via single-feature ablation. However, proper causal ablation (using TransformerLens hooks to modify activations during forward pass) showed **zero measurable effect** for both stable and unstable features.
 
-We selected 10 stable features (high PWMCC) and 10 unstable features (low PWMCC), then measured accuracy drop when ablating each feature:
+This null result is likely due to:
+1. The model achieving 100% accuracy, leaving no room for accuracy drops
+2. Single-feature ablation being negligible (1/1024 features)
+3. Information being distributed across many features
 
-| Feature Type | Mean Effect | p-value |
-|--------------|-------------|---------|
-| Stable | 0.073 ± 0.056 | - |
-| Unstable | 0.047 ± 0.041 | 0.008 |
-
-Unstable features show significant causal effects (t=3.43, p=0.008), and effect sizes are not significantly different from stable features (p=0.29). This demonstrates that **instability does not mean the features are wrong**—different decompositions can all be causally valid.
+**Methodological note:** An earlier analysis using a proxy metric (activation magnitude × variance) suggested non-zero "effects," but this metric does not measure actual causal importance. We caution against interpreting activation statistics as causal evidence.
 
 ---
 
