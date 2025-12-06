@@ -360,20 +360,30 @@ def compute_expanded_pwmcc(arch: str, seeds: List[int]) -> Dict:
     decoders = {}
     for seed in seeds:
         if arch == 'topk':
-            sae_path = SAE_DIR / f'topk_seed{seed}' / 'sae.pt'
-            if not sae_path.exists():
-                # Try old naming convention
-                sae_path = SAE_DIR / f'topk_seed{seed}' / 'sae_best.pt'
+            # Try multiple naming conventions
+            possible_paths = [
+                SAE_DIR / f'topk_seed{seed}' / 'sae.pt',
+                SAE_DIR / f'topk_seed{seed}' / 'sae_final.pt',
+                SAE_DIR / f'topk_seed{seed}' / 'sae_best.pt',
+            ]
         else:
-            sae_path = SAE_DIR / f'relu_seed{seed}' / 'sae.pt'
-            if not sae_path.exists():
-                sae_path = SAE_DIR / f'relu_seed{seed}' / 'sae_best.pt'
+            possible_paths = [
+                SAE_DIR / f'relu_seed{seed}' / 'sae.pt',
+                SAE_DIR / f'relu_seed{seed}' / 'sae_final.pt',
+                SAE_DIR / f'relu_seed{seed}' / 'sae_best.pt',
+            ]
         
-        if sae_path.exists():
+        sae_path = None
+        for p in possible_paths:
+            if p.exists():
+                sae_path = p
+                break
+        
+        if sae_path is not None:
             checkpoint = torch.load(sae_path, map_location='cpu')
             decoders[seed] = checkpoint['model_state_dict']['decoder.weight']
         else:
-            print(f"  Warning: {sae_path} not found")
+            print(f"  Warning: No SAE found for {arch} seed {seed}")
     
     # Compute pairwise PWMCC
     seed_list = sorted(decoders.keys())
