@@ -254,6 +254,8 @@ The activations have effective rank ~80, but our 8× expansion SAE has 1024 feat
 
 Our random baseline finding fundamentally reframes the SAE stability problem. Prior work described feature consistency as "low" (Paulo & Belrose, 2025) and sought to improve it (Song et al., 2025). Our results reveal the situation is more severe: consistency is not merely low—**it equals chance**.
 
+**Why our results are more extreme than Paulo & Belrose:** They found ~65% of features shared (>0.5 similarity) on LLMs, while we find 0%. Analysis reveals the root cause: our SAE features have **no interpretable structure**. Feature correlations with input variables (a, b, answer) are essentially zero (max |r| = 0.23). In LLMs, features often correspond to interpretable concepts that different SAEs converge to. In modular arithmetic, there's no such structure—features are arbitrary bases for reconstruction. This suggests **SAE stability is task-dependent**: complex tasks with interpretable structure may show higher stability than simple tasks without it.
+
 This reframing has three critical implications:
 
 1. **The problem is not optimization failure:** SAEs achieve excellent reconstruction (MSE 4-8× better than random), indicating training successfully optimizes the stated objective. The issue is that the objective itself is underconstrained—it admits infinitely many solutions corresponding to different feature bases.
