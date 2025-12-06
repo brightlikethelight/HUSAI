@@ -190,7 +190,25 @@ Both layers show identical random-baseline behavior, demonstrating that SAE inst
 
 **Methodological note:** Initial measurements using activation-based PWMCC showed an apparent Layer 0 anomaly (PWMCC = 0.047). Investigation revealed this was a measurement artifact: for TopK SAEs with k=32, only 3.1% of features are active per sample, causing activation-based PWMCC to fail. Decoder-based PWMCC (comparing decoder weight columns directly) is the correct method for sparse SAEs and shows consistent results across layers.
 
-### 4.6 Architectural Comparison
+### 4.6 Training Dynamics: Features Converge During Training
+
+A critical finding from our training dynamics analysis: **SAE features CONVERGE during training**, not diverge.
+
+| Epoch | Average PWMCC | Interpretation |
+|-------|---------------|----------------|
+| 0 | 0.300 | Random baseline |
+| 20 | 0.320 | +7% above random |
+| 50 | 0.358 | +20% above random |
+
+Features start at random baseline (0.30) and monotonically increase throughout training. After 50 epochs, PWMCC reaches 0.36—modest but meaningful improvement over random.
+
+**Implications:**
+1. Training duration matters for stability
+2. SAEs CAN learn some consistent structure
+3. The improvement is modest (~20%) and far below the 0.70 target
+4. Longer training may further improve stability
+
+### 4.7 Architectural Comparison
 
 Unlike Paulo & Belrose (2025) who found TopK more unstable than ReLU on LLMs, we observe no practical difference. This suggests two possibilities:
 
