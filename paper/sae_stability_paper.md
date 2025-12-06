@@ -197,10 +197,15 @@ A critical finding from our training dynamics analysis: **SAE features CONVERGE 
 | Epoch | Average PWMCC | Interpretation |
 |-------|---------------|----------------|
 | 0 | 0.300 | Random baseline |
-| 20 | 0.320 | +7% above random |
-| 50 | 0.358 | +20% above random |
+| 20 | 0.302 | +0.7% above random |
+| 50 | 0.357 | +19% above random |
 
 Features start at random baseline (0.30) and monotonically increase throughout training. After 50 epochs, PWMCC reaches 0.36—modest but meaningful improvement over random.
+
+**Validation:** We trained 4 additional SAEs with 50 epochs and compared to the original 5 SAEs (20 epochs):
+- Old SAEs (20 epochs): PWMCC = 0.302 ± 0.001
+- New SAEs (50 epochs): PWMCC = 0.357 ± 0.001
+- Improvement: +18.2%
 
 **Implications:**
 1. Training duration matters for stability
