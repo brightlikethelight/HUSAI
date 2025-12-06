@@ -248,20 +248,34 @@ Unlike Paulo & Belrose (2025) who found TopK more unstable than ReLU on LLMs, we
 
 Both architectures achieve random-baseline PWMCC, suggesting the instability is fundamental to the reconstruction objective rather than architecture-specific.
 
-### 4.9 Expansion Factor Analysis
+### 4.9 Complete Effective Rank Study
 
-A key finding: **smaller SAEs show better stability relative to random baseline**.
+A comprehensive study across all parameterization regimes reveals a **stability-reconstruction tradeoff**:
 
-| Expansion | d_sae | Trained PWMCC | Random PWMCC | Ratio |
-|-----------|-------|---------------|--------------|-------|
-| 0.5× | 64 | 0.338 | 0.227 | **1.49×** |
-| 1.0× | 128 | 0.314 | 0.246 | **1.28×** |
-| 2.0× | 256 | 0.289 | 0.266 | 1.09× |
-| 8.0× | 1024 | 0.322 | 0.299 | 1.08× |
+**Effective rank of activations: ~80**
 
-The activations have effective rank ~80, but our 8× expansion SAE has 1024 features (12.7× the effective rank). This over-parameterization leads to many redundant features that can be assigned arbitrarily.
+| Regime | d_sae | k | PWMCC | Ratio to Random | Recon Loss |
+|--------|-------|---|-------|-----------------|------------|
+| **Under** | 16 | 4 | 0.513 | **2.87×** | 1.124 |
+| **Under** | 32 | 8 | 0.454 | **2.22×** | 0.587 |
+| **Under** | 48 | 12 | 0.406 | **1.87×** | 0.333 |
+| **Matched** | 64 | 16 | 0.373 | **1.62×** | 0.203 |
+| **Matched** | 80 | 20 | 0.355 | **1.51×** | 0.133 |
+| **Matched** | 96 | 24 | 0.333 | **1.40×** | 0.093 |
+| **Matched** | 128 | 32 | 0.304 | **1.23×** | 0.052 |
+| **Over** | 256 | 32 | 0.291 | 1.09× | 0.026 |
+| **Over** | 512 | 32 | 0.295 | 1.04× | 0.028 |
+| **Over** | 1024 | 32 | 0.304 | 1.02× | 0.034 |
 
-**Tradeoff:** Smaller SAEs have better stability but worse reconstruction (MSE 0.73 at 0.5× vs 0.02 at 8×). The optimal expansion factor depends on the balance between interpretability and reconstruction quality.
+**Key findings:**
+
+1. **Underparameterized regime (d_sae < eff_rank):** Highest stability (up to 2.87× random) but poor reconstruction quality. The SAE is forced to learn the most important features consistently.
+
+2. **Matched regime (d_sae ≈ eff_rank):** Good balance of stability (1.23-1.62× random) and reconstruction. This confirms Song et al. (2025)'s theoretical prediction.
+
+3. **Overparameterized regime (d_sae > eff_rank):** Stability ≈ random baseline (1.02-1.09×). Excess capacity allows arbitrary feature assignments.
+
+**The stability-reconstruction tradeoff:** Practitioners must choose between high stability (small SAEs) and good reconstruction (large SAEs). The matched regime offers the best balance.
 
 ---
 
