@@ -38,6 +38,8 @@ sys.path.insert(0, str(BASE_DIR))
 
 from src.models.transformer import ModularArithmeticTransformer
 from src.data.modular_arithmetic import create_dataloaders
+from src.models.simple_sae import TopKSAE
+from src.training.train_sae import train_sae as train_sae_loop, SAETrainingMetrics
 import torch.nn as nn
 import torch.optim as optim
 
@@ -94,7 +96,10 @@ def compute_pwmcc_decoder(decoder1: torch.Tensor, decoder2: torch.Tensor) -> flo
 
 
 def load_decoder_from_checkpoint(checkpoint_path: Path) -> torch.Tensor:
-    """Load decoder weights from SAE checkpoint."""
+    """Load decoder weights from SAE checkpoint.
+
+    Returns decoder weights in shape [d_model, d_sae] for PWMCC computation.
+    """
     checkpoint = torch.load(checkpoint_path, map_location='cpu')
 
     # Handle different checkpoint formats
@@ -105,11 +110,12 @@ def load_decoder_from_checkpoint(checkpoint_path: Path) -> torch.Tensor:
     else:
         state_dict = checkpoint
 
-    # SAELens stores decoder as W_dec [d_sae, d_in], but we need [d_in, d_sae]
-    if 'W_dec' in state_dict:
-        return state_dict['W_dec'].T
-    elif 'decoder.weight' in state_dict:
+    # TopKSAE stores decoder as decoder.weight [d_model, d_sae]
+    if 'decoder.weight' in state_dict:
         return state_dict['decoder.weight']
+    # SAELens stores decoder as W_dec [d_sae, d_in], need to transpose
+    elif 'W_dec' in state_dict:
+        return state_dict['W_dec'].T
     else:
         raise KeyError(f"Could not find decoder weights in checkpoint: {list(state_dict.keys())}")
 
@@ -213,42 +219,126 @@ def train_sae_with_checkpoints(
 
     # Get dimensions
     num_samples, d_model = activations.shape
+    d_sae = d_model * EXPANSION_FACTOR
 
-    # Create SAE config
-    config = SAEConfig(
-        architecture="topk",
-        input_dim=d_model,
-        expansion_factor=EXPANSION_FACTOR,
-        sparsity_level=K,
-        learning_rate=LEARNING_RATE,
-        batch_size=BATCH_SIZE,
-        num_epochs=NUM_EPOCHS,
-        k=K,
-        seed=seed
-    )
+    # Set seed
+    torch.manual_seed(seed)
+    np.random.seed(seed)
 
-    # Create SAE
+    # Create TopK SAE
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    sae = TopKSAE(d_model=d_model, d_sae=d_sae, k=K)
+    sae = sae.to(device)
+
     if verbose:
         print(f"\nTraining SAE (seed={seed}) on {device}...")
         print(f"  Input dim: {d_model}")
-        print(f"  SAE dim: {d_model * EXPANSION_FACTOR}")
+        print(f"  SAE dim: {d_sae}")
         print(f"  Num samples: {num_samples}")
         print(f"  Epochs: {NUM_EPOCHS}")
         print(f"  Checkpoint freq: {CHECKPOINT_FREQ}")
 
-    # Train with checkpointing
-    sae = create_sae(config, device=device)
-    metrics = train_sae(
-        sae=sae,
-        activations=activations,
-        config=config,
-        use_wandb=False,
-        device=device,
-        checkpoint_dir=checkpoint_dir,
-        checkpoint_freq=CHECKPOINT_FREQ,
-        verbose=verbose
+    # Move activations to device
+    activations = activations.to(device)
+
+    # Create dataloader
+    from torch.utils.data import DataLoader, TensorDataset
+    dataset = TensorDataset(activations)
+    # Only drop_last if we have enough data
+    drop_last = len(activations) > BATCH_SIZE
+    dataloader = DataLoader(
+        dataset,
+        batch_size=BATCH_SIZE,
+        shuffle=True,
+        drop_last=drop_last
     )
+
+    # Create optimizer
+    optimizer = torch.optim.Adam(sae.parameters(), lr=LEARNING_RATE)
+
+    # Initialize metrics
+    metrics = SAETrainingMetrics()
+
+    # Training loop with checkpointing
+    for epoch in range(NUM_EPOCHS):
+        sae.train()
+        sae.reset_feature_counts()
+
+        epoch_loss = 0.0
+        epoch_l0 = 0.0
+        num_batches = 0
+
+        pbar = tqdm(dataloader, desc=f"Epoch {epoch+1}/{NUM_EPOCHS}", disable=not verbose)
+
+        for (batch,) in pbar:
+            batch = batch.to(device)
+
+            # Forward pass
+            reconstruction, latents, aux_loss = sae(batch)
+
+            # MSE loss
+            mse_loss = F.mse_loss(reconstruction, batch)
+
+            # Total loss
+            loss = mse_loss + aux_loss
+
+            # Backward
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            # Normalize decoder (critical!)
+            sae.normalize_decoder()
+
+            # Metrics
+            l0 = sae.get_l0(latents)
+            epoch_loss += loss.item()
+            epoch_l0 += l0
+            num_batches += 1
+
+            pbar.set_postfix({'loss': f'{loss.item():.4f}', 'l0': f'{l0:.1f}'})
+
+        # Epoch averages
+        if num_batches == 0:
+            raise ValueError(f"No batches processed! Dataset size: {len(activations)}, Batch size: {BATCH_SIZE}")
+        avg_loss = epoch_loss / num_batches
+        avg_l0 = epoch_l0 / num_batches
+
+        # Compute explained variance
+        with torch.no_grad():
+            sample_acts = activations[:min(1000, len(activations))]
+            sample_recon, _, _ = sae(sample_acts)
+            mse = F.mse_loss(sample_recon, sample_acts)
+            data_var = sample_acts.var()
+            explained_var = 1 - (mse / data_var)
+
+        # Dead neurons
+        dead_neurons = sae.get_dead_neurons()
+        dead_pct = len(dead_neurons) / d_sae * 100
+
+        # Record metrics
+        metrics.loss.append(avg_loss)
+        metrics.l0.append(avg_l0)
+        metrics.explained_variance.append(explained_var.item())
+        metrics.dead_neuron_count.append(len(dead_neurons))
+        metrics.dead_neuron_pct.append(dead_pct)
+
+        if verbose:
+            print(f"  Epoch {epoch+1}: Loss={avg_loss:.4f}, L0={avg_l0:.2f}, "
+                  f"ExplVar={explained_var:.4f}, Dead={dead_pct:.1f}%")
+
+        # Save checkpoint
+        if (epoch + 1) % CHECKPOINT_FREQ == 0:
+            checkpoint_path = checkpoint_dir / f"sae_epoch_{epoch+1}.pt"
+            sae.save(checkpoint_path)
+            if verbose:
+                print(f"  ✓ Checkpoint saved: {checkpoint_path}")
+
+    # Save final checkpoint
+    final_path = checkpoint_dir / "sae_final.pt"
+    sae.save(final_path)
+    if verbose:
+        print(f"  ✓ Final checkpoint saved: {final_path}")
 
     return metrics
 

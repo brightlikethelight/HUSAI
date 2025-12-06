@@ -1,131 +1,75 @@
 # HUSAI: Hunting for Stable AI Features
 
-> **Investigating the reproducibility crisis in sparse autoencoders and finding the path to stable, interpretable AI**
+> **Investigating the reproducibility crisis in sparse autoencoders and discovering the conditions for stable, interpretable features**
 
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
 [![PyTorch 2.5.1](https://img.shields.io/badge/PyTorch-2.5.1-EE4C2C.svg)](https://pytorch.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Status](https://img.shields.io/badge/Status-Foundation_Complete_(20%25)-yellow)
-![Phase](https://img.shields.io/badge/Phase-Implementation_Starting-blue)
+![Status](https://img.shields.io/badge/Status-Research_Complete-green)
 
 ---
 
-## 🎯 The Problem
+## 🔬 Key Findings
 
-In January 2025, a bombshell paper revealed that **Sparse Autoencoders (SAEs) trained on identical data with different random seeds learn entirely different features** — with only ~30% overlap. This is like taking two identical MRI machines, scanning the same brain, and getting completely different images.
+Our research confirms and extends the findings of Paulo & Belrose (2025) on SAE feature instability, while identifying **critical conditions for achieving stability**:
 
-If the features we're finding are just artifacts of our measurement process rather than real properties of neural networks, then the entire field of mechanistic interpretability might be built on shaky ground.
+### 1. The Matched Regime Insight (Song et al. 2025)
 
-**Our mission:** Determine whether there's a "Goldilocks zone" where SAEs actually converge to stable, meaningful features.
+SAE stability depends critically on matching dictionary size to the effective rank of activations:
 
----
+| Configuration | d_sae | Effective Rank | PWMCC | Ratio to Random |
+|---------------|-------|----------------|-------|-----------------|
+| **Matched (small)** | 64 | ~80 | 0.422 | **1.83×** |
+| **Matched (medium)** | 128 | ~80 | 0.341 | **1.38×** |
+| Overparameterized | 1024 | ~80 | 0.307 | 1.03× |
 
-## 🔬 Our Approach
+**Key insight:** When `d_sae ≈ effective_rank`, stability improves by 38-83% over random baseline!
 
-We're taking a systematic, ground-truth-based approach:
+### 2. Model Quality Matters
 
-### Phase 0: Foundation ✅ (Week 1 - COMPLETE)
-- Production-ready modular arithmetic dataset with 2 token formats
-- Pydantic configuration system with validation
-- 85 passing tests
-- Comprehensive documentation
+Stability correlates with how well the underlying model has learned the task:
 
-### Phase 1: Implementation 🔄 (Weeks 2-4 - IN PROGRESS)
-- Transformer model + training loop
-- SAE architectures (ReLU, TopK, BatchTopK)
-- W&B experiment tracking
-- Initial validation experiments
+| Task | Model Accuracy | PWMCC | Stability Ratio |
+|------|---------------|-------|-----------------|
+| Multiplication | 99.3% | 0.392 | **1.57×** |
+| Addition | 66% | 0.312 | 1.25× |
+| Combined | 87% | 0.295 | 1.18× |
 
-### Phase 2: Controlled Experiments 📋 (Weeks 5-10 - PLANNED)
-- Train **50+ SAEs** on modular arithmetic tasks where we know the "right answer" (Fourier transforms)
-- Systematically vary: random seeds, architectures (ReLU, TopK, BatchTopK), sparsity levels, widths
-- Track complete training trajectories — when do features crystallize vs diverge?
+### 3. Modular Arithmetic Shows Extreme Instability
 
-### Phase 3: Deep Analysis 📋 (Weeks 11-16 - PLANNED)
-- Measure feature consistency across seeds using state-of-the-art matching algorithms (PW-MCC, MMCS)
-- Test whether SAEs recover known Fourier circuits
-- Explore geometric structure of learned feature spaces
+For modular arithmetic tasks with overparameterized SAEs:
+- **PWMCC ≈ 0.30** (indistinguishable from random baseline)
+- **0% shared features** above 0.5 similarity threshold
+- This contrasts with Paulo & Belrose's ~65% shared features in LLM SAEs
 
-### Phase 4: Building Better Tools 📋 (Weeks 17-20 - PLANNED)
-- If Goldilocks zone exists: create guidelines for reproducible SAE training
-- If features remain unstable: develop metrics to characterize uncertainty
-- Open-source everything with clean, reusable code
+**Root cause:** Modular arithmetic activations lack the interpretable structure found in LLM activations.
 
 ---
 
-## 🚀 Quick Start
+## 📊 Experimental Results
 
-### Prerequisites
-- Python 3.11
-- CUDA 11.8 or 12.1 (for GPU support)
-- conda/miniconda
+### Stability-Aware Training Dynamics
 
-### Installation
+![Stability Training](figures/stability_aware_training.pdf)
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/brightlikethelight/HUSAI.git
-   cd HUSAI
-   ```
+Training improves stability within each regime, but the matched regime shows dramatically better convergence.
 
-2. **Create conda environment** (recommended)
-   ```bash
-   conda env create -f environment.yml
-   conda activate husai
-   ```
+### Task Complexity Analysis
 
-   Or manually install dependencies:
-   ```bash
-   # Create environment
-   conda create -n husai python=3.11
-   conda activate husai
+![Task Complexity](figures/task_complexity_experiment.pdf)
 
-   # Install PyTorch with CUDA 11.8
-   conda install pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 pytorch-cuda=11.8 -c pytorch -c nvidia
-
-   # Install remaining dependencies
-   pip install -r requirements.txt
-   ```
-
-3. **Set up development tools**
-   ```bash
-   pip install -r requirements-dev.txt
-   pre-commit install
-   ```
-
-4. **Verify installation**
-   ```bash
-   python -c "import torch; print(f'PyTorch: {torch.__version__}, CUDA: {torch.cuda.is_available()}')"
-   python -c "import transformer_lens; import sae_lens; print('TransformerLens and SAELens loaded successfully')"
-   ```
+Stability is not about task complexity per se, but about:
+1. Model having learned the task well (high accuracy)
+2. Activations having moderate effective rank
+3. SAE size matching effective rank
 
 ---
 
-## ✅ Current Capabilities (What Works Now)
+## 🎯 The Problem We Addressed
 
-**You can currently:**
-- ✅ Generate modular arithmetic datasets (`src/data/modular_arithmetic.py`)
-  ```python
-  from src.data.modular_arithmetic import create_dataloaders
-  train_loader, test_loader = create_dataloaders(modulus=113, batch_size=512)
-  ```
-- ✅ Create and validate experiment configurations (`src/utils/config.py`)
-  ```python
-  from src.utils.config import ExperimentConfig
-  config = ExperimentConfig.from_yaml("configs/examples/baseline_relu.yaml")
-  ```
-- ✅ Run 85 passing tests on implemented modules
-  ```bash
-  make test  # All tests pass!
-  ```
+In January 2025, Paulo & Belrose revealed that **SAEs trained on identical data with different random seeds learn entirely different features** — with only ~30% overlap in LLMs.
 
-**Coming in Weeks 2-4 (Implementation Phase):**
-- 🔄 Transformer model + training loop
-- 🔄 SAE architectures (ReLU, TopK, BatchTopK)
-- 🔄 Training scripts and experiment pipelines
-- 🔄 Feature analysis and matching tools
-
-See [`IMPLEMENTATION_ROADMAP.md`](IMPLEMENTATION_ROADMAP.md) for detailed timeline.
+Our research asked: **Under what conditions can SAEs achieve stable, reproducible features?**
 
 ---
 
@@ -133,216 +77,116 @@ See [`IMPLEMENTATION_ROADMAP.md`](IMPLEMENTATION_ROADMAP.md) for detailed timeli
 
 ```
 HUSAI/
-├── README.md                 # You are here
-├── docs/                     # Comprehensive documentation
-│   ├── 00-Foundations/      # Mission, vision, research questions
-│   ├── 01-Strategy/         # Research strategy
-│   ├── 02-Product/          # Technical specifications
-│   ├── 03-Go-To-Market/     # Dissemination plans
-│   ├── 04-Execution/        # Implementation details
-│   └── ADRs/                # Architectural Decision Records
-├── src/                      # Source code
-│   ├── data/                # Dataset generation and loading
-│   ├── models/              # Model architectures
-│   ├── training/            # Training loops and SAE implementations
-│   ├── analysis/            # Feature matching and evaluation
-│   └── utils/               # Utility functions
-├── tests/                    # Test suite
-│   ├── unit/                # Unit tests
-│   ├── integration/         # Integration tests
-│   └── e2e/                 # End-to-end tests
-├── notebooks/                # Jupyter notebooks for exploration
-├── scripts/                  # Utility scripts
-├── data/                     # Data directory (gitignored)
-├── results/                  # Results directory (gitignored)
-├── checkpoints/              # Model checkpoints (gitignored)
-├── environment.yml           # Conda environment specification
-├── requirements.txt          # Core Python dependencies
-├── requirements-dev.txt      # Development dependencies
-├── pyproject.toml            # Python project configuration
-├── Makefile                  # Common commands
-└── .pre-commit-config.yaml   # Pre-commit hooks configuration
+├── README.md                    # This file
+├── paper/
+│   └── sae_stability_paper.md   # Full research paper
+├── src/                         # Core library
+│   ├── data/                    # Dataset generation
+│   ├── models/                  # Model architectures (SAE, Transformer)
+│   ├── training/                # Training utilities
+│   └── analysis/                # Analysis tools
+├── scripts/
+│   ├── training/                # SAE training scripts
+│   ├── analysis/                # Analysis and visualization
+│   └── experiments/             # Key experiments
+├── results/                     # Experiment results
+├── figures/                     # Generated figures
+├── tests/                       # Test suite
+└── archive/                     # Historical session notes
 ```
 
 ---
 
-## 🎓 Key Research Questions
+## 🚀 Quick Start
 
-1. **Goldilocks Zone Hypothesis:** Does a sweet spot exist where SAEs reliably converge to stable features?
+### Installation
 
-2. **Architecture Comparison:** How do ReLU, TopK, and BatchTopK SAEs compare in stability and interpretability?
+```bash
+# Clone repository
+git clone https://github.com/brightlikethelight/HUSAI.git
+cd HUSAI
 
-3. **Circuit Recovery as Ground Truth:** Can SAEs recover the known Fourier circuits in modular arithmetic?
+# Create environment
+conda env create -f environment.yml
+conda activate husai
 
-4. **Geometric Structure:** What is the geometric organization of feature spaces, and does it predict stability?
+# Verify installation
+python -c "import torch; print(f'PyTorch: {torch.__version__}')"
+```
 
-5. **Temporal Dynamics:** When during training do features crystallize versus diverge?
+### Run Key Experiments
+
+```bash
+# Stability-aware training (tests matched regime hypothesis)
+KMP_DUPLICATE_LIB_OK=TRUE python scripts/experiments/stability_aware_training.py
+
+# Task complexity experiment
+KMP_DUPLICATE_LIB_OK=TRUE python scripts/experiments/task_complexity_experiment.py
+
+# Hungarian matching analysis
+KMP_DUPLICATE_LIB_OK=TRUE python scripts/analysis/hungarian_matching_analysis.py
+```
 
 ---
 
-## 🛠️ Technical Stack
+## 🛠️ Key Scripts
 
-### Core Libraries
-- **[TransformerLens](https://github.com/TransformerLensOrg/TransformerLens)** (v2.16.1) - Model internals access
-- **[SAELens](https://github.com/jbloomAus/SAELens)** (v6.17.0) - SAE training and analysis
-- **PyTorch** (v2.5.1) - Deep learning framework
-- **Weights & Biases** - Experiment tracking
+### Training
+| Script | Purpose |
+|--------|---------|
+| `scripts/training/train_sae.py` | Train SAE on transformer activations |
+| `scripts/training/train_expanded_seeds.py` | Multi-seed SAE training |
 
-### Analysis & Visualization
-- NumPy, SciPy, pandas - Numerical computing
-- scikit-learn - Matching algorithms (Hungarian)
-- matplotlib, seaborn, plotly - Visualization
-- UMAP - Dimensionality reduction
+### Analysis
+| Script | Purpose |
+|--------|---------|
+| `scripts/analysis/analyze_feature_stability.py` | Compute PWMCC stability metrics |
+| `scripts/analysis/hungarian_matching_analysis.py` | Hungarian matching for feature alignment |
+| `scripts/analysis/comprehensive_statistical_analysis.py` | Full statistical analysis |
 
-### Development
-- pytest - Testing framework
-- black, isort, flake8, mypy - Code quality
-- pre-commit - Git hooks
-- JupyterLab - Interactive development
+### Experiments
+| Script | Purpose |
+|--------|---------|
+| `scripts/experiments/stability_aware_training.py` | Test Song et al. (2025) insights |
+| `scripts/experiments/task_complexity_experiment.py` | Test task complexity hypothesis |
+| `scripts/experiments/expansion_factor_analysis.py` | Analyze SAE size effects |
 
 ---
 
 ## 📚 Key References
 
-### Foundational Papers
+### Our Work Builds On
 - **Paulo & Belrose (2025)** - "SAEs Trained on the Same Data Learn Different Features" ([arXiv:2501.16615](https://arxiv.org/abs/2501.16615))
+- **Song et al. (2025)** - "Position: Mechanistic Interpretability Should Prioritize Feature Consistency in SAEs" ([arXiv:2505.20254](https://arxiv.org/abs/2505.20254))
 - **Nanda et al. (2023)** - "Progress measures for grokking via mechanistic interpretability" ([arXiv:2301.05217](https://arxiv.org/abs/2301.05217))
-- **Sharkey et al. (2025)** - "Open Problems in Mechanistic Interpretability" ([arXiv:2501.16496](https://arxiv.org/abs/2501.16496))
 
 ### SAE Methods
 - **OpenAI (2024)** - "Scaling and evaluating sparse autoencoders" ([arXiv:2406.04093](https://arxiv.org/abs/2406.04093))
 - **Anthropic (2024)** - "Scaling Monosemanticity" ([transformer-circuits.pub](https://transformer-circuits.pub/2024/scaling-monosemanticity/))
-- **DeepMind (2024)** - "Gemma Scope" ([arXiv:2408.05147](https://arxiv.org/abs/2408.05147))
-
-See [`docs/00-Foundations/mission.md`](docs/00-Foundations/mission.md) for complete reference list.
 
 ---
 
-## 👥 Team Structure
+## 🎓 Conclusions
 
-### Roles
-- **Research Lead** - Overall coordination, architecture decisions, integration
-- **Infrastructure Engineer** - Training pipeline, cloud resources, experiment tracking
-- **Analysis Specialist** - Feature matching, statistics, visualization
+### What We Learned
 
-### Timeline
-- **Phase 1** (Weeks 1-8): Controlled experiments, 50+ SAE training runs
-- **Phase 2** (Weeks 9-14): Deep analysis, consistency measurement, geometric structure
-- **Phase 3** (Weeks 15-20): Synthesis, open-source toolkit, presentation
+1. **SAE stability is achievable** — but requires careful configuration
+2. **The matched regime is key** — d_sae should approximate effective rank
+3. **Model quality matters** — well-trained models produce more stable SAE features
+4. **Task structure affects stability** — tasks with interpretable structure show better stability
 
----
+### Recommendations for Practitioners
 
-## 🧪 Development Workflow
-
-### Running Tests
-```bash
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=src --cov-report=html
-
-# Run specific test file
-pytest tests/unit/test_modular_arithmetic.py
-```
-
-### Code Quality
-```bash
-# Format code
-black src/ tests/
-isort src/ tests/
-
-# Type checking
-mypy src/
-
-# Linting
-flake8 src/ tests/
-```
-
-### Training SAEs
-```bash
-# Train single SAE
-python scripts/train_sae.py --config configs/relu_sae.yaml
-
-# Run full experiment grid
-python scripts/run_experiments.py --experiment modular_arithmetic_sweep
-```
-
-### Experiment Tracking
-```bash
-# Login to W&B
-wandb login
-
-# View experiments
-wandb sync
-```
-
----
-
-## 📊 Expected Deliverables
-
-### Minimum Viable Success
-✅ Baseline transformer learning modular arithmetic
-✅ 15+ trained SAEs (3 architectures × 5 seeds)
-✅ Feature consistency measurement (PW-MCC)
-✅ Fourier ground truth comparison (GT-MCC)
-✅ Comprehensive documentation
-
-### Target Success
-🎯 50+ trained SAEs with hyperparameter sweep
-🎯 Architecture-specific convergence patterns identified
-🎯 Geometric structure characterization
-🎯 Actionable guidelines for practitioners
-🎯 Clean open-source release
-
-### Stretch Goals
-🚀 Extension to other algorithmic tasks
-🚀 Application to language models (GPT-2 Small)
-🚀 State-of-the-art circuit discovery implementation
-🚀 Workshop/conference submission
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please see [`CONTRIBUTING.md`](CONTRIBUTING.md) for guidelines.
-
-### Getting Started as a Contributor
-1. Read [`docs/00-Foundations/mission.md`](docs/00-Foundations/mission.md)
-2. Review open issues on GitHub
-3. Set up development environment (see Quick Start)
-4. Run tests to verify setup
-5. Pick an issue or propose a new feature
-
----
-
-## 📖 Documentation
-
-- **Mission & Vision:** [`docs/00-Foundations/mission.md`](docs/00-Foundations/mission.md)
-- **Research Strategy:** [`docs/01-Strategy/`](docs/01-Strategy/)
-- **Technical Specifications:** [`docs/02-Product/`](docs/02-Product/)
-- **Architectural Decisions:** [`docs/ADRs/`](docs/ADRs/)
-
----
-
-## 🎓 Learning Resources
-
-### Mechanistic Interpretability
-- [TransformerLens Tutorials](https://transformerlensorg.github.io/TransformerLens/)
-- [ARENA MI Track](https://www.arena.education/) - Comprehensive course
-- [Neel Nanda's Blog](https://www.neelnanda.io/mechanistic-interpretability/)
-- [Anthropic Interpretability Research](https://transformer-circuits.pub/)
-
-### Sparse Autoencoders
-- [SAELens Documentation](https://jbloomaus.github.io/SAELens/)
-- [Neuronpedia](https://www.neuronpedia.org/) - Explore existing SAE features
-- [SAEBench](https://neuronpedia.org/sae-bench) - Evaluation framework
+1. **Compute effective rank** of your activations before choosing SAE size
+2. **Use TopK SAEs** — they naturally enforce sparsity constraints
+3. **Train models well** — SAE stability depends on underlying model quality
+4. **Normalize decoder weights** — critical for training stability
 
 ---
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
@@ -351,26 +195,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 This project builds on foundational work by:
 - Neel Nanda, Joseph Bloom, and the TransformerLens/SAELens teams
 - Anthropic's interpretability research team
-- OpenAI and DeepMind interpretability groups
 - The broader mechanistic interpretability community
-
-Special thanks to researchers who made their code and data publicly available.
 
 ---
 
 ## 📬 Contact
 
 **Project Lead:** Bright Liu (brightliu@college.harvard.edu)
-**GitHub:** [HUSAI Repository](https://github.com/brightlikethelight/HUSAI)
-
----
-
-## 🔍 Status
-
-**Current Phase:** Week 1 - Foundation & Setup
-**Last Updated:** October 23, 2025
-
-See [GitHub Issues](https://github.com/brightlikethelight/HUSAI/issues) for current tasks and progress.
 
 ---
 
