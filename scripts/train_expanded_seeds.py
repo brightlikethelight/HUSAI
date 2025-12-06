@@ -196,6 +196,9 @@ def train_topk_sae(activations: torch.Tensor, seed: int, save_dir: Path) -> Dict
             recon_loss.backward()
             optimizer.step()
             
+            # CRITICAL: Normalize decoder after every step
+            sae.normalize_decoder()
+            
             with torch.no_grad():
                 total_var = torch.var(batch_acts)
                 residual_var = torch.var(batch_acts - reconstructed)
@@ -281,6 +284,9 @@ def train_relu_sae(activations: torch.Tensor, seed: int, save_dir: Path) -> Dict
             optimizer.zero_grad()
             total_loss.backward()
             optimizer.step()
+            
+            # CRITICAL: Normalize decoder after every step
+            sae.normalize_decoder()
             
             with torch.no_grad():
                 total_var = torch.var(batch_acts)

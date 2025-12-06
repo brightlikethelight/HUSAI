@@ -171,6 +171,9 @@ def train_sae_with_checkpoints(
             optimizer.zero_grad()
             recon_loss.backward()
             optimizer.step()
+            
+            # CRITICAL: Normalize decoder after every step
+            sae.normalize_decoder()
         
         # Save checkpoint if needed
         if (epoch + 1) in checkpoint_epochs:
