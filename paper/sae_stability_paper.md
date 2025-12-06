@@ -8,7 +8,7 @@
 
 ## Abstract
 
-Sparse Autoencoders (SAEs) have emerged as a leading tool for mechanistic interpretability, decomposing neural network activations into interpretable features. Recent work identified low feature overlap across training runs (Paulo & Belrose, 2025) and argued that consistency should be prioritized (Song et al., 2025). We present the first systematic multi-seed, multi-architecture stability analysis to characterize baseline consistency under standard training practices. Training 10 SAEs (5 TopK, 5 ReLU) on a grokking transformer for modular arithmetic, we find architecture-independent instability: mean pairwise maximum cosine correlation (PWMCC) of 0.302±0.0003 for TopK and 0.300±0.0004 for ReLU, both far below the high stability threshold (0.7). This persists despite excellent reconstruction metrics (explained variance >0.92), revealing troubling decoupling between reconstruction quality and feature consistency. Our results confirm the consistency gap identified by Song et al. (0.30 baseline vs 0.80 achievable with optimization) exists systematically across architectures and tasks, motivating urgent need for consistency-promoting training methods in practical SAE deployments.
+Sparse Autoencoders (SAEs) have emerged as a leading tool for mechanistic interpretability, decomposing neural network activations into interpretable features. Recent work identified low feature overlap across training runs (Paulo & Belrose, 2025) and argued that consistency should be prioritized (Song et al., 2025). We present the first systematic multi-seed, multi-architecture stability analysis with critical random baseline controls. Training 10 SAEs (5 TopK, 5 ReLU) on a grokking transformer for modular arithmetic, we find that feature consistency (PWMCC ≈ 0.30) is **indistinguishable from randomly initialized SAEs**—standard training produces zero stability above random chance. However, alternative metrics (subspace overlap) show trained SAEs DO learn structure, suggesting they find the correct subspace but not a consistent basis. We also discover striking layer dependence: Layer 0 shows BELOW-random consistency (PWMCC = 0.047), indicating orthogonal feature solutions across seeds. These findings reframe the "consistency gap" from "low vs high stability" to "random baseline vs learned structure," with urgent implications for interpretability research relying on single SAE instances.
 
 **Keywords:** Sparse Autoencoders, Mechanistic Interpretability, Feature Stability, Reproducibility
 
@@ -78,7 +78,7 @@ Nanda et al. (2023) showed that 1-layer transformers learn Fourier addition circ
 - **TopK:** Hard sparsity with k=32 active features (Gao et al., 2024)
 - **ReLU:** Soft sparsity with L1 penalty λ=1e-3 (Bricken et al., 2023)
 
-Both used expansion factor 32× (d_sae=4096 for d_model=128) and were trained on transformer residual stream activations at layer 1.
+Both used expansion factor 8× (d_sae=1024 for d_model=128) and were trained on transformer residual stream activations at layer 1.
 
 **Multi-seed protocol:** For each architecture, we trained 5 SAEs with random seeds {42, 123, 456, 789, 1011}, ensuring:
 - Identical data (same transformer activations)
@@ -121,7 +121,7 @@ Figure 1 shows PWMCC matrices for both architectures. The off-diagonal values cl
 - ReLU: PWMCC = 0.300 ± 0.0004
 - Difference: 0.002 (0.7% relative)
 - Statistical test: p = 0.0013 (Mann-Whitney U)
-- Effect size: Cohen's d = 1.92
+- Effect size: Cohen's d = 1.92 (large statistically, but absolute difference of 0.002 is negligible)
 
 While the difference is statistically significant due to extremely tight variance (SEM < 0.001), the practical significance is negligible: both architectures operate at the same ~0.30 baseline, far below the high stability threshold of 0.7.
 
@@ -129,7 +129,7 @@ While the difference is statistically significant due to extremely tight varianc
 
 ### 4.2 Decoupling of Reconstruction and Stability
 
-Figure 2 reveals troubling decoupling: all 10 SAEs achieve excellent reconstruction quality (EV > 0.92) but show poor feature consistency (PWMCC ~ 0.30). The SAEs cluster in the bottom-right quadrant ("good reconstruction, poor stability"), with no SAEs reaching the ideal top-right quadrant.
+Figure 2 reveals troubling decoupling: all 10 SAEs achieve excellent reconstruction quality (TopK EV = 0.919±0.002, ReLU EV = 0.977±0.0002) but show poor feature consistency (PWMCC ~ 0.30). The SAEs cluster in the bottom-right quadrant ("good reconstruction, poor stability"), with no SAEs reaching the ideal top-right quadrant.
 
 This decoupling challenges current evaluation practices. Standard metrics (explained variance, L0 sparsity, dead neuron percentage) suggest successful training, yet features fail to reproduce across independent runs. A practitioner evaluating a single SAE using standard metrics would incorrectly conclude the model is reliable.
 
@@ -142,9 +142,38 @@ Our PWMCC~0.30 finding validates Paulo & Belrose's (2025) observation of 30% fea
 
 The consistency across these dimensions suggests feature instability is fundamental to SAE training dynamics, not specific to any particular setting.
 
-### 4.4 Interesting Architectural Difference
+### 4.4 Critical Finding: PWMCC Equals Random Baseline
+
+A critical control experiment reveals that trained SAE PWMCC (0.30) is **indistinguishable from randomly initialized SAEs**. We computed PWMCC between 10 randomly initialized (untrained) SAEs:
+
+- Random SAE PWMCC: 0.300 ± 0.0007 (45 pairwise comparisons)
+- Trained SAE PWMCC: 0.300 ± 0.001 (10 pairwise comparisons)
+- Difference: ~0.0002 (essentially zero)
+
+**This fundamentally changes the interpretation:** The 0.30 PWMCC is not "low stability"—it is **zero stability above random chance**. Standard SAE training produces decoder weights that are as random (in terms of cross-seed consistency) as untrained initialization.
+
+However, alternative metrics reveal trained SAEs DO learn something:
+
+- Subspace overlap (k=50): Random = 0.386, Trained = 0.439 (+5.3%)
+- Mutual nearest neighbors (>0.3): Random = 0.312, Trained = 0.354 (+4.2%)
+
+**Interpretation:** SAEs learn the correct **subspace** but not a consistent **basis** within that subspace. Different seeds find different, equally valid bases for the same learned subspace.
+
+### 4.5 Layer-Dependent Stability: Layer 0 Anomaly
+
+Cross-layer validation reveals striking layer dependence:
+
+| Layer | Position | Trained PWMCC | Random PWMCC | EV | Interpretation |
+|-------|----------|---------------|--------------|-----|----------------|
+| Layer 0 | 2 | 0.047 ± 0.002 | 0.30 | 0.70 | **6× BELOW random** |
+| Layer 1 | -2 | 0.302 ± 0.001 | 0.30 | 0.92 | **AT random** |
+
+Layer 0 SAEs achieve reasonable reconstruction (EV = 0.70) but show BELOW-random feature consistency, meaning features are nearly **orthogonal** across seeds. This suggests the optimization landscape at Layer 0 has many equally-good but orthogonal decompositions. The phenomenon is position-dependent: Layer 0 at the operator position (2) shows this orthogonality, while Layer 1 at the answer position (-2) shows random-baseline behavior.
+
+### 4.6 Architectural Comparison
 
 Unlike Paulo & Belrose (2025) who found TopK more unstable than ReLU on LLMs, we observe no practical difference. This suggests two possibilities:
+
 1. On simpler, more constrained tasks, architectural differences become negligible
 2. With matched sparsity levels (L0 = 32 for TopK, L0 ≈ 427 for ReLU but both optimized), the training dynamics converge
 
