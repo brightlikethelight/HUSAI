@@ -359,15 +359,20 @@ Our study has several limitations:
 
 ## 7. Conclusion
 
-We presented the first systematic demonstration that SAE features match **random baseline** across training runs, fundamentally challenging current interpretability practices. Our key findings:
+We presented the first systematic demonstration that SAE features match **random baseline** across training runs on algorithmic tasks, fundamentally challenging current interpretability practices. Our key findings:
 
-1. **The random baseline phenomenon:** Trained SAE feature similarity (PWMCC = 0.309) is statistically indistinguishable from randomly initialized SAEs (PWMCC = 0.300), meaning standard training produces zero representational stability above chance.
+1. **The random baseline phenomenon:** Trained SAE feature similarity (PWMCC = 0.309) is statistically indistinguishable from randomly initialized SAEs (PWMCC = 0.300) in the overparameterized regime, meaning standard training produces zero representational stability above chance.
 
-2. **The functional-representational paradox:** Despite matching random baseline in feature consistency, SAEs achieve 4-8× better reconstruction than random initialization. This proves SAEs work functionally but learn arbitrary, non-reproducible feature decompositions.
+2. **The stability-reconstruction tradeoff:** We discovered a fundamental tradeoff between stability and reconstruction quality:
+   - Underparameterized (d_sae < eff_rank): Up to 2.87× random stability, but poor reconstruction
+   - Matched (d_sae ≈ eff_rank): 1.23-1.62× random stability with good reconstruction
+   - Overparameterized (d_sae > eff_rank): ≈1× random stability with excellent reconstruction
 
-3. **The underconstrained reconstruction hypothesis:** All 10 SAEs achieve nearly identical reconstruction (CV < 1.5%) despite completely different features, demonstrating that the sparse reconstruction task admits infinitely many equally-good solutions. Random initialization determines which arbitrary solution each seed converges to.
+3. **Stability decreases monotonically with sparsity:** Unlike findings on LLMs, we show that on algorithmic tasks, stability DECREASES as sparsity (k) increases. This suggests the stability-sparsity relationship is **task-dependent**—semantic structure may be required for non-monotonic stability patterns.
 
-4. **Architecture-independence:** Both TopK and ReLU show identical random baseline behavior, indicating this is fundamental to SAE training dynamics, not an architectural artifact.
+4. **Feature-level stability is uniform:** No predictor (activation frequency, magnitude, task correlation) significantly predicts which individual features are stable. Stability is a **global property** of the SAE configuration, not a feature-specific property.
+
+5. **Architecture-independence:** Both TopK and ReLU show identical random baseline behavior, indicating this is fundamental to SAE training dynamics, not an architectural artifact.
 
 These findings reframe the stability problem: the issue is not "how to improve from low to high consistency" but rather **"how to constrain optimization toward reproducible solutions among the many arbitrary decompositions."** Standard reconstruction loss is necessary but insufficient—stability-aware training objectives are required.
 
