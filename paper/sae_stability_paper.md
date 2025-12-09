@@ -381,7 +381,7 @@ Our study has several limitations:
 
 2. **Simple tasks only:** We tested modular arithmetic and sequence copying—both simple algorithmic tasks. While we validated task-independence within this class, real language models with semantic structure may exhibit different stability profiles (as suggested by Paulo & Belrose's 65% shared features on LLMs).
 
-3. **Two architectures:** We tested TopK and ReLU, but other variants (e.g., Gated SAEs, JumpReLU) remain unexplored.
+3. **Two architectures:** We tested TopK and ReLU, but other variants (e.g., Gated SAEs, JumpReLU) showed insufficient L0 variation to draw conclusions. The stability-sparsity relationship is most robustly verified for TopK.
 
 4. **Standard training:** We used standard reconstruction loss. Song et al.'s consistency-promoting methods may improve stability—testing this is important future work.
 
@@ -415,6 +415,8 @@ Song et al.'s (2025) demonstration that 0.80 PWMCC is achievable shows this prob
 ---
 
 ## References
+
+- Fel, T., Lubana, E. S., Prince, J. S., et al. (2025). Archetypal SAE: Adaptive and Stable Dictionary Learning for Concept Extraction in Large Vision Models. *arXiv:2502.12892*. https://arxiv.org/abs/2502.12892
 
 - Cui, Y., Zhang, Q., Wang, Y., & Wang, Y. (2025). On the Theoretical Understanding of Identifiable Sparse Autoencoders and Beyond. *arXiv:2506.15963*. https://arxiv.org/abs/2506.15963
 

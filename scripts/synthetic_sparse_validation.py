@@ -140,7 +140,7 @@ def compute_ground_truth_recovery(
     # Get SAE decoder weights [d_model, d_sae]
     # nn.Linear stores weight as [out_features, in_features] = [d_model, d_sae]
     decoder = sae.decoder.weight.data  # [d_model, d_sae] - NO transpose needed
-    decoder = F.normalize(decoder, dim=1)  # Normalize along d_model dimension
+    decoder = F.normalize(decoder, dim=0)  # Normalize each feature (column) to unit norm
 
     # Normalize true features
     true_features = F.normalize(true_features, dim=0)

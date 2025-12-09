@@ -1,8 +1,29 @@
-# Major Discovery: SAE "Basis Ambiguity" Phenomenon
+# ❌ HYPOTHESIS REJECTED: SAE "Basis Ambiguity" Phenomenon
 
 **Date:** December 8, 2025
-**Status:** 🔥 **CRITICAL FINDING** - Paradigm shift in understanding SAE instability
+**Status:** ❌ **HYPOTHESIS REJECTED** - Based on corrected experimental data
 **Experiment:** Sparse Ground Truth Validation (Extension 1)
+
+---
+
+## ⚠️ CRITICAL UPDATE: THIS HYPOTHESIS HAS BEEN REJECTED ⚠️
+
+**After fixing critical normalization bug and rerunning experiments:**
+- Subspace overlap: **0.139** (14%, NOT >90% as predicted)
+- Ground truth recovery: **0/10 features** (NOT 8.8/10 as originally reported)
+- Mean similarity: **0.390** (NOT 1.28 - that value was impossible, >1.0 cosine!)
+
+**Conclusion:** The "basis ambiguity" hypothesis was based on buggy data. SAEs do NOT learn the same subspace with different bases. They learn nearly orthogonal subspaces and fail to recover ground truth features entirely.
+
+**See:** `OPTION_B_RESOLUTION_COMPLETE.md` and `PARADOX_RESOLUTION.md` for full resolution.
+
+**DO NOT USE THIS DOCUMENT FOR PAPER CLAIMS.** It contains 771 lines of invalidated analysis.
+
+---
+
+## Original (INVALID) Hypothesis Below
+
+*[Kept for historical record only]*
 
 ---
 
