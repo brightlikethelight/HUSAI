@@ -1,4 +1,4 @@
-.PHONY: help install install-dev setup test test-cov smoke lint format typecheck clean run-notebooks reproduce-phase4a ablate-core benchmark-slice adaptive-l0 adaptive-l0-control consistency-sweep
+.PHONY: help install install-dev setup test test-cov smoke lint format typecheck clean run-notebooks reproduce-phase4a ablate-core benchmark-slice benchmark-official audit-results adaptive-l0 adaptive-l0-control consistency-sweep
 
 .DEFAULT_GOAL := help
 
@@ -179,6 +179,12 @@ ablate-core: ## Run core k/d_sae ablations with confidence intervals
 
 benchmark-slice: ## Build SAEBench/CE-Bench-aligned benchmark slice
 	python scripts/experiments/run_external_benchmark_slice.py
+
+benchmark-official: ## Preflight official SAEBench/CE-Bench harness (no execution)
+	python scripts/experiments/run_official_external_benchmarks.py
+
+audit-results: ## Verify headline conclusions against current artifact JSONs
+	python scripts/analysis/verify_experiment_consistency.py
 
 adaptive-l0: ## Run adaptive L0 calibration and retrain
 	python scripts/experiments/run_adaptive_l0_calibration.py --device cpu

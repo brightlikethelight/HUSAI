@@ -149,7 +149,8 @@ Interpretation:
 
 ### 6.3 External-claim status
 - Internal benchmark-aligned gating can pass.
-- Official external benchmark claim remains blocked until official SAEBench/CE-Bench execution pipeline is run end-to-end from this repo.
+- An official benchmark harness is now implemented and artifact-logged: `scripts/experiments/run_official_external_benchmarks.py` with run `results/experiments/phase4e_external_benchmark_official/run_20260212T151416Z/`.
+- Official external benchmark claim remains blocked until SAEBench/CE-Bench commands are actually executed through that harness.
 
 ## 7. Limitations
 - Task family is still narrow (algorithmic modular arithmetic).
@@ -164,10 +165,13 @@ Interpretation:
 - follow-up report: `HIGH_IMPACT_FOLLOWUPS_REPORT.md`
 - adaptive L0 runner: `scripts/experiments/run_adaptive_l0_calibration.py`
 - consistency sweep runner: `scripts/experiments/run_consistency_regularization_sweep.py`
+- official benchmark harness: `scripts/experiments/run_official_external_benchmarks.py`
+- result-consistency audit: `scripts/analysis/verify_experiment_consistency.py`
+- latest consistency report: `results/analysis/experiment_consistency_report.md`
 
 ## 9. Next Technical Steps (Ranked)
-1. Integrate adaptive-L0 selector into default training pipeline (auto-calibration mode).
-2. Replace single-reference regularizer with assignment-aware or joint multi-seed objectives.
-3. Add official SAEBench/CE-Bench adapter and run full benchmark suite.
-4. Extend calibrated-L0 experiments across additional tasks (copy/multiplication/OOD).
-5. Add causal-faithfulness metrics as co-primary endpoints for model selection.
+1. Execute official SAEBench and CE-Bench commands through the new harness and publish score manifests.
+2. Integrate adaptive-L0 selector into default training pipeline (auto-calibration mode).
+3. Replace single-reference regularizer with assignment-aware or joint multi-seed objectives.
+4. Add modern architecture frontier baselines (JumpReLU, BatchTopK, Matryoshka, HierarchicalTopK, RouteSAE) under matched compute.
+5. Add causal-faithfulness metrics and OOD stress tests as co-primary model-selection endpoints.

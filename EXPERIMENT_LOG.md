@@ -303,3 +303,56 @@ python scripts/experiments/run_consistency_regularization_sweep.py --device cpu 
   - `HIGH_IMPACT_FOLLOWUPS_REPORT.md`
 - Scope:
   - integrates Runs 19-21 with fair-control interpretation and literature-grounded framing.
+
+## 2026-02-12 - Official Benchmark Harness + Result-Consistency Audit
+
+### Run 23: Result-consistency verification against artifact JSONs
+- Command:
+```bash
+python scripts/analysis/verify_experiment_consistency.py
+```
+- Outcome: success
+- Key outputs:
+  - `results/analysis/experiment_consistency_report.json`
+  - `results/analysis/experiment_consistency_report.md`
+- Result summary:
+  - overall pass = `True`
+  - phase4a training signal: `delta=+0.002886`, `p=1.649e-04`
+  - adaptive `k=4` vs control `k=32` trained-PWMCC gain: `+0.05701`
+  - gain 95% CI: `[+0.05475, +0.05924]`
+  - consistency-regularizer gain unresolved: CI spans zero `[-0.00242, +0.00377]`
+
+### Run 24: Official SAEBench/CE-Bench harness preflight
+- Command:
+```bash
+KMP_DUPLICATE_LIB_OK=TRUE python scripts/experiments/run_official_external_benchmarks.py
+```
+- Outcome: success
+- Run directory:
+  - `results/experiments/phase4e_external_benchmark_official/run_20260212T151416Z/`
+- Key outputs:
+  - `preflight.json`
+  - `local_sae_index.json`
+  - `commands.json`
+  - `summary.md`
+  - `manifest.json`
+- Result summary:
+  - SAEBench module availability: `False`
+  - CE-Bench module availability: `False`
+  - local SAE checkpoints indexed: `5`
+  - no official commands executed in this run (preflight-only by design)
+
+### Run 25: Post-edit regression checks for new benchmark/audit scripts
+- Commands:
+```bash
+python scripts/experiments/run_official_external_benchmarks.py --help
+python scripts/analysis/verify_experiment_consistency.py --help
+flake8 scripts/experiments/run_official_external_benchmarks.py \
+  scripts/analysis/verify_experiment_consistency.py --max-line-length 130
+KMP_DUPLICATE_LIB_OK=TRUE TMPDIR=/tmp MPLCONFIGDIR=/tmp/mpl pytest tests -q
+```
+- Outcome: success
+- Result summary:
+  - new script CLIs parse correctly
+  - flake8 passes for the new scripts
+  - test suite regression check: `83 passed`

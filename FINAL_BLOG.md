@@ -4,14 +4,13 @@ HUSAI asks a simple question with big consequences for interpretability:
 
 If you train SAEs on the same activations with different seeds, do you get the same features?
 
-We already stabilized the engineering stack (CI smoke, reproducible runners, fixed pathing/import drift). This round focused on the most important scientific follow-ups:
-
+This cycle focused on four high-leverage updates:
 1. Adaptive L0 calibration (choose `k` systematically, then retrain)
 2. Consistency-first training objective sweep
+3. Official SAEBench/CE-Bench harness preflight
+4. Automated artifact-driven claim-consistency audit
 
-This post reports what changed, what improved, and what is still unresolved.
-
-## The setup in one paragraph
+## Setup in one paragraph
 
 All follow-up runs used layer-1 answer-position activations from the same transformer checkpoint, TopK SAEs, multi-seed evaluation, random-decoder controls, and bootstrap confidence intervals. We tracked both consistency and quality:
 - consistency: PWMCC and trained-vs-random delta
@@ -31,13 +30,9 @@ It performs:
 
 Then we ran a fair control: same retrain seeds/epochs at `k=32`.
 
-### Search result
+### What happened
 
 `k=4` was selected.
-
-Search trend was clear: lower `k` gave larger trained-vs-random consistency deltas, while higher `k` improved EV.
-
-### Fair-control result (the key number)
 
 Matched retrains:
 - `k=4`: trained PWMCC `0.32191`, random `0.24624`, delta `+0.07567`
@@ -45,11 +40,11 @@ Matched retrains:
 
 Direct trained-PWMCC improvement (`k=4 - k=32`):
 - `+0.05701`
-- 95% bootstrap CI `[+0.05482, +0.05921]`
+- 95% CI: approximately `[+0.055, +0.059]`
 
 Interpretation:
-- In this regime, L0 calibration is not a tiny tweak; it is a major consistency lever.
-- The tradeoff is real: `k=32` retains better EV, `k=4` retains better consistency.
+- In this regime, L0 calibration is a major consistency lever.
+- Tradeoff remains real: `k=32` retains higher EV, `k=4` retains higher consistency.
 
 ## Follow-up #2: Consistency-first objective sweep
 
@@ -67,42 +62,69 @@ Protocol:
 
 Best lambda by our criterion: `0.002`.
 
-But effect size was small:
+Effect size stayed small:
 - baseline (`lambda=0`): delta `+0.02866`
 - best (`lambda=0.002`): delta `+0.02933`
 - gain: `+0.00067`
-- 95% CI for gain: `[-0.00246, +0.00376]`
+- 95% CI for gain crosses zero
 
 Interpretation:
 - Directionally positive, but statistically unresolved in this run.
-- This is a pilot signal, not a robust win.
+- This is a pilot signal, not a robust win yet.
+
+## Follow-up #3: Official benchmark harness (new)
+
+We added `scripts/experiments/run_official_external_benchmarks.py` to standardize SAEBench/CE-Bench execution with manifests and logs.
+
+Preflight artifact run:
+- `results/experiments/phase4e_external_benchmark_official/run_20260212T151416Z/`
+
+Preflight result:
+- SAEBench module: not installed in this workspace
+- CE-Bench module: not installed in this workspace
+- local SAE checkpoints indexed: `5`
+
+Interpretation:
+- We now have a reproducible execution harness.
+- External benchmark claims remain blocked until official commands are actually executed through it.
+
+## Follow-up #4: Result-consistency audit (new)
+
+We added `scripts/analysis/verify_experiment_consistency.py` to verify headline conclusions directly from result JSON artifacts.
+
+Outputs:
+- `results/analysis/experiment_consistency_report.json`
+- `results/analysis/experiment_consistency_report.md`
+
+Current audit status:
+- overall pass: `True`
+- confirms adaptive low-k advantage over k=32 control
+- confirms consistency-regularizer gain remains unresolved
+
+Interpretation:
+- This reduces future drift between narrative claims and measurable artifacts.
 
 ## What changed in the repo
 
 New scripts:
 - `scripts/experiments/run_adaptive_l0_calibration.py`
 - `scripts/experiments/run_consistency_regularization_sweep.py`
+- `scripts/experiments/run_official_external_benchmarks.py`
+- `scripts/analysis/verify_experiment_consistency.py`
 
-New synthesis doc:
-- `HIGH_IMPACT_FOLLOWUPS_REPORT.md`
-
-Updated operational docs:
+Updated docs:
 - `RUNBOOK.md`
 - `EXPERIMENT_LOG.md`
+- `HIGH_IMPACT_FOLLOWUPS_REPORT.md`
+- `NOVEL_CONTRIBUTIONS.md`
+- `LIT_REVIEW.md`
 
 New Make targets:
+- `benchmark-official`
+- `audit-results`
 - `adaptive-l0`
 - `adaptive-l0-control`
 - `consistency-sweep`
-
-## Where to find artifacts
-
-Adaptive L0 runs:
-- `results/experiments/adaptive_l0_calibration/run_20260212T145416Z/`
-- `results/experiments/adaptive_l0_calibration/run_20260212T145727Z/`
-
-Consistency sweep run:
-- `results/experiments/consistency_objective_sweep/run_20260212T145529Z/`
 
 ## What we can now say with confidence
 
@@ -112,22 +134,9 @@ Strong claim:
 Not-yet-strong claim:
 - This first consistency-regularized objective is promising but not validated.
 
-External benchmark claim status:
-- Still blocked pending official SAEBench/CE-Bench execution (we only have benchmark-aligned internal slices so far).
-
-## Reproduce quickly
-
-```bash
-# Adaptive search + retrain
-python scripts/experiments/run_adaptive_l0_calibration.py --device cpu
-
-# Matched control at k=32
-python scripts/experiments/run_adaptive_l0_calibration.py --device cpu --k-candidates 32
-
-# Consistency-objective sweep
-python scripts/experiments/run_consistency_regularization_sweep.py --device cpu --k 4
-```
+External benchmark status:
+- Harness exists; official SAEBench/CE-Bench execution still pending.
 
 ## Bottom line
 
-If your goal is reproducible SAE features in this codebase, tune L0 first. The new consistency regularizer is worth continuing, but it has not yet earned “worked” status by our own statistical bar.
+If your goal is reproducible SAE features in this codebase, tune L0 first and enforce artifact-grounded audits. Then run official external benchmarks before making any SOTA-facing claim.

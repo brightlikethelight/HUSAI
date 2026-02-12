@@ -4,15 +4,17 @@ Date: 2026-02-12
 
 ## Scope
 
-This report covers two highest-impact follow-ups from `NOVEL_CONTRIBUTIONS.md`:
+This report covers four highest-impact follow-ups from `NOVEL_CONTRIBUTIONS.md` and the execution updates completed in this workspace:
 1. Adaptive L0 Calibration + Retrain Loop
 2. Consistency-First Objective Sweep (decoder-alignment regularization)
+3. Official SAEBench/CE-Bench harness preflight (reproducibility + manifest)
+4. Automated result-consistency audit (artifact-driven claim checks)
 
 All runs are artifact-tracked and reproducible from scripts committed in this repo.
 
 ## Experimental Setup
 
-Shared setup:
+Shared setup for model experiments:
 - Activation source: `results/activations/layer1_answer.pt` (generated from `results/transformer_5000ep/transformer_best.pt`)
 - SAE architecture: `TopKSAE` (`src/models/simple_sae.py`)
 - Device: CPU
@@ -54,7 +56,7 @@ Matched control retrain at `k=32` (same seeds/epochs):
 
 Fair-comparison readout (`k=4` vs `k=32`, trained PWMCC):
 - Mean improvement: `+0.05701`
-- Bootstrap 95% CI for improvement: `[+0.05482, +0.05921]`
+- Bootstrap 95% CI for improvement: `[+0.05475, +0.05924]`
 
 Interpretation:
 - Strong evidence that lower L0 (here `k=4`) improves cross-seed consistency over `k=32` for this task regime.
@@ -87,24 +89,73 @@ Best-vs-baseline summary:
 
 Statistical readout (trained PWMCC, lambda `0.002` - lambda `0.0`):
 - Mean difference: `+0.00067`
-- Bootstrap 95% CI: `[-0.00246, +0.00376]`
+- Bootstrap 95% CI: `[-0.00242, +0.00377]`
 
 Interpretation:
 - Directionally positive, but effect size is small and not statistically resolved in this run.
-- This is currently a **pilot signal**, not strong evidence of objective-level improvement.
+- This is currently a pilot signal, not strong evidence of objective-level improvement.
+
+## Follow-up 3: Official SAEBench/CE-Bench Harness (Preflight)
+
+Runner:
+- `scripts/experiments/run_official_external_benchmarks.py`
+
+Artifact run:
+- `results/experiments/phase4e_external_benchmark_official/run_20260212T151416Z/`
+
+Key outputs:
+- `preflight.json`
+- `local_sae_index.json`
+- `commands.json`
+- `summary.md`
+- `manifest.json`
+
+Preflight readout:
+- SAEBench module availability: `False`
+- CE-Bench module availability: `False`
+- Local SAE checkpoints indexed for adapter/export: `5`
+- No official benchmark command executed in this run (preflight-only by design)
+
+Interpretation:
+- The repo now has an official-benchmark execution harness with reproducibility logging.
+- The blocking dependency is external benchmark installation/checkout and explicit official command configuration.
+
+## Follow-up 4: Result-Consistency Audit
+
+Runner:
+- `scripts/analysis/verify_experiment_consistency.py`
+
+Artifacts:
+- `results/analysis/experiment_consistency_report.json`
+- `results/analysis/experiment_consistency_report.md`
+
+Readout:
+- Overall pass: `True`
+- Checks enforced:
+  - phase4a training signal remains statistically supported
+  - core ablation best-k and best-d_sae deltas remain positive
+  - adaptive low-k advantage over k=32 control remains statistically positive
+  - consistency-regularizer gain remains unresolved (CI includes zero)
+
+Interpretation:
+- This audit codifies conservative claim boundaries directly from artifact JSONs.
+- It reduces future drift risk between writeups and measured outcomes.
 
 ## Combined Conclusion
 
 What is strongly supported:
 - Adaptive L0 calibration (with fair-control retrains) materially improves consistency metrics in this repository.
+- The engineering path now supports artifact-grounded consistency checks and official benchmark preflight manifests.
 
 What is not yet strongly supported:
 - Current consistency-regularization formulation provides only weak, non-significant gains.
+- Official external benchmark performance remains unmeasured until SAEBench/CE-Bench are actually executed.
 
 Practical recommendation now:
 1. Use calibrated low-L0 regime (`k` near 4-8 for `d_sae=128`) when consistency is priority.
 2. Keep consistency-regularized objective as exploratory until stronger effect is shown.
-3. Preserve both consistency and quality metrics in reporting (PWMCC + EV/MSE).
+3. Execute official SAEBench/CE-Bench commands through the new harness before any SOTA claim.
+4. Keep the result-consistency audit in the default reporting flow.
 
 ## Reproduction Commands
 
@@ -121,6 +172,16 @@ python scripts/experiments/run_adaptive_l0_calibration.py --device cpu --k-candi
 Consistency objective sweep:
 ```bash
 python scripts/experiments/run_consistency_regularization_sweep.py --device cpu --k 4
+```
+
+Official benchmark harness preflight:
+```bash
+python scripts/experiments/run_official_external_benchmarks.py
+```
+
+Result-consistency audit:
+```bash
+python scripts/analysis/verify_experiment_consistency.py
 ```
 
 ## Literature Context (Primary Sources)

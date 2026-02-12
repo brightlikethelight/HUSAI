@@ -53,6 +53,21 @@ Our findings align with 2025 SAE literature:
 
 ---
 
+## ✅ 2026 Follow-up Status (Artifact-Validated)
+
+Latest high-impact follow-up artifacts and conclusions:
+
+- Adaptive L0 calibration + fair control (`k=4` vs `k=32`) now shows a large trained-PWMCC gain (`+0.05701`, CI ~ `[+0.055, +0.059]`).
+  - Artifacts: `results/experiments/adaptive_l0_calibration/run_20260212T145416Z/` and `results/experiments/adaptive_l0_calibration/run_20260212T145727Z/`
+- Consistency-regularized objective sweep remains unresolved (small positive mean, CI includes zero).
+  - Artifacts: `results/experiments/consistency_objective_sweep/run_20260212T145529Z/`
+- Official SAEBench/CE-Bench harness added with reproducibility manifesting; external claims remain blocked until official commands are executed.
+  - Script: `scripts/experiments/run_official_external_benchmarks.py`
+  - Preflight artifact: `results/experiments/phase4e_external_benchmark_official/run_20260212T151416Z/`
+- Automated result-consistency audit now guards claim drift against artifact JSONs.
+  - Script: `scripts/analysis/verify_experiment_consistency.py`
+  - Report: `results/analysis/experiment_consistency_report.md`
+
 ## 📊 Experimental Results
 
 ### Stability-Aware Training Dynamics

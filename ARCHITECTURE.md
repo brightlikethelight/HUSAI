@@ -79,7 +79,7 @@ Known caveats:
 
 ## 5) Remaining Portability Risks
 
-- Hardcoded absolute base paths still exist in several experiment/analysis scripts.
+- Hardcoded absolute base paths still exist in auxiliary scripts outside the main experiment/analysis path.
   - Example: `scripts/training/train_expanded_seeds.py:48`
 - Some long-form docs still contain stale paths or one-off local instructions.
 - Environment spec remains split across multiple files without a lockfile.

@@ -1,136 +1,77 @@
 # Literature and Competitive Landscape (Phase 3)
 
 Date: 2026-02-12
-Scope: SAE feature stability/consistency, benchmark practices, and current baselines relevant to this repository.
+Scope: SAE consistency, external benchmark practice, and high-leverage architecture/objective directions for this repository.
 
-## 1) Most Relevant Papers (Primary Sources)
+## 1) Primary Sources Most Relevant to This Repo
 
-1. **Paulo et al., 2025** - *Do Sparse Autoencoders Truly Learn Sparse Representations?* ([arXiv:2501.16615](https://arxiv.org/abs/2501.16615))
-- Relevance: directly studies cross-seed feature consistency in LLM SAEs.
-- Use for this repo: consistency framing and seed-to-seed methodology.
+Consistency and evaluation framing:
+1. Paulo & Belrose (2025): https://arxiv.org/abs/2501.16615
+2. Song et al. (2025): https://arxiv.org/abs/2505.20254
+3. SAEBench (ICML 2025): https://proceedings.mlr.press/v267/karvonen25a.html
+4. SAEBench repo: https://github.com/adamkarvonen/SAEBench
+5. CE-Bench (2025): https://arxiv.org/abs/2509.00691
+6. CE-Bench repo: https://github.com/Yusen-Peng/CE-Bench
 
-2. **Song et al., 2025** - *Mechanistic Interpretability Should Prioritize Feature Consistency in SAEs* ([arXiv:2505.20254](https://arxiv.org/abs/2505.20254))
-- Relevance: positions consistency as a first-class objective and discusses PW-MCC style evaluation.
-- Use: target metric framing and consistency-oriented objectives.
+Strong SAE baseline methods:
+7. OpenAI scaling/eval (2024): https://arxiv.org/abs/2406.04093
+8. JumpReLU (2024): https://arxiv.org/abs/2407.14435
+9. BatchTopK (2024): https://arxiv.org/abs/2412.06410
+10. Matryoshka SAEs (2025): https://arxiv.org/abs/2503.17547
 
-3. **Gao et al., 2024** - *Scaling and Evaluating Sparse Autoencoders* ([arXiv:2406.04093](https://arxiv.org/abs/2406.04093))
-- Relevance: large-scale SAE training/evaluation template (TopK-heavy modern baseline practice).
-- Use: baseline architecture/training defaults and scaling behavior expectations.
+Recent frontier variants worth adding to this repo’s baseline set:
+11. Route Sparse Autoencoders (EMNLP 2025): https://aclanthology.org/2025.emnlp-main.346/
+12. HierarchicalTopK SAEs (EMNLP 2025): https://aclanthology.org/2025.emnlp-main.515/
 
-4. **Karvonen et al., 2025** - *SAEBench* ([arXiv:2503.09532](https://arxiv.org/abs/2503.09532))
-- Relevance: multi-metric benchmark suite and cross-architecture comparisons.
-- Use: external evaluation protocol beyond single-metric stability.
+## 2) What "Good" Looks Like in 2025-2026
 
-5. **Peng et al., 2025** - *CE-Bench* ([arXiv:2509.00691](https://arxiv.org/abs/2509.00691))
-- Relevance: lightweight contrastive benchmark and practical alignment with larger benchmark suites.
-- Use: low-cost external benchmark for iterative experiments.
+Observed standard from benchmark-facing papers:
+- multi-seed claims with uncertainty intervals
+- random/naive controls to avoid proxy-metric illusions
+- multi-metric reporting (consistency + quality + functional metrics)
+- external benchmark evidence (SAEBench/CE-Bench), not internal slices alone
+- reproducibility manifests (versions, commands, model IDs, seeds)
 
-6. **Chen et al., 2025** - *GBA: A General Theoretical Framework for Sparse Autoencoders* ([arXiv:2506.14002](https://arxiv.org/abs/2506.14002))
-- Relevance: stronger theory-grounded recovery perspective.
-- Use: theory-aligned ablation targets and expected failure modes.
+Inference:
+- Internal PWMCC curves are useful, but insufficient for leaderboard-level or SOTA-level claims.
 
-7. **Farnik et al., 2025** - *Jointly Sparse Autoencoders* ([arXiv:2502.18147](https://arxiv.org/abs/2502.18147))
-- Relevance: alternative objective (sparse computations/Jacobian) instead of only sparse activations.
-- Use: candidate SOTA-chasing variant for this repo.
+## 3) Gap Analysis vs This Repository
 
-8. **Luber et al., 2025** - *Matryoshka SAE* ([arXiv:2503.17547](https://arxiv.org/abs/2503.17547))
-- Relevance: multiresolution/hierarchical SAE formulation.
-- Use: architecture variant for compute-quality tradeoff experiments.
+Where this repo is still behind:
+1. Official external benchmark execution not yet completed (critical credibility gap).
+2. Architecture frontier incomplete relative to 2025 methods (RouteSAE/HierarchicalTopK absent).
+3. Objective-level consistency improvement is not yet statistically resolved.
+4. Stress-test coverage (OOD/scaling/sensitivity) remains limited.
 
-9. **Rajamanoharan et al., 2024** - *JumpReLU SAEs* ([arXiv:2407.14435](https://arxiv.org/abs/2407.14435))
-- Relevance: modern alternative SAE architecture used by strong recent work.
-- Use: required architecture baseline if claiming state-of-art alignment.
+Where this repo can win:
+1. Strong controlled setting for causal debugging of consistency claims.
+2. Already-good artifact hygiene (manifested experiments + explicit controls).
+3. Clear signal that adaptive L0 is a strong practical lever.
+4. Opportunity for a reproducible bridge paper: controlled tasks -> external benchmark protocols.
 
-10. **Heap et al., 2026 update** - *Automated Interpretability Metrics Can Spuriously Explain Model Behavior* ([arXiv:2501.17727](https://arxiv.org/abs/2501.17727))
-- Relevance: warns that proxy metrics can fail even for random models.
-- Use: reinforces need for random baselines and causal checks in this repo.
+## 4) Explicit "Behind" and "Can Win" Lists
 
-## 2) Strong Baseline Codebases
+Behind:
+- No official SAEBench/CE-Bench run artifacts from this workspace yet.
+- Missing modern architecture comparisons under matched budgets.
+- Missing stress-test gate before updating claims.
 
-1. **SAELens** - official ecosystem and tooling for training/analyzing SAEs ([GitHub](https://github.com/decoderesearch/SAELens))
-2. **SAEBench** - benchmark code and eval harness ([GitHub](https://github.com/adamkarvonen/SAEBench))
-3. **CE-Bench** - contrastive benchmark datasets/eval scripts ([GitHub](https://github.com/Yusen-Peng/CE-Bench))
-4. **Feature consistency code** - PW-MCC focused consistency analyses ([GitHub](https://github.com/xiangchensong/sae-feature-consistency))
-5. **GBA code** - theory-grounded recovery implementation ([GitHub](https://github.com/FFishy-git/TamingSAE_GBA))
-6. **OpenAI Sparse Autoencoder release context** - large-scale baseline framing via paper/references ([arXiv:2406.04093](https://arxiv.org/abs/2406.04093))
-7. **Anthropic scaling monosemanticity context** - major practical reference ([Transformer Circuits](https://transformer-circuits.pub/2024/scaling-monosemanticity/))
+Can win:
+- Deliver benchmark-backed reproducibility with strict manifest discipline.
+- Produce architecture-vs-objective regime maps (when does each method win).
+- Set a high bar for negative-result clarity (what did not improve, with CIs).
 
-## 3) Standard Evaluation Protocols in 2025-2026
+## 5) Replication Details to Import Immediately
 
-From SAEBench/CE-Bench and consistency papers:
-- Multi-seed, same-data comparisons with decoder/feature matching metrics.
-- Multi-metric evaluation (not only reconstruction): consistency, interpretability quality, and downstream behavior metrics.
-- Random/naive baseline controls to avoid proxy-metric false positives.
-- Cross-architecture comparisons under matched training budgets.
-- External benchmark validation (SAEBench/CE-Bench) instead of only internal tasks.
+- For every headline metric:
+  - include trained-vs-random control
+  - include CI and effect size
+  - include command + commit + config hash
+- For every writeup update:
+  - run `scripts/analysis/verify_experiment_consistency.py`
+- For benchmark claims:
+  - run official SAEBench/CE-Bench commands via `scripts/experiments/run_official_external_benchmarks.py`
 
-Inference: the field has moved from "single metric + pretty examples" toward benchmark-driven, multi-objective evaluation.
+## 6) Practical Conclusion
 
-## 4) What "Good" Looks Like Today
-
-- No universal single "best SAE" across all metrics/benchmarks.
-- Strong papers report both quality and consistency, and include baseline controls.
-- Benchmark-facing claims typically include multi-architecture and multi-seed evidence.
-- Consistency targets are context-dependent; high values are demonstrated in some regimes, but not universal.
-
-Inference: for this repo, claiming SOTA requires external benchmark evidence, not only internal modular arithmetic curves.
-
-## 5) Gap Analysis vs This Repository
-
-### Where this repo is currently behind
-
-1. **Benchmark coverage gap**
-- No integrated SAEBench/CE-Bench pipeline.
-
-2. **Architecture coverage gap**
-- Core path does not yet robustly compare modern variants (JumpReLU/Matryoshka/JSAE/GBA-level methods).
-
-3. **Execution reliability gap**
-- Core SAE training path currently broken by path/import/API issues; reproducibility narrative is fragmented.
-
-4. **Artifact provenance gap**
-- Claims are spread across many docs/results files without a single command->artifact manifest.
-
-5. **LLM-scale transfer gap**
-- Repo is strong on algorithmic tasks but does not yet provide a robust LLM-scale benchmarked replication path.
-
-### Where this repo can win
-
-1. **Controlled testbed rigor**
-- Algorithmic tasks with known structure allow cleaner causal diagnosis than many LLM-only studies.
-
-2. **Random-baseline emphasis**
-- Existing work already highlights trained-vs-random comparisons; this aligns with current metric skepticism literature.
-
-3. **Stability-reconstruction tradeoff analysis**
-- With fixed engineering, this repo can produce high-quality ablation maps that are still relatively scarce in public codebases.
-
-4. **Bridge paper opportunity**
-- A strong contribution is a "controlled-task to benchmark-task" bridge: identical metrics/protocols from modular arithmetic to SAEBench/CE-Bench subsets.
-
-## 6) Replication Details to Import Immediately
-
-- Multi-seed protocol as a hard requirement for every claim.
-- Standardized naming and artifact schema (seed, architecture, d_sae, k, dataset/task, commit hash).
-- Random baseline runs for every stability metric.
-- External benchmark hooks (at least one SAEBench-like and one CE-Bench-like pass).
-- Confidence intervals/uncertainty reporting for all headline metrics.
-
-## 7) Primary Sources Used
-
-- [arXiv:2501.16615](https://arxiv.org/abs/2501.16615)
-- [arXiv:2505.20254](https://arxiv.org/abs/2505.20254)
-- [arXiv:2406.04093](https://arxiv.org/abs/2406.04093)
-- [arXiv:2503.09532](https://arxiv.org/abs/2503.09532)
-- [arXiv:2509.00691](https://arxiv.org/abs/2509.00691)
-- [arXiv:2506.14002](https://arxiv.org/abs/2506.14002)
-- [arXiv:2502.18147](https://arxiv.org/abs/2502.18147)
-- [arXiv:2503.17547](https://arxiv.org/abs/2503.17547)
-- [arXiv:2407.14435](https://arxiv.org/abs/2407.14435)
-- [arXiv:2501.17727](https://arxiv.org/abs/2501.17727)
-- [SAELens GitHub](https://github.com/decoderesearch/SAELens)
-- [SAEBench GitHub](https://github.com/adamkarvonen/SAEBench)
-- [CE-Bench GitHub](https://github.com/Yusen-Peng/CE-Bench)
-- [Feature Consistency GitHub](https://github.com/xiangchensong/sae-feature-consistency)
-- [GBA GitHub](https://github.com/FFishy-git/TamingSAE_GBA)
-- [Anthropic Scaling Monosemanticity](https://transformer-circuits.pub/2024/scaling-monosemanticity/)
+The repo is now strong enough to pursue high-impact external credibility, but only if the next cycle is benchmark-first and architecture-frontier aware. The immediate bottleneck is not another internal ablation; it is official external benchmark execution plus modern baseline coverage.

@@ -11,7 +11,7 @@ pip install -r requirements-dev.txt
 pre-commit install
 ```
 
-Machine-specific env workarounds observed here:
+Machine-specific env workarounds observed in this workspace:
 ```bash
 export KMP_DUPLICATE_LIB_OK=TRUE
 export TMPDIR=/tmp
@@ -76,15 +76,15 @@ Current status in this workspace: full test suite passes.
 - persist full config with each run
 - include commit hash in run metadata
 - log trained-vs-random baseline for every stability metric
-- write command->artifact entries into `EXPERIMENT_LOG.md`
+- write command-to-artifact entries into `EXPERIMENT_LOG.md`
 
 ## 5) Remaining Risks
 
-- absolute paths still exist in several auxiliary experiment scripts
-- no CI workflow checked into `.github/workflows` yet
-- environment remains split across multiple spec files without lockfile
+- Official SAEBench/CE-Bench benchmark execution is still pending in this workspace.
+- Environment specs remain split across `environment.yml`, `requirements*.txt`, and `pyproject.toml` without lockfile pinning.
+- CI lint/typecheck are intentionally incremental because repository-wide static-analysis debt is still high.
 
-## 6) CI and Follow-up Automation (Added)
+## 6) CI and Follow-up Automation
 
 ### CI workflows
 - Main workflow: `.github/workflows/ci.yml`
@@ -98,7 +98,7 @@ make smoke
 scripts/ci/smoke_pipeline.sh /tmp/husai_ci_smoke
 ```
 
-### Reproduction / Ablation / Benchmark slice commands
+### Reproduction / Ablation / Benchmark commands
 ```bash
 # Phase 4a: trained vs random reproduction with manifest
 python scripts/experiments/run_phase4a_reproduction.py
@@ -108,15 +108,24 @@ python scripts/experiments/run_core_ablations.py --device cpu --epochs 20
 
 # Phase 4e: SAEBench/CE-Bench-aligned local slice
 python scripts/experiments/run_external_benchmark_slice.py
+
+# Phase 4e: official benchmark harness preflight (no execution)
+python scripts/experiments/run_official_external_benchmarks.py
+
+# Phase 4e: official benchmark harness execute mode
+python scripts/experiments/run_official_external_benchmarks.py \
+  --saebench-repo /path/to/SAEBench \
+  --cebench-repo /path/to/CE-Bench \
+  --saebench-command "<official SAEBench command>" \
+  --cebench-command "<official CE-Bench command>" \
+  --execute
 ```
 
-Primary artifact roots:
+### Artifact roots
 - `results/experiments/phase4a_trained_vs_random/`
 - `results/experiments/phase4c_core_ablations/`
 - `results/experiments/phase4e_external_benchmark_slice/`
-
-Note:
-- CI lint/typecheck are currently incremental gates (`src/utils/config.py`, `src/data/modular_arithmetic.py`, and new experiment runners) because repository-wide static-analysis debt is still high.
+- `results/experiments/phase4e_external_benchmark_official/`
 
 ## 7) Highest-Impact Follow-up Commands
 
@@ -135,7 +144,14 @@ Consistency-objective sweep:
 python scripts/experiments/run_consistency_regularization_sweep.py --device cpu --k 4
 ```
 
+Results-consistency audit against artifact JSONs:
+```bash
+python scripts/analysis/verify_experiment_consistency.py
+```
+
 Follow-up artifacts:
 - `results/experiments/adaptive_l0_calibration/`
 - `results/experiments/consistency_objective_sweep/`
+- `results/analysis/experiment_consistency_report.json`
+- `results/analysis/experiment_consistency_report.md`
 - `HIGH_IMPACT_FOLLOWUPS_REPORT.md`

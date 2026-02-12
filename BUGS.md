@@ -87,11 +87,11 @@ This list includes only issues validated by direct code inspection and/or comman
 - Fix: use repo-relative paths derived from file location or cwd args.
 - Estimated effort: 1-2 days (batch cleanup).
 
-### P2-2: No CI workflow is configured
-- Issue: no `.github/workflows` present.
-- Impact: regressions are only caught manually.
-- Fix: add lint/typecheck/unit smoke CI immediately.
-- Estimated effort: 0.5 day.
+### P2-2 (Resolved): CI workflow now configured
+- Previous issue: no CI workflow was present.
+- Current state: `.github/workflows/ci.yml` exists with smoke and quality jobs.
+- Remaining work: expand incremental lint/typecheck scope to full-repo gates.
+- Estimated effort for expansion: 0.5-1 day.
 
 ### P2-3: Environment is not fully locked
 - Issue: dependency definitions are split and partially unconstrained (`pyproject.toml` ranges, separate conda/pip stories).
@@ -124,7 +124,6 @@ Resolved in current workspace:
 - P1-4 command surface drift in `Makefile` and `run_training.sh`
 
 Still open:
-- P2 absolute-path cleanup across the wider experiment script set
-- P2 CI workflow setup
+- P2 absolute-path cleanup outside the core experiment/analysis paths (for example auxiliary training scripts)
 - P2 environment lockfile strategy
 - P2 OpenMP/TMPDIR environment fragility on this machine
