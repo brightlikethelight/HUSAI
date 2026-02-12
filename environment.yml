@@ -48,7 +48,7 @@ dependencies:
     # ====================
     # Scientific Computing
     # ====================
-    - numpy==2.3.4
+    - numpy==1.26.4
     - scipy==1.16.2
     - pandas==2.3.3
     - scikit-learn==1.7.2
