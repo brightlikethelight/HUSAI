@@ -37,6 +37,18 @@ def git_commit() -> str:
         return "unknown"
 
 
+def resolve_repo_path(path: Path) -> Path:
+    return path if path.is_absolute() else (PROJECT_ROOT / path)
+
+
+def repo_rel(path: Path) -> str:
+    abs_path = path.resolve() if not path.is_absolute() else path
+    try:
+        return str(abs_path.relative_to(PROJECT_ROOT))
+    except ValueError:
+        return str(abs_path)
+
+
 def find_latest_json(root: Path, relative: str = "results.json") -> Path:
     candidates = sorted(root.glob(f"run_*/{relative}"))
     if not candidates:
@@ -74,15 +86,19 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    args.output_dir.mkdir(parents=True, exist_ok=True)
+    phase4a_results = resolve_repo_path(args.phase4a_results).resolve()
+    core_ablations_root = resolve_repo_path(args.core_ablations_root).resolve()
+    output_dir = resolve_repo_path(args.output_dir).resolve()
+
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     # Load phase4a reproduction.
-    if not args.phase4a_results.exists():
-        raise FileNotFoundError(f"Phase4a result missing: {args.phase4a_results}")
-    phase4a = json.loads(args.phase4a_results.read_text())
+    if not phase4a_results.exists():
+        raise FileNotFoundError(f"Phase4a result missing: {phase4a_results}")
+    phase4a = json.loads(phase4a_results.read_text())
 
     # Load latest core ablations run.
-    core_path = find_latest_json(args.core_ablations_root)
+    core_path = find_latest_json(core_ablations_root)
     core = json.loads(core_path.read_text())
 
     k_sweep = core.get("k_sweep", [])
@@ -136,8 +152,8 @@ def main() -> None:
             "timestamp_utc": utc_now(),
             "git_commit": git_commit(),
             "command": " ".join(["python", *sys.argv]),
-            "core_ablations_source": str(core_path.relative_to(PROJECT_ROOT)),
-            "phase4a_source": str(args.phase4a_results.relative_to(PROJECT_ROOT)),
+            "core_ablations_source": repo_rel(core_path),
+            "phase4a_source": repo_rel(phase4a_results),
         },
         "protocol": {
             "name": "SAEBench/CE-Bench-aligned slice",
@@ -182,9 +198,9 @@ def main() -> None:
         },
     }
 
-    output_json = args.output_dir / "benchmark_slice.json"
-    output_md = args.output_dir / "benchmark_slice.md"
-    manifest = args.output_dir / "manifest.json"
+    output_json = output_dir / "benchmark_slice.json"
+    output_md = output_dir / "benchmark_slice.md"
+    manifest = output_dir / "manifest.json"
 
     output_json.write_text(json.dumps(benchmark_slice, indent=2) + "\n")
 
@@ -208,8 +224,8 @@ def main() -> None:
                 "",
                 "## Scope",
                 "- Protocol: SAEBench/CE-Bench-aligned slice (not official suite run)",
-                f"- Phase4a source: `{args.phase4a_results.relative_to(PROJECT_ROOT)}`",
-                f"- Core ablations source: `{core_path.relative_to(PROJECT_ROOT)}`",
+                f"- Phase4a source: `{repo_rel(phase4a_results)}`",
+                f"- Core ablations source: `{repo_rel(core_path)}`",
                 "",
                 "## Consistency Control",
                 "",
@@ -248,8 +264,8 @@ def main() -> None:
             {
                 "run_metadata": benchmark_slice["run_metadata"],
                 "artifacts": [
-                    str(output_json.relative_to(PROJECT_ROOT)),
-                    str(output_md.relative_to(PROJECT_ROOT)),
+                    repo_rel(output_json),
+                    repo_rel(output_md),
                 ],
             },
             indent=2,
