@@ -23,7 +23,7 @@ ls -lh results/transformer_5000ep/transformer_best.pt
 ## Step 2: Run Pipeline Test (10 min)
 
 ```bash
-python scripts/test_sae_pipeline.py \
+python tests/test_sae_pipeline.py \
     --transformer-checkpoint results/transformer_5000ep/transformer_best.pt
 ```
 
@@ -47,7 +47,7 @@ Tests failed: 0/5
 ## Step 3: Train First SAE (45 min)
 
 ```bash
-python scripts/train_sae.py \
+python -m scripts.training.train_sae \
     --transformer-checkpoint results/transformer_5000ep/transformer_best.pt \
     --config configs/sae/topk_8x_k32.yaml \
     --layer 1 \
@@ -120,7 +120,7 @@ print(f"Fourier overlap: {overlap:.3f}")
 **Celebrate!** 🎉 Then optionally train a second SAE:
 
 ```bash
-python scripts/train_sae.py \
+python -m scripts.training.train_sae \
     --transformer-checkpoint results/transformer_5000ep/transformer_best.pt \
     --config configs/sae/topk_8x_k32.yaml \
     --layer 1 \

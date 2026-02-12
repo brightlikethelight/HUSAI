@@ -47,7 +47,7 @@ class TestModularArithmeticConfig:
         config = ModularArithmeticConfig(
             modulus=113, num_samples=10_000, train_split=0.9, seed=42
         )
-        assert config.vocab_size == 114  # modulus + 1
+        assert config.vocab_size == 117  # modulus + 4
 
     def test_num_train_val_properties(self) -> None:
         """Test train/val split properties."""
@@ -103,7 +103,7 @@ class TestTransformerConfig:
             d_model=128,
             n_heads=4,
             d_mlp=512,
-            vocab_size=114,
+            vocab_size=117,
             max_seq_len=3,
             activation="relu",
         )
@@ -111,7 +111,7 @@ class TestTransformerConfig:
         assert config.d_model == 128
         assert config.n_heads == 4
         assert config.d_mlp == 512
-        assert config.vocab_size == 114
+        assert config.vocab_size == 117
         assert config.max_seq_len == 3
         assert config.activation == "relu"
 
@@ -122,7 +122,7 @@ class TestTransformerConfig:
             d_model=128,
             n_heads=4,
             d_mlp=512,
-            vocab_size=114,
+            vocab_size=117,
             max_seq_len=3,
         )
         assert config.d_head == 32  # 128 / 4
@@ -135,7 +135,7 @@ class TestTransformerConfig:
                 d_model=100,  # Not divisible by 7
                 n_heads=7,
                 d_mlp=512,
-                vocab_size=114,
+                vocab_size=117,
                 max_seq_len=3,
             )
         assert "divisible" in str(exc_info.value).lower()
@@ -149,7 +149,7 @@ class TestTransformerConfig:
                 d_model=128,
                 n_heads=4,
                 d_mlp=512,
-                vocab_size=114,
+                vocab_size=117,
                 max_seq_len=3,
                 activation=activation,
             )
@@ -163,7 +163,7 @@ class TestTransformerConfig:
                 d_model=128,
                 n_heads=4,
                 d_mlp=512,
-                vocab_size=114,
+                vocab_size=117,
                 max_seq_len=3,
                 activation="invalid_activation",  # type: ignore
             )
@@ -171,7 +171,7 @@ class TestTransformerConfig:
     def test_default_activation(self) -> None:
         """Test that activation defaults to gelu."""
         config = TransformerConfig(
-            n_layers=2, d_model=128, n_heads=4, d_mlp=512, vocab_size=114, max_seq_len=3
+            n_layers=2, d_model=128, n_heads=4, d_mlp=512, vocab_size=117, max_seq_len=3
         )
         assert config.activation == "gelu"
 
@@ -366,7 +366,7 @@ class TestExperimentConfig:
                 d_model=128,
                 n_heads=4,
                 d_mlp=512,
-                vocab_size=114,  # modulus + 1
+                vocab_size=117,  # modulus + 4
                 max_seq_len=3,
             ),
             sae=SAEConfig(
@@ -399,7 +399,7 @@ class TestExperimentConfig:
                     d_model=128,
                     n_heads=4,
                     d_mlp=512,
-                    vocab_size=100,  # Wrong! Should be 114
+                    vocab_size=100,  # Wrong! Should be 117
                     max_seq_len=3,
                 ),
                 sae=SAEConfig(
@@ -432,7 +432,7 @@ class TestExperimentConfig:
                     d_model=128,
                     n_heads=4,
                     d_mlp=512,
-                    vocab_size=114,
+                    vocab_size=117,
                     max_seq_len=3,
                 ),
                 sae=SAEConfig(
@@ -464,7 +464,7 @@ class TestExperimentConfig:
                 d_model=128,
                 n_heads=4,
                 d_mlp=512,
-                vocab_size=114,
+                vocab_size=117,
                 max_seq_len=3,
             ),
             sae=SAEConfig(
@@ -510,7 +510,7 @@ class TestYAMLSerialization:
                 d_model=128,
                 n_heads=4,
                 d_mlp=512,
-                vocab_size=114,
+                vocab_size=117,
                 max_seq_len=3,
                 activation="relu",
             ),
@@ -564,7 +564,7 @@ class TestYAMLSerialization:
                 d_model=128,
                 n_heads=4,
                 d_mlp=512,
-                vocab_size=114,
+                vocab_size=117,
                 max_seq_len=3,
                 activation="relu",
             ),
@@ -610,7 +610,7 @@ class TestHelperFunctions:
                 "d_model": 128,
                 "n_heads": 4,
                 "d_mlp": 512,
-                "vocab_size": 114,
+                "vocab_size": 117,
                 "max_seq_len": 3,
             },
             sae_kwargs={
@@ -643,7 +643,7 @@ class TestHelperFunctions:
                 d_model=128,
                 n_heads=4,
                 d_mlp=512,
-                vocab_size=114,
+                vocab_size=117,
                 max_seq_len=3,
             ),
             sae=SAEConfig(

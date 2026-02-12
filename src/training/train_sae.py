@@ -90,7 +90,7 @@ def normalize_decoder_weights(sae, method: str = "column_norm"):
 
     # Column normalization (normalize each feature direction)
     with torch.no_grad():
-        decoder.weight.data = F.normalize(decoder.weight.data, dim=1)
+        decoder.weight.data = F.normalize(decoder.weight.data, dim=0)
 
 
 def compute_sparsity_loss(
@@ -280,14 +280,17 @@ def train_sae(
 
         for (batch_acts,) in pbar:
             batch_acts = batch_acts.to(device)
-
-            # Forward pass
-            if hasattr(sae, 'forward'):
+            # Forward pass (supports wrapper and raw SAE modules)
+            try:
                 reconstructed, latents = sae(batch_acts, return_latents=True)
-            else:
-                # Direct SAELens usage
-                reconstructed = sae(batch_acts)
-                latents = sae.encode(batch_acts)
+            except TypeError:
+                outputs = sae(batch_acts)
+                if isinstance(outputs, tuple):
+                    reconstructed = outputs[0]
+                    latents = outputs[1] if len(outputs) > 1 else sae.encode(batch_acts)
+                else:
+                    reconstructed = outputs
+                    latents = sae.encode(batch_acts)
 
             # Compute MSE loss
             mse_loss = F.mse_loss(reconstructed, batch_acts)
@@ -350,10 +353,11 @@ def train_sae(
         with torch.no_grad():
             # Sample a batch for EV computation
             sample_acts = activations[:min(1000, len(activations))]
-            if hasattr(sae, 'forward'):
+            try:
                 sample_recon, _ = sae(sample_acts, return_latents=True)
-            else:
-                sample_recon = sae(sample_acts)
+            except TypeError:
+                sample_outputs = sae(sample_acts)
+                sample_recon = sample_outputs[0] if isinstance(sample_outputs, tuple) else sample_outputs
             reconstruction_mse = F.mse_loss(sample_recon, sample_acts, reduction='sum').item()
             explained_var = 1.0 - (reconstruction_mse / (act_var * len(sample_acts)))
 

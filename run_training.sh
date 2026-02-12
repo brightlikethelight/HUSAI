@@ -5,6 +5,7 @@
 export KMP_DUPLICATE_LIB_OK=TRUE
 export OMP_NUM_THREADS=4
 export MKL_NUM_THREADS=4
+export TMPDIR="${TMPDIR:-/tmp}"
 
 # Run the training command
-python scripts/train_baseline.py "$@"
+python -m scripts.training.train_baseline "$@"

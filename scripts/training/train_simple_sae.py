@@ -30,7 +30,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from tqdm import tqdm
 
 # Add project root
-project_root = Path(__file__).parent.parent
+project_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_root))
 
 from src.models.transformer import ModularArithmeticTransformer
@@ -49,9 +49,7 @@ def extract_activations(model, modulus=113, layer=1, max_samples=50000):
     """Extract activations from trained transformer."""
     print(f"Extracting activations from layer {layer}...")
     
-    # Import here to avoid .gitignore issues
-    sys.path.insert(0, str(project_root / "src"))
-    from data.modular_arithmetic import create_dataloaders
+    from src.data.modular_arithmetic import create_dataloaders
     
     train_loader, _ = create_dataloaders(
         modulus=modulus,
@@ -260,7 +258,14 @@ def main():
     print(f"Loading transformer from {args.transformer}...")
     model, extras = ModularArithmeticTransformer.load_checkpoint(args.transformer)
     config = extras.get('config')
-    modulus = config.dataset.modulus if config else 113
+    if config is None:
+        modulus = 113
+    elif hasattr(config, 'dataset'):
+        modulus = config.dataset.modulus
+    elif hasattr(config, 'vocab_size'):
+        modulus = int(config.vocab_size - 4)
+    else:
+        modulus = 113
     d_model = model.model.cfg.d_model  # Get from underlying HookedTransformer
     print(f"✅ Loaded: d_model={d_model}, modulus={modulus}")
     

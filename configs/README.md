@@ -35,7 +35,7 @@ transformer:
   d_model: 128  # Must be divisible by n_heads
   n_heads: 4
   d_mlp: 512  # Typically 4x d_model
-  vocab_size: 114  # Must equal dataset.modulus + 1
+  vocab_size: 117  # Must equal dataset.modulus + 4
   max_seq_len: 3
   activation: "relu"  # Options: relu, gelu, gelu_new, silu, gelu_fast
 
@@ -136,7 +136,7 @@ config = create_experiment_config_from_dict(
         "d_model": 128,
         "n_heads": 4,
         "d_mlp": 512,
-        "vocab_size": 114,
+        "vocab_size": 117,
         "max_seq_len": 3
     },
     sae_kwargs={
@@ -164,7 +164,7 @@ from src.utils.config import ExperimentConfig, ModularArithmeticConfig, Transfor
 # Base config
 base_dataset = ModularArithmeticConfig(modulus=113, num_samples=50000, train_split=0.9)
 base_transformer = TransformerConfig(
-    n_layers=2, d_model=128, n_heads=4, d_mlp=512, vocab_size=114, max_seq_len=3
+    n_layers=2, d_model=128, n_heads=4, d_mlp=512, vocab_size=117, max_seq_len=3
 )
 
 # Generate configs for different seeds
@@ -199,11 +199,11 @@ Configs are automatically validated on load with helpful error messages:
 ```python
 # This will raise ValidationError with clear message
 config = ExperimentConfig.from_yaml("configs/invalid.yaml")
-# ValidationError: transformer vocab_size (100) must match dataset vocab_size (114)
+# ValidationError: transformer vocab_size (100) must match dataset vocab_size (117)
 ```
 
 Common validation errors:
-- `vocab_size mismatch`: transformer.vocab_size must equal dataset.vocab_size (modulus + 1)
+- `vocab_size mismatch`: transformer.vocab_size must equal dataset.vocab_size (modulus + 4)
 - `input_dim mismatch`: sae.input_dim must equal transformer.d_model
 - `d_model not divisible by n_heads`: d_model must be evenly divisible by n_heads
 - `l1_coefficient required for ReLU SAE`: ReLU architecture requires l1_coefficient

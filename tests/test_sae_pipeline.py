@@ -35,7 +35,7 @@ from src.analysis.fourier_validation import get_fourier_basis, compute_fourier_o
 from src.utils.config import SAEConfig
 
 
-def test_pipeline(transformer_checkpoint: Path, verbose: bool = True):
+def run_pipeline_test(transformer_checkpoint: Path, verbose: bool = True):
     """Run end-to-end pipeline test.
     
     Args:
@@ -56,7 +56,14 @@ def test_pipeline(transformer_checkpoint: Path, verbose: bool = True):
     try:
         model, extras = ModularArithmeticTransformer.load_checkpoint(transformer_checkpoint)
         config = extras.get("config")
-        modulus = config.dataset.modulus if config else 113
+        if config is None:
+            modulus = 113
+        elif hasattr(config, "dataset"):
+            modulus = config.dataset.modulus
+        elif hasattr(config, "vocab_size"):
+            modulus = int(config.vocab_size - 4)
+        else:
+            modulus = 113
         
         # Count parameters manually
         n_params = sum(p.numel() for p in model.parameters())
@@ -111,6 +118,7 @@ def test_pipeline(transformer_checkpoint: Path, verbose: bool = True):
             architecture="topk",
             input_dim=model.d_model,
             expansion_factor=8,
+            sparsity_level=32,
             k=32,
             learning_rate=3e-4,
             batch_size=256,
@@ -124,13 +132,13 @@ def test_pipeline(transformer_checkpoint: Path, verbose: bool = True):
             activations=activations,
             config=sae_config,
             use_wandb=False,  # No W&B for testing
-            quiet=True
+            device="cpu",
+            verbose=False
         )
         
-        final_metrics = metrics["final_metrics"]
-        l0 = final_metrics["l0"]
-        exp_var = final_metrics["explained_variance"]
-        dead_pct = final_metrics["dead_neuron_pct"]
+        l0 = metrics.l0[-1]
+        exp_var = metrics.explained_variance[-1]
+        dead_pct = metrics.dead_neuron_pct[-1] / 100.0
         
         print(f"  ✅ Training complete")
         print(f"  ✅ L0: {l0:.1f} (target: ~32)")
@@ -203,7 +211,7 @@ def test_pipeline(transformer_checkpoint: Path, verbose: bool = True):
         test_path.parent.mkdir(parents=True, exist_ok=True)
         
         sae.save(test_path)
-        sae_loaded = SAEWrapper.load_checkpoint(test_path)
+        sae_loaded = SAEWrapper.load(test_path)
         
         # Verify weights match
         weight_diff = (sae.sae.decoder.weight - sae_loaded.sae.decoder.weight).abs().max()
@@ -262,7 +270,7 @@ def main():
         print(f"Error: Transformer checkpoint not found: {args.transformer_checkpoint}")
         sys.exit(1)
     
-    results = test_pipeline(args.transformer_checkpoint, args.verbose)
+    results = run_pipeline_test(args.transformer_checkpoint, args.verbose)
     
     # Exit with appropriate code
     sys.exit(0 if results["tests_failed"] == 0 else 1)

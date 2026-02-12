@@ -81,29 +81,29 @@ run-notebooks: ## Start Jupyter Lab
 
 # Training commands
 train-baseline: ## Train baseline transformer on modular arithmetic
-	python scripts/train_baseline.py
+	python -m scripts.training.train_baseline --config configs/examples/baseline_relu.yaml
 
 train-sae-relu: ## Train ReLU SAE
-	python scripts/train_sae.py --config configs/relu_sae.yaml
+	python -m scripts.training.train_sae --transformer-checkpoint results/transformer_5000ep/transformer_best.pt --config configs/sae/relu_8x.yaml --layer 1
 
 train-sae-topk: ## Train TopK SAE
-	python scripts/train_sae.py --config configs/topk_sae.yaml
+	python -m scripts.training.train_sae --transformer-checkpoint results/transformer_5000ep/transformer_best.pt --config configs/sae/topk_8x_k32.yaml --layer 1
 
 train-sae-batchtopk: ## Train BatchTopK SAE
-	python scripts/train_sae.py --config configs/batchtopk_sae.yaml
+	python -m scripts.training.train_sae --transformer-checkpoint results/transformer_5000ep/transformer_best.pt --config configs/examples/batchtopk_32x.yaml --layer 1
 
 train-all: ## Run full experiment sweep (expensive!)
-	python scripts/run_experiments.py --config configs/full_sweep.yaml
+	python -m scripts.experiments.comprehensive_stability_analysis
 
 # Analysis commands
 analyze-consistency: ## Run feature consistency analysis
-	python scripts/analyze_consistency.py
+	python -m scripts.analysis.analyze_feature_stability --sae-dir results/saes --architecture topk --output results/analysis/feature_stability.pkl
 
 analyze-geometry: ## Run geometric structure analysis
-	python scripts/analyze_geometry.py
+	python -m scripts.analysis.hungarian_matching_analysis
 
 analyze-circuits: ## Run circuit discovery analysis
-	python scripts/analyze_circuits.py
+	python -m scripts.analysis.analyze_transformer_fourier
 
 # Documentation
 docs-serve: ## Serve documentation locally

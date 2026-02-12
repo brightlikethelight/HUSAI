@@ -30,6 +30,7 @@ sae:
   architecture: topk
   input_dim: 128  # Must match transformer d_model
   expansion_factor: 8  # 128 * 8 = 1024 features
+  sparsity_level: 32  # Required by ExperimentConfig (TopK k)
   k: 32  # Keep top-32 activations (explicit sparsity)
   learning_rate: 3e-4  # 0.0003 (standard for SAEs)
   batch_size: 256  # Training batch size

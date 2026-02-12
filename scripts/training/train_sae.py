@@ -54,14 +54,14 @@ from typing import Optional
 import torch
 
 # Add project root to path
-project_root = Path(__file__).parent.parent
+project_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_root))
 
 from src.models.transformer import ModularArithmeticTransformer
 from src.models.sae import SAEWrapper
 from src.training.train_sae import train_sae
 from src.utils.config import ExperimentConfig, SAEConfig
-from scripts.extract_activations import extract_activations
+from scripts.analysis.extract_activations import extract_activations
 
 
 def main():

@@ -232,7 +232,7 @@ class ModularArithmeticTransformer(nn.Module):
         model.model.load_state_dict(checkpoint['model_state_dict'])
 
         # Prepare extras
-        extras = {}
+        extras = {"config": config}
         if 'optimizer_state_dict' in checkpoint and load_optimizer:
             extras['optimizer_state_dict'] = checkpoint['optimizer_state_dict']
         if 'epoch' in checkpoint:
@@ -241,6 +241,13 @@ class ModularArithmeticTransformer(nn.Module):
             extras['metrics'] = checkpoint['metrics']
 
         return model, extras
+
+    
+    
+    @property
+    def d_model(self) -> int:
+        """Model hidden dimension."""
+        return self.config.d_model
 
     def count_parameters(self) -> int:
         """Count total trainable parameters.

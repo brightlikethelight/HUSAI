@@ -30,6 +30,7 @@ sae:
   architecture: relu
   input_dim: 128  # Must match transformer d_model
   expansion_factor: 8  # 128 * 8 = 1024 features
+  sparsity_level: 0.001  # Required by ExperimentConfig (ReLU L1 target)
   l1_coefficient: 1e-3  # 0.001 (may need tuning)
   learning_rate: 3e-4  # 0.0003 (standard for SAEs)
   batch_size: 256  # Training batch size

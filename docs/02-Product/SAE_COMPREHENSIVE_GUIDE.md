@@ -139,7 +139,7 @@ decoder.weight.data = F.normalize(decoder.weight.data, dim=1)
 
 # Train SAEs with different seeds
 for seed in 42 123 456 789 1011; do
-  python scripts/train_sae.py --seed $seed --layer 1
+  python -m scripts.training.train_sae --seed $seed --layer 1
 done
 
 # Analyze feature overlap

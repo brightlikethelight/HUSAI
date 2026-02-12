@@ -1,367 +1,234 @@
-"""Sparse Autoencoder (SAE) models using SAELens.
+"""Sparse Autoencoder wrappers used by the HUSAI training pipeline.
 
-This module provides wrappers around SAELens for training SAEs on transformer
-activations. It supports three architectures:
-- ReLU SAE (with L1 penalty)
-- TopK SAE (top-k activations per sample)
-- BatchTopK SAE (top-k activations across batch)
-
-Example:
-    >>> from src.utils.config import SAEConfig
-    >>> from src.models.sae import create_sae
-    >>>
-    >>> config = SAEConfig(
-    ...     architecture="relu",
-    ...     input_dim=128,
-    ...     expansion_factor=4,
-    ...     l1_coefficient=1e-3
-    ... )
-    >>> sae = create_sae(config)
-    >>> reconstructed = sae(activations)
+This module provides a stable wrapper API for SAE training and analysis.
+It currently uses the local simple SAE implementations (`TopKSAE`, `ReLUSAE`)
+so the core pipeline is decoupled from external SAELens API churn.
 """
+
+from __future__ import annotations
+
+import warnings
+from pathlib import Path
+from typing import Dict, Optional
 
 import torch
 import torch.nn as nn
-from pathlib import Path
-from typing import Dict, Optional, Literal
-from sae_lens import SAE
-from sae_lens.config import LanguageModelSAERunnerConfig
 
+from src.models.simple_sae import ReLUSAE, TopKSAE
 from src.utils.config import SAEConfig
 
 
-def create_sae(
-    config: SAEConfig,
-    device: Optional[str] = None
-) -> SAE:
-    """Create SAE from config using SAELens.
+def create_sae(config: SAEConfig, device: Optional[str] = None) -> nn.Module:
+    """Create an SAE model from config.
 
     Args:
-        config: SAEConfig with architecture parameters
-        device: Device to create SAE on ('cuda', 'cpu', or None for auto-detect)
+        config: SAE configuration.
+        device: Device string; auto-detected if None.
 
     Returns:
-        SAE model from SAELens
-
-    Example:
-        >>> config = SAEConfig(
-        ...     architecture="relu",
-        ...     input_dim=128,
-        ...     expansion_factor=4,
-        ...     l1_coefficient=1e-3
-        ... )
-        >>> sae = create_sae(config)
+        Instantiated SAE module.
     """
     if device is None:
-        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    # Calculate SAE dimension
     d_sae = config.input_dim * config.expansion_factor
 
-    # Create SAELens config based on architecture
-    if config.architecture == "relu":
-        # ReLU SAE with L1 penalty
-        sae_config = LanguageModelSAERunnerConfig(
-            architecture="standard",
-            d_in=config.input_dim,
-            d_sae=d_sae,
-            l1_coefficient=config.l1_coefficient,
-            lr=config.learning_rate,
-            train_batch_size_tokens=config.batch_size,
-            seed=config.seed if config.seed is not None else 42,
-        )
+    if config.architecture == "topk":
+        if config.k is None:
+            raise ValueError("TopK SAE requires config.k")
+        sae = TopKSAE(d_model=config.input_dim, d_sae=d_sae, k=config.k)
 
-    elif config.architecture == "topk":
-        # TopK SAE (per-sample top-k)
-        sae_config = LanguageModelSAERunnerConfig(
-            architecture="topk",
-            d_in=config.input_dim,
-            d_sae=d_sae,
-            activation_fn_kwargs={"k": config.k},
-            lr=config.learning_rate,
-            train_batch_size_tokens=config.batch_size,
-            seed=config.seed if config.seed is not None else 42,
-        )
+    elif config.architecture == "relu":
+        if config.l1_coefficient is None:
+            raise ValueError("ReLU SAE requires config.l1_coefficient")
+        sae = ReLUSAE(d_model=config.input_dim, d_sae=d_sae, l1_coef=config.l1_coefficient)
 
     elif config.architecture == "batchtopk":
-        # BatchTopK SAE (batch-level top-k)
-        # Note: SAELens may not have native BatchTopK, we may need custom implementation
-        # For now, use TopK as approximation
-        sae_config = LanguageModelSAERunnerConfig(
-            architecture="topk",
-            d_in=config.input_dim,
-            d_sae=d_sae,
-            activation_fn_kwargs={"k": config.k},
-            lr=config.learning_rate,
-            train_batch_size_tokens=config.batch_size,
-            seed=config.seed if config.seed is not None else 42,
+        if config.k is None:
+            raise ValueError("BatchTopK SAE requires config.k")
+        warnings.warn(
+            "BatchTopK uses TopKSAE fallback in current implementation.",
+            stacklevel=2,
         )
+        sae = TopKSAE(d_model=config.input_dim, d_sae=d_sae, k=config.k)
 
     else:
         raise ValueError(
             f"Unknown SAE architecture: {config.architecture}. "
-            f"Must be one of: relu, topk, batchtopk"
+            "Must be one of: relu, topk, batchtopk"
         )
 
-    # Create SAE
-    sae = SAE(sae_config)
-    sae = sae.to(device)
-
-    return sae
+    return sae.to(device)
 
 
 def save_sae_checkpoint(
-    sae: SAE,
+    sae: nn.Module,
     path: Path,
     config: SAEConfig,
-    metrics: Optional[Dict] = None
+    metrics: Optional[Dict] = None,
 ) -> None:
-    """Save SAE checkpoint.
-
-    Args:
-        sae: SAE model to save
-        path: Path to save checkpoint
-        config: SAEConfig used to create the SAE
-        metrics: Optional metrics dict to save
-    """
+    """Save SAE checkpoint."""
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
 
-    checkpoint = {
-        'sae_state_dict': sae.state_dict(),
-        'config': config.model_dump(),
+    checkpoint: Dict[str, object] = {
+        "sae_state_dict": sae.state_dict(),
+        "config": config.model_dump(),
     }
-
     if metrics is not None:
-        checkpoint['metrics'] = metrics
+        checkpoint["metrics"] = metrics
 
     torch.save(checkpoint, path)
 
 
-def load_sae_checkpoint(
-    path: Path,
-    device: Optional[str] = None
-) -> tuple[SAE, SAEConfig, Optional[Dict]]:
-    """Load SAE from checkpoint.
+def load_sae_checkpoint(path: Path, device: Optional[str] = None) -> tuple[nn.Module, SAEConfig, Optional[Dict]]:
+    """Load SAE from checkpoint."""
+    checkpoint = torch.load(path, map_location=device or "cpu")
 
-    Args:
-        path: Path to checkpoint file
-        device: Device to load SAE on
-
-    Returns:
-        sae: Loaded SAE model
-        config: SAEConfig used to create the SAE
-        metrics: Optional metrics dict
-
-    Example:
-        >>> sae, config, metrics = load_sae_checkpoint('results/sae.pt')
-        >>> print(f"Loaded SAE with {config.expansion_factor}x expansion")
-    """
-    checkpoint = torch.load(path, map_location=device or 'cpu')
-
-    # Reconstruct config
-    config = SAEConfig(**checkpoint['config'])
-
-    # Create SAE
+    config = SAEConfig(**checkpoint["config"])
     sae = create_sae(config, device=device)
-    sae.load_state_dict(checkpoint['sae_state_dict'])
+    sae.load_state_dict(checkpoint["sae_state_dict"])
 
-    # Get metrics if available
-    metrics = checkpoint.get('metrics', None)
-
-    return sae, config, metrics
+    metrics = checkpoint.get("metrics")
+    return sae, config, metrics  # type: ignore[return-value]
 
 
 class SAEWrapper(nn.Module):
-    """Wrapper around SAELens SAE with additional utilities.
+    """Wrapper around local SAE models with a stable interface."""
 
-    This class provides a clean PyTorch nn.Module interface around SAELens
-    SAE models, with methods for activation extraction, reconstruction,
-    and sparsity analysis.
-
-    Attributes:
-        sae: Underlying SAELens SAE model
-        config: SAEConfig with architecture parameters
-        device: Device to run SAE on
-
-    Example:
-        >>> wrapper = SAEWrapper(config)
-        >>> reconstructed, latents = wrapper(activations)
-        >>> sparsity = wrapper.compute_sparsity(latents)
-    """
-
-    def __init__(
-        self,
-        config: SAEConfig,
-        device: Optional[str] = None
-    ):
-        """Initialize SAE wrapper.
-
-        Args:
-            config: SAEConfig with architecture parameters
-            device: Device to run on ('cuda', 'cpu', or None for auto-detect)
-        """
+    def __init__(self, config: SAEConfig, device: Optional[str] = None):
         super().__init__()
         self.config = config
-
-        if device is None:
-            self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        else:
-            self.device = device
-
-        # Create SAE
+        self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         self.sae = create_sae(config, device=self.device)
+
+    def _forward_2d(
+        self,
+        activations: torch.Tensor,
+        return_latents: bool = True,
+    ) -> tuple[torch.Tensor, Optional[torch.Tensor]]:
+        """Forward helper for [batch, d_model] activations."""
+        outputs = self.sae(activations)
+
+        if isinstance(outputs, tuple):
+            reconstructed = outputs[0]
+            latents = outputs[1] if len(outputs) > 1 else None
+        else:
+            reconstructed = outputs
+            latents = None
+
+        if return_latents and latents is None:
+            latents = self.sae.encode(activations)
+
+        if not return_latents:
+            latents = None
+
+        return reconstructed, latents
 
     def forward(
         self,
         activations: torch.Tensor,
-        return_latents: bool = True
+        return_latents: bool = True,
     ) -> tuple[torch.Tensor, Optional[torch.Tensor]]:
-        """Forward pass through SAE.
+        """Forward pass for 2D or 3D activation tensors.
 
-        Args:
-            activations: Input activations [batch, seq, d_model]
-            return_latents: Whether to return latent activations
-
-        Returns:
-            reconstructed: Reconstructed activations [batch, seq, d_model]
-            latents: Latent activations [batch, seq, d_sae] (if return_latents=True)
+        Accepted inputs:
+        - [batch, d_model]
+        - [batch, seq, d_model]
         """
-        # SAELens expects [batch * seq, d_model]
+        if activations.ndim == 2:
+            return self._forward_2d(activations, return_latents=return_latents)
+
+        if activations.ndim != 3:
+            raise ValueError(
+                f"Expected 2D or 3D activations, got shape {tuple(activations.shape)}"
+            )
+
         batch, seq, d_model = activations.shape
-        activations_flat = activations.view(-1, d_model)
+        flat = activations.reshape(-1, d_model)
+        recon_flat, latents_flat = self._forward_2d(flat, return_latents=return_latents)
 
-        # Forward pass
-        reconstructed_flat = self.sae(activations_flat)
-
-        # Reshape back
-        reconstructed = reconstructed_flat.view(batch, seq, d_model)
-
-        if return_latents:
-            # Get latent activations
-            latents_flat = self.sae.encode(activations_flat)
-            latents = latents_flat.view(batch, seq, -1)
-            return reconstructed, latents
-        else:
+        reconstructed = recon_flat.reshape(batch, seq, d_model)
+        if not return_latents or latents_flat is None:
             return reconstructed, None
 
+        latents = latents_flat.reshape(batch, seq, -1)
+        return reconstructed, latents
+
     def encode(self, activations: torch.Tensor) -> torch.Tensor:
-        """Encode activations to latent space.
+        """Encode activations into SAE latent space."""
+        if activations.ndim == 2:
+            return self.sae.encode(activations)
 
-        Args:
-            activations: Input activations [batch, seq, d_model]
+        if activations.ndim == 3:
+            batch, seq, d_model = activations.shape
+            flat = activations.reshape(-1, d_model)
+            latents = self.sae.encode(flat)
+            return latents.reshape(batch, seq, -1)
 
-        Returns:
-            latents: Latent activations [batch, seq, d_sae]
-        """
-        batch, seq, d_model = activations.shape
-        activations_flat = activations.view(-1, d_model)
-        latents_flat = self.sae.encode(activations_flat)
-        return latents_flat.view(batch, seq, -1)
+        raise ValueError(f"Expected 2D or 3D activations, got shape {tuple(activations.shape)}")
 
     def decode(self, latents: torch.Tensor) -> torch.Tensor:
-        """Decode latents to activation space.
+        """Decode SAE latents back to activation space."""
+        if latents.ndim == 2:
+            return self.sae.decode(latents)
 
-        Args:
-            latents: Latent activations [batch, seq, d_sae]
+        if latents.ndim == 3:
+            batch, seq, d_sae = latents.shape
+            flat = latents.reshape(-1, d_sae)
+            decoded = self.sae.decode(flat)
+            return decoded.reshape(batch, seq, -1)
 
-        Returns:
-            reconstructed: Reconstructed activations [batch, seq, d_model]
-        """
-        batch, seq, d_sae = latents.shape
-        latents_flat = latents.view(-1, d_sae)
-        reconstructed_flat = self.sae.decode(latents_flat)
-        return reconstructed_flat.view(batch, seq, -1)
+        raise ValueError(f"Expected 2D or 3D latents, got shape {tuple(latents.shape)}")
 
     @torch.no_grad()
     def compute_sparsity(self, latents: torch.Tensor) -> Dict[str, float]:
-        """Compute sparsity metrics for latent activations.
-
-        Args:
-            latents: Latent activations [batch, seq, d_sae]
-
-        Returns:
-            dict with sparsity metrics:
-                - l0: Average number of active features per sample
-                - l1: Average L1 norm
-                - frac_active: Fraction of features ever active
-        """
-        # L0 sparsity (number of non-zero features)
+        """Compute simple sparsity metrics."""
         l0 = (latents != 0).float().sum(dim=-1).mean().item()
-
-        # L1 norm
         l1 = latents.abs().sum(dim=-1).mean().item()
 
-        # Fraction of features ever active
-        active_features = (latents != 0).any(dim=(0, 1))
-        frac_active = active_features.float().mean().item()
+        if latents.ndim == 2:
+            active_features = (latents != 0).any(dim=0)
+        elif latents.ndim == 3:
+            active_features = (latents != 0).any(dim=(0, 1))
+        else:
+            raise ValueError(f"Expected 2D or 3D latents, got shape {tuple(latents.shape)}")
 
+        frac_active = active_features.float().mean().item()
         return {
-            'l0': l0,
-            'l1': l1,
-            'frac_active': frac_active,
+            "l0": l0,
+            "l1": l1,
+            "frac_active": frac_active,
         }
 
-    def to(self, device: str) -> 'SAEWrapper':
-        """Move SAE to device.
-
-        Args:
-            device: Device to move to ('cuda' or 'cpu')
-
-        Returns:
-            self for chaining
-        """
+    def to(self, device: str) -> "SAEWrapper":
+        """Move wrapped SAE to target device."""
         self.device = device
         self.sae = self.sae.to(device)
         return self
 
-    def save(
-        self,
-        path: Path,
-        metrics: Optional[Dict] = None
-    ) -> None:
-        """Save SAE checkpoint.
-
-        Args:
-            path: Path to save checkpoint
-            metrics: Optional metrics dict to save
-        """
+    def save(self, path: Path, metrics: Optional[Dict] = None) -> None:
+        """Save wrapper checkpoint."""
         save_sae_checkpoint(self.sae, path, self.config, metrics)
 
     @classmethod
-    def load(
-        cls,
-        path: Path,
-        device: Optional[str] = None
-    ) -> 'SAEWrapper':
-        """Load SAE from checkpoint.
-
-        Args:
-            path: Path to checkpoint file
-            device: Device to load on
-
-        Returns:
-            Loaded SAEWrapper
-
-        Example:
-            >>> wrapper = SAEWrapper.load('results/sae.pt')
-        """
-        sae, config, metrics = load_sae_checkpoint(path, device)
+    def load(cls, path: Path, device: Optional[str] = None) -> "SAEWrapper":
+        """Load wrapper from checkpoint."""
+        sae, config, _ = load_sae_checkpoint(path, device)
         wrapper = cls.__new__(cls)
         super(SAEWrapper, wrapper).__init__()
         wrapper.config = config
-        wrapper.device = device or ('cuda' if torch.cuda.is_available() else 'cpu')
+        wrapper.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         wrapper.sae = sae
         return wrapper
 
     def __repr__(self) -> str:
-        """String representation of SAE."""
+        d_sae = self.config.input_dim * self.config.expansion_factor
         return (
-            f"SAEWrapper(\n"
+            "SAEWrapper(\n"
             f"  architecture={self.config.architecture},\n"
             f"  input_dim={self.config.input_dim},\n"
-            f"  expansion_factor={self.config.expansion_factor},\n"
-            f"  d_sae={self.config.input_dim * self.config.expansion_factor},\n"
+            f"  d_sae={d_sae},\n"
             f"  device={self.device}\n"
-            f")"
+            ")"
         )
