@@ -239,7 +239,15 @@ def main() -> None:
     sae_root = args.sae_root if args.sae_root.is_absolute() else (PROJECT_ROOT / args.sae_root)
     sae_root = sae_root.resolve()
 
-    args.output_dir.mkdir(parents=True, exist_ok=True)
+    output_dir = args.output_dir if args.output_dir.is_absolute() else (PROJECT_ROOT / args.output_dir)
+    output_dir = output_dir.resolve()
+    analysis_output = (
+        args.analysis_output if args.analysis_output.is_absolute() else (PROJECT_ROOT / args.analysis_output)
+    )
+    analysis_output = analysis_output.resolve()
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    analysis_output.parent.mkdir(parents=True, exist_ok=True)
 
     # Load trained decoders.
     trained_decoders: dict[int, torch.Tensor] = {}
@@ -324,16 +332,16 @@ def main() -> None:
     }
 
     # Write artifacts.
-    write_pairs_csv(args.output_dir / "trained_pairwise_pwmcc.csv", trained_pairs)
-    write_pairs_csv(args.output_dir / "random_pairwise_pwmcc.csv", random_pairs)
+    write_pairs_csv(output_dir / "trained_pairwise_pwmcc.csv", trained_pairs)
+    write_pairs_csv(output_dir / "random_pairwise_pwmcc.csv", random_pairs)
 
-    with (args.output_dir / "results.json").open("w") as f:
+    with (output_dir / "results.json").open("w") as f:
         json.dump(payload, f, indent=2)
 
-    with args.analysis_output.open("w") as f:
+    with analysis_output.open("w") as f:
         json.dump(payload, f, indent=2)
 
-    summary_md = args.output_dir / "summary.md"
+    summary_md = output_dir / "summary.md"
     summary_md.write_text(
         "\n".join(
             [
@@ -371,20 +379,20 @@ def main() -> None:
     manifest = {
         "run_metadata": payload["run_metadata"],
         "artifacts": [
-            str((args.output_dir / "results.json").relative_to(PROJECT_ROOT)),
-            str((args.output_dir / "summary.md").relative_to(PROJECT_ROOT)),
-            str((args.output_dir / "trained_pairwise_pwmcc.csv").relative_to(PROJECT_ROOT)),
-            str((args.output_dir / "random_pairwise_pwmcc.csv").relative_to(PROJECT_ROOT)),
-            str(args.analysis_output.relative_to(PROJECT_ROOT)),
+            str((output_dir / "results.json").relative_to(PROJECT_ROOT)),
+            str((output_dir / "summary.md").relative_to(PROJECT_ROOT)),
+            str((output_dir / "trained_pairwise_pwmcc.csv").relative_to(PROJECT_ROOT)),
+            str((output_dir / "random_pairwise_pwmcc.csv").relative_to(PROJECT_ROOT)),
+            str(analysis_output.relative_to(PROJECT_ROOT)),
         ],
     }
-    with (args.output_dir / "manifest.json").open("w") as f:
+    with (output_dir / "manifest.json").open("w") as f:
         json.dump(manifest, f, indent=2)
 
     print("Phase 4a reproduction complete")
-    print(f"Results: {args.output_dir / 'results.json'}")
-    print(f"Summary: {args.output_dir / 'summary.md'}")
-    print(f"Legacy analysis output: {args.analysis_output}")
+    print(f"Results: {output_dir / 'results.json'}")
+    print(f"Summary: {output_dir / 'summary.md'}")
+    print(f"Legacy analysis output: {analysis_output}")
 
 
 if __name__ == "__main__":
