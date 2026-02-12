@@ -77,17 +77,29 @@ def load_decoder(path: Path) -> torch.Tensor:
     ckpt = torch.load(path, map_location="cpu")
 
     # Common checkpoint formats in this repo.
-    if isinstance(ckpt, dict) and "model_state_dict" in ckpt:
-        state = ckpt["model_state_dict"]
-    elif isinstance(ckpt, dict):
-        state = ckpt
+    if isinstance(ckpt, dict):
+        if "model_state_dict" in ckpt:
+            state = ckpt["model_state_dict"]
+        elif "sae_state_dict" in ckpt:
+            state = ckpt["sae_state_dict"]
+        else:
+            state = ckpt
     else:
         raise ValueError(f"Unsupported checkpoint format: {path}")
 
-    if "decoder.weight" not in state:
+    decoder_key = None
+    if "decoder.weight" in state:
+        decoder_key = "decoder.weight"
+    else:
+        for key in state.keys():
+            if key.endswith("decoder.weight"):
+                decoder_key = key
+                break
+
+    if decoder_key is None:
         raise KeyError(f"decoder.weight not found in checkpoint: {path}")
 
-    decoder = state["decoder.weight"].detach().float().cpu()
+    decoder = state[decoder_key].detach().float().cpu()
     if decoder.ndim != 2:
         raise ValueError(f"decoder.weight must be rank-2, got {decoder.shape} at {path}")
 
