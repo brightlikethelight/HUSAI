@@ -52,6 +52,18 @@ def stable_hash(payload: dict[str, Any]) -> str:
     return hashlib.sha256(raw).hexdigest()
 
 
+def resolve_repo_path(path: Path) -> Path:
+    return path if path.is_absolute() else (PROJECT_ROOT / path)
+
+
+def repo_rel(path: Path) -> str:
+    abs_path = path.resolve() if not path.is_absolute() else path
+    try:
+        return str(abs_path.relative_to(PROJECT_ROOT))
+    except ValueError:
+        return str(abs_path)
+
+
 def set_seed(seed: int) -> None:
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -242,7 +254,7 @@ def run_condition_grid(
             per_seed_metrics.append(
                 {
                     "seed": seed,
-                    "checkpoint": str(checkpoint_path.relative_to(PROJECT_ROOT)),
+                    "checkpoint": repo_rel(checkpoint_path),
                     **metrics,
                 }
             )
@@ -406,13 +418,17 @@ def main() -> None:
     k_values = parse_int_list(args.k_values)
     dsae_values = parse_int_list(args.dsae_values)
 
+    transformer_checkpoint = resolve_repo_path(args.transformer_checkpoint).resolve()
+    activations_cache = resolve_repo_path(args.activations_cache).resolve()
+    output_root = resolve_repo_path(args.output_dir).resolve()
+
     run_id = datetime.now(timezone.utc).strftime("run_%Y%m%dT%H%M%SZ")
-    run_dir = args.output_dir / run_id
+    run_dir = output_root / run_id
     run_dir.mkdir(parents=True, exist_ok=True)
 
     config_payload = {
-        "transformer_checkpoint": str(args.transformer_checkpoint),
-        "activations_cache": str(args.activations_cache),
+        "transformer_checkpoint": str(transformer_checkpoint),
+        "activations_cache": str(activations_cache),
         "layer": args.layer,
         "modulus": args.modulus,
         "activation_seed": args.activation_seed,
@@ -426,14 +442,15 @@ def main() -> None:
         "fixed_k": args.fixed_k,
         "fixed_dsae": args.fixed_dsae,
         "bootstrap_samples": args.bootstrap_samples,
+        "output_root": str(output_root),
     }
 
     (run_dir / "config.json").write_text(json.dumps(config_payload, indent=2) + "\n")
 
     print("Loading or extracting activations...")
     activations = load_or_extract_activations(
-        cache_path=args.activations_cache,
-        transformer_checkpoint=args.transformer_checkpoint,
+        cache_path=activations_cache,
+        transformer_checkpoint=transformer_checkpoint,
         layer=args.layer,
         batch_size=args.batch_size,
         device=args.device,
@@ -500,12 +517,12 @@ def main() -> None:
     manifest = {
         "run_metadata": payload["run_metadata"],
         "artifacts": [
-            str((run_dir / "config.json").relative_to(PROJECT_ROOT)),
-            str((run_dir / "results.json").relative_to(PROJECT_ROOT)),
-            str((run_dir / "k_sweep_summary.csv").relative_to(PROJECT_ROOT)),
-            str((run_dir / "d_sae_sweep_summary.csv").relative_to(PROJECT_ROOT)),
-            str((run_dir / "k_sweep_summary.md").relative_to(PROJECT_ROOT)),
-            str((run_dir / "d_sae_sweep_summary.md").relative_to(PROJECT_ROOT)),
+            repo_rel(run_dir / "config.json"),
+            repo_rel(run_dir / "results.json"),
+            repo_rel(run_dir / "k_sweep_summary.csv"),
+            repo_rel(run_dir / "d_sae_sweep_summary.csv"),
+            repo_rel(run_dir / "k_sweep_summary.md"),
+            repo_rel(run_dir / "d_sae_sweep_summary.md"),
         ],
     }
     (run_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
