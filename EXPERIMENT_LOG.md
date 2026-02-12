@@ -238,3 +238,68 @@ TMPDIR=/tmp MPLCONFIGDIR=/tmp/mpl KMP_DUPLICATE_LIB_OK=TRUE pytest tests -q
 - Result summary:
   - `mypy`: success on incremental typed subset
   - `pytest`: `83 passed`
+
+## 2026-02-12 - Highest-Impact Follow-up Program
+
+### Run 19: Adaptive L0 calibration (search + retrain)
+- Command:
+```bash
+KMP_DUPLICATE_LIB_OK=TRUE TMPDIR=/tmp MPLCONFIGDIR=/tmp/mpl \
+python scripts/experiments/run_adaptive_l0_calibration.py --device cpu
+```
+- Outcome: success
+- Run directory:
+  - `results/experiments/adaptive_l0_calibration/run_20260212T145416Z/`
+- Key results:
+  - selected `k=4` (criterion: conservative delta LCB with EV floor)
+  - search delta (`k=4`): `+0.01435`
+  - retrain at `k=4` (8 seeds, 40 epochs):
+    - trained PWMCC `0.32191`
+    - random PWMCC `0.24624`
+    - delta `+0.07567`
+    - conservative LCB `+0.07256`
+    - EV `0.53170`
+
+### Run 20: Matched-control retrain for fair comparison (`k=32`)
+- Command:
+```bash
+KMP_DUPLICATE_LIB_OK=TRUE TMPDIR=/tmp MPLCONFIGDIR=/tmp/mpl \
+python scripts/experiments/run_adaptive_l0_calibration.py --device cpu --k-candidates 32
+```
+- Outcome: success
+- Run directory:
+  - `results/experiments/adaptive_l0_calibration/run_20260212T145727Z/`
+- Key results (`k=32`, same retrain seeds/epochs):
+  - trained PWMCC `0.26490`
+  - random PWMCC `0.24624`
+  - delta `+0.01866`
+  - conservative LCB `+0.01676`
+  - EV `0.68875`
+- Fair comparison (`k=4` vs `k=32`, trained PWMCC):
+  - mean diff `+0.05701`
+  - bootstrap 95% CI `[+0.05482, +0.05921]`
+
+### Run 21: Consistency-first objective sweep (decoder-alignment regularization)
+- Command:
+```bash
+KMP_DUPLICATE_LIB_OK=TRUE TMPDIR=/tmp MPLCONFIGDIR=/tmp/mpl \
+python scripts/experiments/run_consistency_regularization_sweep.py --device cpu --k 4
+```
+- Outcome: success
+- Run directory:
+  - `results/experiments/consistency_objective_sweep/run_20260212T145529Z/`
+- Sweep values:
+  - `lambda in {0.0, 1e-4, 5e-4, 1e-3, 2e-3}`
+- Selected lambda:
+  - `0.002` (under EV-drop constraint)
+- Key results:
+  - baseline (`lambda=0`): delta `+0.02866`, EV `0.35892`
+  - selected (`lambda=0.002`): delta `+0.02933`, EV `0.35897`
+  - trained PWMCC improvement vs baseline: `+0.00067`
+  - bootstrap 95% CI for improvement: `[-0.00246, +0.00376]` (not statistically resolved)
+
+### Run 22: Follow-up synthesis report
+- Artifact:
+  - `HIGH_IMPACT_FOLLOWUPS_REPORT.md`
+- Scope:
+  - integrates Runs 19-21 with fair-control interpretation and literature-grounded framing.

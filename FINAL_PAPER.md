@@ -1,63 +1,173 @@
-# Reliability-First Reproduction of SAE Stability Research in HUSAI
+# Adaptive L0 Calibration for SAE Consistency in HUSAI
 
 ## Abstract
-We present a reliability-first execution of the HUSAI SAE-stability repository. The original codebase contained important research artifacts but also execution blockers in script pathing, SAE integration, and test/documentation consistency. We performed a structured audit, repaired core training/extraction/SAE pathways, and established a reproducible baseline workflow with passing tests and end-to-end smoke validation. This work does not claim final new state-of-the-art stability numbers yet; instead, it establishes the engineering and evaluation substrate required for credible multi-seed SAE stability science. We provide a literature-grounded experiment program aligned with current benchmark practice.
+Sparse autoencoder (SAE) interpretability workflows are sensitive to cross-seed instability, so we executed a reliability-first then science-first program in this repository. After hardening the pipeline (CI smoke + reproducible runners + path portability), we ran two high-impact follow-ups: (1) adaptive L0 calibration with retrain, and (2) a consistency-first objective sweep via decoder-alignment regularization. The adaptive L0 experiment provides strong evidence that lower-L0 settings can substantially improve cross-seed feature consistency in this task regime: with matched seeds/epochs, `k=4` outperforms `k=32` by `+0.0570` trained PWMCC (95% bootstrap CI `[+0.0548, +0.0592]`). The consistency-regularization sweep shows only weak directional gains (`+0.00067`, CI crossing zero), so it is currently exploratory rather than validated. We conclude that in this repository, L0 calibration is a high-leverage control knob for stability, while objective-level consistency regularization needs stronger formulations and larger studies.
 
-## 1. Introduction
-Sparse autoencoders are widely used in mechanistic interpretability, but cross-seed consistency remains an active concern in recent literature. Reliable empirical conclusions require both valid metrics and reproducible execution. In this repository, core reliability issues were preventing robust experimentation from documented entrypoints.
+## 1. Problem Statement
+This repository studies whether SAEs trained on identical activations but different random seeds learn reproducible features. Recent work reports substantial seed sensitivity in SAE feature dictionaries, raising concerns for downstream interpretability claims.
 
-## 2. Repository Objective
-The repository's intended objective is to measure SAE feature stability (primarily with PWMCC-style decoder matching) under controlled algorithmic tasks and relate stability to sparsity, parameterization, and reconstruction quality.
+Working question for this phase:
+- Which interventions materially improve reproducibility in this repo's modular-arithmetic setting without collapsing reconstruction quality?
 
-## 3. Methods: Reliability and Audit Procedure
-We used a staged process:
-1. architecture and dependency mapping
-2. correctness/reproducibility audit with concrete runtime checks
-3. targeted P0/P1 fixes on execution-critical surfaces
-4. revalidation with unit/integration/e2e smoke tests
-5. literature-grounded experiment-plan reconstruction
+## 2. Related Work
+Key context used to ground this study:
+- Paulo & Belrose (2025): SAEs trained on same data can learn different features, with architecture-dependent consistency behavior. Source: https://arxiv.org/abs/2501.16615
+- SAEBench (ICML 2025): benchmarking indicates proxy metrics alone are insufficient; practical evaluation requires broader suites. Source: https://proceedings.mlr.press/v267/karvonen25a.html
+- Song et al. (2025): consistency should be a first-class objective in mechanistic interpretability workflows. Source: https://arxiv.org/abs/2505.20254
+- OpenAI SAE scaling/evaluation (2024): large-scale SAE design and evaluation principles. Source: https://arxiv.org/abs/2406.04093
+- Architectural advances (JumpReLU, BatchTopK, Matryoshka SAEs):
+  - https://arxiv.org/abs/2407.14435
+  - https://arxiv.org/abs/2412.06410
+  - https://arxiv.org/abs/2503.17547
+- CE-Bench (2025): external judge-free benchmark approach aligned with SAEBench signals. Source: https://arxiv.org/abs/2509.00691
 
-## 4. Implementation Fixes
-Key fixes implemented:
-- corrected script-root path bootstrapping in core scripts
-- corrected SAE CLI extraction import path
-- replaced fragile SAE wrapper coupling with stable local SAE wrapper path
-- harmonized transformer checkpoint extras/model interface expectations
-- fixed config test drift and pipeline script API drift
-- modernized Makefile/run command targets
+## 3. Repository Reliability Preconditions
+Before science execution, we ensured infrastructure correctness:
+- CI workflow with fail-fast smoke and quality gates (`.github/workflows/ci.yml`)
+- reproducible smoke script (`scripts/ci/smoke_pipeline.sh`)
+- portable paths (removed hardcoded absolute roots in analysis/experiments scripts)
+- stable experiment runners with manifest logging
 
-## 5. Validation Results
-Post-fix validation:
+Regression status:
 - `pytest tests -q`: 83 passed
-- baseline training smoke command succeeds
-- activation extraction smoke command succeeds
-- SAE training smoke command succeeds
-- pipeline script `tests/test_sae_pipeline.py` now runs end-to-end
+- local smoke pipeline: pass
 
-These are engineering-validity results, not final scientific leaderboard claims.
+## 4. Methods
 
-## 6. Literature Alignment
-We grounded the next-stage program using recent primary sources on:
-- consistency-focused SAE analysis
-- scaling/evaluation frameworks
-- benchmark suites (SAEBench/CE-Bench)
-- architecture variants and theory-grounded methods
+### 4.1 Metrics
+Primary:
+- PWMCC on normalized decoder columns (symmetric max-cosine mean)
+- trained-vs-random delta PWMCC
+- conservative lower bound (trained CI lower - random CI upper)
 
-Details and citations are in `LIT_REVIEW.md`.
+Secondary:
+- explained variance (EV)
+- MSE reconstruction
+- L0 observed sparsity
+
+Uncertainty:
+- bootstrap 95% confidence intervals over pairwise statistics
+
+### 4.2 Experiment A: Adaptive L0 Calibration + Retrain
+Runner:
+- `scripts/experiments/run_adaptive_l0_calibration.py`
+
+Protocol:
+1. Search `k in {4,8,12,16,24,32,48,64}` at fixed `d_sae=128`.
+2. Select `k` by maximizing conservative delta LCB, subject to EV floor (`>=0.20`).
+3. Retrain selected `k` on expanded seeds.
+4. Run fair matched-control retrain at `k=32` with identical seed/epoch budget.
+
+Artifacts:
+- selected run: `results/experiments/adaptive_l0_calibration/run_20260212T145416Z/`
+- matched control run: `results/experiments/adaptive_l0_calibration/run_20260212T145727Z/`
+
+### 4.3 Experiment B: Consistency-First Objective Sweep
+Runner:
+- `scripts/experiments/run_consistency_regularization_sweep.py`
+
+Protocol:
+- Fix geometry `d_sae=128, k=4`.
+- Train reference model (seed 42), then train other seeds with
+  `loss = MSE + lambda * alignment_penalty(decoder, ref_decoder)`.
+- Sweep `lambda in {0, 1e-4, 5e-4, 1e-3, 2e-3}`.
+- Select lambda by conservative delta LCB under EV-drop constraint (`<=0.05`).
+
+Artifacts:
+- `results/experiments/consistency_objective_sweep/run_20260212T145529Z/`
+
+## 5. Results
+
+### 5.1 Adaptive L0 Search
+At `d_sae=128`, search-phase trained-random deltas monotonically favored lower `k` values.
+
+| k | trained PWMCC | random PWMCC | delta | conservative delta LCB | EV |
+|---:|---:|---:|---:|---:|---:|
+| 4 | 0.25991 | 0.24556 | +0.01435 | +0.01016 | 0.2644 |
+| 8 | 0.25650 | 0.24556 | +0.01094 | +0.00651 | 0.3165 |
+| 12 | 0.25507 | 0.24556 | +0.00952 | +0.00516 | 0.3528 |
+| 16 | 0.25420 | 0.24556 | +0.00864 | +0.00434 | 0.3808 |
+| 24 | 0.25352 | 0.24556 | +0.00797 | +0.00419 | 0.4247 |
+| 32 | 0.25224 | 0.24556 | +0.00669 | +0.00308 | 0.4575 |
+| 48 | 0.25142 | 0.24556 | +0.00586 | +0.00202 | 0.5061 |
+| 64 | 0.25139 | 0.24556 | +0.00584 | +0.00199 | 0.5338 |
+
+Selected by criterion: **k=4**.
+
+### 5.2 Retrain and Fair Control
+Retrain (`k=4`, 8 seeds, 40 epochs):
+- trained PWMCC `0.32191`
+- random PWMCC `0.24624`
+- delta `+0.07567`
+- conservative LCB `+0.07256`
+- EV `0.53170`
+
+Matched control (`k=32`, same seeds/epochs):
+- trained PWMCC `0.26490`
+- random PWMCC `0.24624`
+- delta `+0.01866`
+- conservative LCB `+0.01676`
+- EV `0.68875`
+
+Direct effect (`k=4` - `k=32`, trained PWMCC):
+- `+0.05701`
+- bootstrap 95% CI `[+0.05482, +0.05921]`
+
+Interpretation:
+- Strong consistency gain at lower L0 in this regime.
+- Clear stability-quality tradeoff (higher consistency at `k=4`, higher EV at `k=32`).
+
+### 5.3 Consistency-Regularization Sweep
+
+| lambda | trained PWMCC | random PWMCC | delta | conservative delta LCB | EV | alignment-to-ref |
+|---:|---:|---:|---:|---:|---:|---:|
+| 0.0 | 0.27422 | 0.24556 | +0.02866 | +0.02456 | 0.35892 | 0.27247 |
+| 0.0001 | 0.27437 | 0.24556 | +0.02881 | +0.02476 | 0.35893 | 0.27287 |
+| 0.0005 | 0.27449 | 0.24556 | +0.02893 | +0.02492 | 0.35894 | 0.27324 |
+| 0.001 | 0.27462 | 0.24556 | +0.02906 | +0.02510 | 0.35897 | 0.27365 |
+| 0.002 | 0.27489 | 0.24556 | +0.02933 | +0.02543 | 0.35897 | 0.27444 |
+
+Selected lambda: `0.002`.
+
+Baseline vs selected:
+- trained PWMCC gain: `+0.00067`
+- bootstrap 95% CI for gain: `[-0.00246, +0.00376]`
+
+Interpretation:
+- Directionally positive, but not statistically resolved in this run.
+- No detectable EV penalty at tested lambdas.
+
+## 6. Discussion
+
+### 6.1 What is strongly supported
+- Adaptive L0 calibration is a high-leverage and reproducible intervention for consistency improvement in this repo's setting.
+- The consistency-quality tradeoff is not hypothetical; it appears directly in matched-control retrains.
+
+### 6.2 What remains inconclusive
+- Current consistency-regularization formulation shows only small gains; confidence interval includes zero.
+- This likely needs richer coupling (e.g., multi-model joint training, assignment-aware regularizers, or larger-scale seeds/tasks).
+
+### 6.3 External-claim status
+- Internal benchmark-aligned gating can pass.
+- Official external benchmark claim remains blocked until official SAEBench/CE-Bench execution pipeline is run end-to-end from this repo.
 
 ## 7. Limitations
-- no new full multi-seed benchmark campaign was executed in this pass
-- benchmark integration with SAEBench/CE-Bench is planned, not yet implemented
-- environment remains sensitive on this machine (`KMP_DUPLICATE_LIB_OK`, `TMPDIR` workaround)
+- Task family is still narrow (algorithmic modular arithmetic).
+- CPU-only runs constrain scale and architecture breadth.
+- Pairwise PWMCC is useful but not sufficient for downstream utility claims.
+- Literature suggests broader functional metrics should complement overlap metrics.
 
-## 8. Conclusion
-The repository has been moved from partially non-executable to reproducible baseline operation. The highest leverage next work is scientific execution of the staged experiment plan (`EXPERIMENT_PLAN.md`) now that the reliability substrate is in place.
+## 8. Reproducibility Checklist
+- CI workflow: `.github/workflows/ci.yml`
+- smoke pipeline: `scripts/ci/smoke_pipeline.sh`
+- experiment log: `EXPERIMENT_LOG.md`
+- follow-up report: `HIGH_IMPACT_FOLLOWUPS_REPORT.md`
+- adaptive L0 runner: `scripts/experiments/run_adaptive_l0_calibration.py`
+- consistency sweep runner: `scripts/experiments/run_consistency_regularization_sweep.py`
 
-## Reproducibility Checklist
-- runbook: `RUNBOOK.md`
-- architecture map: `ARCHITECTURE.md`
-- audit: `AUDIT.md`
-- bug list: `BUGS.md`
-- experiment plan: `EXPERIMENT_PLAN.md`
-- command/run log: `EXPERIMENT_LOG.md`
-- literature grounding: `LIT_REVIEW.md`
+## 9. Next Technical Steps (Ranked)
+1. Integrate adaptive-L0 selector into default training pipeline (auto-calibration mode).
+2. Replace single-reference regularizer with assignment-aware or joint multi-seed objectives.
+3. Add official SAEBench/CE-Bench adapter and run full benchmark suite.
+4. Extend calibrated-L0 experiments across additional tasks (copy/multiplication/OOD).
+5. Add causal-faithfulness metrics as co-primary endpoints for model selection.

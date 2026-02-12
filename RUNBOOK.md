@@ -117,3 +117,25 @@ Primary artifact roots:
 
 Note:
 - CI lint/typecheck are currently incremental gates (`src/utils/config.py`, `src/data/modular_arithmetic.py`, and new experiment runners) because repository-wide static-analysis debt is still high.
+
+## 7) Highest-Impact Follow-up Commands
+
+Adaptive L0 calibration (search + retrain):
+```bash
+python scripts/experiments/run_adaptive_l0_calibration.py --device cpu
+```
+
+Matched-control retrain at fixed `k=32`:
+```bash
+python scripts/experiments/run_adaptive_l0_calibration.py --device cpu --k-candidates 32
+```
+
+Consistency-objective sweep:
+```bash
+python scripts/experiments/run_consistency_regularization_sweep.py --device cpu --k 4
+```
+
+Follow-up artifacts:
+- `results/experiments/adaptive_l0_calibration/`
+- `results/experiments/consistency_objective_sweep/`
+- `HIGH_IMPACT_FOLLOWUPS_REPORT.md`
