@@ -82,7 +82,7 @@ Current status in this workspace: full test suite passes.
 
 ## 5) Remaining Risks
 
-- Official SAEBench/CE-Bench benchmark execution is still pending in this workspace.
+- Official SAEBench execution completed (see `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/`); CE-Bench and HUSAI-checkpoint benchmark integration remain pending.
 - Environment specs remain split across `environment.yml`, `requirements*.txt`, and `pyproject.toml` without lockfile pinning.
 - CI lint/typecheck are intentionally incremental because repository-wide static-analysis debt is still high.
 

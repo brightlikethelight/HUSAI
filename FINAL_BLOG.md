@@ -1,142 +1,98 @@
-# We Ran the Highest-Impact SAE Follow-Ups. Here’s What Actually Worked.
+# We Ran the Highest-Impact SAE Follow-Ups End-to-End. Here Is What Actually Held Up.
 
-HUSAI asks a simple question with big consequences for interpretability:
+HUSAI studies a central interpretability question:
 
-If you train SAEs on the same activations with different seeds, do you get the same features?
+If we train sparse autoencoders (SAEs) on the same activations with different seeds, do we recover the same features?
 
-This cycle focused on four high-leverage updates:
-1. Adaptive L0 calibration (choose `k` systematically, then retrain)
-2. Consistency-first training objective sweep
-3. Official SAEBench/CE-Bench harness preflight
-4. Automated artifact-driven claim-consistency audit
+This cycle focused on the highest-leverage operational and research steps:
+1. reliability hardening (CI + smoke + portability),
+2. full reproduction and ablations on remote GPU,
+3. official external benchmark execution,
+4. evidence-locked reporting.
 
-## Setup in one paragraph
+## What We Changed First (Before New Claims)
 
-All follow-up runs used layer-1 answer-position activations from the same transformer checkpoint, TopK SAEs, multi-seed evaluation, random-decoder controls, and bootstrap confidence intervals. We tracked both consistency and quality:
-- consistency: PWMCC and trained-vs-random delta
-- quality: explained variance (EV) and MSE
+Engineering fixes that were required for trustworthy science:
+- Added fail-fast CI smoke and quality gates.
+- Fixed `.gitignore` bug that accidentally excluded `src/data/` from version control.
+- Resolved NumPy/TransformerLens compatibility constraints.
+- Removed absolute-path assumptions in core experiment runners.
+- Upgraded benchmark harness logging to stream subprocess logs to disk.
 
-## Follow-up #1: Adaptive L0 calibration
+Without these fixes, remote reproduction either failed outright or risked non-portable results.
 
-### What we did
+## Remote Reproduction on RunPod B200
 
-We added `scripts/experiments/run_adaptive_l0_calibration.py`.
-
-It performs:
-- search over `k` values at fixed `d_sae=128`
-- conservative selection criterion (maximize trained-random delta lower bound)
-- EV floor constraint
-- expanded retrain at selected `k`
-
-Then we ran a fair control: same retrain seeds/epochs at `k=32`.
-
-### What happened
-
-`k=4` was selected.
-
-Matched retrains:
-- `k=4`: trained PWMCC `0.32191`, random `0.24624`, delta `+0.07567`
-- `k=32`: trained PWMCC `0.26490`, random `0.24624`, delta `+0.01866`
-
-Direct trained-PWMCC improvement (`k=4 - k=32`):
-- `+0.05701`
-- 95% CI: approximately `[+0.055, +0.059]`
+### Phase 4a: trained vs random (5 seeds)
+- trained mean PWMCC: `0.300059`
+- random mean PWMCC: `0.298829`
+- delta: `+0.001230`
+- one-sided p-value: `8.629e-03`
 
 Interpretation:
-- In this regime, L0 calibration is a major consistency lever.
-- Tradeoff remains real: `k=32` retains higher EV, `k=4` retains higher consistency.
+- Signal is statistically detectable but small in absolute magnitude for this rerun.
 
-## Follow-up #2: Consistency-first objective sweep
+### Phase 4c: core ablations
+Best `k` sweep condition:
+- `k=8`, `d_sae=128`, delta `+0.009773`
 
-### What we did
-
-We added `scripts/experiments/run_consistency_regularization_sweep.py`.
-
-Protocol:
-- Train a reference SAE (seed 42)
-- Train other seeds with
-  `loss = MSE + lambda * alignment_penalty(decoder, ref_decoder)`
-- Sweep `lambda in {0, 1e-4, 5e-4, 1e-3, 2e-3}`
-
-### What happened
-
-Best lambda by our criterion: `0.002`.
-
-Effect size stayed small:
-- baseline (`lambda=0`): delta `+0.02866`
-- best (`lambda=0.002`): delta `+0.02933`
-- gain: `+0.00067`
-- 95% CI for gain crosses zero
+Best `d_sae` sweep condition:
+- `d_sae=64`, `k=32`, delta `+0.119986`
 
 Interpretation:
-- Directionally positive, but statistically unresolved in this run.
-- This is a pilot signal, not a robust win yet.
+- Geometry choices can dominate consistency gains.
+- Hyperparameter regime matters more than single-metric optimism.
 
-## Follow-up #3: Official benchmark harness (new)
+## Adaptive L0 Still Looks Like the Strongest Internal Lever
 
-We added `scripts/experiments/run_official_external_benchmarks.py` to standardize SAEBench/CE-Bench execution with manifests and logs.
-
-Preflight artifact run:
-- `results/experiments/phase4e_external_benchmark_official/run_20260212T151416Z/`
-
-Preflight result:
-- SAEBench module: not installed in this workspace
-- CE-Bench module: not installed in this workspace
-- local SAE checkpoints indexed: `5`
+From the follow-up runs:
+- `k=4` vs matched `k=32` control improved trained PWMCC by `+0.05701`.
+- 95% bootstrap CI stayed strongly positive.
 
 Interpretation:
-- We now have a reproducible execution harness.
-- External benchmark claims remain blocked until official commands are actually executed through it.
+- If your immediate goal is more reproducible dictionaries in this repo, L0 calibration remains the highest-value knob.
 
-## Follow-up #4: Result-consistency audit (new)
+## Official SAEBench Execution: Completed, and Informative
 
-We added `scripts/analysis/verify_experiment_consistency.py` to verify headline conclusions directly from result JSON artifacts.
+We executed the official harness run:
+- `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/`
+- command status: success (`returncode=0`)
 
-Outputs:
-- `results/analysis/experiment_consistency_report.json`
-- `results/analysis/experiment_consistency_report.md`
-
-Current audit status:
-- overall pass: `True`
-- confirms adaptive low-k advantage over k=32 control
-- confirms consistency-regularizer gain remains unresolved
+The run produced SAE-probes outputs over 113 matched datasets. Aggregated against baseline logreg probes:
+- mean delta `test_f1`: `-0.0952`
+- mean delta `test_acc`: `-0.0513`
+- mean delta `test_auc`: `-0.0651`
+- AUC wins/losses/ties: `21 / 88 / 4`
 
 Interpretation:
-- This reduces future drift between narrative claims and measurable artifacts.
+- We now have real external benchmark evidence, not just preflight scaffolding.
+- In this setup, the SAE target used for official probing underperforms baseline probes.
+- This is exactly why benchmark-first discipline matters.
 
-## What changed in the repo
+## What We Can Claim Now (and What We Cannot)
 
-New scripts:
-- `scripts/experiments/run_adaptive_l0_calibration.py`
-- `scripts/experiments/run_consistency_regularization_sweep.py`
-- `scripts/experiments/run_official_external_benchmarks.py`
-- `scripts/analysis/verify_experiment_consistency.py`
+Supported:
+- The repo is substantially more reproducible and portable.
+- Internal consistency effects are real but regime-sensitive.
+- Adaptive low-L0 remains a strong internal strategy.
+- Official external benchmarking is operational.
 
-Updated docs:
-- `RUNBOOK.md`
-- `EXPERIMENT_LOG.md`
-- `HIGH_IMPACT_FOLLOWUPS_REPORT.md`
-- `NOVEL_CONTRIBUTIONS.md`
-- `LIT_REVIEW.md`
+Not supported:
+- Any SOTA-style claim.
+- Any claim that current method dominates external benchmark baselines.
 
-New Make targets:
-- `benchmark-official`
-- `audit-results`
-- `adaptive-l0`
-- `adaptive-l0-control`
-- `consistency-sweep`
+Still pending:
+- CE-Bench execution in this environment.
+- Full HUSAI-checkpoint-to-benchmark adapter path.
 
-## What we can now say with confidence
+## Next 5 Highest-Leverage Steps (Ranked)
 
-Strong claim:
-- Adaptive L0 calibration materially improves cross-seed consistency in this repository’s current setting.
+1. Benchmark HUSAI-produced checkpoints directly on SAEBench and CE-Bench.
+2. Run a matched-budget architecture frontier sweep (TopK, JumpReLU, BatchTopK, Matryoshka, HierarchicalTopK, RouteSAE).
+3. Implement consistency-objective v2 (assignment-aware or joint multi-seed) with CI-based acceptance criteria.
+4. Add a transcoder control arm under equal compute.
+5. Add random-model and OOD stress-test gates before any claim update.
 
-Not-yet-strong claim:
-- This first consistency-regularized objective is promising but not validated.
+## Bottom Line
 
-External benchmark status:
-- Harness exists; official SAEBench/CE-Bench execution still pending.
-
-## Bottom line
-
-If your goal is reproducible SAE features in this codebase, tune L0 first and enforce artifact-grounded audits. Then run official external benchmarks before making any SOTA-facing claim.
+The biggest win this cycle was not a flashy metric jump; it was converting the repo into a system where claims are tied to reproducible artifacts and external checks. That surfaced a hard but useful truth: our current external benchmark story is not yet strong, which gives us a clear, high-impact roadmap for what to improve next.

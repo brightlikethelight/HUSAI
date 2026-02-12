@@ -1,177 +1,144 @@
-# Adaptive L0 Calibration for SAE Consistency in HUSAI
+# Reliability-First Evaluation of SAE Consistency in HUSAI: Internal Gains, External Reality Check
 
 ## Abstract
-Sparse autoencoder (SAE) interpretability workflows are sensitive to cross-seed instability, so we executed a reliability-first then science-first program in this repository. After hardening the pipeline (CI smoke + reproducible runners + path portability), we ran two high-impact follow-ups: (1) adaptive L0 calibration with retrain, and (2) a consistency-first objective sweep via decoder-alignment regularization. The adaptive L0 experiment provides strong evidence that lower-L0 settings can substantially improve cross-seed feature consistency in this task regime: with matched seeds/epochs, `k=4` outperforms `k=32` by `+0.0570` trained PWMCC (95% bootstrap CI `[+0.0548, +0.0592]`). The consistency-regularization sweep shows only weak directional gains (`+0.00067`, CI crossing zero), so it is currently exploratory rather than validated. We conclude that in this repository, L0 calibration is a high-leverage control knob for stability, while objective-level consistency regularization needs stronger formulations and larger studies.
+We conducted a reliability-first, benchmark-aware research cycle for sparse autoencoder (SAE) consistency in the HUSAI repository. Before new hypothesis testing, we fixed reproducibility-critical issues (missing tracked data package, dependency incompatibility, and path portability failures), added fail-fast CI smoke, and hardened artifact manifests. We then ran remote GPU reproductions and ablations: trained-vs-random consistency remained statistically positive but small (`delta PWMCC +0.001230`, one-sided `p=8.629e-03`), while geometry ablations showed large regime dependence (`d_sae=64, k=32` yielded `delta +0.119986`). We also completed official SAEBench harness execution (`returncode=0`) and analyzed 113 matched probe datasets; aggregate SAE-vs-baseline deltas were negative (mean `test_auc` delta `-0.0651`). These results support strong claims about engineering rigor and internal regime effects, but do not support SOTA-facing external claims. We provide a ranked experiment roadmap centered on direct HUSAI benchmark integration, architecture-frontier baselines, and stronger consistency objectives.
 
-## 1. Problem Statement
-This repository studies whether SAEs trained on identical activations but different random seeds learn reproducible features. Recent work reports substantial seed sensitivity in SAE feature dictionaries, raising concerns for downstream interpretability claims.
+## 1. Introduction
+Feature consistency across random seeds is a core requirement for reliable mechanistic interpretations. Prior work shows SAEs trained on identical data can still produce divergent feature sets, challenging naive reproducibility assumptions. This repository focuses on controlled algorithmic settings to isolate consistency dynamics and test interventions.
 
-Working question for this phase:
-- Which interventions materially improve reproducibility in this repo's modular-arithmetic setting without collapsing reconstruction quality?
+This paper reports an end-to-end cycle that explicitly prioritizes:
+- reproducibility and environment correctness,
+- artifact-grounded conclusions,
+- external-benchmark reality checks.
 
 ## 2. Related Work
-Key context used to ground this study:
-- Paulo & Belrose (2025): SAEs trained on same data can learn different features, with architecture-dependent consistency behavior. Source: https://arxiv.org/abs/2501.16615
-- SAEBench (ICML 2025): benchmarking indicates proxy metrics alone are insufficient; practical evaluation requires broader suites. Source: https://proceedings.mlr.press/v267/karvonen25a.html
-- Song et al. (2025): consistency should be a first-class objective in mechanistic interpretability workflows. Source: https://arxiv.org/abs/2505.20254
-- OpenAI SAE scaling/evaluation (2024): large-scale SAE design and evaluation principles. Source: https://arxiv.org/abs/2406.04093
-- Architectural advances (JumpReLU, BatchTopK, Matryoshka SAEs):
-  - https://arxiv.org/abs/2407.14435
-  - https://arxiv.org/abs/2412.06410
-  - https://arxiv.org/abs/2503.17547
-- CE-Bench (2025): external judge-free benchmark approach aligned with SAEBench signals. Source: https://arxiv.org/abs/2509.00691
+Consistency and benchmark framing:
+- Paulo & Belrose (2025): seed-dependent divergence in SAE features [https://arxiv.org/abs/2501.16615].
+- Song et al. (2025): consistency should be first-class for interpretability practice [https://arxiv.org/abs/2505.20254].
+- SAEBench (ICML 2025): broad benchmark evidence, warning against over-reliance on narrow proxies [https://proceedings.mlr.press/v267/karvonen25a.html].
+- CE-Bench (2025): judge-free benchmark aligned with SAEBench trends [https://arxiv.org/abs/2509.00691].
 
-## 3. Repository Reliability Preconditions
-Before science execution, we ensured infrastructure correctness:
-- CI workflow with fail-fast smoke and quality gates (`.github/workflows/ci.yml`)
-- reproducible smoke script (`scripts/ci/smoke_pipeline.sh`)
-- portable paths (removed hardcoded absolute roots in analysis/experiments scripts)
-- stable experiment runners with manifest logging
+Method and architecture frontier:
+- OpenAI scaling/evaluation framework [https://arxiv.org/abs/2406.04093].
+- JumpReLU [https://arxiv.org/abs/2407.14435], BatchTopK [https://arxiv.org/abs/2412.06410], Matryoshka SAEs [https://arxiv.org/abs/2503.17547].
+- RouteSAE [https://aclanthology.org/2025.emnlp-main.346/] and HierarchicalTopK [https://aclanthology.org/2025.emnlp-main.515/].
 
-Regression status:
-- `pytest tests -q`: 83 passed
-- local smoke pipeline: pass
+Control and alternative-representation signals:
+- Randomly initialized transformer representations can remain strong on interpretable tasks [https://arxiv.org/abs/2501.18823].
+- Transcoders can outperform SAEs in some interpretability settings [https://arxiv.org/abs/2501.17727].
 
-## 4. Methods
+## 3. Repository Reliability Program
+Implemented reliability upgrades:
+- CI: `.github/workflows/ci.yml`
+- smoke pipeline: `scripts/ci/smoke_pipeline.sh`
+- path portability fixes in:
+  - `scripts/experiments/run_phase4a_reproduction.py`
+  - `scripts/experiments/run_core_ablations.py`
+  - `scripts/experiments/run_external_benchmark_slice.py`
+- benchmark harness hardening:
+  - `scripts/experiments/run_official_external_benchmarks.py`
 
-### 4.1 Metrics
+Critical issues fixed during remote rerun:
+1. `.gitignore` rule unintentionally excluded `src/data/`.
+2. NumPy constraints were incompatible with TransformerLens requirements.
+3. Relative-path failures caused script breakage on clean remote environments.
+
+## 4. Experimental Protocol
+
+### 4.1 Internal consistency metrics
 Primary:
-- PWMCC on normalized decoder columns (symmetric max-cosine mean)
-- trained-vs-random delta PWMCC
-- conservative lower bound (trained CI lower - random CI upper)
+- Pairwise decoder PWMCC (trained and random controls)
+- trained-vs-random deltas and effect size
 
 Secondary:
-- explained variance (EV)
 - MSE reconstruction
-- L0 observed sparsity
+- explained variance (EV)
 
-Uncertainty:
-- bootstrap 95% confidence intervals over pairwise statistics
+### 4.2 Reproduction and ablation runs
+- Phase 4a trained-vs-random reproduction with fixed seeds.
+- Phase 4c k-sweep and d_sae-sweep under shared configuration.
+- Phase 4e benchmark-aligned internal slice.
 
-### 4.2 Experiment A: Adaptive L0 Calibration + Retrain
-Runner:
-- `scripts/experiments/run_adaptive_l0_calibration.py`
-
-Protocol:
-1. Search `k in {4,8,12,16,24,32,48,64}` at fixed `d_sae=128`.
-2. Select `k` by maximizing conservative delta LCB, subject to EV floor (`>=0.20`).
-3. Retrain selected `k` on expanded seeds.
-4. Run fair matched-control retrain at `k=32` with identical seed/epoch budget.
-
-Artifacts:
-- selected run: `results/experiments/adaptive_l0_calibration/run_20260212T145416Z/`
-- matched control run: `results/experiments/adaptive_l0_calibration/run_20260212T145727Z/`
-
-### 4.3 Experiment B: Consistency-First Objective Sweep
-Runner:
-- `scripts/experiments/run_consistency_regularization_sweep.py`
-
-Protocol:
-- Fix geometry `d_sae=128, k=4`.
-- Train reference model (seed 42), then train other seeds with
-  `loss = MSE + lambda * alignment_penalty(decoder, ref_decoder)`.
-- Sweep `lambda in {0, 1e-4, 5e-4, 1e-3, 2e-3}`.
-- Select lambda by conservative delta LCB under EV-drop constraint (`<=0.05`).
-
-Artifacts:
-- `results/experiments/consistency_objective_sweep/run_20260212T145529Z/`
+### 4.3 External benchmark run
+- Official harness run:
+  - `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/`
+- SAEBench command executed through harness with logs and manifests.
 
 ## 5. Results
 
-### 5.1 Adaptive L0 Search
-At `d_sae=128`, search-phase trained-random deltas monotonically favored lower `k` values.
+### 5.1 Phase 4a (remote B200)
+- trained mean PWMCC: `0.300059`
+- random mean PWMCC: `0.298829`
+- delta: `+0.001230`
+- one-sided p-value: `8.629e-03`
 
-| k | trained PWMCC | random PWMCC | delta | conservative delta LCB | EV |
-|---:|---:|---:|---:|---:|---:|
-| 4 | 0.25991 | 0.24556 | +0.01435 | +0.01016 | 0.2644 |
-| 8 | 0.25650 | 0.24556 | +0.01094 | +0.00651 | 0.3165 |
-| 12 | 0.25507 | 0.24556 | +0.00952 | +0.00516 | 0.3528 |
-| 16 | 0.25420 | 0.24556 | +0.00864 | +0.00434 | 0.3808 |
-| 24 | 0.25352 | 0.24556 | +0.00797 | +0.00419 | 0.4247 |
-| 32 | 0.25224 | 0.24556 | +0.00669 | +0.00308 | 0.4575 |
-| 48 | 0.25142 | 0.24556 | +0.00586 | +0.00202 | 0.5061 |
-| 64 | 0.25139 | 0.24556 | +0.00584 | +0.00199 | 0.5338 |
+Conclusion:
+- Positive but small consistency signal in this rerun.
 
-Selected by criterion: **k=4**.
+### 5.2 Phase 4c core ablations
+Best k-sweep condition:
+- `k=8, d_sae=128`, delta `+0.009773`, ratio `1.0398`.
 
-### 5.2 Retrain and Fair Control
-Retrain (`k=4`, 8 seeds, 40 epochs):
-- trained PWMCC `0.32191`
-- random PWMCC `0.24624`
-- delta `+0.07567`
-- conservative LCB `+0.07256`
-- EV `0.53170`
+Best d_sae-sweep condition:
+- `d_sae=64, k=32`, delta `+0.119986`, ratio `1.5272`.
 
-Matched control (`k=32`, same seeds/epochs):
-- trained PWMCC `0.26490`
-- random PWMCC `0.24624`
-- delta `+0.01866`
-- conservative LCB `+0.01676`
-- EV `0.68875`
+Conclusion:
+- Hyperparameter geometry drives large variance in consistency outcomes.
 
-Direct effect (`k=4` - `k=32`, trained PWMCC):
-- `+0.05701`
-- bootstrap 95% CI `[+0.05482, +0.05921]`
+### 5.3 Adaptive L0 follow-up (strongest internal positive)
+- Matched comparison (`k=4` vs `k=32`) showed trained PWMCC gain `+0.05701` with positive bootstrap CI.
 
-Interpretation:
-- Strong consistency gain at lower L0 in this regime.
-- Clear stability-quality tradeoff (higher consistency at `k=4`, higher EV at `k=32`).
+Conclusion:
+- Low-L0 calibration is currently the strongest validated intervention in this repo.
 
-### 5.3 Consistency-Regularization Sweep
+### 5.4 Official SAEBench execution
+Harness status:
+- command attempted and succeeded (`returncode=0`).
 
-| lambda | trained PWMCC | random PWMCC | delta | conservative delta LCB | EV | alignment-to-ref |
-|---:|---:|---:|---:|---:|---:|---:|
-| 0.0 | 0.27422 | 0.24556 | +0.02866 | +0.02456 | 0.35892 | 0.27247 |
-| 0.0001 | 0.27437 | 0.24556 | +0.02881 | +0.02476 | 0.35893 | 0.27287 |
-| 0.0005 | 0.27449 | 0.24556 | +0.02893 | +0.02492 | 0.35894 | 0.27324 |
-| 0.001 | 0.27462 | 0.24556 | +0.02906 | +0.02510 | 0.35897 | 0.27365 |
-| 0.002 | 0.27489 | 0.24556 | +0.02933 | +0.02543 | 0.35897 | 0.27444 |
+Aggregate analysis over 113 matched probe datasets (best SAE over `k in {1,2,5}` minus baseline logreg):
+- mean `test_f1` delta: `-0.0952`
+- mean `test_acc` delta: `-0.0513`
+- mean `test_auc` delta: `-0.0651`
+- `test_auc` wins/losses/ties: `21/88/4`
 
-Selected lambda: `0.002`.
-
-Baseline vs selected:
-- trained PWMCC gain: `+0.00067`
-- bootstrap 95% CI for gain: `[-0.00246, +0.00376]`
-
-Interpretation:
-- Directionally positive, but not statistically resolved in this run.
-- No detectable EV penalty at tested lambdas.
+Conclusion:
+- External benchmark evidence in this setup is negative relative to baseline probes.
 
 ## 6. Discussion
 
 ### 6.1 What is strongly supported
-- Adaptive L0 calibration is a high-leverage and reproducible intervention for consistency improvement in this repo's setting.
-- The consistency-quality tradeoff is not hypothetical; it appears directly in matched-control retrains.
+- Reliability and reproducibility posture improved substantially.
+- Internal consistency effects exist and are highly regime-dependent.
+- Adaptive L0 remains a practical consistency lever.
+- Official benchmark execution infrastructure works end-to-end.
 
-### 6.2 What remains inconclusive
-- Current consistency-regularization formulation shows only small gains; confidence interval includes zero.
-- This likely needs richer coupling (e.g., multi-model joint training, assignment-aware regularizers, or larger-scale seeds/tasks).
+### 6.2 What is not supported
+- SOTA claims.
+- Claims that current method externally dominates benchmark baselines.
 
-### 6.3 External-claim status
-- Internal benchmark-aligned gating can pass.
-- An official benchmark harness is now implemented and artifact-logged: `scripts/experiments/run_official_external_benchmarks.py` with run `results/experiments/phase4e_external_benchmark_official/run_20260212T151416Z/`.
-- Official external benchmark claim remains blocked until SAEBench/CE-Bench commands are actually executed through that harness.
+### 6.3 Why this is still high-value progress
+- Negative external signals are actionable: they prevent overclaiming and sharpen the next experiment frontier.
+- The repository now supports faster, cleaner falsification cycles.
 
 ## 7. Limitations
-- Task family is still narrow (algorithmic modular arithmetic).
-- CPU-only runs constrain scale and architecture breadth.
-- Pairwise PWMCC is useful but not sufficient for downstream utility claims.
-- Literature suggests broader functional metrics should complement overlap metrics.
+- CE-Bench has not yet been executed in this environment.
+- Official run used a public SAEBench SAE target; HUSAI checkpoint adapter path remains incomplete.
+- Current task family remains narrow relative to broad-language benchmark diversity.
 
 ## 8. Reproducibility Checklist
-- CI workflow: `.github/workflows/ci.yml`
-- smoke pipeline: `scripts/ci/smoke_pipeline.sh`
-- experiment log: `EXPERIMENT_LOG.md`
-- follow-up report: `HIGH_IMPACT_FOLLOWUPS_REPORT.md`
-- adaptive L0 runner: `scripts/experiments/run_adaptive_l0_calibration.py`
-- consistency sweep runner: `scripts/experiments/run_consistency_regularization_sweep.py`
+- CI smoke + quality: `.github/workflows/ci.yml`
+- smoke script: `scripts/ci/smoke_pipeline.sh`
+- experiment ledger: `EXPERIMENT_LOG.md`
+- consistency audit: `scripts/analysis/verify_experiment_consistency.py`
 - official benchmark harness: `scripts/experiments/run_official_external_benchmarks.py`
-- result-consistency audit: `scripts/analysis/verify_experiment_consistency.py`
-- latest consistency report: `results/analysis/experiment_consistency_report.md`
+- external run artifacts: `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/`
 
-## 9. Next Technical Steps (Ranked)
-1. Execute official SAEBench and CE-Bench commands through the new harness and publish score manifests.
-2. Integrate adaptive-L0 selector into default training pipeline (auto-calibration mode).
-3. Replace single-reference regularizer with assignment-aware or joint multi-seed objectives.
-4. Add modern architecture frontier baselines (JumpReLU, BatchTopK, Matryoshka, HierarchicalTopK, RouteSAE) under matched compute.
-5. Add causal-faithfulness metrics and OOD stress tests as co-primary model-selection endpoints.
+## 9. Ranked Next Steps
+1. Benchmark HUSAI-produced checkpoints directly in SAEBench and CE-Bench.
+2. Execute matched-budget architecture frontier suite (TopK/JumpReLU/BatchTopK/Matryoshka/RouteSAE/HierarchicalTopK).
+3. Implement assignment-aware consistency objective v2 with strict CI acceptance rules.
+4. Add transcoder baseline arm under identical budgets.
+5. Add random-model and OOD stress-test gates before any narrative claim update.
+
+## 10. Broader Impact and Research Hygiene
+This cycle demonstrates that rigorous negative results can be as valuable as positive ones when they are reproducible, well-instrumented, and benchmark-grounded. The main risk in this area is premature interpretability claims from unstable or unbenchmarked representations. The repository now has better safeguards against that failure mode, but enforcement depends on maintaining benchmark-first reporting discipline.

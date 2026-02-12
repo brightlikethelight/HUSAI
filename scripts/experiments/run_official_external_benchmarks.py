@@ -194,15 +194,18 @@ def run_command(
     stdout_path = logs_dir / f"{name}.stdout.log"
     stderr_path = logs_dir / f"{name}.stderr.log"
 
-    proc = subprocess.run(
-        command,
-        shell=True,
-        cwd=str(cwd) if cwd else None,
-        capture_output=True,
-        text=True,
-    )
-    stdout_path.write_text(proc.stdout)
-    stderr_path.write_text(proc.stderr)
+    with (
+        stdout_path.open("w", encoding="utf-8") as stdout_file,
+        stderr_path.open("w", encoding="utf-8") as stderr_file,
+    ):
+        proc = subprocess.run(
+            command,
+            shell=True,
+            cwd=str(cwd) if cwd else None,
+            stdout=stdout_file,
+            stderr=stderr_file,
+            text=True,
+        )
 
     return CommandResult(
         name=name,

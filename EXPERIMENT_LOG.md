@@ -356,3 +356,193 @@ KMP_DUPLICATE_LIB_OK=TRUE TMPDIR=/tmp MPLCONFIGDIR=/tmp/mpl pytest tests -q
   - new script CLIs parse correctly
   - flake8 passes for the new scripts
   - test suite regression check: `83 passed`
+
+## 2026-02-12 - RunPod B200 High-Impact Execution
+
+### Run 26: Remote smoke gate on RunPod B200
+- Command:
+```bash
+KMP_DUPLICATE_LIB_OK=TRUE TMPDIR=/tmp MPLCONFIGDIR=/tmp/mpl make smoke
+```
+- Outcome: success
+- Key outputs:
+  - `/tmp/husai_ci_smoke/transformer/transformer_final.pt`
+  - `/tmp/husai_ci_smoke/acts.pt`
+  - `/tmp/husai_ci_smoke/sae/sae_final.pt`
+- Notes:
+  - This run validated end-to-end pipeline integrity on remote GPU environment.
+
+### Run 27: Transformer checkpoint generation for follow-up experiments
+- Command:
+```bash
+python -m scripts.training.train_baseline \
+  --config configs/examples/baseline_relu.yaml \
+  --epochs 5000 \
+  --batch-size 2048 \
+  --no-wandb \
+  --device cuda \
+  --save-dir results/transformer_5000ep
+```
+- Outcome: partial (manually stopped after convergence)
+- Key outputs:
+  - `results/transformer_5000ep/transformer_best.pt`
+- Notes:
+  - Val accuracy reached 1.0 at epoch 3; run was intentionally terminated early after confirming stable best checkpoint.
+
+### Run 28: Activation cache generation (layer 1 / answer position)
+- Command:
+```bash
+python -m scripts.analysis.extract_activations \
+  --model-path results/transformer_5000ep/transformer_best.pt \
+  --layer 1 \
+  --position answer \
+  --batch-size 4096 \
+  --device cuda \
+  --output results/activations/layer1_answer.pt
+```
+- Outcome: success
+- Key outputs:
+  - `results/activations/layer1_answer.pt`
+  - `results/activations/layer1_answer.meta.pt`
+
+### Run 29: 5-seed TopK SAE training for Phase 4a
+- Command pattern:
+```bash
+python -m scripts.training.train_sae \
+  --transformer-checkpoint results/transformer_5000ep/transformer_best.pt \
+  --config configs/sae/topk_8x_k32.yaml \
+  --layer 1 \
+  --seed <seed> \
+  --epochs 20 \
+  --batch-size 2048 \
+  --use-cached-activations results/activations/layer1_answer.pt \
+  --save-dir results/saes/topk_seed<seed> \
+  --no-wandb \
+  --device cuda \
+  --quiet
+```
+- Seeds: `42, 123, 456, 789, 1011`
+- Outcome: success
+- Key outputs:
+  - `results/saes/topk_seed42/sae_final.pt`
+  - `results/saes/topk_seed123/sae_final.pt`
+  - `results/saes/topk_seed456/sae_final.pt`
+  - `results/saes/topk_seed789/sae_final.pt`
+  - `results/saes/topk_seed1011/sae_final.pt`
+
+### Run 30: Phase 4a trained-vs-random reproduction (5 seeds)
+- Command:
+```bash
+python scripts/experiments/run_phase4a_reproduction.py \
+  --sae-root results/saes \
+  --trained-seeds 42,123,456,789,1011 \
+  --random-seeds 1000,1001,1002,1003,1004 \
+  --output-dir results/experiments/phase4a_trained_vs_random \
+  --analysis-output results/analysis/trained_vs_random_pwmcc.json
+```
+- Outcome: success
+- Key outputs:
+  - `results/experiments/phase4a_trained_vs_random/results.json`
+  - `results/experiments/phase4a_trained_vs_random/summary.md`
+  - `results/experiments/phase4a_trained_vs_random/manifest.json`
+  - `results/analysis/trained_vs_random_pwmcc.json`
+- Result summary:
+  - trained PWMCC mean = `0.300059`
+  - random PWMCC mean = `0.298829`
+  - delta = `+0.001230`
+  - ratio = `1.0041`
+  - one-sided Mann-Whitney p-value = `8.629e-03`
+  - conclusion = `training_signal_present`
+
+### Run 31: Phase 4c core ablations (GPU, 5 seeds)
+- Command:
+```bash
+CUBLAS_WORKSPACE_CONFIG=:4096:8 python scripts/experiments/run_core_ablations.py \
+  --transformer-checkpoint results/transformer_5000ep/transformer_best.pt \
+  --activations-cache results/activations/layer1_answer.pt \
+  --device cuda \
+  --epochs 20 \
+  --batch-size 2048 \
+  --seeds 42,123,456,789,1011 \
+  --k-values 8,16,32,64 \
+  --dsae-values 64,128,256,512 \
+  --fixed-k 32 \
+  --fixed-dsae 128 \
+  --output-dir results/experiments/phase4c_core_ablations
+```
+- Outcome: success
+- Run directory:
+  - `results/experiments/phase4c_core_ablations/run_20260212T200711Z/`
+- Result summary:
+  - best `k` sweep condition (delta PWMCC): `k=8, d_sae=128`, delta `+0.009773`, ratio `1.0398`, EV `0.2282`
+  - best `d_sae` sweep condition (delta PWMCC): `d_sae=64, k=32`, delta `+0.119986`, ratio `1.5272`, EV `0.2941`
+
+### Run 32: External benchmark-aligned slice refresh
+- Command:
+```bash
+python scripts/experiments/run_external_benchmark_slice.py \
+  --phase4a-results results/experiments/phase4a_trained_vs_random/results.json \
+  --core-ablations-root results/experiments/phase4c_core_ablations \
+  --output-dir results/experiments/phase4e_external_benchmark_slice
+```
+- Outcome: success
+- Key outputs:
+  - `results/experiments/phase4e_external_benchmark_slice/benchmark_slice.json`
+  - `results/experiments/phase4e_external_benchmark_slice/benchmark_slice.md`
+  - `results/experiments/phase4e_external_benchmark_slice/manifest.json`
+
+### Run 33: Official SAEBench harness execution (completed)
+- Command:
+```bash
+python scripts/experiments/run_official_external_benchmarks.py \
+  --skip-cebench \
+  --execute \
+  --saebench-command "python -m sae_bench.evals.sparse_probing_sae_probes.main \
+    --model_name pythia-70m-deduped \
+    --sae_regex_pattern '^pythia-70m-deduped-res-sm$' \
+    --sae_block_pattern '^blocks.0.hook_resid_pre$' \
+    --setting normal \
+    --reg_type l1 \
+    --ks 1 2 5 \
+    --results_path /tmp/sae_bench_probe_results \
+    --output_folder results/experiments/phase4e_external_benchmark_official/saebench_sparse_probing_sae_probes \
+    --model_cache_path /tmp/sae_bench_model_cache"
+```
+- Outcome: success
+- Harness run directory:
+  - `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/`
+- Command status:
+  - `saebench`: attempted `True`, success `True`, return code `0`
+- Key harness outputs:
+  - `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/commands.json`
+  - `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/preflight.json`
+  - `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/summary.md`
+  - `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/logs/saebench.stdout.log`
+  - `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/logs/saebench.stderr.log`
+- External probe outputs:
+  - `/tmp/sae_bench_probe_results/`
+  - matched SAE-probes result files: `113`
+  - matched baseline logreg files: `113`
+- Aggregate SAE-vs-baseline deltas (best SAE over `k in {1,2,5}` per dataset):
+  - mean `test_f1` delta: `-0.095237`
+  - mean `test_acc` delta: `-0.051324`
+  - mean `test_auc` delta: `-0.065125`
+  - `test_auc` wins/losses/ties: `21 / 88 / 4`
+- Additional diagnostics:
+  - best-k distribution by dataset: `{5: 74, 2: 14, 1: 25}`
+  - baseline mean `test_auc`: `0.674402`
+- Interpretation:
+  - Official SAEBench execution is operational and reproducible in this environment.
+  - This run does not support external-performance claims for this benchmark setup.
+
+### Run 34: Official benchmark harness reliability patch
+- Change:
+  - Updated `scripts/experiments/run_official_external_benchmarks.py` to stream subprocess stdout/stderr directly to log files instead of buffering full output in memory.
+- Why:
+  - Improves stability and observability for long-running benchmark commands.
+- Validation:
+```bash
+python scripts/experiments/run_official_external_benchmarks.py --help
+flake8 scripts/experiments/run_official_external_benchmarks.py --max-line-length 130
+```
+- Outcome: success

@@ -61,9 +61,10 @@ Latest high-impact follow-up artifacts and conclusions:
   - Artifacts: `results/experiments/adaptive_l0_calibration/run_20260212T145416Z/` and `results/experiments/adaptive_l0_calibration/run_20260212T145727Z/`
 - Consistency-regularized objective sweep remains unresolved (small positive mean, CI includes zero).
   - Artifacts: `results/experiments/consistency_objective_sweep/run_20260212T145529Z/`
-- Official SAEBench/CE-Bench harness added with reproducibility manifesting; external claims remain blocked until official commands are executed.
+- Official SAEBench harness execution completed through the reproducible harness; CE-Bench remains pending in this environment.
   - Script: `scripts/experiments/run_official_external_benchmarks.py`
-  - Preflight artifact: `results/experiments/phase4e_external_benchmark_official/run_20260212T151416Z/`
+  - Official run artifact: `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/`
+  - Aggregate summary: `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/saebench_probe_aggregate_summary.json`
 - Automated result-consistency audit now guards claim drift against artifact JSONs.
   - Script: `scripts/analysis/verify_experiment_consistency.py`
   - Report: `results/analysis/experiment_consistency_report.md`
