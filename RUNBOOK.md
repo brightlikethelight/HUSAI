@@ -2,6 +2,8 @@
 
 Updated: 2026-02-12
 
+Primary navigation index: `REPO_NAVIGATION.md`
+
 ## 1) Environment Setup
 
 ```bash
@@ -155,3 +157,18 @@ Follow-up artifacts:
 - `results/analysis/experiment_consistency_report.json`
 - `results/analysis/experiment_consistency_report.md`
 - `HIGH_IMPACT_FOLLOWUPS_REPORT.md`
+
+
+## 8) Git Hygiene
+
+- Keep `main` as the stable narrative branch; merge only artifact-backed updates.
+- Use small, reviewable commits grouped by concern (infra, experiments, writeups).
+- Before push: run `pytest tests -q` and update `EXPERIMENT_LOG.md` for any executed runs.
+- Prefer adding new experiment runs under `results/experiments/<phase>/<run_id>/` with `manifest.json`.
+
+Suggested sync commands:
+```bash
+git status -sb
+git log --oneline --decorate -n 12
+git push origin main
+```

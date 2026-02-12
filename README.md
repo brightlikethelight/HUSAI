@@ -119,6 +119,14 @@ HUSAI/
 
 ---
 
+## 🧭 Repository Navigation
+
+For a canonical index of where everything lives (current docs, experiments, reliability reports, and archived material), start with:
+
+- `REPO_NAVIGATION.md`
+
+---
+
 ## 🚀 Quick Start
 
 ### Installation
