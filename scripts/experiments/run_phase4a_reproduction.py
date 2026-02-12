@@ -236,13 +236,16 @@ def main() -> None:
     trained_seeds = parse_int_list(args.trained_seeds)
     random_seeds = parse_int_list(args.random_seeds)
 
+    sae_root = args.sae_root if args.sae_root.is_absolute() else (PROJECT_ROOT / args.sae_root)
+    sae_root = sae_root.resolve()
+
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
     # Load trained decoders.
     trained_decoders: dict[int, torch.Tensor] = {}
     checkpoint_manifest: list[dict[str, Any]] = []
     for seed in trained_seeds:
-        ckpt_path = find_checkpoint(args.sae_root, seed)
+        ckpt_path = find_checkpoint(sae_root, seed).resolve()
         decoder = load_decoder(ckpt_path)
         trained_decoders[seed] = decoder
         checkpoint_manifest.append(
