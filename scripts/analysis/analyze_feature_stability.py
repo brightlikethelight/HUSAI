@@ -39,7 +39,7 @@ import pickle
 import json
 
 # Add project root to path
-project_root = Path(__file__).parent.parent
+project_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_root))
 
 from src.models.simple_sae import TopKSAE, ReLUSAE

@@ -45,7 +45,7 @@ from src.utils.config import TransformerConfig
 from torch.utils.data import DataLoader, TensorDataset
 
 # Paths
-BASE_DIR = Path('/Users/brightliu/School_Work/HUSAI')
+BASE_DIR = Path(__file__).resolve().parents[2]
 RESULTS_DIR = BASE_DIR / 'results'
 OUTPUT_DIR = RESULTS_DIR / 'stability_vs_sparsity'
 FIGURES_DIR = BASE_DIR / 'figures'

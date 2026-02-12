@@ -20,7 +20,7 @@ from scipy.stats import mannwhitneyu, ttest_ind, bootstrap
 import warnings
 
 # Paths
-BASE_DIR = Path('/Users/brightliu/School_Work/HUSAI')
+BASE_DIR = Path(__file__).resolve().parents[2]
 RESULTS_DIR = BASE_DIR / 'results'
 ANALYSIS_DIR = RESULTS_DIR / 'analysis'
 OUTPUT_DIR = ANALYSIS_DIR

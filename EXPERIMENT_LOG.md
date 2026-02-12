@@ -135,3 +135,106 @@ TMPDIR=/tmp MPLCONFIGDIR=/tmp/mpl KMP_DUPLICATE_LIB_OK=TRUE pytest tests -q
 - Outcome: success
 - Key outputs:
   - `/tmp/husai_demo2/transformer_final.pt`
+
+## 2026-02-12 - Follow-up Program Execution (Phase 4a/4c/4e)
+
+### Run 12: Phase 4a full multi-seed reproduction (trained vs random) with manifest
+- Command:
+```bash
+KMP_DUPLICATE_LIB_OK=TRUE TMPDIR=/tmp python scripts/experiments/run_phase4a_reproduction.py
+```
+- Outcome: success
+- Key outputs:
+  - `results/experiments/phase4a_trained_vs_random/results.json`
+  - `results/experiments/phase4a_trained_vs_random/summary.md`
+  - `results/experiments/phase4a_trained_vs_random/manifest.json`
+  - `results/analysis/trained_vs_random_pwmcc.json` (legacy-compatible refresh)
+- Result summary:
+  - trained PWMCC mean = `0.301716` (95% CI `[0.301115, 0.302312]`)
+  - random PWMCC mean = `0.298829` (95% CI `[0.298161, 0.299439]`)
+  - delta = `+0.002886`, ratio = `1.0097`
+  - one-sided Mann-Whitney p-value = `1.649e-04`
+  - conclusion = `training_signal_present`
+
+### Run 13: Core ablations (initial pass)
+- Command:
+```bash
+KMP_DUPLICATE_LIB_OK=TRUE TMPDIR=/tmp MPLCONFIGDIR=/tmp/mpl python scripts/experiments/run_core_ablations.py --device cpu
+```
+- Outcome: success with quality caveat
+- Notes:
+  - Initial run used short training and produced negative EV in several conditions.
+  - Marked as superseded by Run 14.
+- Superseded outputs:
+  - `results/experiments/phase4c_core_ablations/run_20260212T091700Z/*`
+
+### Run 14: Core ablations (corrected loss + 20 epochs)
+- Command:
+```bash
+KMP_DUPLICATE_LIB_OK=TRUE TMPDIR=/tmp MPLCONFIGDIR=/tmp/mpl python scripts/experiments/run_core_ablations.py --device cpu --epochs 20
+```
+- Outcome: success
+- Key outputs:
+  - `results/experiments/phase4c_core_ablations/run_20260212T091848Z/results.json`
+  - `results/experiments/phase4c_core_ablations/run_20260212T091848Z/k_sweep_summary.csv`
+  - `results/experiments/phase4c_core_ablations/run_20260212T091848Z/d_sae_sweep_summary.csv`
+  - `results/experiments/phase4c_core_ablations/run_20260212T091848Z/k_sweep_summary.md`
+  - `results/experiments/phase4c_core_ablations/run_20260212T091848Z/d_sae_sweep_summary.md`
+  - `results/experiments/phase4c_core_ablations/run_20260212T091848Z/manifest.json`
+- Result summary:
+  - k sweep (fixed `d_sae=128`): best consistency at `k=8` with PWMCC mean `0.251330` (ratio `1.0138`)
+  - d_sae sweep (fixed `k=32`): strongest trained-vs-random lift at `d_sae=64` with PWMCC mean `0.349021` (ratio `1.5245`)
+  - reconstruction quality improved monotonically with larger `d_sae` (EV up to `0.5218` at `d_sae=512`)
+
+### Run 15: External benchmark-aligned slice generation (SAEBench/CE-Bench aligned)
+- Command:
+```bash
+KMP_DUPLICATE_LIB_OK=TRUE python scripts/experiments/run_external_benchmark_slice.py
+```
+- Outcome: success
+- Key outputs:
+  - `results/experiments/phase4e_external_benchmark_slice/benchmark_slice.json`
+  - `results/experiments/phase4e_external_benchmark_slice/benchmark_slice.md`
+  - `results/experiments/phase4e_external_benchmark_slice/manifest.json`
+- Result summary:
+  - internal gating pass = `True` (consistency + robustness criteria)
+  - official external benchmark claim readiness = `False`
+  - explicit blocker retained: official SAEBench/CE-Bench execution not yet run
+
+### Run 16: CI smoke pipeline local validation
+- Command:
+```bash
+TMPDIR=/tmp KMP_DUPLICATE_LIB_OK=TRUE scripts/ci/smoke_pipeline.sh /tmp/husai_ci_smoke_local2
+```
+- Outcome: success
+- Key outputs:
+  - `/tmp/husai_ci_smoke_local2/transformer/transformer_final.pt`
+  - `/tmp/husai_ci_smoke_local2/acts.pt`
+  - `/tmp/husai_ci_smoke_local2/sae/sae_final.pt`
+
+### Run 17: Full test suite regression check
+- Command:
+```bash
+TMPDIR=/tmp MPLCONFIGDIR=/tmp/mpl KMP_DUPLICATE_LIB_OK=TRUE pytest tests -q
+```
+- Outcome: success
+- Result summary: `83 passed in 5.10s`
+
+### Provenance
+- Workspace commit at execution time: `535a2df`
+
+### Run 18: Incremental CI-quality command validation (local)
+- Command:
+```bash
+flake8 src/utils/config.py src/data/modular_arithmetic.py \
+  scripts/experiments/run_phase4a_reproduction.py \
+  scripts/experiments/run_core_ablations.py \
+  scripts/experiments/run_external_benchmark_slice.py \
+  --max-line-length 130 --extend-ignore=E402 && \
+mypy src/utils/config.py src/data/modular_arithmetic.py && \
+TMPDIR=/tmp MPLCONFIGDIR=/tmp/mpl KMP_DUPLICATE_LIB_OK=TRUE pytest tests -q
+```
+- Outcome: success
+- Result summary:
+  - `mypy`: success on incremental typed subset
+  - `pytest`: `83 passed`

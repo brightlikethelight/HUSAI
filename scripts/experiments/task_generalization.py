@@ -50,7 +50,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Add project root
-project_root = Path(__file__).parent.parent
+project_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_root))
 
 from src.models.transformer import ModularArithmeticTransformer

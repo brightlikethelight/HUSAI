@@ -28,12 +28,12 @@ from typing import Dict, List, Tuple
 from dataclasses import dataclass
 import sys
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from torch.utils.data import DataLoader, TensorDataset, Dataset
 
 # Paths
-BASE_DIR = Path('/Users/brightliu/School_Work/HUSAI')
+BASE_DIR = Path(__file__).resolve().parents[2]
 RESULTS_DIR = BASE_DIR / 'results'
 OUTPUT_DIR = RESULTS_DIR / 'task_complexity'
 FIGURES_DIR = BASE_DIR / 'figures'

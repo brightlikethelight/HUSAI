@@ -16,7 +16,7 @@ import numpy as np
 import json
 from pathlib import Path
 
-BASE_DIR = Path('/Users/brightliu/School_Work/HUSAI')
+BASE_DIR = Path(__file__).resolve().parents[2]
 RESULTS_DIR = BASE_DIR / 'results'
 
 

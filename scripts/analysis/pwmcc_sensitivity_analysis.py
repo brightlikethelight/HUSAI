@@ -21,7 +21,7 @@ from typing import Dict, List
 import sys
 
 # Add project root
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from src.models.transformer import ModularArithmeticTransformer
 from src.data.modular_arithmetic import ModularArithmeticDataset
@@ -29,7 +29,7 @@ from src.utils.config import TransformerConfig
 from torch.utils.data import DataLoader
 
 # Paths
-BASE_DIR = Path('/Users/brightliu/School_Work/HUSAI')
+BASE_DIR = Path(__file__).resolve().parents[2]
 RESULTS_DIR = BASE_DIR / 'results'
 SAES_DIR = RESULTS_DIR / 'saes'
 OUTPUT_DIR = RESULTS_DIR / 'analysis'

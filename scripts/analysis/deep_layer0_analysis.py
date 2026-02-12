@@ -23,7 +23,7 @@ import numpy as np
 import json
 import matplotlib.pyplot as plt
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from src.models.transformer import ModularArithmeticTransformer
 from src.data.modular_arithmetic import ModularArithmeticDataset

@@ -52,7 +52,7 @@ if DEVICE == 'cpu':
     print("=" * 70 + "\n")
 
 # Paths
-BASE_DIR = Path('/Users/brightliu/School_Work/HUSAI')
+BASE_DIR = Path(__file__).resolve().parents[2]
 RESULTS_DIR = BASE_DIR / 'results'
 OUTPUT_DIR = RESULTS_DIR / 'llm_sae_stability'
 OUTPUT_DIR.mkdir(exist_ok=True, parents=True)

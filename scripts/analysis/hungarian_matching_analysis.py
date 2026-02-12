@@ -21,7 +21,7 @@ from typing import Dict, List, Tuple
 import json
 
 # Paths
-BASE_DIR = Path('/Users/brightliu/School_Work/HUSAI')
+BASE_DIR = Path(__file__).resolve().parents[2]
 RESULTS_DIR = BASE_DIR / 'results'
 SAE_DIR = RESULTS_DIR / 'saes'
 OUTPUT_DIR = RESULTS_DIR / 'analysis'

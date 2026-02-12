@@ -33,7 +33,7 @@ from tqdm import tqdm
 import sys
 
 # Add src to path
-BASE_DIR = Path('/Users/brightliu/School_Work/HUSAI')
+BASE_DIR = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(BASE_DIR))
 
 from src.models.transformer import ModularArithmeticTransformer

@@ -3,11 +3,14 @@ Critical analysis of stability vs L0 monotonicity claim across architectures.
 """
 
 import json
+from pathlib import Path
 import numpy as np
 from scipy.stats import pearsonr, spearmanr
 
 # Load data
-with open('/Users/brightliu/School_Work/HUSAI/results/multi_architecture_stability/multi_architecture_results.json', 'r') as f:
+BASE_DIR = Path(__file__).resolve().parents[2]
+data_path = BASE_DIR / "results" / "multi_architecture_stability" / "multi_architecture_results.json"
+with open(data_path, "r") as f:
     data = json.load(f)
 
 # Organize by architecture

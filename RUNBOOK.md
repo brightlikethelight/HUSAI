@@ -83,3 +83,37 @@ Current status in this workspace: full test suite passes.
 - absolute paths still exist in several auxiliary experiment scripts
 - no CI workflow checked into `.github/workflows` yet
 - environment remains split across multiple spec files without lockfile
+
+## 6) CI and Follow-up Automation (Added)
+
+### CI workflows
+- Main workflow: `.github/workflows/ci.yml`
+  - `smoke` job: fail-fast end-to-end smoke (`scripts/ci/smoke_pipeline.sh`)
+  - `quality` job: lint (`flake8`), typecheck (`mypy`), tests (`pytest`)
+
+### Local smoke target
+```bash
+make smoke
+# or
+scripts/ci/smoke_pipeline.sh /tmp/husai_ci_smoke
+```
+
+### Reproduction / Ablation / Benchmark slice commands
+```bash
+# Phase 4a: trained vs random reproduction with manifest
+python scripts/experiments/run_phase4a_reproduction.py
+
+# Phase 4c: core ablations (k sweep + d_sae sweep) with CIs
+python scripts/experiments/run_core_ablations.py --device cpu --epochs 20
+
+# Phase 4e: SAEBench/CE-Bench-aligned local slice
+python scripts/experiments/run_external_benchmark_slice.py
+```
+
+Primary artifact roots:
+- `results/experiments/phase4a_trained_vs_random/`
+- `results/experiments/phase4c_core_ablations/`
+- `results/experiments/phase4e_external_benchmark_slice/`
+
+Note:
+- CI lint/typecheck are currently incremental gates (`src/utils/config.py`, `src/data/modular_arithmetic.py`, and new experiment runners) because repository-wide static-analysis debt is still high.

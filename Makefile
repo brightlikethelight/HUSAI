@@ -1,4 +1,4 @@
-.PHONY: help install install-dev setup test test-cov lint format typecheck clean run-notebooks
+.PHONY: help install install-dev setup test test-cov smoke lint format typecheck clean run-notebooks reproduce-phase4a ablate-core benchmark-slice
 
 .DEFAULT_GOAL := help
 
@@ -35,6 +35,9 @@ test-gpu: ## Run GPU-specific tests
 
 test-fast: ## Run fast tests only (skip slow tests)
 	pytest tests/ -v -m "not slow"
+
+smoke: ## Run fail-fast smoke pipeline
+	scripts/ci/smoke_pipeline.sh
 
 lint: ## Run all linters
 	@echo "Running flake8..."
@@ -166,3 +169,13 @@ onboard: ## Quick onboarding for new team members
 	@echo "8. Pick an issue from GitHub!"
 	@echo ""
 	@echo "Need help? Email: brightliu@college.harvard.edu"
+
+# Reproduction and benchmark helpers
+reproduce-phase4a: ## Run Phase 4a trained-vs-random reproduction
+	python scripts/experiments/run_phase4a_reproduction.py
+
+ablate-core: ## Run core k/d_sae ablations with confidence intervals
+	python scripts/experiments/run_core_ablations.py --device cpu --epochs 20
+
+benchmark-slice: ## Build SAEBench/CE-Bench-aligned benchmark slice
+	python scripts/experiments/run_external_benchmark_slice.py
