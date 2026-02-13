@@ -43,6 +43,20 @@ def parse_dataset_names(text: str) -> list[str]:
     return values
 
 
+def infer_dataset_names_from_cache(model_cache_path: Path, model_name: str, hook_name: str) -> list[str]:
+    cache_dir = model_cache_path / f"model_activations_{model_name}"
+    if not cache_dir.exists():
+        return []
+
+    suffix = f"_{hook_name}.pt"
+    names: list[str] = []
+    for path in sorted(cache_dir.glob(f"*{suffix}")):
+        stem = path.name
+        if stem.endswith(suffix):
+            names.append(stem[: -len(suffix)])
+    return names
+
+
 def dtype_from_name(name: str) -> torch.dtype:
     name = name.lower()
     mapping = {
@@ -216,6 +230,10 @@ def main() -> None:
     dtype = dtype_from_name(args.dtype)
     ks = parse_ks(args.ks)
     dataset_names = parse_dataset_names(args.dataset_names)
+    inferred_from_cache = False
+    if not dataset_names:
+        dataset_names = infer_dataset_names_from_cache(args.model_cache_path, args.model_name, args.hook_name)
+        inferred_from_cache = True
 
     if args.device == "cuda" and not torch.cuda.is_available():
         raise RuntimeError("CUDA requested but not available")
@@ -278,6 +296,8 @@ def main() -> None:
             "setting": args.setting,
             "ks": ks,
             "dataset_names": dataset_names,
+            "dataset_names_inferred_from_cache": inferred_from_cache,
+            "dataset_count": len(dataset_names),
             "binarize": args.binarize,
             "device": args.device,
             "dtype": args.dtype,
@@ -314,6 +334,8 @@ def main() -> None:
         f"- Model: `{args.model_name}`",
         f"- Hook: `{args.hook_name}`",
         f"- ks: `{ks}`",
+        f"- dataset count: `{len(dataset_names)}`",
+        f"- dataset source: `{'cache_inferred' if inferred_from_cache else 'explicit'}`",
         "",
         "## Best by AUC",
         "",
