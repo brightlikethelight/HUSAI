@@ -5,6 +5,7 @@ This script is intentionally conservative:
 - It always writes a reproducibility manifest.
 - It can export a local SAE checkpoint index for benchmark adapters.
 - It runs official SAEBench/CE-Bench commands only when explicitly provided.
+- It can run a HUSAI custom-SAEBench adapter command for direct checkpoint eval.
 
 Rationale:
 - This repository uses custom SAE checkpoints and small-model tasks.
@@ -74,6 +75,17 @@ def has_module(module_name: str) -> bool:
     return importlib.util.find_spec(module_name) is not None
 
 
+def parse_csv_ints(text: str) -> list[int]:
+    values = [item.strip() for item in text.split(",") if item.strip()]
+    if not values:
+        return []
+    return [int(v) for v in values]
+
+
+def build_shell_command(parts: list[str]) -> str:
+    return " ".join(shlex.quote(part) for part in parts)
+
+
 def detect_saebench(repo_path: Path | None) -> dict[str, Any]:
     detected_repo = repo_path if repo_path and repo_path.exists() else None
     custom_runner = None
@@ -93,6 +105,10 @@ def detect_saebench(repo_path: Path | None) -> dict[str, Any]:
                 "python -m sae_bench.evals.sparse_probing.main "
                 "--sae_regex_pattern <pattern> --sae_block_pattern <block> "
                 "--model_name <model>"
+            ),
+            "example_custom_cmd": (
+                "python scripts/experiments/run_husai_saebench_custom_eval.py "
+                "--checkpoint results/saes/<run>/sae_final.pt"
             ),
         },
     }
@@ -125,6 +141,7 @@ def collect_local_sae_index(sae_root: Path) -> list[dict[str, Any]]:
     checkpoint_paths: list[Path] = []
     checkpoint_paths.extend(sorted(sae_root.glob("topk_seed*/sae_final.pt")))
     checkpoint_paths.extend(sorted(sae_root.glob("topk_layer1_seed*/sae_final.pt")))
+    checkpoint_paths.extend(sorted(sae_root.glob("husai_*_seed*/sae_final.pt")))
 
     for path in checkpoint_paths:
         rel = str(path.relative_to(PROJECT_ROOT))
@@ -141,7 +158,7 @@ def collect_local_sae_index(sae_root: Path) -> list[dict[str, Any]]:
             obj = torch.load(path, map_location="cpu")
             state = obj.get("model_state_dict", obj) if isinstance(obj, dict) else {}
 
-            decoder = state.get("decoder.weight")
+            decoder = state.get("decoder.weight") if isinstance(state, dict) else None
             if decoder is not None and hasattr(decoder, "shape"):
                 record["metadata"]["decoder_shape"] = list(decoder.shape)
             if isinstance(obj, dict):
@@ -220,6 +237,51 @@ def run_command(
     )
 
 
+def build_husai_custom_saebench_command(args: argparse.Namespace, run_dir: Path) -> str | None:
+    if args.husai_saebench_checkpoint is None:
+        return None
+
+    command_parts = [
+        "python",
+        "scripts/experiments/run_husai_saebench_custom_eval.py",
+        "--checkpoint",
+        str(args.husai_saebench_checkpoint),
+        "--sae-release",
+        args.husai_saebench_release,
+        "--model-name",
+        args.husai_saebench_model_name,
+        "--hook-layer",
+        str(args.husai_saebench_hook_layer),
+        "--hook-name",
+        args.husai_saebench_hook_name,
+        "--reg-type",
+        args.husai_saebench_reg_type,
+        "--setting",
+        args.husai_saebench_setting,
+        "--ks",
+        args.husai_saebench_ks,
+        "--device",
+        args.husai_saebench_device,
+        "--dtype",
+        args.husai_saebench_dtype,
+        "--results-path",
+        str(args.husai_saebench_results_path),
+        "--model-cache-path",
+        str(args.husai_saebench_model_cache_path),
+        "--output-dir",
+        str(run_dir / "husai_custom_saebench"),
+    ]
+
+    if args.husai_saebench_dataset_names:
+        command_parts.extend(["--dataset-names", args.husai_saebench_dataset_names])
+    if args.husai_saebench_binarize:
+        command_parts.append("--binarize")
+    if args.husai_saebench_force_rerun:
+        command_parts.append("--force-rerun")
+
+    return build_shell_command(command_parts)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Official benchmark preflight/runner")
     parser.add_argument(
@@ -238,6 +300,32 @@ def main() -> None:
     parser.add_argument("--cebench-command", type=str, default="")
     parser.add_argument("--skip-saebench", action="store_true")
     parser.add_argument("--skip-cebench", action="store_true")
+
+    parser.add_argument("--husai-saebench-checkpoint", type=Path, default=None)
+    parser.add_argument("--husai-saebench-release", type=str, default="husai_topk_custom")
+    parser.add_argument("--husai-saebench-model-name", type=str, default="pythia-70m-deduped")
+    parser.add_argument("--husai-saebench-hook-layer", type=int, default=0)
+    parser.add_argument("--husai-saebench-hook-name", type=str, default="blocks.0.hook_resid_pre")
+    parser.add_argument("--husai-saebench-reg-type", type=str, default="l1")
+    parser.add_argument("--husai-saebench-setting", type=str, default="normal")
+    parser.add_argument("--husai-saebench-ks", type=str, default="1,2,5")
+    parser.add_argument("--husai-saebench-dataset-names", type=str, default="")
+    parser.add_argument("--husai-saebench-binarize", action="store_true")
+    parser.add_argument("--husai-saebench-device", type=str, default="cuda")
+    parser.add_argument("--husai-saebench-dtype", type=str, default="float32")
+    parser.add_argument(
+        "--husai-saebench-results-path",
+        type=Path,
+        default=Path("/tmp/husai_saebench_probe_results"),
+    )
+    parser.add_argument(
+        "--husai-saebench-model-cache-path",
+        type=Path,
+        default=Path("/tmp/sae_bench_model_cache"),
+    )
+    parser.add_argument("--husai-saebench-force-rerun", action="store_true")
+    parser.add_argument("--skip-husai-saebench-custom", action="store_true")
+
     parser.add_argument(
         "--execute",
         action="store_true",
@@ -245,10 +333,17 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    # Validate ks early for reproducibility and explicit failure mode.
+    parse_csv_ints(args.husai_saebench_ks)
+
     run_id = datetime.now(timezone.utc).strftime("run_%Y%m%dT%H%M%SZ")
     run_dir = args.output_dir / run_id
     logs_dir = run_dir / "logs"
     run_dir.mkdir(parents=True, exist_ok=True)
+
+    husai_custom_command = None
+    if args.husai_saebench_checkpoint is not None and not args.skip_husai_saebench_custom:
+        husai_custom_command = build_husai_custom_saebench_command(args, run_dir)
 
     config_payload = {
         "sae_root": str(args.sae_root),
@@ -258,6 +353,25 @@ def main() -> None:
         "cebench_command": args.cebench_command,
         "skip_saebench": args.skip_saebench,
         "skip_cebench": args.skip_cebench,
+        "husai_saebench_checkpoint": (
+            str(args.husai_saebench_checkpoint) if args.husai_saebench_checkpoint else None
+        ),
+        "husai_saebench_release": args.husai_saebench_release,
+        "husai_saebench_model_name": args.husai_saebench_model_name,
+        "husai_saebench_hook_layer": args.husai_saebench_hook_layer,
+        "husai_saebench_hook_name": args.husai_saebench_hook_name,
+        "husai_saebench_reg_type": args.husai_saebench_reg_type,
+        "husai_saebench_setting": args.husai_saebench_setting,
+        "husai_saebench_ks": args.husai_saebench_ks,
+        "husai_saebench_dataset_names": args.husai_saebench_dataset_names,
+        "husai_saebench_binarize": args.husai_saebench_binarize,
+        "husai_saebench_device": args.husai_saebench_device,
+        "husai_saebench_dtype": args.husai_saebench_dtype,
+        "husai_saebench_results_path": str(args.husai_saebench_results_path),
+        "husai_saebench_model_cache_path": str(args.husai_saebench_model_cache_path),
+        "husai_saebench_force_rerun": args.husai_saebench_force_rerun,
+        "skip_husai_saebench_custom": args.skip_husai_saebench_custom,
+        "husai_custom_command": husai_custom_command,
         "execute": args.execute,
     }
     (run_dir / "config.json").write_text(json.dumps(config_payload, indent=2) + "\n")
@@ -287,6 +401,17 @@ def main() -> None:
                 name="cebench",
                 command=args.cebench_command.strip() or None,
                 cwd=cebench_cwd,
+                logs_dir=logs_dir,
+                execute=args.execute,
+            )
+        )
+
+    if husai_custom_command is not None:
+        command_results.append(
+            run_command(
+                name="saebench_husai_custom",
+                command=husai_custom_command,
+                cwd=PROJECT_ROOT,
                 logs_dir=logs_dir,
                 execute=args.execute,
             )
@@ -325,6 +450,7 @@ def main() -> None:
         f"- CE-Bench module available: `{cebench['module_available']}`",
         f"- CE-Bench repo path: `{cebench['repo_path']}`",
         f"- Local SAE checkpoints indexed: `{len(local_sae_index)}`",
+        f"- HUSAI custom checkpoint provided: `{args.husai_saebench_checkpoint is not None}`",
         "",
         "## Command Status",
     ]
@@ -356,6 +482,13 @@ def main() -> None:
             "  --execute",
             "```",
             "",
+            "HUSAI custom checkpoint eval example:",
+            "```bash",
+            "python scripts/experiments/run_official_external_benchmarks.py \\",
+            "  --husai-saebench-checkpoint results/saes/husai_pythia70m_topk_seed42/sae_final.pt \\",
+            "  --execute",
+            "```",
+            "",
             "SAEBench reference command pattern from official docs:",
             "```bash",
             "python -m sae_bench.evals.sparse_probing.main \\",
@@ -369,6 +502,13 @@ def main() -> None:
     summary_path = run_dir / "summary.md"
     summary_path.write_text("\n".join(summary_lines) + "\n")
 
+    artifacts = [
+        str((run_dir / "config.json").relative_to(PROJECT_ROOT)),
+        str(preflight_path.relative_to(PROJECT_ROOT)),
+        str(sae_index_path.relative_to(PROJECT_ROOT)),
+        str(commands_path.relative_to(PROJECT_ROOT)),
+        str(summary_path.relative_to(PROJECT_ROOT)),
+    ]
     manifest = {
         "run_metadata": {
             "timestamp_utc": preflight["timestamp_utc"],
@@ -377,13 +517,7 @@ def main() -> None:
             "config_hash": preflight["config_hash"],
             "run_id": run_id,
         },
-        "artifacts": [
-            str((run_dir / "config.json").relative_to(PROJECT_ROOT)),
-            str(preflight_path.relative_to(PROJECT_ROOT)),
-            str(sae_index_path.relative_to(PROJECT_ROOT)),
-            str(commands_path.relative_to(PROJECT_ROOT)),
-            str(summary_path.relative_to(PROJECT_ROOT)),
-        ],
+        "artifacts": artifacts,
     }
     (run_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
 
