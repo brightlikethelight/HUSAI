@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import shlex
 import subprocess
 import sys
@@ -120,6 +121,30 @@ def build_model(
     raise ValueError(f"Unsupported architecture: {architecture}")
 
 
+def initialize_model_for_training(
+    *,
+    model: torch.nn.Module,
+    activations: torch.Tensor,
+    architecture: str,
+    device: str,
+) -> None:
+    with torch.no_grad():
+        torch.nn.init.kaiming_uniform_(model.W_enc, a=math.sqrt(5))
+        torch.nn.init.kaiming_uniform_(model.W_dec, a=math.sqrt(5))
+        model.W_dec.data = F.normalize(model.W_dec.data, dim=1)
+        model.b_enc.zero_()
+
+        # Center decoder bias on activation mean to avoid dead-start dynamics.
+        act_mean = activations.mean(dim=0).to(device=device, dtype=model.b_dec.dtype)
+        model.b_dec.copy_(act_mean)
+
+        if architecture == "jumprelu" and hasattr(model, "threshold"):
+            if isinstance(model.threshold, torch.nn.Parameter):
+                model.threshold.data.zero_()
+            else:
+                model.threshold.zero_()
+
+
 def train_single(
     *,
     architecture: str,
@@ -152,6 +177,7 @@ def train_single(
         device=device,
         dtype=dtype,
     )
+    initialize_model_for_training(model=model, activations=activations, architecture=architecture, device=device)
     # BatchTopK requires thresholded inference, but threshold is only meaningful
     # after training/calibration. Train in explicit top-k mode first.
     if architecture == "batchtopk" and hasattr(model, "use_threshold"):
