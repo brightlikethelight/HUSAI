@@ -26,6 +26,10 @@ def parse_ints(text: str) -> list[int]:
     return [int(x.strip()) for x in text.split(",") if x.strip()]
 
 
+def parse_csv_strings(text: str) -> list[str]:
+    return [x.strip() for x in text.split(",") if x.strip()]
+
+
 def cmd_to_str(parts: list[str]) -> str:
     return " ".join(shlex.quote(p) for p in parts)
 
@@ -51,6 +55,25 @@ def maybe_float(v: Any) -> float | None:
     if v is None:
         return None
     return float(v)
+
+
+def infer_dataset_names_from_files(files: list[Path], hook_name: str) -> list[str]:
+    suffix = f"_{hook_name}.pt"
+    names: list[str] = []
+    for path in files:
+        name = path.name
+        if name.endswith(suffix):
+            names.append(name[: -len(suffix)])
+        else:
+            names.append(path.stem)
+
+    seen = set()
+    deduped: list[str] = []
+    for name in names:
+        if name not in seen:
+            deduped.append(name)
+            seen.add(name)
+    return deduped
 
 
 def summary_stats(values: list[float | None]) -> dict[str, float | None]:
@@ -113,6 +136,8 @@ def main() -> None:
         type=Path,
         default=PROJECT_ROOT / "results" / "cache" / "external_benchmarks" / "ce_bench_artifacts_scaling",
     )
+    parser.add_argument("--saebench-datasets", type=str, default="")
+    parser.add_argument("--saebench-dataset-limit", type=int, default=0)
 
     parser.add_argument(
         "--output-dir",
@@ -153,6 +178,20 @@ def main() -> None:
         cond_id = f"tok{token_budget}_layer{hook_layer}_dsae{d_sae}_seed{seed}"
         hook_name = args.hook_name_template.format(layer=hook_layer)
         activation_glob = args.activation_glob_template.format(layer=hook_layer)
+        activation_files = sorted(args.activation_cache_dir.glob(activation_glob))
+
+        if args.saebench_datasets:
+            dataset_names = parse_csv_strings(args.saebench_datasets)
+        else:
+            dataset_names = infer_dataset_names_from_files(activation_files, hook_name)
+        if args.saebench_dataset_limit > 0:
+            dataset_names = dataset_names[: args.saebench_dataset_limit]
+
+        if args.run_saebench and not dataset_names:
+            raise ValueError(
+                f"No SAEBench dataset names resolved for condition {cond_id}. "
+                "Pass --saebench-datasets or ensure activation files match hook naming."
+            )
 
         output_ckpt_dir = ckpt_dir / cond_id
         output_ckpt_dir.mkdir(parents=True, exist_ok=True)
@@ -200,6 +239,8 @@ def main() -> None:
             "seed": seed,
             "train_returncode": rc,
             "train_summary": None,
+            "activation_file_count": len(activation_files),
+            "dataset_names": dataset_names,
             "saebench": None,
             "cebench": None,
             "checkpoint": to_repo_rel(checkpoint_path) if checkpoint_path.exists() else None,
@@ -238,6 +279,8 @@ def main() -> None:
                 str(saebench_out),
                 "--force-rerun",
             ]
+            if dataset_names:
+                sae_cmd.extend(["--dataset-names", ",".join(dataset_names)])
             rc, output = run_subprocess(sae_cmd, PROJECT_ROOT)
             (logs_dir / f"{cond_id}_saebench.log").write_text(output)
             rec["saebench_returncode"] = rc
@@ -273,6 +316,8 @@ def main() -> None:
                 "--artifacts-path",
                 str(args.cebench_artifacts_path),
             ]
+            if args.cebench_max_rows is not None:
+                ce_cmd.extend(["--max-rows", str(args.cebench_max_rows)])
             rc, output = run_subprocess(ce_cmd, PROJECT_ROOT)
             (logs_dir / f"{cond_id}_cebench.log").write_text(output)
             rec["cebench_returncode"] = rc
@@ -340,6 +385,8 @@ def main() -> None:
             "run_cebench": args.run_cebench,
             "cebench_repo": str(args.cebench_repo) if args.cebench_repo else None,
             "cebench_max_rows": args.cebench_max_rows,
+            "saebench_datasets": parse_csv_strings(args.saebench_datasets),
+            "saebench_dataset_limit": args.saebench_dataset_limit,
             "run_id": run_id,
         },
         "records": records,
