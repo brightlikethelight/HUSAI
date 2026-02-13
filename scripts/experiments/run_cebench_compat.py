@@ -6,18 +6,21 @@ This wrapper addresses upstream API drift encountered when running CE-Bench:
 2) `stw.Stopwatch(start=...)` -> newer stw versions removed the `start` kwarg.
 
 It installs parent-process shims, writes a `sitecustomize` shim for spawned
-workers, and then executes CE-Bench while preserving harness artifacts.
+workers, executes CE-Bench, and exports a compact metrics summary artifact.
 """
 
 from __future__ import annotations
 
 import argparse
 import inspect
+import json
 import os
 import runpy
+import shutil
 import sys
 import types
 from pathlib import Path
+from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CACHE_ROOT = PROJECT_ROOT / "results" / "cache" / "external_benchmarks"
@@ -42,7 +45,7 @@ def install_sae_lens_toolkit_shim() -> bool:
 
 
 def install_stw_stopwatch_shim() -> bool:
-    """Patch stw.Stopwatch to accept `start=` for CE-Bench compatibility."""
+    """Patch stw.Stopwatch to accept `start=` and provide `stop()` compatibility."""
     try:
         import stw
 
@@ -160,6 +163,103 @@ def prepend_pythonpath(path: Path) -> None:
         os.environ["PYTHONPATH"] = path_str
 
 
+def _copy_if_present(src: Path, dst: Path) -> bool:
+    if not src.exists():
+        return False
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src, dst)
+    return True
+
+
+def summarize_cebench_outputs(output_folder: Path) -> dict[str, Any]:
+    """Collect CE-Bench result artifacts and emit a compact summary JSON/MD."""
+    summary: dict[str, Any] = {
+        "output_folder": str(output_folder),
+        "results_json": None,
+        "scores_dump": None,
+        "total_rows": None,
+        "contrastive_score_mean_max": None,
+        "independent_score_mean_max": None,
+        "interpretability_score_mean_max": None,
+        "sae_release": None,
+        "sae_id": None,
+        "date": None,
+        "scores_dump_line_count": None,
+    }
+
+    output_results = sorted((output_folder / "interpretability_eval").glob("**/results.json"))
+    project_results = sorted((PROJECT_ROOT / "interpretability_eval").glob("**/results.json"))
+
+    result_path: Path | None = output_results[0] if output_results else None
+    if result_path is None and project_results:
+        src = project_results[0]
+        dst = output_folder / "captured_from_project_root" / src.relative_to(PROJECT_ROOT)
+        if _copy_if_present(src, dst):
+            result_path = dst
+
+    output_scores = output_folder / "scores_dump.txt"
+    project_scores = PROJECT_ROOT / "scores_dump.txt"
+    scores_path: Path | None = output_scores if output_scores.exists() else None
+    if scores_path is None and project_scores.exists():
+        dst = output_folder / "captured_from_project_root" / "scores_dump.txt"
+        if _copy_if_present(project_scores, dst):
+            scores_path = dst
+
+    if result_path is not None:
+        summary["results_json"] = str(result_path)
+        try:
+            data = json.loads(result_path.read_text())
+            summary["total_rows"] = data.get("total_rows")
+            summary["sae_release"] = data.get("sae_release")
+            summary["sae_id"] = data.get("sae_id")
+            summary["date"] = data.get("date")
+            summary["contrastive_score_mean_max"] = (
+                data.get("contrastive_score_mean", {}) or {}
+            ).get("max")
+            summary["independent_score_mean_max"] = (
+                data.get("independent_score_mean", {}) or {}
+            ).get("max")
+            summary["interpretability_score_mean_max"] = (
+                data.get("interpretability_score_mean", {}) or {}
+            ).get("max")
+        except Exception as exc:
+            summary["parse_error"] = str(exc)
+
+    if scores_path is not None:
+        summary["scores_dump"] = str(scores_path)
+        try:
+            with scores_path.open("r", encoding="utf-8") as f:
+                summary["scores_dump_line_count"] = sum(1 for _ in f)
+        except Exception as exc:
+            summary["scores_dump_count_error"] = str(exc)
+
+    summary_path = output_folder / "cebench_metrics_summary.json"
+    summary_path.write_text(json.dumps(summary, indent=2) + "\n")
+
+    md_lines = [
+        "# CE-Bench Metrics Summary",
+        "",
+        f"- output_folder: `{output_folder}`",
+        f"- results_json: `{summary['results_json']}`",
+        f"- scores_dump: `{summary['scores_dump']}`",
+        f"- total_rows: `{summary['total_rows']}`",
+        f"- contrastive_score_mean.max: `{summary['contrastive_score_mean_max']}`",
+        f"- independent_score_mean.max: `{summary['independent_score_mean_max']}`",
+        f"- interpretability_score_mean.max: `{summary['interpretability_score_mean_max']}`",
+        f"- scores_dump_line_count: `{summary['scores_dump_line_count']}`",
+        f"- sae_release: `{summary['sae_release']}`",
+        f"- sae_id: `{summary['sae_id']}`",
+        f"- date: `{summary['date']}`",
+    ]
+    if "parse_error" in summary:
+        md_lines.append(f"- parse_error: `{summary['parse_error']}`")
+    if "scores_dump_count_error" in summary:
+        md_lines.append(f"- scores_dump_count_error: `{summary['scores_dump_count_error']}`")
+
+    (output_folder / "cebench_metrics_summary.md").write_text("\n".join(md_lines) + "\n")
+    return summary
+
+
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run CE-Bench with dependency-compatibility shims")
     parser.add_argument("--cebench-repo", type=Path, required=True)
@@ -238,11 +338,26 @@ def main() -> None:
     print(f"sitecustomize shim dir: {compat_dir}")
 
     old_argv = list(sys.argv)
+    original_cwd = Path.cwd()
+    run_error: Exception | None = None
     try:
+        # CE-Bench writes relative outputs (interpretability_eval/scores_dump); keep them
+        # scoped under this run's output folder instead of polluting repository root.
+        os.chdir(args.output_folder)
         sys.argv = argv
         runpy.run_path(str(ce_bench_script), run_name="__main__")
+    except Exception as exc:
+        run_error = exc
     finally:
+        os.chdir(original_cwd)
         sys.argv = old_argv
+
+    summary = summarize_cebench_outputs(args.output_folder)
+    print("CE-Bench summary written:", args.output_folder / "cebench_metrics_summary.json")
+    print("CE-Bench key metrics:", json.dumps(summary, indent=2))
+
+    if run_error is not None:
+        raise run_error
 
 
 if __name__ == "__main__":

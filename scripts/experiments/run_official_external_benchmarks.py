@@ -241,6 +241,20 @@ def run_command(
     )
 
 
+
+
+def load_cebench_metrics_summary(run_dir: Path) -> dict[str, Any] | None:
+    """Load compact CE-Bench metrics summary if the compat runner emitted it."""
+    summary_path = run_dir / "cebench" / "cebench_metrics_summary.json"
+    if not summary_path.exists():
+        return None
+    try:
+        data = json.loads(summary_path.read_text())
+    except Exception:
+        return None
+    data["_summary_path"] = str(summary_path.relative_to(PROJECT_ROOT))
+    return data
+
 def build_husai_custom_saebench_command(args: argparse.Namespace, run_dir: Path) -> str | None:
     if args.husai_saebench_checkpoint is None:
         return None
@@ -535,6 +549,31 @@ def main() -> None:
                 f"| {result.name} | {result.attempted} | {result.success} | "
                 f"{result.returncode} | {result.note} |"
             )
+
+    cebench_metrics = load_cebench_metrics_summary(run_dir)
+
+    if cebench_metrics is not None:
+        summary_lines.extend(
+            [
+                "",
+                "## CE-Bench Metrics",
+                "",
+                f"- Summary path: `{cebench_metrics.get('_summary_path')}`",
+                f"- Results JSON: `{cebench_metrics.get('results_json')}`",
+                f"- Scores dump: `{cebench_metrics.get('scores_dump')}`",
+                f"- Total rows: `{cebench_metrics.get('total_rows')}`",
+                (
+                    "- Contrastive mean max / Independent mean max / "
+                    "Interpretability mean max: "
+                    f"`{cebench_metrics.get('contrastive_score_mean_max')}` / "
+                    f"`{cebench_metrics.get('independent_score_mean_max')}` / "
+                    f"`{cebench_metrics.get('interpretability_score_mean_max')}`"
+                ),
+                f"- Scores dump line count: `{cebench_metrics.get('scores_dump_line_count')}`",
+                f"- SAE target: `{cebench_metrics.get('sae_release')}` / `{cebench_metrics.get('sae_id')}`",
+                f"- CE-Bench timestamp: `{cebench_metrics.get('date')}`",
+            ]
+        )
 
     summary_lines.extend(
         [
