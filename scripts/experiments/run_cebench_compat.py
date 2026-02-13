@@ -3,17 +3,18 @@
 
 Why this exists:
 - CE-Bench currently imports `sae_lens.toolkit.pretrained_saes_directory`.
-- In newer `sae_lens` releases (e.g. 6.x), this moved to
+- Newer `sae_lens` releases expose this via
   `sae_lens.loading.pretrained_saes_directory`.
 
-This script installs a runtime import shim, then executes the official
-`ce_bench/CE_Bench.py` entrypoint with explicit args so runs are still
-artifacted via our benchmark harness.
+This script installs a runtime import shim, configures child-process shim loading
+via `sitecustomize`, and executes CE-Bench while preserving artifact outputs in
+our benchmark harness.
 """
 
 from __future__ import annotations
 
 import argparse
+import os
 import runpy
 import sys
 import types
@@ -37,6 +38,38 @@ def install_sae_lens_toolkit_shim() -> bool:
     shim_module.get_pretrained_saes_directory = get_pretrained_saes_directory
     sys.modules[shim_name] = shim_module
     return True
+
+
+def write_sitecustomize_shim(output_folder: Path) -> Path:
+    """Write a sitecustomize shim so multiprocessing workers get the same alias."""
+    compat_dir = output_folder / ".cebench_compat"
+    compat_dir.mkdir(parents=True, exist_ok=True)
+    sitecustomize_path = compat_dir / "sitecustomize.py"
+    sitecustomize_code = (
+        "import sys\n"
+        "import types\n"
+        "try:\n"
+        "    from sae_lens.loading.pretrained_saes_directory import get_pretrained_saes_directory\n"
+        "except Exception:\n"
+        "    get_pretrained_saes_directory = None\n"
+        "if get_pretrained_saes_directory is not None:\n"
+        "    if 'sae_lens.toolkit' not in sys.modules:\n"
+        "        sys.modules['sae_lens.toolkit'] = types.ModuleType('sae_lens.toolkit')\n"
+        "    shim = types.ModuleType('sae_lens.toolkit.pretrained_saes_directory')\n"
+        "    shim.get_pretrained_saes_directory = get_pretrained_saes_directory\n"
+        "    sys.modules['sae_lens.toolkit.pretrained_saes_directory'] = shim\n"
+    )
+    sitecustomize_path.write_text(sitecustomize_code)
+    return compat_dir
+
+
+def prepend_pythonpath(path: Path) -> None:
+    path_str = str(path)
+    existing = os.environ.get("PYTHONPATH", "")
+    if existing:
+        os.environ["PYTHONPATH"] = f"{path_str}:{existing}"
+    else:
+        os.environ["PYTHONPATH"] = path_str
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
@@ -69,6 +102,9 @@ def main() -> None:
     if not ce_bench_script.exists():
         raise FileNotFoundError(f"CE-Bench entrypoint not found: {ce_bench_script}")
 
+    args.output_folder.mkdir(parents=True, exist_ok=True)
+    args.artifacts_path.mkdir(parents=True, exist_ok=True)
+
     shim_ok = install_sae_lens_toolkit_shim()
     if not shim_ok:
         raise RuntimeError(
@@ -76,7 +112,15 @@ def main() -> None:
             "Expected `sae_lens.loading.pretrained_saes_directory` in current env."
         )
 
-    sys.path.insert(0, str(args.cebench_repo))
+    # Ensure spawned Python workers import our shim via sitecustomize.
+    compat_dir = write_sitecustomize_shim(args.output_folder)
+    prepend_pythonpath(compat_dir)
+
+    # Keep CE-Bench importable while avoiding local sae_lens shadowing.
+    repo_str = str(args.cebench_repo)
+    if repo_str in sys.path:
+        sys.path.remove(repo_str)
+    sys.path.append(repo_str)
 
     argv = [
         str(ce_bench_script),
@@ -98,13 +142,11 @@ def main() -> None:
     if args.llm_dtype is not None:
         argv.extend(["--llm_dtype", args.llm_dtype])
 
-    args.output_folder.mkdir(parents=True, exist_ok=True)
-    args.artifacts_path.mkdir(parents=True, exist_ok=True)
-
     print("Running CE-Bench with compatibility shim")
     print(f"CE-Bench repo: {args.cebench_repo}")
     print(f"Output folder: {args.output_folder}")
     print(f"Artifacts path: {args.artifacts_path}")
+    print(f"sitecustomize shim dir: {compat_dir}")
 
     old_argv = list(sys.argv)
     try:
