@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
-"""Compatibility runner for CE-Bench in modern sae_lens environments.
+"""Compatibility runner for CE-Bench in modern dependency environments.
 
-Why this exists:
-- CE-Bench currently imports `sae_lens.toolkit.pretrained_saes_directory`.
-- Newer `sae_lens` releases expose this via
-  `sae_lens.loading.pretrained_saes_directory`.
+This wrapper addresses upstream API drift encountered when running CE-Bench:
+1) `sae_lens.toolkit.pretrained_saes_directory` -> moved in modern sae_lens.
+2) `stw.Stopwatch(start=...)` -> newer stw versions removed the `start` kwarg.
 
-This script installs a runtime import shim, configures child-process shim loading
-via `sitecustomize`, and executes CE-Bench while preserving artifact outputs in
-our benchmark harness.
+It installs parent-process shims, writes a `sitecustomize` shim for spawned
+workers, and then executes CE-Bench while preserving harness artifacts.
 """
 
 from __future__ import annotations
 
 import argparse
+import inspect
 import os
 import runpy
 import sys
@@ -40,14 +39,45 @@ def install_sae_lens_toolkit_shim() -> bool:
     return True
 
 
+def install_stw_stopwatch_shim() -> bool:
+    """Patch stw.Stopwatch to accept `start=` for CE-Bench compatibility."""
+    try:
+        import stw
+        base = stw.Stopwatch
+    except Exception:
+        return False
+
+    try:
+        signature = inspect.signature(base.__init__)
+    except Exception:
+        signature = None
+
+    if signature and "start" in signature.parameters:
+        return True
+
+    class CompatStopwatch(base):
+        def __init__(self, *args, start=None, **kwargs):
+            super().__init__(*args, **kwargs)
+            if start:
+                start_fn = getattr(self, "start", None)
+                if callable(start_fn):
+                    start_fn()
+
+    stw.Stopwatch = CompatStopwatch
+    sys.modules["stw"].Stopwatch = CompatStopwatch
+    return True
+
+
 def write_sitecustomize_shim(output_folder: Path) -> Path:
-    """Write a sitecustomize shim so multiprocessing workers get the same alias."""
+    """Write a sitecustomize shim so multiprocessing workers inherit patches."""
     compat_dir = output_folder / ".cebench_compat"
     compat_dir.mkdir(parents=True, exist_ok=True)
     sitecustomize_path = compat_dir / "sitecustomize.py"
     sitecustomize_code = (
+        "import inspect\n"
         "import sys\n"
         "import types\n"
+        "# sae_lens toolkit alias shim\n"
         "try:\n"
         "    from sae_lens.loading.pretrained_saes_directory import get_pretrained_saes_directory\n"
         "except Exception:\n"
@@ -58,6 +88,23 @@ def write_sitecustomize_shim(output_folder: Path) -> Path:
         "    shim = types.ModuleType('sae_lens.toolkit.pretrained_saes_directory')\n"
         "    shim.get_pretrained_saes_directory = get_pretrained_saes_directory\n"
         "    sys.modules['sae_lens.toolkit.pretrained_saes_directory'] = shim\n"
+        "# stw.Stopwatch(start=...) shim\n"
+        "try:\n"
+        "    import stw\n"
+        "    _base = stw.Stopwatch\n"
+        "    _sig = inspect.signature(_base.__init__)\n"
+        "    if 'start' not in _sig.parameters:\n"
+        "        class CompatStopwatch(_base):\n"
+        "            def __init__(self, *args, start=None, **kwargs):\n"
+        "                super().__init__(*args, **kwargs)\n"
+        "                if start:\n"
+        "                    start_fn = getattr(self, 'start', None)\n"
+        "                    if callable(start_fn):\n"
+        "                        start_fn()\n"
+        "        stw.Stopwatch = CompatStopwatch\n"
+        "        sys.modules['stw'].Stopwatch = CompatStopwatch\n"
+        "except Exception:\n"
+        "    pass\n"
     )
     sitecustomize_path.write_text(sitecustomize_code)
     return compat_dir
@@ -73,7 +120,7 @@ def prepend_pythonpath(path: Path) -> None:
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Run CE-Bench with sae_lens compatibility shim")
+    parser = argparse.ArgumentParser(description="Run CE-Bench with dependency-compatibility shims")
     parser.add_argument("--cebench-repo", type=Path, required=True)
     parser.add_argument("--sae-regex-pattern", type=str, required=True)
     parser.add_argument("--sae-block-pattern", type=str, required=True)
@@ -105,14 +152,15 @@ def main() -> None:
     args.output_folder.mkdir(parents=True, exist_ok=True)
     args.artifacts_path.mkdir(parents=True, exist_ok=True)
 
-    shim_ok = install_sae_lens_toolkit_shim()
-    if not shim_ok:
+    if not install_sae_lens_toolkit_shim():
         raise RuntimeError(
             "Could not install sae_lens compatibility shim. "
             "Expected `sae_lens.loading.pretrained_saes_directory` in current env."
         )
+    if not install_stw_stopwatch_shim():
+        raise RuntimeError("Could not install stw.Stopwatch compatibility shim.")
 
-    # Ensure spawned Python workers import our shim via sitecustomize.
+    # Ensure spawned Python workers import our shims via sitecustomize.
     compat_dir = write_sitecustomize_shim(args.output_folder)
     prepend_pythonpath(compat_dir)
 
