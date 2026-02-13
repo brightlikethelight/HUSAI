@@ -154,6 +154,11 @@ def assignment_alignment_penalty(
     """Permutation-invariant alignment penalty via Hungarian matching."""
     d = F.normalize(decoder, dim=0)
     r = F.normalize(ref_decoder, dim=0)
+    if d.shape != r.shape:
+        if d.shape == r.T.shape:
+            r = r.T
+        else:
+            raise ValueError(f"Decoder shape mismatch: {tuple(d.shape)} vs {tuple(r.shape)}")
     cos = d.T @ r
 
     with torch.no_grad():
@@ -277,8 +282,6 @@ def run_lambda_condition(
     )
 
     ref_decoder = ref_model.decoder.weight.detach().float().cpu()
-    if ref_decoder.shape[0] > ref_decoder.shape[1]:
-        ref_decoder = ref_decoder.T
 
     ref_ckpt = checkpoint_dir / f"sae_seed{seed_ref}.pt"
     torch.save(
@@ -321,8 +324,6 @@ def run_lambda_condition(
         )
 
         decoder = model.decoder.weight.detach().float().cpu()
-        if decoder.shape[0] > decoder.shape[1]:
-            decoder = decoder.T
 
         ckpt = checkpoint_dir / f"sae_seed{seed}.pt"
         torch.save(

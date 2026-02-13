@@ -197,3 +197,68 @@ git status -sb
 git log --oneline --decorate -n 12
 git push origin main
 ```
+
+## 9) New High-Impact Pipelines (Cycle 2)
+
+Direct HUSAI-checkpoint CE-Bench adapter:
+```bash
+python scripts/experiments/run_husai_cebench_custom_eval.py \
+  --cebench-repo /path/to/CE-Bench \
+  --checkpoint results/saes/husai_pythia70m_topk_seed42/sae_final.pt \
+  --model-name pythia-70m-deduped \
+  --hook-layer 0 \
+  --hook-name blocks.0.hook_resid_pre
+```
+
+Combined official + custom CE-Bench harness run (matched baseline mode):
+```bash
+python scripts/experiments/run_official_external_benchmarks.py \
+  --skip-saebench \
+  --cebench-repo /path/to/CE-Bench \
+  --cebench-use-compat-runner \
+  --cebench-sae-regex-pattern pythia-70m-deduped-res-sm \
+  --cebench-sae-block-pattern blocks.0.hook_resid_pre \
+  --cebench-force-rerun \
+  --husai-cebench-checkpoint results/saes/husai_pythia70m_topk_seed42/sae_final.pt \
+  --husai-cebench-match-baseline \
+  --execute
+```
+
+Matched-budget architecture frontier (external metrics):
+```bash
+python scripts/experiments/run_architecture_frontier_external.py \
+  --run-saebench \
+  --run-cebench \
+  --cebench-repo /path/to/CE-Bench \
+  --architectures topk,relu,batchtopk,jumprelu \
+  --seeds 42,123,456
+```
+
+External scaling study (token budget, hook layer, `d_sae`):
+```bash
+python scripts/experiments/run_external_metric_scaling_study.py \
+  --run-saebench \
+  --run-cebench \
+  --cebench-repo /path/to/CE-Bench \
+  --token-budgets 50000,100000,150000 \
+  --hook-layers 0,1 \
+  --d-sae-values 1024,2048
+```
+
+Assignment-aware consistency objective v2:
+```bash
+python scripts/experiments/run_assignment_consistency_v2.py \
+  --device cpu \
+  --lambdas 0.0,0.01,0.05,0.1,0.2 \
+  --external-summary <path/to/external/summary.json>
+```
+
+Stress-gated release policy:
+```bash
+python scripts/experiments/run_stress_gated_release_policy.py \
+  --phase4a-results results/experiments/phase4a_trained_vs_random/results.json \
+  --transcoder-results <path/to/transcoder.json> \
+  --ood-results <path/to/ood.json> \
+  --external-summary <path/to/external/summary.json> \
+  --require-transcoder --require-ood --require-external
+```

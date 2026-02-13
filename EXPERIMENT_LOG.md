@@ -731,3 +731,32 @@ python scripts/experiments/run_official_external_benchmarks.py \
 - Notes:
   - Captured `scores_dump_line_count=10000` reflects legacy append behavior from earlier CE-Bench runs.
   - Deterministic cleanup fix is now in place for subsequent runs.
+
+## 2026-02-13 - High-Impact Cycle 2 Execution
+
+### Run 20: Official CE-Bench + direct HUSAI custom CE-Bench (matched baseline)
+- Command (remote B200):
+```bash
+env KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
+python scripts/experiments/run_official_external_benchmarks.py \
+  --skip-saebench \
+  --cebench-repo /workspace/CE-Bench \
+  --cebench-use-compat-runner \
+  --cebench-sae-regex-pattern pythia-70m-deduped-res-sm \
+  --cebench-sae-block-pattern blocks.0.hook_resid_pre \
+  --cebench-artifacts-path /tmp/ce_bench_artifacts \
+  --cebench-force-rerun \
+  --husai-cebench-checkpoint results/saes/husai_pythia70m_topk_seed42/sae_final.pt \
+  --husai-cebench-release husai_pythia70m_topk_seed42 \
+  --husai-cebench-model-name pythia-70m-deduped \
+  --husai-cebench-hook-layer 0 \
+  --husai-cebench-hook-name blocks.0.hook_resid_pre \
+  --husai-cebench-match-baseline \
+  --execute
+```
+- Launch log:
+  - `results/experiments/phase4e_external_benchmark_official/launch_husai_cebench_latest.log`
+- Run directory:
+  - `results/experiments/phase4e_external_benchmark_official/run_20260213T152344Z/`
+- Outcome:
+  - in progress at time of this log append

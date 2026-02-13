@@ -109,3 +109,92 @@ Highest-priority execution order:
 1. Official SAEBench/CE-Bench command execution with manifests.
 2. Architecture frontier baseline suite under matched budgets.
 3. Consistency-objective v2 and stress-test gate integration.
+
+---
+
+## Phase 0 Addendum - High-Impact Cycle 2 (2026-02-13)
+
+Constraint:
+- Agent thread cap remained active (`agent thread limit reached`), so this cycle also used simulated subagent tracks with explicit scope boundaries and artifact handoffs.
+
+### Subagent A - Adapter/Entrypoint Engineer
+
+Scope:
+- Close direct custom-checkpoint CE-Bench gap while preserving existing harness behavior.
+
+Delivered:
+- `scripts/experiments/run_husai_cebench_custom_eval.py`
+- `scripts/experiments/run_official_external_benchmarks.py` (new HUSAI custom CE-Bench path)
+- `scripts/experiments/husai_custom_sae_adapter.py` (shared checkpoint -> custom SAE conversion)
+- `scripts/experiments/run_husai_saebench_custom_eval.py` refactor to shared adapter
+
+Handoff:
+1. Run combined official CE-Bench + HUSAI custom CE-Bench in one harness call.
+2. Record matched-baseline deltas from `husai_custom_cebench_summary.json`.
+
+### Subagent B - Architecture Frontier Engineer
+
+Scope:
+- Implement matched-budget architecture frontier automation tied to external metrics.
+
+Delivered:
+- `scripts/experiments/run_architecture_frontier_external.py`
+
+Handoff:
+1. Execute pilot frontier (`topk,relu,batchtopk,jumprelu`, fixed token budget).
+2. Expand to multi-seed frontier once pilot confirms runtime/quality.
+
+### Subagent C - Scaling Study Engineer
+
+Scope:
+- Operationalize token budget / hook layer / `d_sae` scaling against external metrics.
+
+Delivered:
+- `scripts/experiments/run_external_metric_scaling_study.py`
+
+Handoff:
+1. Run token-budget sweep first at fixed layer/`d_sae`.
+2. Add layer and `d_sae` sweeps with at least 3 seeds for uncertainty estimates.
+
+### Subagent D - Objective Scientist
+
+Scope:
+- Implement assignment-aware consistency objective v2 with explicit acceptance gates.
+
+Delivered:
+- `scripts/experiments/run_assignment_consistency_v2.py`
+
+Handoff:
+1. Run lambda sweep and select via conservative delta LCB.
+2. Attach external-metric gate using latest benchmark summary artifact.
+
+### Subagent E - Release Reliability Scientist
+
+Scope:
+- Convert stress controls into executable release gates.
+
+Delivered:
+- `scripts/experiments/run_stress_gated_release_policy.py`
+
+Handoff:
+1. Feed phase4a + transcoder + OOD + external summaries.
+2. Use `pass_all` as release readiness gate in experiment review.
+
+### Subagent F - Literature/Competitive Integrator
+
+Scope:
+- Ground next-step priorities in current public evidence and benchmark norms.
+
+References used this cycle:
+- SAEBench: https://proceedings.mlr.press/v267/karvonen25a.html
+- CE-Bench: https://arxiv.org/abs/2509.00691
+- Transcoders Beat SAEs: https://arxiv.org/abs/2501.18823
+- Random-model SAE benchmark caution: https://arxiv.org/abs/2501.17727
+- JumpReLU: https://arxiv.org/abs/2407.14435
+- BatchTopK: https://arxiv.org/abs/2412.06410
+- RouteSAE: https://aclanthology.org/2025.emnlp-main.346/
+- HierarchicalTopK: https://aclanthology.org/2025.emnlp-main.515/
+
+Handoff:
+1. Keep external claims gated by official benchmark artifacts only.
+2. Prioritize novelty where internal gains transfer to external metrics under matched budgets.

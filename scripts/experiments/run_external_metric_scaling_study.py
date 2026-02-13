@@ -84,6 +84,7 @@ def main() -> None:
     parser.add_argument("--run-saebench", action="store_true")
     parser.add_argument("--run-cebench", action="store_true")
     parser.add_argument("--cebench-repo", type=Path, default=None)
+    parser.add_argument("--cebench-max-rows", type=int, default=None)
 
     parser.add_argument(
         "--saebench-results-path",
@@ -318,6 +319,7 @@ def main() -> None:
             "run_saebench": args.run_saebench,
             "run_cebench": args.run_cebench,
             "cebench_repo": str(args.cebench_repo) if args.cebench_repo else None,
+            "cebench_max_rows": args.cebench_max_rows,
             "run_id": run_id,
         },
         "records": records,

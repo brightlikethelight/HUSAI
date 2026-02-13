@@ -412,6 +412,8 @@ def main() -> None:
                     "--artifacts-path",
                     str(args.cebench_artifacts_path),
                 ]
+                if args.cebench_max_rows is not None:
+                    command.extend(["--max-rows", str(args.cebench_max_rows)])
                 rc, output = run_subprocess(command, PROJECT_ROOT)
                 (logs_dir / f"{condition_id}_cebench.log").write_text(output)
                 rec["cebench_returncode"] = rc
@@ -481,6 +483,7 @@ def main() -> None:
             "run_saebench": args.run_saebench,
             "run_cebench": args.run_cebench,
             "cebench_repo": str(args.cebench_repo) if args.cebench_repo else None,
+            "cebench_max_rows": args.cebench_max_rows,
             "relu_l1_coef": args.relu_l1_coef,
             "jumprelu_l0_coef": args.jumprelu_l0_coef,
             "saebench_results_path": str(args.saebench_results_path),

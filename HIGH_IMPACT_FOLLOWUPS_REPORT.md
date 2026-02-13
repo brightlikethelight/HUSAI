@@ -200,3 +200,34 @@ Interpretation:
 - HierarchicalTopK SAEs: https://aclanthology.org/2025.emnlp-main.515/
 - Transcoders Beat SAEs: https://arxiv.org/abs/2501.18823
 - Automated metrics vs random transformers: https://arxiv.org/abs/2501.17727
+
+## Cycle 2 Update (2026-02-13)
+
+This cycle targeted the updated ranked roadmap:
+1. direct HUSAI-checkpoint CE-Bench adapter/eval path
+2. matched-budget architecture frontier sweep on external metrics
+3. external-metric scaling study (token budget / hook layer / `d_sae`)
+4. assignment-aware consistency objective v2 with external acceptance criteria
+5. stress-gated release policy (transcoder + random-model + OOD)
+
+Implemented code paths:
+- `scripts/experiments/run_husai_cebench_custom_eval.py`
+- `scripts/experiments/run_official_external_benchmarks.py` (custom CE-Bench path + summary ingestion)
+- `scripts/experiments/husai_custom_sae_adapter.py`
+- `scripts/experiments/run_architecture_frontier_external.py`
+- `scripts/experiments/run_external_metric_scaling_study.py`
+- `scripts/experiments/run_assignment_consistency_v2.py`
+- `scripts/experiments/run_stress_gated_release_policy.py`
+
+Validation status:
+- local syntax checks passed for all new scripts (`python -m py_compile ...`)
+- full regression suite remains green (`83 passed`)
+- remote execution in progress for the first combined official+custom CE-Bench matched-baseline run
+  (`results/experiments/phase4e_external_benchmark_official/run_20260213T152344Z`)
+
+Pending in this cycle writeup (to be filled from completed run artifacts):
+- matched baseline deltas for HUSAI custom CE-Bench
+- architecture frontier pilot metrics
+- scaling study pilot metrics
+- assignment-aware v2 acceptance gate outcome
+- stress-gated release policy status

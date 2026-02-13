@@ -180,6 +180,13 @@ def main() -> None:
         dtype=sae_dtype,
     )
 
+    # CE-Bench enforces isinstance(sae, SAE); allow SAEBench custom classes too.
+    base_sae_type = getattr(ce_bench_mod, "SAE", None)
+    if base_sae_type is not None and not isinstance(base_sae_type, tuple):
+        ce_bench_mod.SAE = (base_sae_type, type(sae))
+    elif isinstance(base_sae_type, tuple) and type(sae) not in base_sae_type:
+        ce_bench_mod.SAE = tuple([*base_sae_type, type(sae)])
+
     config = ce_bench_mod.AutoInterpEvalConfig(model_name=args.model_name)
     if args.llm_batch_size is not None:
         config.llm_batch_size = args.llm_batch_size
