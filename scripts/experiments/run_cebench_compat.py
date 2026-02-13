@@ -45,6 +45,7 @@ def install_stw_stopwatch_shim() -> bool:
     """Patch stw.Stopwatch to accept `start=` for CE-Bench compatibility."""
     try:
         import stw
+
         base = stw.Stopwatch
     except Exception:
         return False
@@ -54,16 +55,36 @@ def install_stw_stopwatch_shim() -> bool:
     except Exception:
         signature = None
 
-    if signature and "start" in signature.parameters:
+    if signature and "start" in signature.parameters and hasattr(base, "stop"):
         return True
 
     class CompatStopwatch(base):
         def __init__(self, *args, start=None, **kwargs):
             super().__init__(*args, **kwargs)
+            self._compat_stopped = False
+            self._compat_stop_result = None
             if start:
-                start_fn = getattr(self, "start", None)
-                if callable(start_fn):
-                    start_fn()
+                self.start()
+
+        def start(self):
+            now_fn = getattr(self, "now", None)
+            now_value = now_fn() if callable(now_fn) else None
+            if now_value is not None:
+                self._start_time = now_value
+                self._last_lap_time = now_value
+            laps = getattr(self, "_laps", None)
+            if isinstance(laps, list):
+                laps.clear()
+            self._compat_stopped = False
+            self._compat_stop_result = None
+            return self
+
+        def stop(self):
+            if self._compat_stopped:
+                return self._compat_stop_result
+            self._compat_stop_result = super().lap("stop")
+            self._compat_stopped = True
+            return self._compat_stop_result
 
     stw.Stopwatch = CompatStopwatch
     sys.modules["stw"].Stopwatch = CompatStopwatch
@@ -90,19 +111,37 @@ def write_sitecustomize_shim(output_folder: Path) -> Path:
         "    shim = types.ModuleType('sae_lens.toolkit.pretrained_saes_directory')\n"
         "    shim.get_pretrained_saes_directory = get_pretrained_saes_directory\n"
         "    sys.modules['sae_lens.toolkit.pretrained_saes_directory'] = shim\n"
-        "# stw.Stopwatch(start=...) shim\n"
+        "# stw.Stopwatch(start=...) and stop() shim\n"
         "try:\n"
         "    import stw\n"
         "    _base = stw.Stopwatch\n"
         "    _sig = inspect.signature(_base.__init__)\n"
-        "    if 'start' not in _sig.parameters:\n"
+        "    if 'start' not in _sig.parameters or not hasattr(_base, 'stop'):\n"
         "        class CompatStopwatch(_base):\n"
         "            def __init__(self, *args, start=None, **kwargs):\n"
         "                super().__init__(*args, **kwargs)\n"
+        "                self._compat_stopped = False\n"
+        "                self._compat_stop_result = None\n"
         "                if start:\n"
-        "                    start_fn = getattr(self, 'start', None)\n"
-        "                    if callable(start_fn):\n"
-        "                        start_fn()\n"
+        "                    self.start()\n"
+        "            def start(self):\n"
+        "                now_fn = getattr(self, 'now', None)\n"
+        "                now_value = now_fn() if callable(now_fn) else None\n"
+        "                if now_value is not None:\n"
+        "                    self._start_time = now_value\n"
+        "                    self._last_lap_time = now_value\n"
+        "                laps = getattr(self, '_laps', None)\n"
+        "                if isinstance(laps, list):\n"
+        "                    laps.clear()\n"
+        "                self._compat_stopped = False\n"
+        "                self._compat_stop_result = None\n"
+        "                return self\n"
+        "            def stop(self):\n"
+        "                if self._compat_stopped:\n"
+        "                    return self._compat_stop_result\n"
+        "                self._compat_stop_result = super().lap('stop')\n"
+        "                self._compat_stopped = True\n"
+        "                return self._compat_stop_result\n"
         "        stw.Stopwatch = CompatStopwatch\n"
         "        sys.modules['stw'].Stopwatch = CompatStopwatch\n"
         "except Exception:\n"
