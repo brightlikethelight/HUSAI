@@ -163,6 +163,18 @@ def prepend_pythonpath(path: Path) -> None:
         os.environ["PYTHONPATH"] = path_str
 
 
+def clean_run_local_outputs(output_folder: Path) -> None:
+    """Remove CE-Bench relative outputs so reruns stay deterministic."""
+    scores_path = output_folder / "scores_dump.txt"
+    interp_dir = output_folder / "interpretability_eval"
+
+    if scores_path.exists():
+        scores_path.unlink()
+    if interp_dir.exists():
+        shutil.rmtree(interp_dir)
+
+
+
 def _copy_if_present(src: Path, dst: Path) -> bool:
     if not src.exists():
         return False
@@ -344,6 +356,7 @@ def main() -> None:
         # CE-Bench writes relative outputs (interpretability_eval/scores_dump); keep them
         # scoped under this run's output folder instead of polluting repository root.
         os.chdir(args.output_folder)
+        clean_run_local_outputs(args.output_folder)
         sys.argv = argv
         runpy.run_path(str(ce_bench_script), run_name="__main__")
     except Exception as exc:
