@@ -479,6 +479,7 @@ def main() -> None:
     parser.add_argument("--min-delta-lcb", type=float, default=0.0)
     parser.add_argument("--max-ev-drop", type=float, default=0.05)
     parser.add_argument("--min-external-delta", type=float, default=0.0)
+    parser.add_argument("--fail-on-acceptance-fail", action="store_true")
 
     parser.add_argument(
         "--output-dir",
@@ -639,6 +640,9 @@ def main() -> None:
     print("Assignment consistency v2 complete")
     print(f"Run dir: {run_dir}")
     print(f"Summary: {out_md}")
+
+    if args.fail_on_acceptance_fail and not acceptance["pass_all"]:
+        raise SystemExit(2)
 
 
 if __name__ == "__main__":

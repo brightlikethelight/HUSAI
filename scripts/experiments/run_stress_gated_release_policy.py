@@ -127,6 +127,7 @@ def main() -> None:
     parser.add_argument("--require-transcoder", action="store_true")
     parser.add_argument("--require-ood", action="store_true")
     parser.add_argument("--require-external", action="store_true")
+    parser.add_argument("--fail-on-gate-fail", action="store_true")
 
     parser.add_argument(
         "--output-dir",
@@ -243,6 +244,9 @@ def main() -> None:
     print("Stress-gated release policy evaluation complete")
     print(f"Run dir: {run_dir}")
     print(f"Summary: {out_md}")
+
+    if args.fail_on_gate_fail and not pass_all:
+        raise SystemExit(2)
 
 
 if __name__ == "__main__":
