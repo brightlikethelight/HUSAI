@@ -285,6 +285,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--artifacts-path", type=Path, default=DEFAULT_CEBENCH_ARTIFACTS)
     parser.add_argument("--random-seed", type=int, default=None)
     parser.add_argument("--force-rerun", action="store_true")
+    parser.add_argument("--max-rows", type=int, default=None)
     parser.add_argument("--llm-batch-size", type=int, default=None)
     parser.add_argument(
         "--llm-dtype",
@@ -323,6 +324,22 @@ def main() -> None:
         sys.path.remove(repo_str)
     sys.path.append(repo_str)
 
+    datasets_module = None
+    original_load_dataset = None
+    if args.max_rows is not None:
+        import datasets as datasets_module  # type: ignore
+
+        original_load_dataset = datasets_module.load_dataset
+
+        def _limited_load_dataset(*load_args, **load_kwargs):
+            ds = original_load_dataset(*load_args, **load_kwargs)
+            if hasattr(ds, "select") and hasattr(ds, "__len__"):
+                n = min(max(0, int(args.max_rows)), len(ds))
+                return ds.select(range(n))
+            return ds
+
+        datasets_module.load_dataset = _limited_load_dataset
+
     argv = [
         str(ce_bench_script),
         "--sae_regex_pattern",
@@ -348,6 +365,7 @@ def main() -> None:
     print(f"Output folder: {args.output_folder}")
     print(f"Artifacts path: {args.artifacts_path}")
     print(f"sitecustomize shim dir: {compat_dir}")
+    print(f"Max rows override: {args.max_rows}")
 
     old_argv = list(sys.argv)
     original_cwd = Path.cwd()
@@ -364,6 +382,8 @@ def main() -> None:
     finally:
         os.chdir(original_cwd)
         sys.argv = old_argv
+        if datasets_module is not None and original_load_dataset is not None:
+            datasets_module.load_dataset = original_load_dataset
 
     summary = summarize_cebench_outputs(args.output_folder)
     print("CE-Bench summary written:", args.output_folder / "cebench_metrics_summary.json")
