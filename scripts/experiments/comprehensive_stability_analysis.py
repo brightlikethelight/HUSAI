@@ -15,7 +15,7 @@ across the full parameter space, revealing:
 - Feature-level stability is UNIFORM (no predictors)
 
 Usage:
-    source ~/miniconda3/bin/activate && KMP_DUPLICATE_LIB_OK=TRUE python scripts/experiments/comprehensive_stability_analysis.py
+    KMP_DUPLICATE_LIB_OK=TRUE python scripts/experiments/comprehensive_stability_analysis.py
 """
 
 import torch

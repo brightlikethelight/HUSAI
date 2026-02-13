@@ -57,15 +57,20 @@ Our findings align with 2025 SAE literature:
 
 Latest high-impact follow-up artifacts and conclusions:
 
-- Adaptive L0 calibration + fair control (`k=4` vs `k=32`) now shows a large trained-PWMCC gain (`+0.05701`, CI ~ `[+0.055, +0.059]`).
+- Adaptive L0 calibration + fair control (`k=4` vs `k=32`) still shows the strongest internal trained-PWMCC gain (`+0.05701`, CI ~ `[+0.055, +0.059]`).
   - Artifacts: `results/experiments/adaptive_l0_calibration/run_20260212T145416Z/` and `results/experiments/adaptive_l0_calibration/run_20260212T145727Z/`
 - Consistency-regularized objective sweep remains unresolved (small positive mean, CI includes zero).
   - Artifacts: `results/experiments/consistency_objective_sweep/run_20260212T145529Z/`
-- Official SAEBench harness execution completed through the reproducible harness; CE-Bench remains pending in this environment.
+- Official SAEBench harness execution completed through the reproducible harness.
   - Script: `scripts/experiments/run_official_external_benchmarks.py`
-  - Official run artifact: `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/`
-  - Aggregate summary: `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/saebench_probe_aggregate_summary.json`
-- Automated result-consistency audit now guards claim drift against artifact JSONs.
+  - Public-target run artifact: `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/`
+- Direct HUSAI custom-checkpoint SAEBench execution is now completed across 3 seeds.
+  - Run artifacts: `run_20260213T024329Z`, `run_20260213T031247Z`, `run_20260213T032116Z`
+  - Tracked aggregate summary: `docs/evidence/phase4e_husai_custom_multiseed/summary.json`
+  - Aggregate best AUC mean: `0.622601` (95% CI `[0.621905, 0.623297]`)
+  - Aggregate delta vs LLM baseline AUC mean: `-0.051801` (95% CI `[-0.052496, -0.051105]`)
+- CE-Bench remains pending in this environment.
+- Automated result-consistency audit continues to guard claim drift against artifact JSONs.
   - Script: `scripts/analysis/verify_experiment_consistency.py`
   - Report: `results/analysis/experiment_consistency_report.md`
 

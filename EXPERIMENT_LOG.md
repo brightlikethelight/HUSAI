@@ -546,3 +546,117 @@ python scripts/experiments/run_official_external_benchmarks.py --help
 flake8 scripts/experiments/run_official_external_benchmarks.py --max-line-length 130
 ```
 - Outcome: success
+
+## 2026-02-13 - RunPod B200: Direct HUSAI Custom SAEBench Multi-Seed
+
+### Run 35: HUSAI custom SAE training on SAEBench activation cache (seed 123)
+- Command:
+```bash
+python scripts/experiments/train_husai_sae_on_cached_activations.py \
+  --activation-cache-dir /tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped \
+  --activation-glob '*_blocks.0.hook_resid_pre.pt' \
+  --max-files 80 \
+  --max-rows-per-file 2048 \
+  --max-total-rows 150000 \
+  --d-sae 2048 \
+  --k 32 \
+  --epochs 10 \
+  --batch-size 4096 \
+  --learning-rate 0.001 \
+  --seed 123 \
+  --device cuda \
+  --output-dir results/saes/husai_pythia70m_topk_seed123
+```
+- Outcome: success
+- Key output:
+  - `results/saes/husai_pythia70m_topk_seed123/summary.json`
+- Result summary:
+  - final loss `0.003721`
+  - final EV `0.999433`
+
+### Run 36: Official harness execution for HUSAI seed 123 custom checkpoint
+- Command:
+```bash
+python scripts/experiments/run_official_external_benchmarks.py \
+  --skip-saebench \
+  --skip-cebench \
+  --husai-saebench-checkpoint results/saes/husai_pythia70m_topk_seed123/sae_final.pt \
+  --husai-saebench-release husai_pythia70m_topk_seed123 \
+  --husai-saebench-model-name pythia-70m-deduped \
+  --husai-saebench-hook-layer 0 \
+  --husai-saebench-hook-name blocks.0.hook_resid_pre \
+  --husai-saebench-ks 1,2,5 \
+  --husai-saebench-results-path /tmp/husai_saebench_probe_results_seed123 \
+  --husai-saebench-model-cache-path /tmp/sae_bench_model_cache \
+  --husai-saebench-force-rerun \
+  --execute
+```
+- Outcome: success
+- Run directory:
+  - `results/experiments/phase4e_external_benchmark_official/run_20260213T031247Z/`
+- Result summary:
+  - best `k` by AUC: `5`
+  - best AUC: `0.622244`
+  - baseline AUC: `0.674402`
+  - delta AUC: `-0.052158`
+
+### Run 37: HUSAI custom SAE training + official harness (seed 456)
+- Training command:
+```bash
+python scripts/experiments/train_husai_sae_on_cached_activations.py \
+  --activation-cache-dir /tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped \
+  --activation-glob '*_blocks.0.hook_resid_pre.pt' \
+  --max-files 80 \
+  --max-rows-per-file 2048 \
+  --max-total-rows 150000 \
+  --d-sae 2048 \
+  --k 32 \
+  --epochs 10 \
+  --batch-size 4096 \
+  --learning-rate 0.001 \
+  --seed 456 \
+  --device cuda \
+  --output-dir results/saes/husai_pythia70m_topk_seed456
+```
+- Benchmark command:
+```bash
+python scripts/experiments/run_official_external_benchmarks.py \
+  --skip-saebench \
+  --skip-cebench \
+  --husai-saebench-checkpoint results/saes/husai_pythia70m_topk_seed456/sae_final.pt \
+  --husai-saebench-release husai_pythia70m_topk_seed456 \
+  --husai-saebench-model-name pythia-70m-deduped \
+  --husai-saebench-hook-layer 0 \
+  --husai-saebench-hook-name blocks.0.hook_resid_pre \
+  --husai-saebench-ks 1,2,5 \
+  --husai-saebench-results-path /tmp/husai_saebench_probe_results_seed456 \
+  --husai-saebench-model-cache-path /tmp/sae_bench_model_cache \
+  --husai-saebench-force-rerun \
+  --execute
+```
+- Outcome: success
+- Run directory:
+  - `results/experiments/phase4e_external_benchmark_official/run_20260213T032116Z/`
+- Result summary:
+  - best `k` by AUC: `5`
+  - best AUC: `0.622249`
+  - baseline AUC: `0.674402`
+  - delta AUC: `-0.052153`
+
+### Run 38: Multi-seed aggregate synthesis for HUSAI custom SAEBench
+- Inputs:
+  - `run_20260213T024329Z` (seed 42)
+  - `run_20260213T031247Z` (seed 123)
+  - `run_20260213T032116Z` (seed 456)
+- Generated artifacts:
+  - remote: `results/experiments/phase4e_external_benchmark_official/husai_custom_multiseed/summary.json`
+  - remote: `results/experiments/phase4e_external_benchmark_official/husai_custom_multiseed/summary.md`
+  - tracked copy: `docs/evidence/phase4e_husai_custom_multiseed/summary.json`
+  - tracked copy: `docs/evidence/phase4e_husai_custom_multiseed/summary.md`
+- Aggregate result summary:
+  - best AUC mean ± std: `0.622601 ± 0.000615`
+  - best AUC 95% CI: `[0.621905, 0.623297]`
+  - delta AUC vs baseline mean ± std: `-0.051801 ± 0.000615`
+  - delta AUC vs baseline 95% CI: `[-0.052496, -0.051105]`
+- Interpretation:
+  - HUSAI custom external performance is stable across seeds but consistently below baseline.

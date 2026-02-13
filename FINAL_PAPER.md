@@ -1,144 +1,149 @@
-# Reliability-First Evaluation of SAE Consistency in HUSAI: Internal Gains, External Reality Check
+# Reliability-First Evaluation of SAE Consistency in HUSAI: Internal Gains and External Benchmark Reality
 
 ## Abstract
-We conducted a reliability-first, benchmark-aware research cycle for sparse autoencoder (SAE) consistency in the HUSAI repository. Before new hypothesis testing, we fixed reproducibility-critical issues (missing tracked data package, dependency incompatibility, and path portability failures), added fail-fast CI smoke, and hardened artifact manifests. We then ran remote GPU reproductions and ablations: trained-vs-random consistency remained statistically positive but small (`delta PWMCC +0.001230`, one-sided `p=8.629e-03`), while geometry ablations showed large regime dependence (`d_sae=64, k=32` yielded `delta +0.119986`). We also completed official SAEBench harness execution (`returncode=0`) and analyzed 113 matched probe datasets; aggregate SAE-vs-baseline deltas were negative (mean `test_auc` delta `-0.0651`). These results support strong claims about engineering rigor and internal regime effects, but do not support SOTA-facing external claims. We provide a ranked experiment roadmap centered on direct HUSAI benchmark integration, architecture-frontier baselines, and stronger consistency objectives.
+We executed a reliability-first research cycle for sparse autoencoder (SAE) consistency in HUSAI. We first fixed reproducibility-critical issues (CI smoke coverage, path portability, benchmark harness logging, and artifact-grounded consistency checks), then ran remote GPU reproductions and external benchmarks. Internal trained-vs-random consistency remained statistically positive but small (`delta PWMCC +0.001230`, one-sided `p=8.629e-03`), while ablations showed strong regime dependence (`d_sae=64, k=32` yielded `delta +0.119986`). We completed official SAEBench harness execution and direct HUSAI custom-checkpoint SAEBench evaluation across three seeds. HUSAI custom results were stable across seeds but below baseline probes (best AUC mean `0.622601`, delta vs baseline `-0.051801`, 95% CI `[-0.052496, -0.051105]`). These results support stronger claims about engineering rigor and uncertainty-aware evaluation, but do not support external SOTA-style claims. We provide a ranked roadmap centered on CE-Bench execution and architecture/objective variants designed to improve external metrics under strict reproducibility constraints.
 
 ## 1. Introduction
-Feature consistency across random seeds is a core requirement for reliable mechanistic interpretations. Prior work shows SAEs trained on identical data can still produce divergent feature sets, challenging naive reproducibility assumptions. This repository focuses on controlled algorithmic settings to isolate consistency dynamics and test interventions.
+Feature-level reproducibility is foundational for mechanistic interpretability. Prior work shows SAEs trained on identical data with different seeds can learn divergent dictionaries, challenging naive interpretation stability assumptions.
 
-This paper reports an end-to-end cycle that explicitly prioritizes:
-- reproducibility and environment correctness,
-- artifact-grounded conclusions,
-- external-benchmark reality checks.
+This cycle targeted two goals:
+1. make the repository operationally trustworthy across environments,
+2. evaluate consistency interventions under external benchmark pressure.
 
 ## 2. Related Work
-Consistency and benchmark framing:
-- Paulo & Belrose (2025): seed-dependent divergence in SAE features [https://arxiv.org/abs/2501.16615].
-- Song et al. (2025): consistency should be first-class for interpretability practice [https://arxiv.org/abs/2505.20254].
-- SAEBench (ICML 2025): broad benchmark evidence, warning against over-reliance on narrow proxies [https://proceedings.mlr.press/v267/karvonen25a.html].
-- CE-Bench (2025): judge-free benchmark aligned with SAEBench trends [https://arxiv.org/abs/2509.00691].
+Consistency and evaluation framing:
+- Paulo & Belrose (2025): https://arxiv.org/abs/2501.16615
+- Song et al. (2025): https://arxiv.org/abs/2505.20254
+- SAEBench (ICML 2025): https://proceedings.mlr.press/v267/karvonen25a.html
+- CE-Bench (2025): https://arxiv.org/abs/2509.00691
 
-Method and architecture frontier:
-- OpenAI scaling/evaluation framework [https://arxiv.org/abs/2406.04093].
-- JumpReLU [https://arxiv.org/abs/2407.14435], BatchTopK [https://arxiv.org/abs/2412.06410], Matryoshka SAEs [https://arxiv.org/abs/2503.17547].
-- RouteSAE [https://aclanthology.org/2025.emnlp-main.346/] and HierarchicalTopK [https://aclanthology.org/2025.emnlp-main.515/].
+Architecture/objective frontier:
+- OpenAI scaling/eval framework: https://arxiv.org/abs/2406.04093
+- JumpReLU: https://arxiv.org/abs/2407.14435
+- BatchTopK: https://arxiv.org/abs/2412.06410
+- Matryoshka: https://arxiv.org/abs/2503.17547
+- RouteSAE: https://aclanthology.org/2025.emnlp-main.346/
+- HierarchicalTopK: https://aclanthology.org/2025.emnlp-main.515/
 
-Control and alternative-representation signals:
-- Randomly initialized transformer representations can remain strong on interpretable tasks [https://arxiv.org/abs/2501.18823].
-- Transcoders can outperform SAEs in some interpretability settings [https://arxiv.org/abs/2501.17727].
+Controls and alternative hypotheses:
+- Transcoders Beat SAEs: https://arxiv.org/abs/2501.18823
+- Metrics vs random-transformer control: https://arxiv.org/abs/2501.17727
 
-## 3. Repository Reliability Program
-Implemented reliability upgrades:
-- CI: `.github/workflows/ci.yml`
-- smoke pipeline: `scripts/ci/smoke_pipeline.sh`
-- path portability fixes in:
-  - `scripts/experiments/run_phase4a_reproduction.py`
-  - `scripts/experiments/run_core_ablations.py`
-  - `scripts/experiments/run_external_benchmark_slice.py`
-- benchmark harness hardening:
-  - `scripts/experiments/run_official_external_benchmarks.py`
+## 3. Reliability Program and Experimental Setup
 
-Critical issues fixed during remote rerun:
-1. `.gitignore` rule unintentionally excluded `src/data/`.
-2. NumPy constraints were incompatible with TransformerLens requirements.
-3. Relative-path failures caused script breakage on clean remote environments.
+### 3.1 Reliability upgrades
+- CI workflow: `.github/workflows/ci.yml`
+- fail-fast smoke pipeline: `scripts/ci/smoke_pipeline.sh`
+- path portability improvements in core runners
+- benchmark harness logging fix: stream stdout/stderr to files
+- claim-consistency check script: `scripts/analysis/verify_experiment_consistency.py`
 
-## 4. Experimental Protocol
+### 3.2 Core protocol
+- internal consistency metric: decoder PWMCC (trained vs random controls)
+- uncertainty reporting: CIs and effect sizes where applicable
+- benchmark logging: command/config hash/artifact manifests
 
-### 4.1 Internal consistency metrics
-Primary:
-- Pairwise decoder PWMCC (trained and random controls)
-- trained-vs-random deltas and effect size
+### 3.3 Remote environment
+- platform: RunPod single NVIDIA B200
+- execution mode: reproducible command scripts with per-run artifacts under `results/experiments/`
 
-Secondary:
-- MSE reconstruction
-- explained variance (EV)
+## 4. Results
 
-### 4.2 Reproduction and ablation runs
-- Phase 4a trained-vs-random reproduction with fixed seeds.
-- Phase 4c k-sweep and d_sae-sweep under shared configuration.
-- Phase 4e benchmark-aligned internal slice.
+### 4.1 Internal reproduction (Phase 4a)
+Artifact:
+- `results/experiments/phase4a_trained_vs_random/results.json`
 
-### 4.3 External benchmark run
-- Official harness run:
-  - `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/`
-- SAEBench command executed through harness with logs and manifests.
-
-## 5. Results
-
-### 5.1 Phase 4a (remote B200)
+Results:
 - trained mean PWMCC: `0.300059`
 - random mean PWMCC: `0.298829`
 - delta: `+0.001230`
-- one-sided p-value: `8.629e-03`
+- one-sided Mann-Whitney p-value: `8.629e-03`
 
-Conclusion:
-- Positive but small consistency signal in this rerun.
+Interpretation:
+- trained-vs-random signal exists but is small in this rerun.
 
-### 5.2 Phase 4c core ablations
-Best k-sweep condition:
-- `k=8, d_sae=128`, delta `+0.009773`, ratio `1.0398`.
+### 4.2 Core ablations (Phase 4c)
+Artifact:
+- `results/experiments/phase4c_core_ablations/run_20260212T200711Z/results.json`
 
-Best d_sae-sweep condition:
-- `d_sae=64, k=32`, delta `+0.119986`, ratio `1.5272`.
+Best `k`-sweep condition:
+- `k=8`, `d_sae=128`, delta `+0.009773`
 
-Conclusion:
-- Hyperparameter geometry drives large variance in consistency outcomes.
+Best `d_sae`-sweep condition:
+- `d_sae=64`, `k=32`, delta `+0.119986`
 
-### 5.3 Adaptive L0 follow-up (strongest internal positive)
-- Matched comparison (`k=4` vs `k=32`) showed trained PWMCC gain `+0.05701` with positive bootstrap CI.
+Interpretation:
+- geometry/hyperparameter regime materially changes consistency outcomes.
 
-Conclusion:
-- Low-L0 calibration is currently the strongest validated intervention in this repo.
+### 4.3 Official SAEBench execution (public SAE target)
+Artifact:
+- `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/`
 
-### 5.4 Official SAEBench execution
-Harness status:
-- command attempted and succeeded (`returncode=0`).
-
-Aggregate analysis over 113 matched probe datasets (best SAE over `k in {1,2,5}` minus baseline logreg):
+Aggregate result (best SAE over `k in {1,2,5}` minus logreg baseline; 113 datasets):
 - mean `test_f1` delta: `-0.0952`
 - mean `test_acc` delta: `-0.0513`
 - mean `test_auc` delta: `-0.0651`
-- `test_auc` wins/losses/ties: `21/88/4`
 
-Conclusion:
-- External benchmark evidence in this setup is negative relative to baseline probes.
+Interpretation:
+- external evidence is negative in this setup.
 
-## 6. Discussion
+### 4.4 HUSAI custom-checkpoint SAEBench (multi-seed)
+Run artifacts:
+- `results/experiments/phase4e_external_benchmark_official/run_20260213T024329Z/`
+- `results/experiments/phase4e_external_benchmark_official/run_20260213T031247Z/`
+- `results/experiments/phase4e_external_benchmark_official/run_20260213T032116Z/`
 
-### 6.1 What is strongly supported
-- Reliability and reproducibility posture improved substantially.
-- Internal consistency effects exist and are highly regime-dependent.
-- Adaptive L0 remains a practical consistency lever.
-- Official benchmark execution infrastructure works end-to-end.
+Tracked aggregate summary:
+- `docs/evidence/phase4e_husai_custom_multiseed/summary.json`
 
-### 6.2 What is not supported
-- SOTA claims.
-- Claims that current method externally dominates benchmark baselines.
+| Seed | Run ID | Best k | Best AUC | Baseline AUC | Delta AUC |
+|---:|---|---:|---:|---:|---:|
+| 42 | run_20260213T024329Z | 5 | 0.623311 | 0.674402 | -0.051091 |
+| 123 | run_20260213T031247Z | 5 | 0.622244 | 0.674402 | -0.052158 |
+| 456 | run_20260213T032116Z | 5 | 0.622249 | 0.674402 | -0.052153 |
 
-### 6.3 Why this is still high-value progress
-- Negative external signals are actionable: they prevent overclaiming and sharpen the next experiment frontier.
-- The repository now supports faster, cleaner falsification cycles.
+Aggregate:
+- best AUC mean ± std: `0.622601 ± 0.000615`
+- best AUC 95% CI: `[0.621905, 0.623297]`
+- delta AUC mean ± std: `-0.051801 ± 0.000615`
+- delta AUC 95% CI: `[-0.052496, -0.051105]`
 
-## 7. Limitations
+Interpretation:
+- custom checkpoint path is reproducible and low-variance,
+- but consistently below baseline probes.
+
+## 5. Discussion
+
+### 5.1 Supported claims
+- engineering/reproducibility posture is substantially improved,
+- internal consistency effects are real and regime-sensitive,
+- external benchmark pathway now includes direct HUSAI checkpoint evaluation.
+
+### 5.2 Unsupported claims
+- external superiority and SOTA-style claims are not supported by current data.
+
+### 5.3 Why this is still high-value progress
+- This cycle converted uncertain benchmark narratives into hard, reproducible evidence.
+- Negative external results narrowed the search space for future work.
+
+## 6. Limitations
 - CE-Bench has not yet been executed in this environment.
-- Official run used a public SAEBench SAE target; HUSAI checkpoint adapter path remains incomplete.
-- Current task family remains narrow relative to broad-language benchmark diversity.
+- Current external runs use one model/hook family; broader generalization remains untested.
+- Stress controls (random-model/OOD/transcoder) are not yet release-gated.
+
+## 7. Ranked Next Steps
+1. Execute CE-Bench for HUSAI and baseline targets with full manifests.
+2. Run matched-budget architecture frontier sweep on external metrics.
+3. Run external-metric scaling (`token budget`, `hook layer`, `d_sae`).
+4. Implement assignment-aware consistency objective v2 and re-evaluate externally.
+5. Add stress-gated claim policy (transcoder control, random-model control, OOD).
 
 ## 8. Reproducibility Checklist
-- CI smoke + quality: `.github/workflows/ci.yml`
-- smoke script: `scripts/ci/smoke_pipeline.sh`
+- CI and smoke: `.github/workflows/ci.yml`, `scripts/ci/smoke_pipeline.sh`
 - experiment ledger: `EXPERIMENT_LOG.md`
 - consistency audit: `scripts/analysis/verify_experiment_consistency.py`
-- official benchmark harness: `scripts/experiments/run_official_external_benchmarks.py`
-- external run artifacts: `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/`
+- benchmark harness: `scripts/experiments/run_official_external_benchmarks.py`
+- multi-seed custom external evidence: `docs/evidence/phase4e_husai_custom_multiseed/`
 
-## 9. Ranked Next Steps
-1. Benchmark HUSAI-produced checkpoints directly in SAEBench and CE-Bench.
-2. Execute matched-budget architecture frontier suite (TopK/JumpReLU/BatchTopK/Matryoshka/RouteSAE/HierarchicalTopK).
-3. Implement assignment-aware consistency objective v2 with strict CI acceptance rules.
-4. Add transcoder baseline arm under identical budgets.
-5. Add random-model and OOD stress-test gates before any narrative claim update.
-
-## 10. Broader Impact and Research Hygiene
-This cycle demonstrates that rigorous negative results can be as valuable as positive ones when they are reproducible, well-instrumented, and benchmark-grounded. The main risk in this area is premature interpretability claims from unstable or unbenchmarked representations. The repository now has better safeguards against that failure mode, but enforcement depends on maintaining benchmark-first reporting discipline.
+## 9. Broader Impact
+A core risk in interpretability research is overclaiming from unstable or weakly benchmarked representations. This cycle emphasizes a benchmark-first, uncertainty-aware reporting standard that makes failures visible and therefore actionable.

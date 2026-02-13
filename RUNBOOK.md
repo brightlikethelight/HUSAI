@@ -1,6 +1,6 @@
 # Runbook (Current State)
 
-Updated: 2026-02-12
+Updated: 2026-02-13
 
 Primary navigation index: `REPO_NAVIGATION.md`
 
@@ -82,7 +82,8 @@ Current status in this workspace: full test suite passes.
 
 ## 5) Remaining Risks
 
-- Official SAEBench execution completed (see `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/`); CE-Bench and HUSAI-checkpoint benchmark integration remain pending.
+- CE-Bench execution is still pending in this environment.
+- HUSAI custom SAEBench path is now integrated and reproducible, but current external AUC remains below baseline (see `docs/evidence/phase4e_husai_custom_multiseed/summary.json`).
 - Environment specs remain split across `environment.yml`, `requirements*.txt`, and `pyproject.toml` without lockfile pinning.
 - CI lint/typecheck are intentionally incremental because repository-wide static-analysis debt is still high.
 
@@ -121,6 +122,30 @@ python scripts/experiments/run_official_external_benchmarks.py \
   --saebench-command "<official SAEBench command>" \
   --cebench-command "<official CE-Bench command>" \
   --execute
+```
+
+HUSAI custom-checkpoint SAEBench execution example:
+```bash
+python scripts/experiments/run_official_external_benchmarks.py \
+  --skip-saebench \
+  --skip-cebench \
+  --husai-saebench-checkpoint results/saes/husai_pythia70m_topk_seed42/sae_final.pt \
+  --husai-saebench-release husai_pythia70m_topk_seed42 \
+  --husai-saebench-model-name pythia-70m-deduped \
+  --husai-saebench-hook-layer 0 \
+  --husai-saebench-hook-name blocks.0.hook_resid_pre \
+  --husai-saebench-ks 1,2,5 \
+  --husai-saebench-force-rerun \
+  --execute
+```
+
+CE-Bench official command pattern (from CE-Bench repo):
+```bash
+python ce_bench/CE_Bench.py \
+  --sae_regex_pattern "<pattern>" \
+  --sae_block_pattern "<block_pattern>" \
+  --output_folder <output_dir> \
+  --artifacts_path <artifacts_dir>
 ```
 
 ### Artifact roots

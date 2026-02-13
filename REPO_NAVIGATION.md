@@ -1,6 +1,6 @@
 # Repository Navigation (Canonical Index)
 
-Updated: 2026-02-12
+Updated: 2026-02-13
 
 Use this file as the entry point for understanding and operating this repository.
 
@@ -39,6 +39,8 @@ Core library modules:
   - `results/experiments/phase4e_external_benchmark_slice/`
 - Official benchmark harness runs:
   - `results/experiments/phase4e_external_benchmark_official/`
+- Tracked HUSAI custom SAEBench multi-seed evidence:
+  - `docs/evidence/phase4e_husai_custom_multiseed/`
 - Adaptive L0 follow-up:
   - `results/experiments/adaptive_l0_calibration/`
 - Consistency-objective sweep:

@@ -16,7 +16,7 @@ VERIFICATION:
 - Compare reconstruction quality across architectures
 
 Usage:
-    source ~/miniconda3/bin/activate && KMP_DUPLICATE_LIB_OK=TRUE python scripts/experiments/multi_architecture_stability.py
+    KMP_DUPLICATE_LIB_OK=TRUE python scripts/experiments/multi_architecture_stability.py
 """
 
 import torch

@@ -1,105 +1,98 @@
 # Novel Contributions and Highest-Leverage Follow-Ups
 
-Updated: 2026-02-12
+Updated: 2026-02-13
 
 ## Current Reality Check
 
 Completed this cycle:
-- CI fail-fast smoke + incremental quality gates are in place.
-- Absolute path fragility in core experiment scripts is removed.
-- Phase 4a/4c/4e internal runs were re-executed on RunPod B200.
-- Official SAEBench command execution succeeded through the harness:
+- CI fail-fast smoke + quality gates are active.
+- Absolute-path fragility in core experiment scripts is removed.
+- Phase 4a/4c/4e runs were re-executed on RunPod B200 with manifests.
+- Official SAEBench command execution succeeded:
   - `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/`
-- Claim-consistency audit is script-enforced:
-  - `scripts/analysis/verify_experiment_consistency.py`
+- HUSAI custom SAEBench checkpoint path is now fully executed across 3 seeds:
+  - `run_20260213T024329Z`, `run_20260213T031247Z`, `run_20260213T032116Z`
+  - aggregate evidence: `docs/evidence/phase4e_husai_custom_multiseed/summary.json`
 
-What remains blocked:
+Current blockers:
 - CE-Bench is still not executed in this environment.
-- Official run used public SAEBench SAE target; HUSAI-to-SAEBench adapter path is not yet end-to-end benchmarked.
-- Current objective-level consistency regularization remains statistically unresolved.
+- HUSAI custom SAEBench AUC remains below baseline logreg probes (mean delta `-0.0518`).
+- Objective-level consistency regularization v1 remains statistically unresolved.
 
 ## Literature-Grounded Opportunity Map
 
 Anchors:
-- Consistency problem and framing: https://arxiv.org/abs/2501.16615, https://arxiv.org/abs/2505.20254
-- External benchmark standards: https://proceedings.mlr.press/v267/karvonen25a.html, https://arxiv.org/abs/2509.00691
+- Consistency framing: https://arxiv.org/abs/2501.16615, https://arxiv.org/abs/2505.20254
+- Benchmark standards: https://proceedings.mlr.press/v267/karvonen25a.html, https://arxiv.org/abs/2509.00691
 - Architecture frontier: https://arxiv.org/abs/2407.14435, https://arxiv.org/abs/2412.06410, https://arxiv.org/abs/2503.17547, https://aclanthology.org/2025.emnlp-main.346/, https://aclanthology.org/2025.emnlp-main.515/
-- Frontier controls/alternatives: https://arxiv.org/abs/2501.18823, https://arxiv.org/abs/2501.17727
+- Competing views/controls: https://arxiv.org/abs/2501.18823, https://arxiv.org/abs/2501.17727, https://arxiv.org/abs/2602.01322
 
 ## Ranked Next 5 Highest-Leverage Follow-Ups (Now)
 
-1. Benchmark HUSAI checkpoints directly in official harnesses (SAEBench then CE-Bench)
+1. CE-Bench execution for HUSAI + baseline targets
 - Why #1:
-  - Current official run proves tooling works but does not yet benchmark HUSAI-produced dictionaries end-to-end.
+  - External claim quality is currently bottlenecked by missing CE-Bench evidence.
 - Concrete work:
-  - Build adapter/export path from `results/saes/*` into SAEBench custom SAE format.
-  - Add CE-Bench execution path in `run_official_external_benchmarks.py` with pinned env + manifests.
+  - Add reproducible CE-Bench run path in `scripts/experiments/run_official_external_benchmarks.py` with explicit env notes and manifests.
 - Success criteria:
-  - Benchmark artifacts for HUSAI checkpoints with reproducible command manifests.
-  - No SOTA claims unless both benchmark results and uncertainty are reported.
+  - Completed CE-Bench runs with `commands.json`, `summary.md`, logs, and per-seed table.
 
-2. Matched-budget architecture frontier sweep
+2. Matched-budget architecture frontier sweep on external stack
 - Why #2:
-  - Literature suggests architecture choice often dominates small objective tweaks.
-- Candidate methods:
-  - TopK (current), JumpReLU, BatchTopK, Matryoshka, HierarchicalTopK, RouteSAE.
-- Protocol:
-  - Same activations, same seed budget, same optimizer budget, same eval stack.
+  - Current HUSAI external gap is systematic; architecture choice likely higher leverage than small objective tweaks.
+- Methods:
+  - TopK, JumpReLU, BatchTopK, Matryoshka, RouteSAE, HierarchicalTopK.
 - Success criteria:
-  - Pareto improvement over current TopK baseline on at least 2 of 3 axes:
-    - consistency delta,
-    - reconstruction quality,
-    - external benchmark score.
+  - At least one variant improves external AUC with CI excluding zero versus current HUSAI baseline.
 
-3. Consistency-objective v2: assignment-aware or joint multi-seed training
+3. External-metric-focused scaling study (data/layer/width)
 - Why #3:
-  - v1 regularizer gain is tiny and CI crosses zero.
-- Concrete variants:
-  - permutation-aware alignment loss (Hungarian or OT-style matching),
-  - joint multi-seed training with shared feature anchors,
-  - cross-model agreement losses inspired by feature-circuit work.
+  - Current runs are stable across seeds but uniformly under baseline, indicating capacity/data mismatch rather than seed noise.
+- Concrete work:
+  - Sweep activation token budget, hook layer, and `d_sae` under fixed compute envelopes.
 - Success criteria:
-  - Positive trained-PWMCC gain with 95% CI excluding zero and EV drop <= 5%.
+  - Demonstrable movement in SAEBench/CE-Bench metrics with full uncertainty reporting.
 
-4. Transcoder control arm under identical budgets
+4. Consistency-objective v2 (assignment-aware)
 - Why #4:
-  - Recent evidence indicates transcoders can outperform SAEs in some interpretability regimes.
-- Concrete work:
-  - Add a matched-parameter transcoder baseline into the same training/eval harness.
-  - Compare consistency + functional metrics + intervention behavior.
+  - v1 consistency regularizer effect is near zero under CI.
+- Concrete variants:
+  - Hungarian/OT-based cross-seed alignment losses,
+  - joint multi-seed anchor training.
 - Success criteria:
-  - Explicit regime map where SAE wins and where transcoder wins.
+  - Positive consistency gain with CI excluding zero and EV drop <= 5%, plus no external regression.
 
-5. Random-initialization and stress-test gate before claims
+5. Stress-gated release policy (transcoder + random-model + OOD)
 - Why #5:
-  - Recent work shows random-model representations can be stronger than expected; this is a high-value falsification control.
+  - Prevents optimistic narrative drift and forces robust comparisons.
 - Concrete work:
-  - Add random-transformer control suite, OOD transfer checks, perturbation/noise robustness, and data-fraction scaling.
-  - Gate writeup updates on stress-suite pass + consistency audit pass.
+  - Add matched transcoder baseline,
+  - random-transformer control,
+  - OOD sensitivity checks.
 - Success criteria:
-  - Reproducible stress-test table with confidence intervals and explicit failure modes.
+  - Claim updates blocked in CI when stress suite fails.
 
 ## Rare but High-Value Novel Contributions We Can Target
 
-1. Stability-conditioned architecture selection
-- Learn a policy that selects architecture and sparsity (k, d_sae) based on activation geometry (effective rank, anisotropy).
+1. Geometry-conditioned architecture selector
+- Learn policy mapping activation geometry to best SAE family/sparsity.
 
 2. Dual-objective model selection
-- Treat external benchmark score and consistency delta as co-primary optimization objectives, not sequential filters.
+- Optimize external benchmark score and consistency delta jointly rather than sequentially.
 
-3. Cross-task dictionary transfer with consistency constraints
-- Train on one algorithmic task, evaluate feature reuse and alignment on a second task with controlled covariate shift.
+3. Polysemantic-aware consistency training
+- Adapt PolySAE ideas to improve stability while preserving external utility.
 
-4. Benchmark-aware curriculum for sparsity
-- Start with higher-k for reconstruction stability, anneal to lower-k when consistency saturates.
+4. Cross-task dictionary transfer under consistency constraints
+- Train on one task family, evaluate transfer and alignment on another with controlled shift.
 
-5. Claim ledger automation
-- Auto-generate a machine-readable "claims ledger" from result JSONs and benchmark files; CI fails on unsupported narrative claims.
+5. Claims ledger automation
+- Auto-generate claim tables from artifact JSONs and fail CI on unsupported statements.
 
 ## Immediate Execution Sequence
 
-1. Implement HUSAI SAE export/adapter and execute official SAEBench on HUSAI checkpoints.
-2. Execute CE-Bench from the same harness with manifest logging.
-3. Launch matched-budget architecture frontier sweep.
-4. Implement consistency-objective v2 and compare against v1 and baseline.
-5. Add random-model + OOD stress gates and enforce them in release flow.
+1. Land CE-Bench reproducible run path and execute baseline + HUSAI targets.
+2. Launch matched-budget architecture frontier sweep.
+3. Run external-metric scaling study (`tokens/layer/d_sae`).
+4. Implement assignment-aware consistency objective v2.
+5. Enforce stress-gated release checks for narrative updates.
