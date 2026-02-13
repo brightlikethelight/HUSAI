@@ -145,6 +145,10 @@ def main() -> None:
     if not dataset_names:
         dataset_names = infer_dataset_names_from_cache(args.model_cache_path, args.model_name, args.hook_name)
         inferred_from_cache = True
+    if not dataset_names:
+        raise ValueError(
+            "No dataset names resolved for SAEBench sparse probing; pass --dataset-names or provide a valid --model-cache-path."
+        )
 
     if args.device == "cuda" and not torch.cuda.is_available():
         raise RuntimeError("CUDA requested but not available")

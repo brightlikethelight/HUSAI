@@ -59,6 +59,24 @@ def maybe_float(v: Any) -> float | None:
     return float(v)
 
 
+def infer_dataset_names_from_files(files: list[str], hook_name: str) -> list[str]:
+    suffix = f"_{hook_name}.pt"
+    out: list[str] = []
+    for raw in files:
+        name = Path(raw).name
+        if name.endswith(suffix):
+            out.append(name[: -len(suffix)])
+        else:
+            out.append(Path(raw).stem)
+    seen = set()
+    deduped: list[str] = []
+    for name in out:
+        if name not in seen:
+            deduped.append(name)
+            seen.add(name)
+    return deduped
+
+
 def cmd_to_str(parts: list[str]) -> str:
     return " ".join(shlex.quote(p) for p in parts)
 
@@ -390,6 +408,7 @@ def main() -> None:
         seed=min(seeds) if seeds else 0,
     )
     d_model = int(activations.shape[1])
+    dataset_names = infer_dataset_names_from_files(files_used, args.hook_name)
 
     records: list[dict[str, Any]] = []
 
@@ -466,6 +485,8 @@ def main() -> None:
                     str(out_dir),
                     "--force-rerun",
                 ]
+                if dataset_names:
+                    command.extend(["--dataset-names", ",".join(dataset_names)])
                 rc, output = run_subprocess(command, PROJECT_ROOT)
                 (logs_dir / f"{condition_id}_saebench.log").write_text(output)
                 rec["saebench_returncode"] = rc
@@ -582,6 +603,7 @@ def main() -> None:
             "cebench_artifacts_path": str(args.cebench_artifacts_path),
             "data_meta": data_meta,
             "source_files": files_used,
+            "dataset_names_count": len(dataset_names),
             "run_id": run_id,
         },
         "records": records,
