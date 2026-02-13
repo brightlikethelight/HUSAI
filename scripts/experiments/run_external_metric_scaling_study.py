@@ -30,6 +30,18 @@ def cmd_to_str(parts: list[str]) -> str:
     return " ".join(shlex.quote(p) for p in parts)
 
 
+def to_abs_repo_path(path: Path) -> Path:
+    return path if path.is_absolute() else (PROJECT_ROOT / path)
+
+
+def to_repo_rel(path: Path) -> str:
+    abs_path = to_abs_repo_path(path)
+    try:
+        return str(abs_path.relative_to(PROJECT_ROOT))
+    except ValueError:
+        return str(abs_path)
+
+
 def run_subprocess(command: list[str], cwd: Path) -> tuple[int, str]:
     proc = subprocess.run(command, cwd=str(cwd), text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     return proc.returncode, proc.stdout
@@ -109,6 +121,14 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    args.activation_cache_dir = to_abs_repo_path(args.activation_cache_dir)
+    args.saebench_results_path = to_abs_repo_path(args.saebench_results_path)
+    args.saebench_model_cache_path = to_abs_repo_path(args.saebench_model_cache_path)
+    args.cebench_artifacts_path = to_abs_repo_path(args.cebench_artifacts_path)
+    args.output_dir = to_abs_repo_path(args.output_dir)
+    if args.cebench_repo is not None:
+        args.cebench_repo = to_abs_repo_path(args.cebench_repo)
+
     token_budgets = parse_ints(args.token_budgets)
     hook_layers = parse_ints(args.hook_layers)
     d_sae_values = parse_ints(args.d_sae_values)
@@ -182,7 +202,7 @@ def main() -> None:
             "train_summary": None,
             "saebench": None,
             "cebench": None,
-            "checkpoint": str(checkpoint_path.relative_to(PROJECT_ROOT)) if checkpoint_path.exists() else None,
+            "checkpoint": to_repo_rel(checkpoint_path) if checkpoint_path.exists() else None,
         }
 
         train_summary_path = output_ckpt_dir / "summary.json"

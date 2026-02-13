@@ -62,6 +62,18 @@ def cmd_to_str(parts: list[str]) -> str:
     return " ".join(shlex.quote(p) for p in parts)
 
 
+def to_abs_repo_path(path: Path) -> Path:
+    return path if path.is_absolute() else (PROJECT_ROOT / path)
+
+
+def to_repo_rel(path: Path) -> str:
+    abs_path = to_abs_repo_path(path)
+    try:
+        return str(abs_path.relative_to(PROJECT_ROOT))
+    except ValueError:
+        return str(abs_path)
+
+
 @dataclass
 class TrainMetrics:
     mse: float
@@ -318,6 +330,14 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    args.activation_cache_dir = to_abs_repo_path(args.activation_cache_dir)
+    args.saebench_results_path = to_abs_repo_path(args.saebench_results_path)
+    args.saebench_model_cache_path = to_abs_repo_path(args.saebench_model_cache_path)
+    args.cebench_artifacts_path = to_abs_repo_path(args.cebench_artifacts_path)
+    args.output_dir = to_abs_repo_path(args.output_dir)
+    if args.cebench_repo is not None:
+        args.cebench_repo = to_abs_repo_path(args.cebench_repo)
+
     if args.device == "cuda" and not torch.cuda.is_available():
         raise RuntimeError("CUDA requested but not available")
 
@@ -385,7 +405,7 @@ def main() -> None:
             rec: dict[str, Any] = {
                 "architecture": arch,
                 "seed": seed,
-                "checkpoint": str(ckpt_path.relative_to(PROJECT_ROOT)),
+                "checkpoint": to_repo_rel(ckpt_path),
                 "train_metrics": asdict(train_metrics),
                 "saebench": None,
                 "cebench": None,
