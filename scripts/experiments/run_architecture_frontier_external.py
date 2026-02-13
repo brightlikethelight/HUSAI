@@ -53,6 +53,10 @@ def parse_architectures(text: str) -> list[str]:
     return [normalize_architecture(v) or "topk" for v in values]
 
 
+def parse_csv_strings(text: str) -> list[str]:
+    return [x.strip() for x in text.split(",") if x.strip()]
+
+
 def maybe_float(v: Any) -> float | None:
     if v is None:
         return None
@@ -355,6 +359,8 @@ def main() -> None:
     parser.add_argument("--run-cebench", action="store_true")
     parser.add_argument("--cebench-repo", type=Path, default=None)
     parser.add_argument("--cebench-max-rows", type=int, default=None)
+    parser.add_argument("--saebench-datasets", type=str, default="")
+    parser.add_argument("--saebench-dataset-limit", type=int, default=0)
 
     parser.add_argument("--relu-l1-coef", type=float, default=1e-3)
     parser.add_argument("--jumprelu-l0-coef", type=float, default=1e-3)
@@ -409,6 +415,10 @@ def main() -> None:
     )
     d_model = int(activations.shape[1])
     dataset_names = infer_dataset_names_from_files(files_used, args.hook_name)
+    if args.saebench_datasets:
+        dataset_names = parse_csv_strings(args.saebench_datasets)
+    if args.saebench_dataset_limit > 0:
+        dataset_names = dataset_names[: args.saebench_dataset_limit]
 
     records: list[dict[str, Any]] = []
 
@@ -596,6 +606,8 @@ def main() -> None:
             "run_cebench": args.run_cebench,
             "cebench_repo": str(args.cebench_repo) if args.cebench_repo else None,
             "cebench_max_rows": args.cebench_max_rows,
+            "saebench_datasets": parse_csv_strings(args.saebench_datasets),
+            "saebench_dataset_limit": args.saebench_dataset_limit,
             "relu_l1_coef": args.relu_l1_coef,
             "jumprelu_l0_coef": args.jumprelu_l0_coef,
             "saebench_results_path": str(args.saebench_results_path),
