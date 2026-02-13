@@ -760,3 +760,45 @@ python scripts/experiments/run_official_external_benchmarks.py \
   - `results/experiments/phase4e_external_benchmark_official/run_20260213T152344Z/`
 - Outcome:
   - in progress at time of this log append
+
+### Run 21: Direct HUSAI custom CE-Bench adapter pilot (remote B200, 500 rows)
+- Command:
+```bash
+env KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
+python scripts/experiments/run_husai_cebench_custom_eval.py \
+  --cebench-repo /workspace/CE-Bench \
+  --checkpoint results/saes/husai_pythia70m_topk_seed42/sae_final.pt \
+  --architecture topk \
+  --sae-release husai_pythia70m_topk_seed42 \
+  --model-name pythia-70m-deduped \
+  --hook-layer 0 \
+  --hook-name blocks.0.hook_resid_pre \
+  --device cuda \
+  --sae-dtype float32 \
+  --max-rows 500 \
+  --output-folder results/experiments/phase4e_external_benchmark_official/husai_custom_cebench_pilot_20260213 \
+  --artifacts-path /tmp/ce_bench_artifacts \
+  --matched-baseline-summary results/experiments/phase4e_external_benchmark_official/run_20260213T103218Z/cebench/cebench_metrics_summary.json
+```
+- Outcome: success
+- Key outputs:
+  - `results/experiments/phase4e_external_benchmark_official/husai_custom_cebench_pilot_20260213/husai_custom_cebench_summary.json`
+  - `results/experiments/phase4e_external_benchmark_official/husai_custom_cebench_pilot_20260213/cebench_metrics_summary.json`
+- Result summary:
+  - custom contrastive/independent/interpretability max: `10.736 / 11.450 / 10.734`
+  - delta vs official CE-Bench baseline summary: `-38.379 / -42.248 / -36.747`
+  - note: baseline artifact uses 5000 rows while this pilot uses 500 rows.
+
+### Run 22: Architecture frontier pilot launch (remote B200)
+- Command:
+```bash
+env KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
+python scripts/experiments/run_architecture_frontier_external.py \
+  ... \
+  --cebench-max-rows 200
+```
+- Outcome: failed fast (argument parser)
+- Failure point:
+  - `unrecognized arguments: --cebench-max-rows 200`
+- Resolution:
+  - Added missing parser arg in `scripts/experiments/run_architecture_frontier_external.py`.

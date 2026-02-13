@@ -254,6 +254,7 @@ def main() -> None:
     parser.add_argument("--run-saebench", action="store_true")
     parser.add_argument("--run-cebench", action="store_true")
     parser.add_argument("--cebench-repo", type=Path, default=None)
+    parser.add_argument("--cebench-max-rows", type=int, default=None)
 
     parser.add_argument("--relu-l1-coef", type=float, default=1e-3)
     parser.add_argument("--jumprelu-l0-coef", type=float, default=1e-3)

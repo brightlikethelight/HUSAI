@@ -1,0 +1,13 @@
+{
+  "output_folder": "/workspace/HUSAI/results/experiments/phase4e_external_benchmark_official/husai_custom_cebench_pilot_20260213",
+  "results_json": "/workspace/HUSAI/results/experiments/phase4e_external_benchmark_official/husai_custom_cebench_pilot_20260213/interpretability_eval/husai_pythia70m_topk_seed42/custom_sae/results.json",
+  "scores_dump": "/workspace/HUSAI/results/experiments/phase4e_external_benchmark_official/husai_custom_cebench_pilot_20260213/scores_dump.txt",
+  "total_rows": 500,
+  "contrastive_score_mean_max": 10.735687292099,
+  "independent_score_mean_max": 11.450095337867737,
+  "interpretability_score_mean_max": 10.733953895568847,
+  "sae_release": "husai_pythia70m_topk_seed42",
+  "sae_id": "custom_sae",
+  "date": "2026-02-13 15:36:44",
+  "scores_dump_line_count": 500
+}
