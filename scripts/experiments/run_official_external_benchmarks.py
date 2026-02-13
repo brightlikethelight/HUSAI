@@ -282,6 +282,46 @@ def build_husai_custom_saebench_command(args: argparse.Namespace, run_dir: Path)
     return build_shell_command(command_parts)
 
 
+def build_cebench_command(args: argparse.Namespace, run_dir: Path) -> str | None:
+    raw = args.cebench_command.strip()
+    if raw:
+        return raw
+
+    if not args.cebench_use_compat_runner:
+        return None
+    if args.cebench_repo is None:
+        return None
+    if not args.cebench_sae_regex_pattern or not args.cebench_sae_block_pattern:
+        return None
+
+    output_folder = args.cebench_output_folder or (run_dir / "cebench")
+    command_parts = [
+        "python",
+        "scripts/experiments/run_cebench_compat.py",
+        "--cebench-repo",
+        str(args.cebench_repo),
+        "--sae-regex-pattern",
+        args.cebench_sae_regex_pattern,
+        "--sae-block-pattern",
+        args.cebench_sae_block_pattern,
+        "--output-folder",
+        str(output_folder),
+        "--artifacts-path",
+        str(args.cebench_artifacts_path),
+    ]
+
+    if args.cebench_random_seed is not None:
+        command_parts.extend(["--random-seed", str(args.cebench_random_seed)])
+    if args.cebench_force_rerun:
+        command_parts.append("--force-rerun")
+    if args.cebench_llm_batch_size is not None:
+        command_parts.extend(["--llm-batch-size", str(args.cebench_llm_batch_size)])
+    if args.cebench_llm_dtype is not None:
+        command_parts.extend(["--llm-dtype", args.cebench_llm_dtype])
+
+    return build_shell_command(command_parts)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Official benchmark preflight/runner")
     parser.add_argument(
@@ -298,6 +338,15 @@ def main() -> None:
     parser.add_argument("--cebench-repo", type=Path, default=None)
     parser.add_argument("--saebench-command", type=str, default="")
     parser.add_argument("--cebench-command", type=str, default="")
+    parser.add_argument("--cebench-use-compat-runner", action="store_true")
+    parser.add_argument("--cebench-sae-regex-pattern", type=str, default="")
+    parser.add_argument("--cebench-sae-block-pattern", type=str, default="")
+    parser.add_argument("--cebench-output-folder", type=Path, default=None)
+    parser.add_argument("--cebench-artifacts-path", type=Path, default=Path("/tmp/ce_bench_artifacts"))
+    parser.add_argument("--cebench-random-seed", type=int, default=None)
+    parser.add_argument("--cebench-force-rerun", action="store_true")
+    parser.add_argument("--cebench-llm-batch-size", type=int, default=None)
+    parser.add_argument("--cebench-llm-dtype", type=str, default=None)
     parser.add_argument("--skip-saebench", action="store_true")
     parser.add_argument("--skip-cebench", action="store_true")
 
@@ -345,12 +394,24 @@ def main() -> None:
     if args.husai_saebench_checkpoint is not None and not args.skip_husai_saebench_custom:
         husai_custom_command = build_husai_custom_saebench_command(args, run_dir)
 
+    cebench_command = build_cebench_command(args, run_dir)
+
     config_payload = {
         "sae_root": str(args.sae_root),
         "saebench_repo": str(args.saebench_repo) if args.saebench_repo else None,
         "cebench_repo": str(args.cebench_repo) if args.cebench_repo else None,
         "saebench_command": args.saebench_command,
         "cebench_command": args.cebench_command,
+        "cebench_use_compat_runner": args.cebench_use_compat_runner,
+        "cebench_sae_regex_pattern": args.cebench_sae_regex_pattern,
+        "cebench_sae_block_pattern": args.cebench_sae_block_pattern,
+        "cebench_output_folder": str(args.cebench_output_folder) if args.cebench_output_folder else None,
+        "cebench_artifacts_path": str(args.cebench_artifacts_path),
+        "cebench_random_seed": args.cebench_random_seed,
+        "cebench_force_rerun": args.cebench_force_rerun,
+        "cebench_llm_batch_size": args.cebench_llm_batch_size,
+        "cebench_llm_dtype": args.cebench_llm_dtype,
+        "cebench_final_command": cebench_command,
         "skip_saebench": args.skip_saebench,
         "skip_cebench": args.skip_cebench,
         "husai_saebench_checkpoint": (
@@ -399,7 +460,7 @@ def main() -> None:
         command_results.append(
             run_command(
                 name="cebench",
-                command=args.cebench_command.strip() or None,
+                command=cebench_command,
                 cwd=cebench_cwd,
                 logs_dir=logs_dir,
                 execute=args.execute,
@@ -487,6 +548,18 @@ def main() -> None:
             "python scripts/experiments/run_official_external_benchmarks.py \\",
             "  --husai-saebench-checkpoint results/saes/husai_pythia70m_topk_seed42/sae_final.pt \\",
             "  --execute",
+            "```",
+            "",
+            "CE-Bench compat execution example:",
+            "```bash",
+            (
+                "python scripts/experiments/run_official_external_benchmarks.py "
+                "--cebench-repo /path/to/CE-Bench "
+                "--cebench-use-compat-runner "
+                "--cebench-sae-regex-pattern <pattern> "
+                "--cebench-sae-block-pattern <block> "
+                "--execute"
+            ),
             "```",
             "",
             "SAEBench reference command pattern from official docs:",
