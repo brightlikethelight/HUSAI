@@ -20,6 +20,8 @@ import types
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+CACHE_ROOT = PROJECT_ROOT / "results" / "cache" / "external_benchmarks"
+DEFAULT_CEBENCH_ARTIFACTS = CACHE_ROOT / "ce_bench_artifacts"
 
 
 def install_sae_lens_toolkit_shim() -> bool:
@@ -129,7 +131,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
         type=Path,
         default=PROJECT_ROOT / "results" / "experiments" / "phase4e_external_benchmark_official" / "cebench",
     )
-    parser.add_argument("--artifacts-path", type=Path, default=Path("/tmp/ce_bench_artifacts"))
+    parser.add_argument("--artifacts-path", type=Path, default=DEFAULT_CEBENCH_ARTIFACTS)
     parser.add_argument("--random-seed", type=int, default=None)
     parser.add_argument("--force-rerun", action="store_true")
     parser.add_argument("--llm-batch-size", type=int, default=None)

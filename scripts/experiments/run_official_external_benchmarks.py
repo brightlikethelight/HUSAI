@@ -28,6 +28,10 @@ from pathlib import Path
 from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+CACHE_ROOT = PROJECT_ROOT / "results" / "cache" / "external_benchmarks"
+DEFAULT_CEBENCH_ARTIFACTS = CACHE_ROOT / "ce_bench_artifacts"
+DEFAULT_HUSAI_SAEBENCH_RESULTS = CACHE_ROOT / "husai_saebench_probe_results"
+DEFAULT_SAEBENCH_MODEL_CACHE = CACHE_ROOT / "sae_bench_model_cache"
 
 
 @dataclass
@@ -343,7 +347,7 @@ def main() -> None:
     parser.add_argument("--cebench-sae-regex-pattern", type=str, default="")
     parser.add_argument("--cebench-sae-block-pattern", type=str, default="")
     parser.add_argument("--cebench-output-folder", type=Path, default=None)
-    parser.add_argument("--cebench-artifacts-path", type=Path, default=Path("/tmp/ce_bench_artifacts"))
+    parser.add_argument("--cebench-artifacts-path", type=Path, default=DEFAULT_CEBENCH_ARTIFACTS)
     parser.add_argument("--cebench-random-seed", type=int, default=None)
     parser.add_argument("--cebench-force-rerun", action="store_true")
     parser.add_argument("--cebench-llm-batch-size", type=int, default=None)
@@ -366,12 +370,12 @@ def main() -> None:
     parser.add_argument(
         "--husai-saebench-results-path",
         type=Path,
-        default=Path("/tmp/husai_saebench_probe_results"),
+        default=DEFAULT_HUSAI_SAEBENCH_RESULTS,
     )
     parser.add_argument(
         "--husai-saebench-model-cache-path",
         type=Path,
-        default=Path("/tmp/sae_bench_model_cache"),
+        default=DEFAULT_SAEBENCH_MODEL_CACHE,
     )
     parser.add_argument("--husai-saebench-force-rerun", action="store_true")
     parser.add_argument("--skip-husai-saebench-custom", action="store_true")

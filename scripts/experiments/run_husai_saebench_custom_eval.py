@@ -20,6 +20,9 @@ import torch
 import torch.nn.functional as F
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+CACHE_ROOT = PROJECT_ROOT / "results" / "cache" / "external_benchmarks"
+DEFAULT_HUSAI_SAEBENCH_RESULTS = CACHE_ROOT / "husai_saebench_probe_results"
+DEFAULT_SAEBENCH_MODEL_CACHE = CACHE_ROOT / "sae_bench_model_cache"
 
 
 def utc_now() -> str:
@@ -210,13 +213,13 @@ def main() -> None:
     parser.add_argument(
         "--results-path",
         type=Path,
-        default=Path("/tmp/husai_saebench_probe_results"),
+        default=DEFAULT_HUSAI_SAEBENCH_RESULTS,
         help="Directory for raw SAE-probes JSON outputs",
     )
     parser.add_argument(
         "--model-cache-path",
         type=Path,
-        default=Path("/tmp/sae_bench_model_cache"),
+        default=DEFAULT_SAEBENCH_MODEL_CACHE,
         help="Model activation cache directory for SAEBench",
     )
     parser.add_argument(
@@ -239,6 +242,8 @@ def main() -> None:
         raise RuntimeError("CUDA requested but not available")
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
+    args.results_path.mkdir(parents=True, exist_ok=True)
+    args.model_cache_path.mkdir(parents=True, exist_ok=True)
 
     sae, sae_meta = build_custom_sae(
         checkpoint_path=args.checkpoint,

@@ -24,6 +24,9 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader, TensorDataset
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+CACHE_ROOT = PROJECT_ROOT / "results" / "cache" / "external_benchmarks"
+DEFAULT_SAEBENCH_MODEL_CACHE = CACHE_ROOT / "sae_bench_model_cache"
+DEFAULT_PYTHIA70M_ACTIVATION_CACHE = DEFAULT_SAEBENCH_MODEL_CACHE / "model_activations_pythia-70m-deduped"
 
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
@@ -223,7 +226,7 @@ def main() -> None:
     parser.add_argument(
         "--activation-cache-dir",
         type=Path,
-        default=Path("/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped"),
+        default=DEFAULT_PYTHIA70M_ACTIVATION_CACHE,
         help="Directory containing cached activation .pt files",
     )
     parser.add_argument(
