@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Run SAEBench sparse-probing SAE-probes on a HUSAI TopK checkpoint.
+"""Run SAEBench sparse-probing SAE-probes on a HUSAI checkpoint.
 
-This script loads a HUSAI checkpoint (TopKSAE format), maps it into a SAEBench
-custom SAE object, and executes the official sparse_probing_sae_probes eval.
+This script loads a HUSAI checkpoint, maps it into a SAEBench custom SAE
+object, and executes the official sparse_probing_sae_probes eval.
 """
 
 from __future__ import annotations
@@ -17,12 +17,19 @@ from pathlib import Path
 from typing import Any
 
 import torch
-import torch.nn.functional as F
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CACHE_ROOT = PROJECT_ROOT / "results" / "cache" / "external_benchmarks"
 DEFAULT_HUSAI_SAEBENCH_RESULTS = CACHE_ROOT / "husai_saebench_probe_results"
 DEFAULT_SAEBENCH_MODEL_CACHE = CACHE_ROOT / "sae_bench_model_cache"
+
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from scripts.experiments.husai_custom_sae_adapter import (  # noqa: E402
+    build_custom_sae_from_checkpoint,
+    dtype_from_name,
+)
 
 
 def utc_now() -> str:
@@ -58,106 +65,6 @@ def infer_dataset_names_from_cache(model_cache_path: Path, model_name: str, hook
         if stem.endswith(suffix):
             names.append(stem[: -len(suffix)])
     return names
-
-
-def dtype_from_name(name: str) -> torch.dtype:
-    name = name.lower()
-    mapping = {
-        "float32": torch.float32,
-        "fp32": torch.float32,
-        "float16": torch.float16,
-        "fp16": torch.float16,
-        "bfloat16": torch.bfloat16,
-        "bf16": torch.bfloat16,
-    }
-    if name not in mapping:
-        raise ValueError(f"Unsupported dtype string: {name}")
-    return mapping[name]
-
-
-def load_husai_state(checkpoint_path: Path) -> tuple[dict[str, torch.Tensor], int, int, int]:
-    obj = torch.load(checkpoint_path, map_location="cpu")
-
-    if isinstance(obj, dict):
-        state = obj.get("model_state_dict") or obj.get("sae_state_dict") or obj
-        d_model = obj.get("d_model")
-        d_sae = obj.get("d_sae")
-        k = obj.get("k")
-    else:
-        state = obj
-        d_model = None
-        d_sae = None
-        k = None
-
-    if not isinstance(state, dict):
-        raise TypeError(f"Unexpected checkpoint state type: {type(state)}")
-
-    if "encoder.weight" not in state or "encoder.bias" not in state or "decoder.weight" not in state:
-        missing = [k for k in ["encoder.weight", "encoder.bias", "decoder.weight"] if k not in state]
-        raise KeyError(f"Missing expected keys in checkpoint: {missing}")
-
-    encoder_w = state["encoder.weight"].detach().cpu()
-    encoder_b = state["encoder.bias"].detach().cpu()
-    decoder_w = state["decoder.weight"].detach().cpu()
-
-    inferred_d_model = int(decoder_w.shape[0])
-    inferred_d_sae = int(decoder_w.shape[1])
-
-    d_model = int(d_model) if d_model is not None else inferred_d_model
-    d_sae = int(d_sae) if d_sae is not None else inferred_d_sae
-    if k is None:
-        raise KeyError("Checkpoint missing `k`; provide a checkpoint saved by HUSAI TopKSAE.save()")
-
-    mapped = {
-        "W_enc": encoder_w.T.contiguous(),
-        "W_dec": decoder_w.T.contiguous(),
-        "b_enc": encoder_b.contiguous(),
-        "b_dec": torch.zeros(d_model, dtype=encoder_w.dtype),
-    }
-
-    return mapped, d_model, d_sae, int(k)
-
-
-def build_custom_sae(
-    *,
-    checkpoint_path: Path,
-    model_name: str,
-    hook_layer: int,
-    hook_name: str,
-    device: str,
-    dtype: torch.dtype,
-):
-    try:
-        from sae_bench.custom_saes.topk_sae import TopKSAE as SaeBenchTopKSAE
-    except Exception as exc:
-        raise RuntimeError(
-            "SAEBench is required for this script. Install `sae-bench` in the active environment."
-        ) from exc
-
-    mapped_state, d_model, d_sae, k = load_husai_state(checkpoint_path)
-
-    sae = SaeBenchTopKSAE(
-        d_in=d_model,
-        d_sae=d_sae,
-        k=k,
-        model_name=model_name,
-        hook_layer=hook_layer,
-        hook_name=hook_name,
-        device=torch.device(device),
-        dtype=dtype,
-    )
-
-    sae.load_state_dict(mapped_state, strict=False)
-    sae.cfg.architecture = "topk"
-    sae.to(device=torch.device(device), dtype=dtype)
-
-    if not sae.check_decoder_norms():
-        with torch.no_grad():
-            sae.W_dec.data = F.normalize(sae.W_dec.data, dim=1)
-        if not sae.check_decoder_norms():
-            raise ValueError("Failed to normalize decoder rows for custom SAE")
-
-    return sae, {"d_model": d_model, "d_sae": d_sae, "k": k}
 
 
 def summarize_results(results: dict[str, dict[str, Any]], ks: list[int]) -> dict[str, Any]:
@@ -197,8 +104,9 @@ def summarize_results(results: dict[str, dict[str, Any]], ks: list[int]) -> dict
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Evaluate HUSAI checkpoint with SAEBench sparse-probing-saE-probes")
+    parser = argparse.ArgumentParser(description="Evaluate HUSAI checkpoint with SAEBench sparse-probing SAE-probes")
     parser.add_argument("--checkpoint", type=Path, required=True, help="Path to HUSAI sae_final.pt checkpoint")
+    parser.add_argument("--architecture", type=str, default="", help="Optional architecture override (topk/relu/batchtopk/jumprelu)")
     parser.add_argument("--sae-release", type=str, default="husai_topk_custom")
     parser.add_argument("--model-name", type=str, default="pythia-70m-deduped")
     parser.add_argument("--hook-layer", type=int, default=0)
@@ -245,13 +153,15 @@ def main() -> None:
     args.results_path.mkdir(parents=True, exist_ok=True)
     args.model_cache_path.mkdir(parents=True, exist_ok=True)
 
-    sae, sae_meta = build_custom_sae(
+    architecture_override = args.architecture or None
+    sae, sae_meta = build_custom_sae_from_checkpoint(
         checkpoint_path=args.checkpoint,
         model_name=args.model_name,
         hook_layer=args.hook_layer,
         hook_name=args.hook_name,
         device=args.device,
         dtype=dtype,
+        architecture_override=architecture_override,
     )
 
     try:
@@ -293,6 +203,7 @@ def main() -> None:
         "command": " ".join(["python", *map(shlex.quote, sys.argv)]),
         "config": {
             "checkpoint": str(args.checkpoint),
+            "architecture_override": architecture_override,
             "sae_release": args.sae_release,
             "model_name": args.model_name,
             "hook_layer": args.hook_layer,
@@ -313,6 +224,7 @@ def main() -> None:
         "config_hash": stable_hash(
             {
                 "checkpoint": str(args.checkpoint),
+                "architecture_override": architecture_override,
                 "sae_release": args.sae_release,
                 "model_name": args.model_name,
                 "hook_layer": args.hook_layer,
@@ -336,6 +248,7 @@ def main() -> None:
         "",
         f"- Checkpoint: `{args.checkpoint}`",
         f"- SAE release id: `{args.sae_release}`",
+        f"- Architecture: `{sae_meta.get('architecture')}`",
         f"- Model: `{args.model_name}`",
         f"- Hook: `{args.hook_name}`",
         f"- ks: `{ks}`",

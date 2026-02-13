@@ -5,7 +5,7 @@ This script is intentionally conservative:
 - It always writes a reproducibility manifest.
 - It can export a local SAE checkpoint index for benchmark adapters.
 - It runs official SAEBench/CE-Bench commands only when explicitly provided.
-- It can run a HUSAI custom-SAEBench adapter command for direct checkpoint eval.
+- It can run HUSAI custom checkpoint adapter commands for SAEBench and CE-Bench.
 
 Rationale:
 - This repository uses custom SAE checkpoints and small-model tasks.
@@ -241,8 +241,6 @@ def run_command(
     )
 
 
-
-
 def load_cebench_metrics_summary(run_dir: Path) -> dict[str, Any] | None:
     """Load compact CE-Bench metrics summary if the compat runner emitted it."""
     summary_path = run_dir / "cebench" / "cebench_metrics_summary.json"
@@ -254,6 +252,19 @@ def load_cebench_metrics_summary(run_dir: Path) -> dict[str, Any] | None:
         return None
     data["_summary_path"] = str(summary_path.relative_to(PROJECT_ROOT))
     return data
+
+
+def load_husai_custom_cebench_summary(run_dir: Path) -> dict[str, Any] | None:
+    summary_path = run_dir / "husai_custom_cebench" / "husai_custom_cebench_summary.json"
+    if not summary_path.exists():
+        return None
+    try:
+        payload = json.loads(summary_path.read_text())
+    except Exception:
+        return None
+    payload["_summary_path"] = str(summary_path.relative_to(PROJECT_ROOT))
+    return payload
+
 
 def build_husai_custom_saebench_command(args: argparse.Namespace, run_dir: Path) -> str | None:
     if args.husai_saebench_checkpoint is None:
@@ -341,6 +352,55 @@ def build_cebench_command(args: argparse.Namespace, run_dir: Path) -> str | None
     return build_shell_command(command_parts)
 
 
+def build_husai_custom_cebench_command(args: argparse.Namespace, run_dir: Path) -> str | None:
+    if args.husai_cebench_checkpoint is None:
+        return None
+    if args.cebench_repo is None:
+        return None
+
+    output_folder = run_dir / "husai_custom_cebench"
+    command_parts = [
+        "python",
+        "scripts/experiments/run_husai_cebench_custom_eval.py",
+        "--cebench-repo",
+        str(args.cebench_repo),
+        "--checkpoint",
+        str(args.husai_cebench_checkpoint),
+        "--sae-release",
+        args.husai_cebench_release,
+        "--model-name",
+        args.husai_cebench_model_name,
+        "--hook-layer",
+        str(args.husai_cebench_hook_layer),
+        "--hook-name",
+        args.husai_cebench_hook_name,
+        "--device",
+        args.husai_cebench_device,
+        "--sae-dtype",
+        args.husai_cebench_sae_dtype,
+        "--output-folder",
+        str(output_folder),
+        "--artifacts-path",
+        str(args.husai_cebench_artifacts_path),
+    ]
+
+    if args.husai_cebench_llm_dtype is not None:
+        command_parts.extend(["--llm-dtype", args.husai_cebench_llm_dtype])
+    if args.husai_cebench_llm_batch_size is not None:
+        command_parts.extend(["--llm-batch-size", str(args.husai_cebench_llm_batch_size)])
+    if args.husai_cebench_random_seed is not None:
+        command_parts.extend(["--random-seed", str(args.husai_cebench_random_seed)])
+    if args.husai_cebench_max_rows is not None:
+        command_parts.extend(["--max-rows", str(args.husai_cebench_max_rows)])
+
+    if args.husai_cebench_match_baseline:
+        baseline_output_folder = args.cebench_output_folder or (run_dir / "cebench")
+        baseline_summary = baseline_output_folder / "cebench_metrics_summary.json"
+        command_parts.extend(["--matched-baseline-summary", str(baseline_summary)])
+
+    return build_shell_command(command_parts)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Official benchmark preflight/runner")
     parser.add_argument(
@@ -394,6 +454,21 @@ def main() -> None:
     parser.add_argument("--husai-saebench-force-rerun", action="store_true")
     parser.add_argument("--skip-husai-saebench-custom", action="store_true")
 
+    parser.add_argument("--husai-cebench-checkpoint", type=Path, default=None)
+    parser.add_argument("--husai-cebench-release", type=str, default="husai_topk_custom")
+    parser.add_argument("--husai-cebench-model-name", type=str, default="pythia-70m-deduped")
+    parser.add_argument("--husai-cebench-hook-layer", type=int, default=0)
+    parser.add_argument("--husai-cebench-hook-name", type=str, default="blocks.0.hook_resid_pre")
+    parser.add_argument("--husai-cebench-device", type=str, default="cuda")
+    parser.add_argument("--husai-cebench-sae-dtype", type=str, default="float32")
+    parser.add_argument("--husai-cebench-llm-dtype", type=str, default=None)
+    parser.add_argument("--husai-cebench-llm-batch-size", type=int, default=None)
+    parser.add_argument("--husai-cebench-random-seed", type=int, default=None)
+    parser.add_argument("--husai-cebench-max-rows", type=int, default=None)
+    parser.add_argument("--husai-cebench-artifacts-path", type=Path, default=DEFAULT_CEBENCH_ARTIFACTS)
+    parser.add_argument("--husai-cebench-match-baseline", action="store_true")
+    parser.add_argument("--skip-husai-cebench-custom", action="store_true")
+
     parser.add_argument(
         "--execute",
         action="store_true",
@@ -404,6 +479,9 @@ def main() -> None:
     # Validate ks early for reproducibility and explicit failure mode.
     parse_csv_ints(args.husai_saebench_ks)
 
+    if args.husai_cebench_checkpoint is not None and args.cebench_repo is None and not args.skip_husai_cebench_custom:
+        parser.error("--cebench-repo is required when --husai-cebench-checkpoint is provided")
+
     run_id = datetime.now(timezone.utc).strftime("run_%Y%m%dT%H%M%SZ")
     run_dir = args.output_dir / run_id
     logs_dir = run_dir / "logs"
@@ -412,6 +490,10 @@ def main() -> None:
     husai_custom_command = None
     if args.husai_saebench_checkpoint is not None and not args.skip_husai_saebench_custom:
         husai_custom_command = build_husai_custom_saebench_command(args, run_dir)
+
+    husai_custom_cebench_command = None
+    if args.husai_cebench_checkpoint is not None and not args.skip_husai_cebench_custom:
+        husai_custom_cebench_command = build_husai_custom_cebench_command(args, run_dir)
 
     cebench_command = build_cebench_command(args, run_dir)
 
@@ -452,6 +534,23 @@ def main() -> None:
         "husai_saebench_force_rerun": args.husai_saebench_force_rerun,
         "skip_husai_saebench_custom": args.skip_husai_saebench_custom,
         "husai_custom_command": husai_custom_command,
+        "husai_cebench_checkpoint": (
+            str(args.husai_cebench_checkpoint) if args.husai_cebench_checkpoint else None
+        ),
+        "husai_cebench_release": args.husai_cebench_release,
+        "husai_cebench_model_name": args.husai_cebench_model_name,
+        "husai_cebench_hook_layer": args.husai_cebench_hook_layer,
+        "husai_cebench_hook_name": args.husai_cebench_hook_name,
+        "husai_cebench_device": args.husai_cebench_device,
+        "husai_cebench_sae_dtype": args.husai_cebench_sae_dtype,
+        "husai_cebench_llm_dtype": args.husai_cebench_llm_dtype,
+        "husai_cebench_llm_batch_size": args.husai_cebench_llm_batch_size,
+        "husai_cebench_random_seed": args.husai_cebench_random_seed,
+        "husai_cebench_max_rows": args.husai_cebench_max_rows,
+        "husai_cebench_artifacts_path": str(args.husai_cebench_artifacts_path),
+        "husai_cebench_match_baseline": args.husai_cebench_match_baseline,
+        "skip_husai_cebench_custom": args.skip_husai_cebench_custom,
+        "husai_custom_cebench_command": husai_custom_cebench_command,
         "execute": args.execute,
     }
     (run_dir / "config.json").write_text(json.dumps(config_payload, indent=2) + "\n")
@@ -500,6 +599,17 @@ def main() -> None:
             )
         )
 
+    if husai_custom_cebench_command is not None:
+        command_results.append(
+            run_command(
+                name="cebench_husai_custom",
+                command=husai_custom_cebench_command,
+                cwd=PROJECT_ROOT,
+                logs_dir=logs_dir,
+                execute=args.execute,
+            )
+        )
+
     preflight = {
         "timestamp_utc": utc_now(),
         "git_commit": git_commit(),
@@ -533,7 +643,8 @@ def main() -> None:
         f"- CE-Bench module available: `{cebench['module_available']}`",
         f"- CE-Bench repo path: `{cebench['repo_path']}`",
         f"- Local SAE checkpoints indexed: `{len(local_sae_index)}`",
-        f"- HUSAI custom checkpoint provided: `{args.husai_saebench_checkpoint is not None}`",
+        f"- HUSAI custom SAEBench checkpoint provided: `{args.husai_saebench_checkpoint is not None}`",
+        f"- HUSAI custom CE-Bench checkpoint provided: `{args.husai_cebench_checkpoint is not None}`",
         "",
         "## Command Status",
     ]
@@ -575,6 +686,28 @@ def main() -> None:
             ]
         )
 
+    husai_custom_cebench = load_husai_custom_cebench_summary(run_dir)
+    if husai_custom_cebench is not None:
+        custom_metrics = husai_custom_cebench.get("custom_metrics", {})
+        deltas = husai_custom_cebench.get("delta_vs_matched_baseline", {})
+        summary_lines.extend(
+            [
+                "",
+                "## HUSAI Custom CE-Bench Metrics",
+                "",
+                f"- Summary path: `{husai_custom_cebench.get('_summary_path')}`",
+                f"- contrastive_score_mean.max: `{custom_metrics.get('contrastive_score_mean_max')}`",
+                f"- independent_score_mean.max: `{custom_metrics.get('independent_score_mean_max')}`",
+                f"- interpretability_score_mean.max: `{custom_metrics.get('interpretability_score_mean_max')}`",
+                f"- delta vs matched baseline (contrastive): `{deltas.get('contrastive_score_mean_max')}`",
+                f"- delta vs matched baseline (independent): `{deltas.get('independent_score_mean_max')}`",
+                (
+                    "- delta vs matched baseline (interpretability): "
+                    f"`{deltas.get('interpretability_score_mean_max')}`"
+                ),
+            ]
+        )
+
     summary_lines.extend(
         [
             "",
@@ -590,10 +723,22 @@ def main() -> None:
             "  --execute",
             "```",
             "",
-            "HUSAI custom checkpoint eval example:",
+            "HUSAI custom SAEBench checkpoint eval example:",
             "```bash",
             "python scripts/experiments/run_official_external_benchmarks.py \\",
             "  --husai-saebench-checkpoint results/saes/husai_pythia70m_topk_seed42/sae_final.pt \\",
+            "  --execute",
+            "```",
+            "",
+            "HUSAI custom CE-Bench checkpoint eval example:",
+            "```bash",
+            "python scripts/experiments/run_official_external_benchmarks.py \\",
+            "  --cebench-repo /path/to/CE-Bench \\",
+            "  --cebench-use-compat-runner \\",
+            "  --cebench-sae-regex-pattern <pattern> \\",
+            "  --cebench-sae-block-pattern <block> \\",
+            "  --husai-cebench-checkpoint results/saes/husai_pythia70m_topk_seed42/sae_final.pt \\",
+            "  --husai-cebench-match-baseline \\",
             "  --execute",
             "```",
             "",
