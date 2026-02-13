@@ -1,0 +1,11 @@
+# CE-Bench Deltas vs Matched-200 Baseline
+
+- baseline summary: `docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json`
+- baseline contrastive / independent / interpretability max: `50.51130743026734` / `50.99926634788513` / `47.951611585617066`
+
+| architecture | contrastive max | independent max | interpretability max | delta contrastive | delta independent | delta interpretability |
+|---|---:|---:|---:|---:|---:|---:|
+| topk | 7.901997175216675 | 9.000797727108 | 7.585395152568817 | -42.60931025505066 | -41.99846862077713 | -40.36621643304825 |
+| relu | 4.484524784088134 | 4.622185326814652 | 4.228144862651825 | -46.0267826461792 | -46.37708102107048 | -43.72346672296524 |
+| batchtopk | 6.804405152797699 | 7.664323370456696 | 6.4668281817436215 | -43.70690227746964 | -43.33494297742844 | -41.48478340387344 |
+| jumprelu | 4.5816484069824215 | 4.6479918885231015 | 4.350986768007278 | -45.92965902328491 | -46.35127445936203 | -43.600624817609784 |

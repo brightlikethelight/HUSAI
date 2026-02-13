@@ -1,0 +1,58 @@
+{
+  "timestamp_utc": "2026-02-13T17:40:00+00:00",
+  "command": "python scripts/experiments/run_husai_cebench_custom_eval.py --cebench-repo /workspace/CE-Bench --checkpoint /workspace/HUSAI/results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/checkpoints/topk_seed42/sae_final.pt --architecture topk --sae-release husai_topk_seed42 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --sae-dtype float32 --output-folder /workspace/HUSAI/results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/external_eval/topk_seed42/cebench --artifacts-path /workspace/HUSAI/results/cache/external_benchmarks/ce_bench_artifacts_frontier --max-rows 200",
+  "config_hash": "54254d3d32f482b38ec60c034427ccfd6f6baf2806503f0252e601e40adeb694",
+  "config": {
+    "cebench_repo": "/workspace/CE-Bench",
+    "checkpoint": "/workspace/HUSAI/results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/checkpoints/topk_seed42/sae_final.pt",
+    "architecture_override": "topk",
+    "checkpoint_sha256": "0340244b549dc6ed2c80a1c9135b15009ad5d24cf481ac6a38d91fb97e718bea",
+    "sae_release": "husai_topk_seed42",
+    "model_name": "pythia-70m-deduped",
+    "hook_layer": 0,
+    "hook_name": "blocks.0.hook_resid_pre",
+    "device": "cuda",
+    "sae_dtype": "float32",
+    "llm_batch_size": 512,
+    "llm_dtype": "float32",
+    "random_seed": 42,
+    "dataset_name": "GulkoA/contrastive-stories-v4",
+    "dataset_rows_total": 5000,
+    "dataset_rows_used": 200,
+    "max_rows": 200,
+    "output_folder": "/workspace/HUSAI/results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/external_eval/topk_seed42/cebench",
+    "artifacts_path": "/workspace/HUSAI/results/cache/external_benchmarks/ce_bench_artifacts_frontier",
+    "matched_baseline_summary": null
+  },
+  "sae_meta": {
+    "architecture": "topk",
+    "d_model": 512,
+    "d_sae": 1024,
+    "k": 32
+  },
+  "cebench_summary": {
+    "output_folder": "/workspace/HUSAI/results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/external_eval/topk_seed42/cebench",
+    "results_json": "/workspace/HUSAI/results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/external_eval/topk_seed42/cebench/interpretability_eval/husai_topk_seed42/custom_sae/results.json",
+    "scores_dump": "/workspace/HUSAI/results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/external_eval/topk_seed42/cebench/scores_dump.txt",
+    "total_rows": 200,
+    "contrastive_score_mean_max": 7.901997175216675,
+    "independent_score_mean_max": 9.000797727108,
+    "interpretability_score_mean_max": 7.585395152568817,
+    "sae_release": "husai_topk_seed42",
+    "sae_id": "custom_sae",
+    "date": "2026-02-13 17:40:00",
+    "scores_dump_line_count": 200
+  },
+  "custom_metrics": {
+    "contrastive_score_mean_max": 7.901997175216675,
+    "independent_score_mean_max": 9.000797727108,
+    "interpretability_score_mean_max": 7.585395152568817
+  },
+  "matched_baseline_metrics": null,
+  "delta_vs_matched_baseline": null,
+  "matched_baseline_payload": null,
+  "artifacts": {
+    "cebench_metrics_summary_json": "results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/external_eval/topk_seed42/cebench/cebench_metrics_summary.json",
+    "cebench_metrics_summary_md": "results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/external_eval/topk_seed42/cebench/cebench_metrics_summary.md"
+  }
+}

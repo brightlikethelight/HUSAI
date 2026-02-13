@@ -1,0 +1,1927 @@
+{
+  "timestamp_utc": "2026-02-13T21:09:08+00:00",
+  "command": "python scripts/experiments/run_external_metric_scaling_study.py --activation-cache-dir /tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped --activation-glob-template *_blocks.{layer}.hook_resid_pre.pt --hook-name-template blocks.{layer}.hook_resid_pre --token-budgets 10000,30000 --hook-layers 0,1 --d-sae-values 1024,2048 --seeds 42 --k 32 --epochs 6 --batch-size 4096 --learning-rate 0.001 --max-files 16 --max-rows-per-file 2048 --run-saebench --run-cebench --cebench-repo /workspace/CE-Bench --cebench-max-rows 200 --saebench-datasets 100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom --saebench-results-path /tmp/husai_saebench_probe_results_scaling --saebench-model-cache-path /tmp/sae_bench_model_cache --cebench-artifacts-path /tmp/ce_bench_artifacts_scaling --device cuda --dtype float32 --output-dir results/experiments/phase4e_external_scaling_study",
+  "config": {
+    "activation_cache_dir": "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped",
+    "activation_glob_template": "*_blocks.{layer}.hook_resid_pre.pt",
+    "hook_name_template": "blocks.{layer}.hook_resid_pre",
+    "token_budgets": [
+      10000,
+      30000
+    ],
+    "hook_layers": [
+      0,
+      1
+    ],
+    "d_sae_values": [
+      1024,
+      2048
+    ],
+    "seeds": [
+      42
+    ],
+    "k": 32,
+    "epochs": 6,
+    "batch_size": 4096,
+    "learning_rate": 0.001,
+    "max_files": 16,
+    "max_rows_per_file": 2048,
+    "model_name": "pythia-70m-deduped",
+    "device": "cuda",
+    "dtype": "float32",
+    "run_saebench": true,
+    "run_cebench": true,
+    "cebench_repo": "/workspace/CE-Bench",
+    "cebench_max_rows": 200,
+    "saebench_datasets": [
+      "100_news_fake",
+      "105_click_bait",
+      "106_hate_hate",
+      "107_hate_offensive",
+      "110_aimade_humangpt3",
+      "113_movie_sent",
+      "114_nyc_borough_Manhattan",
+      "115_nyc_borough_Brooklyn",
+      "116_nyc_borough_Bronx",
+      "117_us_state_FL",
+      "118_us_state_CA",
+      "119_us_state_TX",
+      "120_us_timezone_Chicago",
+      "121_us_timezone_New_York",
+      "122_us_timezone_Los_Angeles",
+      "123_world_country_United_Kingdom"
+    ],
+    "saebench_dataset_limit": 0,
+    "run_id": "run_20260213T203923Z"
+  },
+  "records": [
+    {
+      "condition_id": "tok10000_layer0_dsae1024_seed42",
+      "token_budget": 10000,
+      "hook_layer": 0,
+      "hook_name": "blocks.0.hook_resid_pre",
+      "d_sae": 1024,
+      "seed": 42,
+      "train_returncode": 0,
+      "train_summary": {
+        "timestamp_utc": "2026-02-13T20:39:34+00:00",
+        "config": {
+          "activation_cache_dir": "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped",
+          "activation_glob": "*_blocks.0.hook_resid_pre.pt",
+          "max_files": 16,
+          "max_rows_per_file": 2048,
+          "max_total_rows": 10000,
+          "d_sae": 1024,
+          "k": 32,
+          "epochs": 6,
+          "batch_size": 4096,
+          "learning_rate": 0.001,
+          "seed": 42,
+          "device": "cuda"
+        },
+        "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer0_dsae1024_seed42/sae_final.pt",
+        "data": {
+          "num_files_discovered": 113,
+          "num_files_used": 5,
+          "total_rows": 10000,
+          "d_model": 512
+        },
+        "source_files": [
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/100_news_fake_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/105_click_bait_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/106_hate_hate_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/107_hate_offensive_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/110_aimade_humangpt3_blocks.0.hook_resid_pre.pt"
+        ],
+        "final_metrics": {
+          "epoch": 6,
+          "loss": 0.023924529552459717,
+          "mse": 0.0006875979597680271,
+          "aux": 0.023236930991212528,
+          "l0": 32.0,
+          "explained_variance": 0.9982019997501268
+        }
+      },
+      "activation_file_count": 113,
+      "dataset_names": [
+        "100_news_fake",
+        "105_click_bait",
+        "106_hate_hate",
+        "107_hate_offensive",
+        "110_aimade_humangpt3",
+        "113_movie_sent",
+        "114_nyc_borough_Manhattan",
+        "115_nyc_borough_Brooklyn",
+        "116_nyc_borough_Bronx",
+        "117_us_state_FL",
+        "118_us_state_CA",
+        "119_us_state_TX",
+        "120_us_timezone_Chicago",
+        "121_us_timezone_New_York",
+        "122_us_timezone_Los_Angeles",
+        "123_world_country_United_Kingdom"
+      ],
+      "saebench": {
+        "timestamp_utc": "2026-02-13T20:40:29+00:00",
+        "command": "python scripts/experiments/run_husai_saebench_custom_eval.py --checkpoint /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer0_dsae1024_seed42/sae_final.pt --architecture topk --sae-release husai_scaling_tok10000_layer0_dsae1024_seed42 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --dtype float32 --results-path /tmp/husai_saebench_probe_results_scaling --model-cache-path /tmp/sae_bench_model_cache --output-dir /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer0_dsae1024_seed42/saebench --force-rerun --dataset-names 100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom",
+        "config": {
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer0_dsae1024_seed42/sae_final.pt",
+          "architecture_override": "topk",
+          "sae_release": "husai_scaling_tok10000_layer0_dsae1024_seed42",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "reg_type": "l1",
+          "setting": "normal",
+          "ks": [
+            1,
+            2,
+            5
+          ],
+          "dataset_names": [
+            "100_news_fake",
+            "105_click_bait",
+            "106_hate_hate",
+            "107_hate_offensive",
+            "110_aimade_humangpt3",
+            "113_movie_sent",
+            "114_nyc_borough_Manhattan",
+            "115_nyc_borough_Brooklyn",
+            "116_nyc_borough_Bronx",
+            "117_us_state_FL",
+            "118_us_state_CA",
+            "119_us_state_TX",
+            "120_us_timezone_Chicago",
+            "121_us_timezone_New_York",
+            "122_us_timezone_Los_Angeles",
+            "123_world_country_United_Kingdom"
+          ],
+          "dataset_names_inferred_from_cache": false,
+          "dataset_count": 16,
+          "binarize": false,
+          "device": "cuda",
+          "dtype": "float32",
+          "results_path": "/tmp/husai_saebench_probe_results_scaling",
+          "model_cache_path": "/tmp/sae_bench_model_cache",
+          "force_rerun": true
+        },
+        "config_hash": "d0c15fbb80f704bb6ddd00a4b50fbdc1b3d6ef416641f1fd4afcf330795c5239",
+        "sae_meta": {
+          "architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32
+        },
+        "summary": {
+          "result_key": "husai_scaling_tok10000_layer0_dsae1024_seed42_custom_sae",
+          "llm_metrics": {
+            "llm_test_accuracy": 0.6605360072070458,
+            "llm_test_auc": 0.6928164663947145,
+            "llm_test_f1": 0.6491238078533221
+          },
+          "sae_metrics_by_k": [
+            {
+              "k": 1,
+              "test_accuracy": 0.5926051431095571,
+              "test_auc": 0.5960396000297095,
+              "test_f1": 0.5315599626432809
+            },
+            {
+              "k": 2,
+              "test_accuracy": 0.6038070150876936,
+              "test_auc": 0.6166517914889205,
+              "test_f1": 0.5582434745022393
+            },
+            {
+              "k": 5,
+              "test_accuracy": 0.61974088886568,
+              "test_auc": 0.6437786582649951,
+              "test_f1": 0.5929233744705906
+            }
+          ],
+          "best_by_auc": {
+            "k": 5,
+            "test_accuracy": 0.61974088886568,
+            "test_auc": 0.6437786582649951,
+            "test_f1": 0.5929233744705906
+          },
+          "best_minus_llm_auc": -0.04903780812971936
+        }
+      },
+      "cebench": {
+        "timestamp_utc": "2026-02-13T20:42:53+00:00",
+        "command": "python scripts/experiments/run_husai_cebench_custom_eval.py --cebench-repo /workspace/CE-Bench --checkpoint /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer0_dsae1024_seed42/sae_final.pt --architecture topk --sae-release husai_scaling_tok10000_layer0_dsae1024_seed42 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --sae-dtype float32 --output-folder /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer0_dsae1024_seed42/cebench --artifacts-path /tmp/ce_bench_artifacts_scaling --max-rows 200",
+        "config_hash": "9726b286c923bf673a69959e16f2fd88dfa118c1d14159b5a3f5bb1f5cebd938",
+        "config": {
+          "cebench_repo": "/workspace/CE-Bench",
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer0_dsae1024_seed42/sae_final.pt",
+          "architecture_override": "topk",
+          "checkpoint_sha256": "0418ea95802bdfb167214ed18391fd6530dae850271ab763aaa99ec6c29e1310",
+          "sae_release": "husai_scaling_tok10000_layer0_dsae1024_seed42",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "device": "cuda",
+          "sae_dtype": "float32",
+          "llm_batch_size": 512,
+          "llm_dtype": "float32",
+          "random_seed": 42,
+          "dataset_name": "GulkoA/contrastive-stories-v4",
+          "dataset_rows_total": 5000,
+          "dataset_rows_used": 200,
+          "max_rows": 200,
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer0_dsae1024_seed42/cebench",
+          "artifacts_path": "/tmp/ce_bench_artifacts_scaling",
+          "matched_baseline_summary": null
+        },
+        "sae_meta": {
+          "architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32
+        },
+        "cebench_summary": {
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer0_dsae1024_seed42/cebench",
+          "results_json": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer0_dsae1024_seed42/cebench/interpretability_eval/husai_scaling_tok10000_layer0_dsae1024_seed42/custom_sae/results.json",
+          "scores_dump": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer0_dsae1024_seed42/cebench/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 6.1035255479812625,
+          "independent_score_mean_max": 6.32729287147522,
+          "interpretability_score_mean_max": 6.1836693835258485,
+          "sae_release": "husai_scaling_tok10000_layer0_dsae1024_seed42",
+          "sae_id": "custom_sae",
+          "date": "2026-02-13 20:42:53",
+          "scores_dump_line_count": 200
+        },
+        "custom_metrics": {
+          "contrastive_score_mean_max": 6.1035255479812625,
+          "independent_score_mean_max": 6.32729287147522,
+          "interpretability_score_mean_max": 6.1836693835258485
+        },
+        "matched_baseline_metrics": null,
+        "delta_vs_matched_baseline": null,
+        "matched_baseline_payload": null,
+        "artifacts": {
+          "cebench_metrics_summary_json": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer0_dsae1024_seed42/cebench/cebench_metrics_summary.json",
+          "cebench_metrics_summary_md": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer0_dsae1024_seed42/cebench/cebench_metrics_summary.md"
+        }
+      },
+      "checkpoint": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer0_dsae1024_seed42/sae_final.pt",
+      "saebench_returncode": 0,
+      "cebench_returncode": 0
+    },
+    {
+      "condition_id": "tok10000_layer0_dsae2048_seed42",
+      "token_budget": 10000,
+      "hook_layer": 0,
+      "hook_name": "blocks.0.hook_resid_pre",
+      "d_sae": 2048,
+      "seed": 42,
+      "train_returncode": 0,
+      "train_summary": {
+        "timestamp_utc": "2026-02-13T20:43:06+00:00",
+        "config": {
+          "activation_cache_dir": "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped",
+          "activation_glob": "*_blocks.0.hook_resid_pre.pt",
+          "max_files": 16,
+          "max_rows_per_file": 2048,
+          "max_total_rows": 10000,
+          "d_sae": 2048,
+          "k": 32,
+          "epochs": 6,
+          "batch_size": 4096,
+          "learning_rate": 0.001,
+          "seed": 42,
+          "device": "cuda"
+        },
+        "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer0_dsae2048_seed42/sae_final.pt",
+        "data": {
+          "num_files_discovered": 113,
+          "num_files_used": 5,
+          "total_rows": 10000,
+          "d_model": 512
+        },
+        "source_files": [
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/100_news_fake_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/105_click_bait_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/106_hate_hate_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/107_hate_offensive_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/110_aimade_humangpt3_blocks.0.hook_resid_pre.pt"
+        ],
+        "final_metrics": {
+          "epoch": 6,
+          "loss": 0.027739140515526135,
+          "mse": 0.0007266085982943574,
+          "aux": 0.027012531956036884,
+          "l0": 32.0,
+          "explained_variance": 0.998099990811878
+        }
+      },
+      "activation_file_count": 113,
+      "dataset_names": [
+        "100_news_fake",
+        "105_click_bait",
+        "106_hate_hate",
+        "107_hate_offensive",
+        "110_aimade_humangpt3",
+        "113_movie_sent",
+        "114_nyc_borough_Manhattan",
+        "115_nyc_borough_Brooklyn",
+        "116_nyc_borough_Bronx",
+        "117_us_state_FL",
+        "118_us_state_CA",
+        "119_us_state_TX",
+        "120_us_timezone_Chicago",
+        "121_us_timezone_New_York",
+        "122_us_timezone_Los_Angeles",
+        "123_world_country_United_Kingdom"
+      ],
+      "saebench": {
+        "timestamp_utc": "2026-02-13T20:43:45+00:00",
+        "command": "python scripts/experiments/run_husai_saebench_custom_eval.py --checkpoint /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer0_dsae2048_seed42/sae_final.pt --architecture topk --sae-release husai_scaling_tok10000_layer0_dsae2048_seed42 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --dtype float32 --results-path /tmp/husai_saebench_probe_results_scaling --model-cache-path /tmp/sae_bench_model_cache --output-dir /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer0_dsae2048_seed42/saebench --force-rerun --dataset-names 100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom",
+        "config": {
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer0_dsae2048_seed42/sae_final.pt",
+          "architecture_override": "topk",
+          "sae_release": "husai_scaling_tok10000_layer0_dsae2048_seed42",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "reg_type": "l1",
+          "setting": "normal",
+          "ks": [
+            1,
+            2,
+            5
+          ],
+          "dataset_names": [
+            "100_news_fake",
+            "105_click_bait",
+            "106_hate_hate",
+            "107_hate_offensive",
+            "110_aimade_humangpt3",
+            "113_movie_sent",
+            "114_nyc_borough_Manhattan",
+            "115_nyc_borough_Brooklyn",
+            "116_nyc_borough_Bronx",
+            "117_us_state_FL",
+            "118_us_state_CA",
+            "119_us_state_TX",
+            "120_us_timezone_Chicago",
+            "121_us_timezone_New_York",
+            "122_us_timezone_Los_Angeles",
+            "123_world_country_United_Kingdom"
+          ],
+          "dataset_names_inferred_from_cache": false,
+          "dataset_count": 16,
+          "binarize": false,
+          "device": "cuda",
+          "dtype": "float32",
+          "results_path": "/tmp/husai_saebench_probe_results_scaling",
+          "model_cache_path": "/tmp/sae_bench_model_cache",
+          "force_rerun": true
+        },
+        "config_hash": "689bde8e95a63dd00b4e400698bc616bfd750e670f96ca173d94a90adcb4dc8d",
+        "sae_meta": {
+          "architecture": "topk",
+          "d_model": 512,
+          "d_sae": 2048,
+          "k": 32
+        },
+        "summary": {
+          "result_key": "husai_scaling_tok10000_layer0_dsae2048_seed42_custom_sae",
+          "llm_metrics": {
+            "llm_test_accuracy": 0.6605360072070458,
+            "llm_test_auc": 0.6928164663947145,
+            "llm_test_f1": 0.6491238078533221
+          },
+          "sae_metrics_by_k": [
+            {
+              "k": 1,
+              "test_accuracy": 0.5888758791882616,
+              "test_auc": 0.5873558965248387,
+              "test_f1": 0.5043111853444856
+            },
+            {
+              "k": 2,
+              "test_accuracy": 0.5971572239701463,
+              "test_auc": 0.6052092540111926,
+              "test_f1": 0.5391802561581029
+            },
+            {
+              "k": 5,
+              "test_accuracy": 0.6015673758237768,
+              "test_auc": 0.6193987212915215,
+              "test_f1": 0.5555359738829213
+            }
+          ],
+          "best_by_auc": {
+            "k": 5,
+            "test_accuracy": 0.6015673758237768,
+            "test_auc": 0.6193987212915215,
+            "test_f1": 0.5555359738829213
+          },
+          "best_minus_llm_auc": -0.07341774510319299
+        }
+      },
+      "cebench": {
+        "timestamp_utc": "2026-02-13T20:46:25+00:00",
+        "command": "python scripts/experiments/run_husai_cebench_custom_eval.py --cebench-repo /workspace/CE-Bench --checkpoint /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer0_dsae2048_seed42/sae_final.pt --architecture topk --sae-release husai_scaling_tok10000_layer0_dsae2048_seed42 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --sae-dtype float32 --output-folder /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer0_dsae2048_seed42/cebench --artifacts-path /tmp/ce_bench_artifacts_scaling --max-rows 200",
+        "config_hash": "90d9eb071519293a323b8f192b8defe79454ff7ab05a0e5e26ea59e2fb34a06a",
+        "config": {
+          "cebench_repo": "/workspace/CE-Bench",
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer0_dsae2048_seed42/sae_final.pt",
+          "architecture_override": "topk",
+          "checkpoint_sha256": "12c2711c0d51c19d5f53f37ab0ad1a7575284e8f0a7940e5453f6f28bbd95f5d",
+          "sae_release": "husai_scaling_tok10000_layer0_dsae2048_seed42",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "device": "cuda",
+          "sae_dtype": "float32",
+          "llm_batch_size": 512,
+          "llm_dtype": "float32",
+          "random_seed": 42,
+          "dataset_name": "GulkoA/contrastive-stories-v4",
+          "dataset_rows_total": 5000,
+          "dataset_rows_used": 200,
+          "max_rows": 200,
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer0_dsae2048_seed42/cebench",
+          "artifacts_path": "/tmp/ce_bench_artifacts_scaling",
+          "matched_baseline_summary": null
+        },
+        "sae_meta": {
+          "architecture": "topk",
+          "d_model": 512,
+          "d_sae": 2048,
+          "k": 32
+        },
+        "cebench_summary": {
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer0_dsae2048_seed42/cebench",
+          "results_json": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer0_dsae2048_seed42/cebench/interpretability_eval/husai_scaling_tok10000_layer0_dsae2048_seed42/custom_sae/results.json",
+          "scores_dump": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer0_dsae2048_seed42/cebench/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 7.1261831831932065,
+          "independent_score_mean_max": 7.748877003192901,
+          "interpretability_score_mean_max": 7.5051356482505795,
+          "sae_release": "husai_scaling_tok10000_layer0_dsae2048_seed42",
+          "sae_id": "custom_sae",
+          "date": "2026-02-13 20:46:25",
+          "scores_dump_line_count": 200
+        },
+        "custom_metrics": {
+          "contrastive_score_mean_max": 7.1261831831932065,
+          "independent_score_mean_max": 7.748877003192901,
+          "interpretability_score_mean_max": 7.5051356482505795
+        },
+        "matched_baseline_metrics": null,
+        "delta_vs_matched_baseline": null,
+        "matched_baseline_payload": null,
+        "artifacts": {
+          "cebench_metrics_summary_json": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer0_dsae2048_seed42/cebench/cebench_metrics_summary.json",
+          "cebench_metrics_summary_md": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer0_dsae2048_seed42/cebench/cebench_metrics_summary.md"
+        }
+      },
+      "checkpoint": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer0_dsae2048_seed42/sae_final.pt",
+      "saebench_returncode": 0,
+      "cebench_returncode": 0
+    },
+    {
+      "condition_id": "tok10000_layer1_dsae1024_seed42",
+      "token_budget": 10000,
+      "hook_layer": 1,
+      "hook_name": "blocks.1.hook_resid_pre",
+      "d_sae": 1024,
+      "seed": 42,
+      "train_returncode": 0,
+      "train_summary": {
+        "timestamp_utc": "2026-02-13T20:46:42+00:00",
+        "config": {
+          "activation_cache_dir": "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped",
+          "activation_glob": "*_blocks.1.hook_resid_pre.pt",
+          "max_files": 16,
+          "max_rows_per_file": 2048,
+          "max_total_rows": 10000,
+          "d_sae": 1024,
+          "k": 32,
+          "epochs": 6,
+          "batch_size": 4096,
+          "learning_rate": 0.001,
+          "seed": 42,
+          "device": "cuda"
+        },
+        "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer1_dsae1024_seed42/sae_final.pt",
+        "data": {
+          "num_files_discovered": 16,
+          "num_files_used": 5,
+          "total_rows": 10000,
+          "d_model": 512
+        },
+        "source_files": [
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/100_news_fake_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/105_click_bait_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/106_hate_hate_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/107_hate_offensive_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/110_aimade_humangpt3_blocks.1.hook_resid_pre.pt"
+        ],
+        "final_metrics": {
+          "epoch": 6,
+          "loss": 30.693647384643555,
+          "mse": 0.09719767173131307,
+          "aux": 30.59644953409831,
+          "l0": 32.0,
+          "explained_variance": 0.9973477099700362
+        }
+      },
+      "activation_file_count": 16,
+      "dataset_names": [
+        "100_news_fake",
+        "105_click_bait",
+        "106_hate_hate",
+        "107_hate_offensive",
+        "110_aimade_humangpt3",
+        "113_movie_sent",
+        "114_nyc_borough_Manhattan",
+        "115_nyc_borough_Brooklyn",
+        "116_nyc_borough_Bronx",
+        "117_us_state_FL",
+        "118_us_state_CA",
+        "119_us_state_TX",
+        "120_us_timezone_Chicago",
+        "121_us_timezone_New_York",
+        "122_us_timezone_Los_Angeles",
+        "123_world_country_United_Kingdom"
+      ],
+      "saebench": {
+        "timestamp_utc": "2026-02-13T20:49:18+00:00",
+        "command": "python scripts/experiments/run_husai_saebench_custom_eval.py --checkpoint /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer1_dsae1024_seed42/sae_final.pt --architecture topk --sae-release husai_scaling_tok10000_layer1_dsae1024_seed42 --model-name pythia-70m-deduped --hook-layer 1 --hook-name blocks.1.hook_resid_pre --device cuda --dtype float32 --results-path /tmp/husai_saebench_probe_results_scaling --model-cache-path /tmp/sae_bench_model_cache --output-dir /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer1_dsae1024_seed42/saebench --force-rerun --dataset-names 100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom",
+        "config": {
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer1_dsae1024_seed42/sae_final.pt",
+          "architecture_override": "topk",
+          "sae_release": "husai_scaling_tok10000_layer1_dsae1024_seed42",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 1,
+          "hook_name": "blocks.1.hook_resid_pre",
+          "reg_type": "l1",
+          "setting": "normal",
+          "ks": [
+            1,
+            2,
+            5
+          ],
+          "dataset_names": [
+            "100_news_fake",
+            "105_click_bait",
+            "106_hate_hate",
+            "107_hate_offensive",
+            "110_aimade_humangpt3",
+            "113_movie_sent",
+            "114_nyc_borough_Manhattan",
+            "115_nyc_borough_Brooklyn",
+            "116_nyc_borough_Bronx",
+            "117_us_state_FL",
+            "118_us_state_CA",
+            "119_us_state_TX",
+            "120_us_timezone_Chicago",
+            "121_us_timezone_New_York",
+            "122_us_timezone_Los_Angeles",
+            "123_world_country_United_Kingdom"
+          ],
+          "dataset_names_inferred_from_cache": false,
+          "dataset_count": 16,
+          "binarize": false,
+          "device": "cuda",
+          "dtype": "float32",
+          "results_path": "/tmp/husai_saebench_probe_results_scaling",
+          "model_cache_path": "/tmp/sae_bench_model_cache",
+          "force_rerun": true
+        },
+        "config_hash": "a00ebcb55b5e08e444ac44bb60d3397bf592bc009694632744bec3e9f11d13b7",
+        "sae_meta": {
+          "architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32
+        },
+        "summary": {
+          "result_key": "husai_scaling_tok10000_layer1_dsae1024_seed42_custom_sae",
+          "llm_metrics": {
+            "llm_test_accuracy": 0.6892726671847929,
+            "llm_test_auc": 0.7249531199453926,
+            "llm_test_f1": 0.6888365744296719
+          },
+          "sae_metrics_by_k": [
+            {
+              "k": 1,
+              "test_accuracy": 0.5951484569633723,
+              "test_auc": 0.6059859502291934,
+              "test_f1": 0.5580986101623011
+            },
+            {
+              "k": 2,
+              "test_accuracy": 0.6055067132435785,
+              "test_auc": 0.620196184691548,
+              "test_f1": 0.5783452602303576
+            },
+            {
+              "k": 5,
+              "test_accuracy": 0.607846635889937,
+              "test_auc": 0.6296849225596066,
+              "test_f1": 0.5893324753455207
+            }
+          ],
+          "best_by_auc": {
+            "k": 5,
+            "test_accuracy": 0.607846635889937,
+            "test_auc": 0.6296849225596066,
+            "test_f1": 0.5893324753455207
+          },
+          "best_minus_llm_auc": -0.09526819738578596
+        }
+      },
+      "cebench": {
+        "timestamp_utc": "2026-02-13T20:51:48+00:00",
+        "command": "python scripts/experiments/run_husai_cebench_custom_eval.py --cebench-repo /workspace/CE-Bench --checkpoint /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer1_dsae1024_seed42/sae_final.pt --architecture topk --sae-release husai_scaling_tok10000_layer1_dsae1024_seed42 --model-name pythia-70m-deduped --hook-layer 1 --hook-name blocks.1.hook_resid_pre --device cuda --sae-dtype float32 --output-folder /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer1_dsae1024_seed42/cebench --artifacts-path /tmp/ce_bench_artifacts_scaling --max-rows 200",
+        "config_hash": "1207dec8d8d3979c28948817cf48e80e0ced2beb9dd2ef10f57df29a287dab69",
+        "config": {
+          "cebench_repo": "/workspace/CE-Bench",
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer1_dsae1024_seed42/sae_final.pt",
+          "architecture_override": "topk",
+          "checkpoint_sha256": "5880a7d2cbae1e0ddd0784c24383a3bf5f40dbdd0406aaed97f2e3cc1d124f8c",
+          "sae_release": "husai_scaling_tok10000_layer1_dsae1024_seed42",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 1,
+          "hook_name": "blocks.1.hook_resid_pre",
+          "device": "cuda",
+          "sae_dtype": "float32",
+          "llm_batch_size": 512,
+          "llm_dtype": "float32",
+          "random_seed": 42,
+          "dataset_name": "GulkoA/contrastive-stories-v4",
+          "dataset_rows_total": 5000,
+          "dataset_rows_used": 200,
+          "max_rows": 200,
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer1_dsae1024_seed42/cebench",
+          "artifacts_path": "/tmp/ce_bench_artifacts_scaling",
+          "matched_baseline_summary": null
+        },
+        "sae_meta": {
+          "architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32
+        },
+        "cebench_summary": {
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer1_dsae1024_seed42/cebench",
+          "results_json": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer1_dsae1024_seed42/cebench/interpretability_eval/husai_scaling_tok10000_layer1_dsae1024_seed42/custom_sae/results.json",
+          "scores_dump": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer1_dsae1024_seed42/cebench/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 8.353993542194367,
+          "independent_score_mean_max": 8.643186836242675,
+          "interpretability_score_mean_max": 7.965026619434357,
+          "sae_release": "husai_scaling_tok10000_layer1_dsae1024_seed42",
+          "sae_id": "custom_sae",
+          "date": "2026-02-13 20:51:48",
+          "scores_dump_line_count": 200
+        },
+        "custom_metrics": {
+          "contrastive_score_mean_max": 8.353993542194367,
+          "independent_score_mean_max": 8.643186836242675,
+          "interpretability_score_mean_max": 7.965026619434357
+        },
+        "matched_baseline_metrics": null,
+        "delta_vs_matched_baseline": null,
+        "matched_baseline_payload": null,
+        "artifacts": {
+          "cebench_metrics_summary_json": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer1_dsae1024_seed42/cebench/cebench_metrics_summary.json",
+          "cebench_metrics_summary_md": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer1_dsae1024_seed42/cebench/cebench_metrics_summary.md"
+        }
+      },
+      "checkpoint": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer1_dsae1024_seed42/sae_final.pt",
+      "saebench_returncode": 0,
+      "cebench_returncode": 0
+    },
+    {
+      "condition_id": "tok10000_layer1_dsae2048_seed42",
+      "token_budget": 10000,
+      "hook_layer": 1,
+      "hook_name": "blocks.1.hook_resid_pre",
+      "d_sae": 2048,
+      "seed": 42,
+      "train_returncode": 0,
+      "train_summary": {
+        "timestamp_utc": "2026-02-13T20:52:01+00:00",
+        "config": {
+          "activation_cache_dir": "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped",
+          "activation_glob": "*_blocks.1.hook_resid_pre.pt",
+          "max_files": 16,
+          "max_rows_per_file": 2048,
+          "max_total_rows": 10000,
+          "d_sae": 2048,
+          "k": 32,
+          "epochs": 6,
+          "batch_size": 4096,
+          "learning_rate": 0.001,
+          "seed": 42,
+          "device": "cuda"
+        },
+        "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer1_dsae2048_seed42/sae_final.pt",
+        "data": {
+          "num_files_discovered": 16,
+          "num_files_used": 5,
+          "total_rows": 10000,
+          "d_model": 512
+        },
+        "source_files": [
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/100_news_fake_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/105_click_bait_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/106_hate_hate_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/107_hate_offensive_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/110_aimade_humangpt3_blocks.1.hook_resid_pre.pt"
+        ],
+        "final_metrics": {
+          "epoch": 6,
+          "loss": 35.605055491129555,
+          "mse": 0.09882016976674397,
+          "aux": 35.50623575846354,
+          "l0": 32.0,
+          "explained_variance": 0.997303435911961
+        }
+      },
+      "activation_file_count": 16,
+      "dataset_names": [
+        "100_news_fake",
+        "105_click_bait",
+        "106_hate_hate",
+        "107_hate_offensive",
+        "110_aimade_humangpt3",
+        "113_movie_sent",
+        "114_nyc_borough_Manhattan",
+        "115_nyc_borough_Brooklyn",
+        "116_nyc_borough_Bronx",
+        "117_us_state_FL",
+        "118_us_state_CA",
+        "119_us_state_TX",
+        "120_us_timezone_Chicago",
+        "121_us_timezone_New_York",
+        "122_us_timezone_Los_Angeles",
+        "123_world_country_United_Kingdom"
+      ],
+      "saebench": {
+        "timestamp_utc": "2026-02-13T20:52:37+00:00",
+        "command": "python scripts/experiments/run_husai_saebench_custom_eval.py --checkpoint /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer1_dsae2048_seed42/sae_final.pt --architecture topk --sae-release husai_scaling_tok10000_layer1_dsae2048_seed42 --model-name pythia-70m-deduped --hook-layer 1 --hook-name blocks.1.hook_resid_pre --device cuda --dtype float32 --results-path /tmp/husai_saebench_probe_results_scaling --model-cache-path /tmp/sae_bench_model_cache --output-dir /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer1_dsae2048_seed42/saebench --force-rerun --dataset-names 100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom",
+        "config": {
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer1_dsae2048_seed42/sae_final.pt",
+          "architecture_override": "topk",
+          "sae_release": "husai_scaling_tok10000_layer1_dsae2048_seed42",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 1,
+          "hook_name": "blocks.1.hook_resid_pre",
+          "reg_type": "l1",
+          "setting": "normal",
+          "ks": [
+            1,
+            2,
+            5
+          ],
+          "dataset_names": [
+            "100_news_fake",
+            "105_click_bait",
+            "106_hate_hate",
+            "107_hate_offensive",
+            "110_aimade_humangpt3",
+            "113_movie_sent",
+            "114_nyc_borough_Manhattan",
+            "115_nyc_borough_Brooklyn",
+            "116_nyc_borough_Bronx",
+            "117_us_state_FL",
+            "118_us_state_CA",
+            "119_us_state_TX",
+            "120_us_timezone_Chicago",
+            "121_us_timezone_New_York",
+            "122_us_timezone_Los_Angeles",
+            "123_world_country_United_Kingdom"
+          ],
+          "dataset_names_inferred_from_cache": false,
+          "dataset_count": 16,
+          "binarize": false,
+          "device": "cuda",
+          "dtype": "float32",
+          "results_path": "/tmp/husai_saebench_probe_results_scaling",
+          "model_cache_path": "/tmp/sae_bench_model_cache",
+          "force_rerun": true
+        },
+        "config_hash": "9e0588e631320d68c916a2e284ab72d2fd4831550a076ce480ffb82fc031fa0d",
+        "sae_meta": {
+          "architecture": "topk",
+          "d_model": 512,
+          "d_sae": 2048,
+          "k": 32
+        },
+        "summary": {
+          "result_key": "husai_scaling_tok10000_layer1_dsae2048_seed42_custom_sae",
+          "llm_metrics": {
+            "llm_test_accuracy": 0.6892726671847929,
+            "llm_test_auc": 0.7249531199453926,
+            "llm_test_f1": 0.6888365744296719
+          },
+          "sae_metrics_by_k": [
+            {
+              "k": 1,
+              "test_accuracy": 0.5966319218257604,
+              "test_auc": 0.6048622500167886,
+              "test_f1": 0.5470320917495226
+            },
+            {
+              "k": 2,
+              "test_accuracy": 0.5998705692962161,
+              "test_auc": 0.6143154286428657,
+              "test_f1": 0.5671594830273673
+            },
+            {
+              "k": 5,
+              "test_accuracy": 0.6089285038463079,
+              "test_auc": 0.6285164386917815,
+              "test_f1": 0.5877860803494441
+            }
+          ],
+          "best_by_auc": {
+            "k": 5,
+            "test_accuracy": 0.6089285038463079,
+            "test_auc": 0.6285164386917815,
+            "test_f1": 0.5877860803494441
+          },
+          "best_minus_llm_auc": -0.09643668125361105
+        }
+      },
+      "cebench": {
+        "timestamp_utc": "2026-02-13T20:55:23+00:00",
+        "command": "python scripts/experiments/run_husai_cebench_custom_eval.py --cebench-repo /workspace/CE-Bench --checkpoint /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer1_dsae2048_seed42/sae_final.pt --architecture topk --sae-release husai_scaling_tok10000_layer1_dsae2048_seed42 --model-name pythia-70m-deduped --hook-layer 1 --hook-name blocks.1.hook_resid_pre --device cuda --sae-dtype float32 --output-folder /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer1_dsae2048_seed42/cebench --artifacts-path /tmp/ce_bench_artifacts_scaling --max-rows 200",
+        "config_hash": "cd5df344d1a61bade852078f40d0cb954036086ee87e8c1450fd2076efc837ef",
+        "config": {
+          "cebench_repo": "/workspace/CE-Bench",
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer1_dsae2048_seed42/sae_final.pt",
+          "architecture_override": "topk",
+          "checkpoint_sha256": "d64c59133df0a7365a4a48504dbbe312e28df770b3d798d821d459c43147c4cb",
+          "sae_release": "husai_scaling_tok10000_layer1_dsae2048_seed42",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 1,
+          "hook_name": "blocks.1.hook_resid_pre",
+          "device": "cuda",
+          "sae_dtype": "float32",
+          "llm_batch_size": 512,
+          "llm_dtype": "float32",
+          "random_seed": 42,
+          "dataset_name": "GulkoA/contrastive-stories-v4",
+          "dataset_rows_total": 5000,
+          "dataset_rows_used": 200,
+          "max_rows": 200,
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer1_dsae2048_seed42/cebench",
+          "artifacts_path": "/tmp/ce_bench_artifacts_scaling",
+          "matched_baseline_summary": null
+        },
+        "sae_meta": {
+          "architecture": "topk",
+          "d_model": 512,
+          "d_sae": 2048,
+          "k": 32
+        },
+        "cebench_summary": {
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer1_dsae2048_seed42/cebench",
+          "results_json": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer1_dsae2048_seed42/cebench/interpretability_eval/husai_scaling_tok10000_layer1_dsae2048_seed42/custom_sae/results.json",
+          "scores_dump": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer1_dsae2048_seed42/cebench/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 10.061518630981446,
+          "independent_score_mean_max": 11.641879398822784,
+          "interpretability_score_mean_max": 10.38789572238922,
+          "sae_release": "husai_scaling_tok10000_layer1_dsae2048_seed42",
+          "sae_id": "custom_sae",
+          "date": "2026-02-13 20:55:23",
+          "scores_dump_line_count": 200
+        },
+        "custom_metrics": {
+          "contrastive_score_mean_max": 10.061518630981446,
+          "independent_score_mean_max": 11.641879398822784,
+          "interpretability_score_mean_max": 10.38789572238922
+        },
+        "matched_baseline_metrics": null,
+        "delta_vs_matched_baseline": null,
+        "matched_baseline_payload": null,
+        "artifacts": {
+          "cebench_metrics_summary_json": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer1_dsae2048_seed42/cebench/cebench_metrics_summary.json",
+          "cebench_metrics_summary_md": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok10000_layer1_dsae2048_seed42/cebench/cebench_metrics_summary.md"
+        }
+      },
+      "checkpoint": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok10000_layer1_dsae2048_seed42/sae_final.pt",
+      "saebench_returncode": 0,
+      "cebench_returncode": 0
+    },
+    {
+      "condition_id": "tok30000_layer0_dsae1024_seed42",
+      "token_budget": 30000,
+      "hook_layer": 0,
+      "hook_name": "blocks.0.hook_resid_pre",
+      "d_sae": 1024,
+      "seed": 42,
+      "train_returncode": 0,
+      "train_summary": {
+        "timestamp_utc": "2026-02-13T20:55:39+00:00",
+        "config": {
+          "activation_cache_dir": "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped",
+          "activation_glob": "*_blocks.0.hook_resid_pre.pt",
+          "max_files": 16,
+          "max_rows_per_file": 2048,
+          "max_total_rows": 30000,
+          "d_sae": 1024,
+          "k": 32,
+          "epochs": 6,
+          "batch_size": 4096,
+          "learning_rate": 0.001,
+          "seed": 42,
+          "device": "cuda"
+        },
+        "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer0_dsae1024_seed42/sae_final.pt",
+        "data": {
+          "num_files_discovered": 113,
+          "num_files_used": 16,
+          "total_rows": 29432,
+          "d_model": 512
+        },
+        "source_files": [
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/100_news_fake_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/105_click_bait_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/106_hate_hate_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/107_hate_offensive_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/110_aimade_humangpt3_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/113_movie_sent_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/114_nyc_borough_Manhattan_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/115_nyc_borough_Brooklyn_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/116_nyc_borough_Bronx_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/117_us_state_FL_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/118_us_state_CA_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/119_us_state_TX_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/120_us_timezone_Chicago_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/121_us_timezone_New_York_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/122_us_timezone_Los_Angeles_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/123_world_country_United_Kingdom_blocks.0.hook_resid_pre.pt"
+        ],
+        "final_metrics": {
+          "epoch": 6,
+          "loss": 0.017084247898310423,
+          "mse": 0.0005171554366825148,
+          "aux": 0.016567092388868332,
+          "l0": 32.0,
+          "explained_variance": 0.9988613782775199
+        }
+      },
+      "activation_file_count": 113,
+      "dataset_names": [
+        "100_news_fake",
+        "105_click_bait",
+        "106_hate_hate",
+        "107_hate_offensive",
+        "110_aimade_humangpt3",
+        "113_movie_sent",
+        "114_nyc_borough_Manhattan",
+        "115_nyc_borough_Brooklyn",
+        "116_nyc_borough_Bronx",
+        "117_us_state_FL",
+        "118_us_state_CA",
+        "119_us_state_TX",
+        "120_us_timezone_Chicago",
+        "121_us_timezone_New_York",
+        "122_us_timezone_Los_Angeles",
+        "123_world_country_United_Kingdom"
+      ],
+      "saebench": {
+        "timestamp_utc": "2026-02-13T20:56:18+00:00",
+        "command": "python scripts/experiments/run_husai_saebench_custom_eval.py --checkpoint /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer0_dsae1024_seed42/sae_final.pt --architecture topk --sae-release husai_scaling_tok30000_layer0_dsae1024_seed42 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --dtype float32 --results-path /tmp/husai_saebench_probe_results_scaling --model-cache-path /tmp/sae_bench_model_cache --output-dir /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer0_dsae1024_seed42/saebench --force-rerun --dataset-names 100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom",
+        "config": {
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer0_dsae1024_seed42/sae_final.pt",
+          "architecture_override": "topk",
+          "sae_release": "husai_scaling_tok30000_layer0_dsae1024_seed42",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "reg_type": "l1",
+          "setting": "normal",
+          "ks": [
+            1,
+            2,
+            5
+          ],
+          "dataset_names": [
+            "100_news_fake",
+            "105_click_bait",
+            "106_hate_hate",
+            "107_hate_offensive",
+            "110_aimade_humangpt3",
+            "113_movie_sent",
+            "114_nyc_borough_Manhattan",
+            "115_nyc_borough_Brooklyn",
+            "116_nyc_borough_Bronx",
+            "117_us_state_FL",
+            "118_us_state_CA",
+            "119_us_state_TX",
+            "120_us_timezone_Chicago",
+            "121_us_timezone_New_York",
+            "122_us_timezone_Los_Angeles",
+            "123_world_country_United_Kingdom"
+          ],
+          "dataset_names_inferred_from_cache": false,
+          "dataset_count": 16,
+          "binarize": false,
+          "device": "cuda",
+          "dtype": "float32",
+          "results_path": "/tmp/husai_saebench_probe_results_scaling",
+          "model_cache_path": "/tmp/sae_bench_model_cache",
+          "force_rerun": true
+        },
+        "config_hash": "5aaa2ed6c715cbf1f4e113be0765aaa32c6783c20d70794e6d19e48f806b50f2",
+        "sae_meta": {
+          "architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32
+        },
+        "summary": {
+          "result_key": "husai_scaling_tok30000_layer0_dsae1024_seed42_custom_sae",
+          "llm_metrics": {
+            "llm_test_accuracy": 0.6605360072070458,
+            "llm_test_auc": 0.6928164663947145,
+            "llm_test_f1": 0.6491238078533221
+          },
+          "sae_metrics_by_k": [
+            {
+              "k": 1,
+              "test_accuracy": 0.5907864222559945,
+              "test_auc": 0.5961540016688295,
+              "test_f1": 0.5268683040363374
+            },
+            {
+              "k": 2,
+              "test_accuracy": 0.5891605257127436,
+              "test_auc": 0.5991051916232417,
+              "test_f1": 0.5214799265252326
+            },
+            {
+              "k": 5,
+              "test_accuracy": 0.5949139622866223,
+              "test_auc": 0.6091209692709305,
+              "test_f1": 0.5607896663058237
+            }
+          ],
+          "best_by_auc": {
+            "k": 5,
+            "test_accuracy": 0.5949139622866223,
+            "test_auc": 0.6091209692709305,
+            "test_f1": 0.5607896663058237
+          },
+          "best_minus_llm_auc": -0.08369549712378399
+        }
+      },
+      "cebench": {
+        "timestamp_utc": "2026-02-13T20:58:45+00:00",
+        "command": "python scripts/experiments/run_husai_cebench_custom_eval.py --cebench-repo /workspace/CE-Bench --checkpoint /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer0_dsae1024_seed42/sae_final.pt --architecture topk --sae-release husai_scaling_tok30000_layer0_dsae1024_seed42 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --sae-dtype float32 --output-folder /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer0_dsae1024_seed42/cebench --artifacts-path /tmp/ce_bench_artifacts_scaling --max-rows 200",
+        "config_hash": "4f4a3bd1bc1d610fe69198836d12149214234aedd1a3d0cd09a4c3aafbacc79b",
+        "config": {
+          "cebench_repo": "/workspace/CE-Bench",
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer0_dsae1024_seed42/sae_final.pt",
+          "architecture_override": "topk",
+          "checkpoint_sha256": "0a680b634db1c845e6a2f360086f42fcbb965c203809f892214fd2d4dda8b059",
+          "sae_release": "husai_scaling_tok30000_layer0_dsae1024_seed42",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "device": "cuda",
+          "sae_dtype": "float32",
+          "llm_batch_size": 512,
+          "llm_dtype": "float32",
+          "random_seed": 42,
+          "dataset_name": "GulkoA/contrastive-stories-v4",
+          "dataset_rows_total": 5000,
+          "dataset_rows_used": 200,
+          "max_rows": 200,
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer0_dsae1024_seed42/cebench",
+          "artifacts_path": "/tmp/ce_bench_artifacts_scaling",
+          "matched_baseline_summary": null
+        },
+        "sae_meta": {
+          "architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32
+        },
+        "cebench_summary": {
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer0_dsae1024_seed42/cebench",
+          "results_json": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer0_dsae1024_seed42/cebench/interpretability_eval/husai_scaling_tok30000_layer0_dsae1024_seed42/custom_sae/results.json",
+          "scores_dump": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer0_dsae1024_seed42/cebench/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 6.311198704242706,
+          "independent_score_mean_max": 6.553330156803131,
+          "interpretability_score_mean_max": 6.440171301364899,
+          "sae_release": "husai_scaling_tok30000_layer0_dsae1024_seed42",
+          "sae_id": "custom_sae",
+          "date": "2026-02-13 20:58:45",
+          "scores_dump_line_count": 200
+        },
+        "custom_metrics": {
+          "contrastive_score_mean_max": 6.311198704242706,
+          "independent_score_mean_max": 6.553330156803131,
+          "interpretability_score_mean_max": 6.440171301364899
+        },
+        "matched_baseline_metrics": null,
+        "delta_vs_matched_baseline": null,
+        "matched_baseline_payload": null,
+        "artifacts": {
+          "cebench_metrics_summary_json": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer0_dsae1024_seed42/cebench/cebench_metrics_summary.json",
+          "cebench_metrics_summary_md": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer0_dsae1024_seed42/cebench/cebench_metrics_summary.md"
+        }
+      },
+      "checkpoint": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer0_dsae1024_seed42/sae_final.pt",
+      "saebench_returncode": 0,
+      "cebench_returncode": 0
+    },
+    {
+      "condition_id": "tok30000_layer0_dsae2048_seed42",
+      "token_budget": 30000,
+      "hook_layer": 0,
+      "hook_name": "blocks.0.hook_resid_pre",
+      "d_sae": 2048,
+      "seed": 42,
+      "train_returncode": 0,
+      "train_summary": {
+        "timestamp_utc": "2026-02-13T20:59:01+00:00",
+        "config": {
+          "activation_cache_dir": "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped",
+          "activation_glob": "*_blocks.0.hook_resid_pre.pt",
+          "max_files": 16,
+          "max_rows_per_file": 2048,
+          "max_total_rows": 30000,
+          "d_sae": 2048,
+          "k": 32,
+          "epochs": 6,
+          "batch_size": 4096,
+          "learning_rate": 0.001,
+          "seed": 42,
+          "device": "cuda"
+        },
+        "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer0_dsae2048_seed42/sae_final.pt",
+        "data": {
+          "num_files_discovered": 113,
+          "num_files_used": 16,
+          "total_rows": 29432,
+          "d_model": 512
+        },
+        "source_files": [
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/100_news_fake_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/105_click_bait_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/106_hate_hate_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/107_hate_offensive_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/110_aimade_humangpt3_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/113_movie_sent_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/114_nyc_borough_Manhattan_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/115_nyc_borough_Brooklyn_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/116_nyc_borough_Bronx_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/117_us_state_FL_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/118_us_state_CA_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/119_us_state_TX_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/120_us_timezone_Chicago_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/121_us_timezone_New_York_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/122_us_timezone_Los_Angeles_blocks.0.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/123_world_country_United_Kingdom_blocks.0.hook_resid_pre.pt"
+        ],
+        "final_metrics": {
+          "epoch": 6,
+          "loss": 0.01843550056219101,
+          "mse": 0.00048202962716459297,
+          "aux": 0.01795347104780376,
+          "l0": 32.0,
+          "explained_variance": 0.9989387148129208
+        }
+      },
+      "activation_file_count": 113,
+      "dataset_names": [
+        "100_news_fake",
+        "105_click_bait",
+        "106_hate_hate",
+        "107_hate_offensive",
+        "110_aimade_humangpt3",
+        "113_movie_sent",
+        "114_nyc_borough_Manhattan",
+        "115_nyc_borough_Brooklyn",
+        "116_nyc_borough_Bronx",
+        "117_us_state_FL",
+        "118_us_state_CA",
+        "119_us_state_TX",
+        "120_us_timezone_Chicago",
+        "121_us_timezone_New_York",
+        "122_us_timezone_Los_Angeles",
+        "123_world_country_United_Kingdom"
+      ],
+      "saebench": {
+        "timestamp_utc": "2026-02-13T20:59:40+00:00",
+        "command": "python scripts/experiments/run_husai_saebench_custom_eval.py --checkpoint /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer0_dsae2048_seed42/sae_final.pt --architecture topk --sae-release husai_scaling_tok30000_layer0_dsae2048_seed42 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --dtype float32 --results-path /tmp/husai_saebench_probe_results_scaling --model-cache-path /tmp/sae_bench_model_cache --output-dir /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer0_dsae2048_seed42/saebench --force-rerun --dataset-names 100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom",
+        "config": {
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer0_dsae2048_seed42/sae_final.pt",
+          "architecture_override": "topk",
+          "sae_release": "husai_scaling_tok30000_layer0_dsae2048_seed42",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "reg_type": "l1",
+          "setting": "normal",
+          "ks": [
+            1,
+            2,
+            5
+          ],
+          "dataset_names": [
+            "100_news_fake",
+            "105_click_bait",
+            "106_hate_hate",
+            "107_hate_offensive",
+            "110_aimade_humangpt3",
+            "113_movie_sent",
+            "114_nyc_borough_Manhattan",
+            "115_nyc_borough_Brooklyn",
+            "116_nyc_borough_Bronx",
+            "117_us_state_FL",
+            "118_us_state_CA",
+            "119_us_state_TX",
+            "120_us_timezone_Chicago",
+            "121_us_timezone_New_York",
+            "122_us_timezone_Los_Angeles",
+            "123_world_country_United_Kingdom"
+          ],
+          "dataset_names_inferred_from_cache": false,
+          "dataset_count": 16,
+          "binarize": false,
+          "device": "cuda",
+          "dtype": "float32",
+          "results_path": "/tmp/husai_saebench_probe_results_scaling",
+          "model_cache_path": "/tmp/sae_bench_model_cache",
+          "force_rerun": true
+        },
+        "config_hash": "5359b9ac0add653f7168094d7aa71c7a133cccb68f7a22868714464bae8b1d70",
+        "sae_meta": {
+          "architecture": "topk",
+          "d_model": 512,
+          "d_sae": 2048,
+          "k": 32
+        },
+        "summary": {
+          "result_key": "husai_scaling_tok30000_layer0_dsae2048_seed42_custom_sae",
+          "llm_metrics": {
+            "llm_test_accuracy": 0.6605360072070458,
+            "llm_test_auc": 0.6928164663947145,
+            "llm_test_f1": 0.6491238078533221
+          },
+          "sae_metrics_by_k": [
+            {
+              "k": 1,
+              "test_accuracy": 0.5917701302212305,
+              "test_auc": 0.5965916268977953,
+              "test_f1": 0.5062297606159099
+            },
+            {
+              "k": 2,
+              "test_accuracy": 0.5960193773385362,
+              "test_auc": 0.607571299215313,
+              "test_f1": 0.5239699492844394
+            },
+            {
+              "k": 5,
+              "test_accuracy": 0.6056306926034268,
+              "test_auc": 0.6240643304453132,
+              "test_f1": 0.5516114286478107
+            }
+          ],
+          "best_by_auc": {
+            "k": 5,
+            "test_accuracy": 0.6056306926034268,
+            "test_auc": 0.6240643304453132,
+            "test_f1": 0.5516114286478107
+          },
+          "best_minus_llm_auc": -0.06875213594940133
+        }
+      },
+      "cebench": {
+        "timestamp_utc": "2026-02-13T21:02:14+00:00",
+        "command": "python scripts/experiments/run_husai_cebench_custom_eval.py --cebench-repo /workspace/CE-Bench --checkpoint /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer0_dsae2048_seed42/sae_final.pt --architecture topk --sae-release husai_scaling_tok30000_layer0_dsae2048_seed42 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --sae-dtype float32 --output-folder /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer0_dsae2048_seed42/cebench --artifacts-path /tmp/ce_bench_artifacts_scaling --max-rows 200",
+        "config_hash": "8a929c140fccf32fda1dd1172aa328386b13a49fd7abb0ad0372752aaa951ab9",
+        "config": {
+          "cebench_repo": "/workspace/CE-Bench",
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer0_dsae2048_seed42/sae_final.pt",
+          "architecture_override": "topk",
+          "checkpoint_sha256": "14c5f86e7c8ff1edffada665973bdfb760f19ea3796db5ac499cbee6ae8b5def",
+          "sae_release": "husai_scaling_tok30000_layer0_dsae2048_seed42",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "device": "cuda",
+          "sae_dtype": "float32",
+          "llm_batch_size": 512,
+          "llm_dtype": "float32",
+          "random_seed": 42,
+          "dataset_name": "GulkoA/contrastive-stories-v4",
+          "dataset_rows_total": 5000,
+          "dataset_rows_used": 200,
+          "max_rows": 200,
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer0_dsae2048_seed42/cebench",
+          "artifacts_path": "/tmp/ce_bench_artifacts_scaling",
+          "matched_baseline_summary": null
+        },
+        "sae_meta": {
+          "architecture": "topk",
+          "d_model": 512,
+          "d_sae": 2048,
+          "k": 32
+        },
+        "cebench_summary": {
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer0_dsae2048_seed42/cebench",
+          "results_json": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer0_dsae2048_seed42/cebench/interpretability_eval/husai_scaling_tok30000_layer0_dsae2048_seed42/custom_sae/results.json",
+          "scores_dump": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer0_dsae2048_seed42/cebench/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 7.114756343364715,
+          "independent_score_mean_max": 7.556517963409424,
+          "interpretability_score_mean_max": 7.378561475276947,
+          "sae_release": "husai_scaling_tok30000_layer0_dsae2048_seed42",
+          "sae_id": "custom_sae",
+          "date": "2026-02-13 21:02:14",
+          "scores_dump_line_count": 200
+        },
+        "custom_metrics": {
+          "contrastive_score_mean_max": 7.114756343364715,
+          "independent_score_mean_max": 7.556517963409424,
+          "interpretability_score_mean_max": 7.378561475276947
+        },
+        "matched_baseline_metrics": null,
+        "delta_vs_matched_baseline": null,
+        "matched_baseline_payload": null,
+        "artifacts": {
+          "cebench_metrics_summary_json": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer0_dsae2048_seed42/cebench/cebench_metrics_summary.json",
+          "cebench_metrics_summary_md": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer0_dsae2048_seed42/cebench/cebench_metrics_summary.md"
+        }
+      },
+      "checkpoint": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer0_dsae2048_seed42/sae_final.pt",
+      "saebench_returncode": 0,
+      "cebench_returncode": 0
+    },
+    {
+      "condition_id": "tok30000_layer1_dsae1024_seed42",
+      "token_budget": 30000,
+      "hook_layer": 1,
+      "hook_name": "blocks.1.hook_resid_pre",
+      "d_sae": 1024,
+      "seed": 42,
+      "train_returncode": 0,
+      "train_summary": {
+        "timestamp_utc": "2026-02-13T21:02:29+00:00",
+        "config": {
+          "activation_cache_dir": "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped",
+          "activation_glob": "*_blocks.1.hook_resid_pre.pt",
+          "max_files": 16,
+          "max_rows_per_file": 2048,
+          "max_total_rows": 30000,
+          "d_sae": 1024,
+          "k": 32,
+          "epochs": 6,
+          "batch_size": 4096,
+          "learning_rate": 0.001,
+          "seed": 42,
+          "device": "cuda"
+        },
+        "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer1_dsae1024_seed42/sae_final.pt",
+        "data": {
+          "num_files_discovered": 16,
+          "num_files_used": 16,
+          "total_rows": 29432,
+          "d_model": 512
+        },
+        "source_files": [
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/100_news_fake_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/105_click_bait_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/106_hate_hate_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/107_hate_offensive_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/110_aimade_humangpt3_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/113_movie_sent_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/114_nyc_borough_Manhattan_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/115_nyc_borough_Brooklyn_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/116_nyc_borough_Bronx_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/117_us_state_FL_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/118_us_state_CA_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/119_us_state_TX_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/120_us_timezone_Chicago_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/121_us_timezone_New_York_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/122_us_timezone_Los_Angeles_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/123_world_country_United_Kingdom_blocks.1.hook_resid_pre.pt"
+        ],
+        "final_metrics": {
+          "epoch": 6,
+          "loss": 23.26072907447815,
+          "mse": 0.08206475153565407,
+          "aux": 23.178664445877075,
+          "l0": 32.0,
+          "explained_variance": 0.998272660888211
+        }
+      },
+      "activation_file_count": 16,
+      "dataset_names": [
+        "100_news_fake",
+        "105_click_bait",
+        "106_hate_hate",
+        "107_hate_offensive",
+        "110_aimade_humangpt3",
+        "113_movie_sent",
+        "114_nyc_borough_Manhattan",
+        "115_nyc_borough_Brooklyn",
+        "116_nyc_borough_Bronx",
+        "117_us_state_FL",
+        "118_us_state_CA",
+        "119_us_state_TX",
+        "120_us_timezone_Chicago",
+        "121_us_timezone_New_York",
+        "122_us_timezone_Los_Angeles",
+        "123_world_country_United_Kingdom"
+      ],
+      "saebench": {
+        "timestamp_utc": "2026-02-13T21:03:07+00:00",
+        "command": "python scripts/experiments/run_husai_saebench_custom_eval.py --checkpoint /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer1_dsae1024_seed42/sae_final.pt --architecture topk --sae-release husai_scaling_tok30000_layer1_dsae1024_seed42 --model-name pythia-70m-deduped --hook-layer 1 --hook-name blocks.1.hook_resid_pre --device cuda --dtype float32 --results-path /tmp/husai_saebench_probe_results_scaling --model-cache-path /tmp/sae_bench_model_cache --output-dir /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer1_dsae1024_seed42/saebench --force-rerun --dataset-names 100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom",
+        "config": {
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer1_dsae1024_seed42/sae_final.pt",
+          "architecture_override": "topk",
+          "sae_release": "husai_scaling_tok30000_layer1_dsae1024_seed42",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 1,
+          "hook_name": "blocks.1.hook_resid_pre",
+          "reg_type": "l1",
+          "setting": "normal",
+          "ks": [
+            1,
+            2,
+            5
+          ],
+          "dataset_names": [
+            "100_news_fake",
+            "105_click_bait",
+            "106_hate_hate",
+            "107_hate_offensive",
+            "110_aimade_humangpt3",
+            "113_movie_sent",
+            "114_nyc_borough_Manhattan",
+            "115_nyc_borough_Brooklyn",
+            "116_nyc_borough_Bronx",
+            "117_us_state_FL",
+            "118_us_state_CA",
+            "119_us_state_TX",
+            "120_us_timezone_Chicago",
+            "121_us_timezone_New_York",
+            "122_us_timezone_Los_Angeles",
+            "123_world_country_United_Kingdom"
+          ],
+          "dataset_names_inferred_from_cache": false,
+          "dataset_count": 16,
+          "binarize": false,
+          "device": "cuda",
+          "dtype": "float32",
+          "results_path": "/tmp/husai_saebench_probe_results_scaling",
+          "model_cache_path": "/tmp/sae_bench_model_cache",
+          "force_rerun": true
+        },
+        "config_hash": "5fa915d1587be6a195bb4511cfae3a1d35c90b7c6ffd3c2fbddc6612a3dbd63c",
+        "sae_meta": {
+          "architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32
+        },
+        "summary": {
+          "result_key": "husai_scaling_tok30000_layer1_dsae1024_seed42_custom_sae",
+          "llm_metrics": {
+            "llm_test_accuracy": 0.6892726671847929,
+            "llm_test_auc": 0.7249531199453926,
+            "llm_test_f1": 0.6888365744296719
+          },
+          "sae_metrics_by_k": [
+            {
+              "k": 1,
+              "test_accuracy": 0.5928992115289298,
+              "test_auc": 0.6053345489546763,
+              "test_f1": 0.5376086426432782
+            },
+            {
+              "k": 2,
+              "test_accuracy": 0.5962918122776254,
+              "test_auc": 0.6166895951008803,
+              "test_f1": 0.5609721113722823
+            },
+            {
+              "k": 5,
+              "test_accuracy": 0.6148064252879937,
+              "test_auc": 0.6330983889271419,
+              "test_f1": 0.5999645810815082
+            }
+          ],
+          "best_by_auc": {
+            "k": 5,
+            "test_accuracy": 0.6148064252879937,
+            "test_auc": 0.6330983889271419,
+            "test_f1": 0.5999645810815082
+          },
+          "best_minus_llm_auc": -0.0918547310182507
+        }
+      },
+      "cebench": {
+        "timestamp_utc": "2026-02-13T21:05:33+00:00",
+        "command": "python scripts/experiments/run_husai_cebench_custom_eval.py --cebench-repo /workspace/CE-Bench --checkpoint /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer1_dsae1024_seed42/sae_final.pt --architecture topk --sae-release husai_scaling_tok30000_layer1_dsae1024_seed42 --model-name pythia-70m-deduped --hook-layer 1 --hook-name blocks.1.hook_resid_pre --device cuda --sae-dtype float32 --output-folder /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer1_dsae1024_seed42/cebench --artifacts-path /tmp/ce_bench_artifacts_scaling --max-rows 200",
+        "config_hash": "f2e3151d1f820b31d20c49019e8289ec56820f74ecca4230f2e3b52ebad65e32",
+        "config": {
+          "cebench_repo": "/workspace/CE-Bench",
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer1_dsae1024_seed42/sae_final.pt",
+          "architecture_override": "topk",
+          "checkpoint_sha256": "ae62f2465ca668a0a01904a1ed102a9729b92acf8355961559775a724ac4fd10",
+          "sae_release": "husai_scaling_tok30000_layer1_dsae1024_seed42",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 1,
+          "hook_name": "blocks.1.hook_resid_pre",
+          "device": "cuda",
+          "sae_dtype": "float32",
+          "llm_batch_size": 512,
+          "llm_dtype": "float32",
+          "random_seed": 42,
+          "dataset_name": "GulkoA/contrastive-stories-v4",
+          "dataset_rows_total": 5000,
+          "dataset_rows_used": 200,
+          "max_rows": 200,
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer1_dsae1024_seed42/cebench",
+          "artifacts_path": "/tmp/ce_bench_artifacts_scaling",
+          "matched_baseline_summary": null
+        },
+        "sae_meta": {
+          "architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32
+        },
+        "cebench_summary": {
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer1_dsae1024_seed42/cebench",
+          "results_json": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer1_dsae1024_seed42/cebench/interpretability_eval/husai_scaling_tok30000_layer1_dsae1024_seed42/custom_sae/results.json",
+          "scores_dump": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer1_dsae1024_seed42/cebench/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 8.475596950054168,
+          "independent_score_mean_max": 8.995376138687133,
+          "interpretability_score_mean_max": 8.10938639640808,
+          "sae_release": "husai_scaling_tok30000_layer1_dsae1024_seed42",
+          "sae_id": "custom_sae",
+          "date": "2026-02-13 21:05:33",
+          "scores_dump_line_count": 200
+        },
+        "custom_metrics": {
+          "contrastive_score_mean_max": 8.475596950054168,
+          "independent_score_mean_max": 8.995376138687133,
+          "interpretability_score_mean_max": 8.10938639640808
+        },
+        "matched_baseline_metrics": null,
+        "delta_vs_matched_baseline": null,
+        "matched_baseline_payload": null,
+        "artifacts": {
+          "cebench_metrics_summary_json": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer1_dsae1024_seed42/cebench/cebench_metrics_summary.json",
+          "cebench_metrics_summary_md": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer1_dsae1024_seed42/cebench/cebench_metrics_summary.md"
+        }
+      },
+      "checkpoint": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer1_dsae1024_seed42/sae_final.pt",
+      "saebench_returncode": 0,
+      "cebench_returncode": 0
+    },
+    {
+      "condition_id": "tok30000_layer1_dsae2048_seed42",
+      "token_budget": 30000,
+      "hook_layer": 1,
+      "hook_name": "blocks.1.hook_resid_pre",
+      "d_sae": 2048,
+      "seed": 42,
+      "train_returncode": 0,
+      "train_summary": {
+        "timestamp_utc": "2026-02-13T21:05:49+00:00",
+        "config": {
+          "activation_cache_dir": "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped",
+          "activation_glob": "*_blocks.1.hook_resid_pre.pt",
+          "max_files": 16,
+          "max_rows_per_file": 2048,
+          "max_total_rows": 30000,
+          "d_sae": 2048,
+          "k": 32,
+          "epochs": 6,
+          "batch_size": 4096,
+          "learning_rate": 0.001,
+          "seed": 42,
+          "device": "cuda"
+        },
+        "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer1_dsae2048_seed42/sae_final.pt",
+        "data": {
+          "num_files_discovered": 16,
+          "num_files_used": 16,
+          "total_rows": 29432,
+          "d_model": 512
+        },
+        "source_files": [
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/100_news_fake_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/105_click_bait_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/106_hate_hate_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/107_hate_offensive_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/110_aimade_humangpt3_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/113_movie_sent_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/114_nyc_borough_Manhattan_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/115_nyc_borough_Brooklyn_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/116_nyc_borough_Bronx_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/117_us_state_FL_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/118_us_state_CA_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/119_us_state_TX_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/120_us_timezone_Chicago_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/121_us_timezone_New_York_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/122_us_timezone_Los_Angeles_blocks.1.hook_resid_pre.pt",
+          "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/123_world_country_United_Kingdom_blocks.1.hook_resid_pre.pt"
+        ],
+        "final_metrics": {
+          "epoch": 6,
+          "loss": 25.0125412940979,
+          "mse": 0.0762296924367547,
+          "aux": 24.93631148338318,
+          "l0": 32.0,
+          "explained_variance": 0.9983954800719961
+        }
+      },
+      "activation_file_count": 16,
+      "dataset_names": [
+        "100_news_fake",
+        "105_click_bait",
+        "106_hate_hate",
+        "107_hate_offensive",
+        "110_aimade_humangpt3",
+        "113_movie_sent",
+        "114_nyc_borough_Manhattan",
+        "115_nyc_borough_Brooklyn",
+        "116_nyc_borough_Bronx",
+        "117_us_state_FL",
+        "118_us_state_CA",
+        "119_us_state_TX",
+        "120_us_timezone_Chicago",
+        "121_us_timezone_New_York",
+        "122_us_timezone_Los_Angeles",
+        "123_world_country_United_Kingdom"
+      ],
+      "saebench": {
+        "timestamp_utc": "2026-02-13T21:06:28+00:00",
+        "command": "python scripts/experiments/run_husai_saebench_custom_eval.py --checkpoint /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer1_dsae2048_seed42/sae_final.pt --architecture topk --sae-release husai_scaling_tok30000_layer1_dsae2048_seed42 --model-name pythia-70m-deduped --hook-layer 1 --hook-name blocks.1.hook_resid_pre --device cuda --dtype float32 --results-path /tmp/husai_saebench_probe_results_scaling --model-cache-path /tmp/sae_bench_model_cache --output-dir /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer1_dsae2048_seed42/saebench --force-rerun --dataset-names 100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom",
+        "config": {
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer1_dsae2048_seed42/sae_final.pt",
+          "architecture_override": "topk",
+          "sae_release": "husai_scaling_tok30000_layer1_dsae2048_seed42",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 1,
+          "hook_name": "blocks.1.hook_resid_pre",
+          "reg_type": "l1",
+          "setting": "normal",
+          "ks": [
+            1,
+            2,
+            5
+          ],
+          "dataset_names": [
+            "100_news_fake",
+            "105_click_bait",
+            "106_hate_hate",
+            "107_hate_offensive",
+            "110_aimade_humangpt3",
+            "113_movie_sent",
+            "114_nyc_borough_Manhattan",
+            "115_nyc_borough_Brooklyn",
+            "116_nyc_borough_Bronx",
+            "117_us_state_FL",
+            "118_us_state_CA",
+            "119_us_state_TX",
+            "120_us_timezone_Chicago",
+            "121_us_timezone_New_York",
+            "122_us_timezone_Los_Angeles",
+            "123_world_country_United_Kingdom"
+          ],
+          "dataset_names_inferred_from_cache": false,
+          "dataset_count": 16,
+          "binarize": false,
+          "device": "cuda",
+          "dtype": "float32",
+          "results_path": "/tmp/husai_saebench_probe_results_scaling",
+          "model_cache_path": "/tmp/sae_bench_model_cache",
+          "force_rerun": true
+        },
+        "config_hash": "83c46c68fe54f5459a2bf45c6db77966725648ce45e7a51d61c161ec2d4490ed",
+        "sae_meta": {
+          "architecture": "topk",
+          "d_model": 512,
+          "d_sae": 2048,
+          "k": 32
+        },
+        "summary": {
+          "result_key": "husai_scaling_tok30000_layer1_dsae2048_seed42_custom_sae",
+          "llm_metrics": {
+            "llm_test_accuracy": 0.6892726671847929,
+            "llm_test_auc": 0.7249531199453926,
+            "llm_test_f1": 0.6888365744296719
+          },
+          "sae_metrics_by_k": [
+            {
+              "k": 1,
+              "test_accuracy": 0.5815366763566039,
+              "test_auc": 0.5964915216637288,
+              "test_f1": 0.5302673336345135
+            },
+            {
+              "k": 2,
+              "test_accuracy": 0.583767475799262,
+              "test_auc": 0.602648481204297,
+              "test_f1": 0.5386672207659978
+            },
+            {
+              "k": 5,
+              "test_accuracy": 0.606391767279692,
+              "test_auc": 0.629366816923878,
+              "test_f1": 0.5832864755774729
+            }
+          ],
+          "best_by_auc": {
+            "k": 5,
+            "test_accuracy": 0.606391767279692,
+            "test_auc": 0.629366816923878,
+            "test_f1": 0.5832864755774729
+          },
+          "best_minus_llm_auc": -0.09558630302151461
+        }
+      },
+      "cebench": {
+        "timestamp_utc": "2026-02-13T21:09:06+00:00",
+        "command": "python scripts/experiments/run_husai_cebench_custom_eval.py --cebench-repo /workspace/CE-Bench --checkpoint /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer1_dsae2048_seed42/sae_final.pt --architecture topk --sae-release husai_scaling_tok30000_layer1_dsae2048_seed42 --model-name pythia-70m-deduped --hook-layer 1 --hook-name blocks.1.hook_resid_pre --device cuda --sae-dtype float32 --output-folder /workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer1_dsae2048_seed42/cebench --artifacts-path /tmp/ce_bench_artifacts_scaling --max-rows 200",
+        "config_hash": "222e86eaa7b9ec3c3ad92588332775cc597f0935334f1c220f03e91af29a5c17",
+        "config": {
+          "cebench_repo": "/workspace/CE-Bench",
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer1_dsae2048_seed42/sae_final.pt",
+          "architecture_override": "topk",
+          "checkpoint_sha256": "053b72fbd072223138be2a160e1c515eea1f9990f9e83dfb01ad35f85625d1ce",
+          "sae_release": "husai_scaling_tok30000_layer1_dsae2048_seed42",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 1,
+          "hook_name": "blocks.1.hook_resid_pre",
+          "device": "cuda",
+          "sae_dtype": "float32",
+          "llm_batch_size": 512,
+          "llm_dtype": "float32",
+          "random_seed": 42,
+          "dataset_name": "GulkoA/contrastive-stories-v4",
+          "dataset_rows_total": 5000,
+          "dataset_rows_used": 200,
+          "max_rows": 200,
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer1_dsae2048_seed42/cebench",
+          "artifacts_path": "/tmp/ce_bench_artifacts_scaling",
+          "matched_baseline_summary": null
+        },
+        "sae_meta": {
+          "architecture": "topk",
+          "d_model": 512,
+          "d_sae": 2048,
+          "k": 32
+        },
+        "cebench_summary": {
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer1_dsae2048_seed42/cebench",
+          "results_json": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer1_dsae2048_seed42/cebench/interpretability_eval/husai_scaling_tok30000_layer1_dsae2048_seed42/custom_sae/results.json",
+          "scores_dump": "/workspace/HUSAI/results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer1_dsae2048_seed42/cebench/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 10.57554366350174,
+          "independent_score_mean_max": 11.559704933166504,
+          "interpretability_score_mean_max": 10.552940266132355,
+          "sae_release": "husai_scaling_tok30000_layer1_dsae2048_seed42",
+          "sae_id": "custom_sae",
+          "date": "2026-02-13 21:09:06",
+          "scores_dump_line_count": 200
+        },
+        "custom_metrics": {
+          "contrastive_score_mean_max": 10.57554366350174,
+          "independent_score_mean_max": 11.559704933166504,
+          "interpretability_score_mean_max": 10.552940266132355
+        },
+        "matched_baseline_metrics": null,
+        "delta_vs_matched_baseline": null,
+        "matched_baseline_payload": null,
+        "artifacts": {
+          "cebench_metrics_summary_json": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer1_dsae2048_seed42/cebench/cebench_metrics_summary.json",
+          "cebench_metrics_summary_md": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/external_eval/tok30000_layer1_dsae2048_seed42/cebench/cebench_metrics_summary.md"
+        }
+      },
+      "checkpoint": "results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/checkpoints/tok30000_layer1_dsae2048_seed42/sae_final.pt",
+      "saebench_returncode": 0,
+      "cebench_returncode": 0
+    }
+  ],
+  "aggregates": {
+    "by_token_budget": {
+      "10000": {
+        "saebench_best_minus_llm_auc": {
+          "mean": -0.07854010796807734,
+          "std": 0.02233637248975504,
+          "min": -0.09643668125361105,
+          "max": -0.04903780812971936,
+          "n": 4
+        },
+        "cebench_interpretability_max": {
+          "mean": 8.010431843400003,
+          "std": 1.7556367752565625,
+          "min": 6.1836693835258485,
+          "max": 10.38789572238922,
+          "n": 4
+        }
+      },
+      "30000": {
+        "saebench_best_minus_llm_auc": {
+          "mean": -0.08497216677823766,
+          "std": 0.011898863590048638,
+          "min": -0.09558630302151461,
+          "max": -0.06875213594940133,
+          "n": 4
+        },
+        "cebench_interpretability_max": {
+          "mean": 8.12026485979557,
+          "std": 1.7598168701362205,
+          "min": 6.440171301364899,
+          "max": 10.552940266132355,
+          "n": 4
+        }
+      }
+    },
+    "by_hook_layer": {
+      "0": {
+        "saebench_best_minus_llm_auc": {
+          "mean": -0.06872579657652442,
+          "std": 0.014534142542024094,
+          "min": -0.08369549712378399,
+          "max": -0.04903780812971936,
+          "n": 4
+        },
+        "cebench_interpretability_max": {
+          "mean": 6.8768844521045684,
+          "std": 0.6627329548597891,
+          "min": 6.1836693835258485,
+          "max": 7.5051356482505795,
+          "n": 4
+        }
+      },
+      "1": {
+        "saebench_best_minus_llm_auc": {
+          "mean": -0.09478647816979058,
+          "std": 0.002015778160323148,
+          "min": -0.09643668125361105,
+          "max": -0.0918547310182507,
+          "n": 4
+        },
+        "cebench_interpretability_max": {
+          "mean": 9.253812251091004,
+          "std": 1.407664479503604,
+          "min": 7.965026619434357,
+          "max": 10.552940266132355,
+          "n": 4
+        }
+      }
+    },
+    "by_d_sae": {
+      "1024": {
+        "saebench_best_minus_llm_auc": {
+          "mean": -0.079964058414385,
+          "std": 0.021181449085934122,
+          "min": -0.09526819738578596,
+          "max": -0.04903780812971936,
+          "n": 4
+        },
+        "cebench_interpretability_max": {
+          "mean": 7.174563425183297,
+          "std": 1.0033159758709869,
+          "min": 6.1836693835258485,
+          "max": 8.10938639640808,
+          "n": 4
+        }
+      },
+      "2048": {
+        "saebench_best_minus_llm_auc": {
+          "mean": -0.08354821633192999,
+          "std": 0.014521002045151419,
+          "min": -0.09643668125361105,
+          "max": -0.06875213594940133,
+          "n": 4
+        },
+        "cebench_interpretability_max": {
+          "mean": 8.956133278012276,
+          "std": 1.750605911182089,
+          "min": 7.378561475276947,
+          "max": 10.552940266132355,
+          "n": 4
+        }
+      }
+    }
+  }
+}

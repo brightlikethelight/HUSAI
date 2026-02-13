@@ -1,0 +1,79 @@
+{
+  "timestamp_utc": "2026-02-13T17:40:38+00:00",
+  "command": "python scripts/experiments/run_husai_saebench_custom_eval.py --checkpoint /workspace/HUSAI/results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/checkpoints/relu_seed42/sae_final.pt --architecture relu --sae-release husai_relu_seed42 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --dtype float32 --results-path /workspace/HUSAI/results/cache/external_benchmarks/husai_saebench_probe_results_frontier --model-cache-path /tmp/sae_bench_model_cache --output-dir /workspace/HUSAI/results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/external_eval/relu_seed42/saebench --force-rerun --dataset-names 100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn",
+  "config": {
+    "checkpoint": "/workspace/HUSAI/results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/checkpoints/relu_seed42/sae_final.pt",
+    "architecture_override": "relu",
+    "sae_release": "husai_relu_seed42",
+    "model_name": "pythia-70m-deduped",
+    "hook_layer": 0,
+    "hook_name": "blocks.0.hook_resid_pre",
+    "reg_type": "l1",
+    "setting": "normal",
+    "ks": [
+      1,
+      2,
+      5
+    ],
+    "dataset_names": [
+      "100_news_fake",
+      "105_click_bait",
+      "106_hate_hate",
+      "107_hate_offensive",
+      "110_aimade_humangpt3",
+      "113_movie_sent",
+      "114_nyc_borough_Manhattan",
+      "115_nyc_borough_Brooklyn"
+    ],
+    "dataset_names_inferred_from_cache": false,
+    "dataset_count": 8,
+    "binarize": false,
+    "device": "cuda",
+    "dtype": "float32",
+    "results_path": "/workspace/HUSAI/results/cache/external_benchmarks/husai_saebench_probe_results_frontier",
+    "model_cache_path": "/tmp/sae_bench_model_cache",
+    "force_rerun": true
+  },
+  "config_hash": "8a0b2bf2b8d948800904599cf734956f4e6702481c73792bceadf3b217539731",
+  "sae_meta": {
+    "architecture": "relu",
+    "d_model": 512,
+    "d_sae": 1024,
+    "k": null
+  },
+  "summary": {
+    "result_key": "husai_relu_seed42_custom_sae",
+    "llm_metrics": {
+      "llm_test_accuracy": 0.6894223197965762,
+      "llm_test_auc": 0.723007634330488,
+      "llm_test_f1": 0.6792727146636758
+    },
+    "sae_metrics_by_k": [
+      {
+        "k": 1,
+        "test_accuracy": 0.6388064523049178,
+        "test_auc": 0.637551937767731,
+        "test_f1": 0.5974885448867371
+      },
+      {
+        "k": 2,
+        "test_accuracy": 0.6572728762544484,
+        "test_auc": 0.6696793806599756,
+        "test_f1": 0.6384237879418574
+      },
+      {
+        "k": 5,
+        "test_accuracy": 0.6638735036927684,
+        "test_auc": 0.688367505246788,
+        "test_f1": 0.6439479106296234
+      }
+    ],
+    "best_by_auc": {
+      "k": 5,
+      "test_accuracy": 0.6638735036927684,
+      "test_auc": 0.688367505246788,
+      "test_f1": 0.6439479106296234
+    },
+    "best_minus_llm_auc": -0.034640129083699955
+  }
+}

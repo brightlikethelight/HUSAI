@@ -802,3 +802,117 @@ python scripts/experiments/run_architecture_frontier_external.py \
   - `unrecognized arguments: --cebench-max-rows 200`
 - Resolution:
   - Added missing parser arg in `scripts/experiments/run_architecture_frontier_external.py`.
+
+## 2026-02-13 - Cycle 2 Closure: Matched CE-Bench, Frontier, Scaling, Gates
+
+### Run 42: Matched-200 CE-Bench baseline closure + local evidence capture
+- Baseline artifact generated from completed remote outputs:
+  - `docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json`
+  - `docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.md`
+- Baseline metric snapshot (`total_rows=200`):
+  - contrastive max: `50.51130743026734`
+  - independent max: `50.99926634788513`
+  - interpretability max: `47.951611585617066`
+
+### Run 43: Architecture frontier reliability fixes and validated rerun
+- Key code fixes landed:
+  - BatchTopK threshold calibration/train-inference handling,
+  - non-degenerate custom SAE init,
+  - explicit SAEBench dataset passing,
+  - path normalization,
+  - SAEBench dataset controls.
+- Commits:
+  - `1e3d94e`, `38a00db`, `bed457c`, `dda27d8`, `b5aca3a`
+- Final run artifact:
+  - `docs/evidence/phase4b_architecture_frontier_external/run_20260213T173707Z_results.json`
+
+### Run 44: Frontier matched-baseline delta synthesis
+- Generated artifacts:
+  - `docs/evidence/phase4b_architecture_frontier_external/run_20260213T173707Z_cebench_deltas_vs_matched200.md`
+  - `docs/evidence/phase4b_architecture_frontier_external/run_20260213T173707Z_cebench_deltas_vs_matched200.json`
+- CE-Bench interpretability deltas vs matched baseline:
+  - topk: `-40.3662`
+  - relu: `-43.7235`
+  - batchtopk: `-41.4848`
+  - jumprelu: `-43.6006`
+
+### Run 45: External scaling study hardening + full 8-condition execution
+- Scaling runner hardening commit:
+  - `884a039` (`run_external_metric_scaling_study.py` dataset fail-fast + explicit dataset passing)
+- Remote preparatory cache generation:
+  - layer-1 SAEBench cache generation completed for 16 matched datasets
+  - artifact: `results/experiments/cachegen_layer1_husai_saebench/husai_custom_sae_summary.json`
+- Full scaling run completed:
+  - `results/experiments/phase4e_external_scaling_study/run_20260213T203923Z/`
+  - tracked copies:
+    - `docs/evidence/phase4e_external_scaling_study/run_20260213T203923Z_results.json`
+    - `docs/evidence/phase4e_external_scaling_study/run_20260213T203923Z_summary.md`
+    - `docs/evidence/phase4e_external_scaling_study/run_20260213T203923Z_summary_table.md`
+- Aggregate findings:
+  - by token budget:
+    - `10000`: SAEBench delta mean `-0.07854`, CE-Bench interpretability mean `8.0104`
+    - `30000`: SAEBench delta mean `-0.08497`, CE-Bench interpretability mean `8.1203`
+  - by hook layer:
+    - layer `0`: SAEBench delta mean `-0.06873`, CE-Bench interpretability mean `6.8769`
+    - layer `1`: SAEBench delta mean `-0.09479`, CE-Bench interpretability mean `9.2538`
+  - by d_sae:
+    - `1024`: SAEBench delta mean `-0.07996`, CE-Bench interpretability mean `7.1746`
+    - `2048`: SAEBench delta mean `-0.08355`, CE-Bench interpretability mean `8.9561`
+
+### Run 46: Assignment-aware consistency v2 with external acceptance
+- Command:
+```bash
+python scripts/experiments/run_assignment_consistency_v2.py \
+  --external-summary docs/evidence/phase4b_architecture_frontier_external/run_20260213T173707Z_topk_saebench_summary.json \
+  --min-delta-pwmcc 0.0 \
+  --min-delta-lcb 0.0 \
+  --max-ev-drop 0.05 \
+  --min-external-delta 0.0
+```
+- Artifact:
+  - `docs/evidence/phase4d_assignment_consistency_v2/run_20260213T203957Z_results.json`
+- Result summary:
+  - best lambda: `0.2`
+  - delta PWMCC: `+0.070804`
+  - conservative delta LCB: `+0.054419`
+  - EV drop: `0.000878`
+  - external delta: `-0.132836`
+  - `pass_all`: `False` (external gate fail)
+
+### Run 47: Stress-gated release policy strict gating + fail-fast support
+- Baseline strict-eval command:
+```bash
+python scripts/experiments/run_stress_gated_release_policy.py \
+  --phase4a-results results/experiments/phase4a_trained_vs_random/results.json \
+  --external-summary docs/evidence/phase4b_architecture_frontier_external/run_20260213T173707Z_topk_saebench_summary.json \
+  --require-transcoder --require-ood --require-external --min-external-delta 0.0
+```
+- Strict fail-fast command:
+```bash
+python scripts/experiments/run_stress_gated_release_policy.py \
+  --phase4a-results results/experiments/phase4a_trained_vs_random/results.json \
+  --external-summary docs/evidence/phase4b_architecture_frontier_external/run_20260213T173707Z_topk_saebench_summary.json \
+  --require-transcoder --require-ood --require-external --min-external-delta 0.0 \
+  --fail-on-gate-fail
+```
+- Artifacts:
+  - `docs/evidence/phase4e_stress_gated_release/run_20260213T204120Z_release_policy.json`
+  - strict run exit verification: `EXIT_CODE=2`
+- Gate status:
+  - random_model: pass
+  - transcoder: fail (missing)
+  - ood: fail (missing)
+  - external: fail (negative delta)
+  - pass_all: fail
+
+### Run 48: CI-enforceable gate flags landed
+- Commit:
+  - `e2f5e8e`
+- Changes:
+  - `scripts/experiments/run_assignment_consistency_v2.py`:
+    - new `--fail-on-acceptance-fail`
+  - `scripts/experiments/run_stress_gated_release_policy.py`:
+    - new `--fail-on-gate-fail`
+- Validation:
+  - `python -m py_compile ...` passed
+  - `pytest -q` passed (`83 passed`)

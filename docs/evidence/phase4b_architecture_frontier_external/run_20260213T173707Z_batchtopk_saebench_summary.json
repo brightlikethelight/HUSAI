@@ -1,0 +1,79 @@
+{
+  "timestamp_utc": "2026-02-13T17:43:38+00:00",
+  "command": "python scripts/experiments/run_husai_saebench_custom_eval.py --checkpoint /workspace/HUSAI/results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/checkpoints/batchtopk_seed42/sae_final.pt --architecture batchtopk --sae-release husai_batchtopk_seed42 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --dtype float32 --results-path /workspace/HUSAI/results/cache/external_benchmarks/husai_saebench_probe_results_frontier --model-cache-path /tmp/sae_bench_model_cache --output-dir /workspace/HUSAI/results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/external_eval/batchtopk_seed42/saebench --force-rerun --dataset-names 100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn",
+  "config": {
+    "checkpoint": "/workspace/HUSAI/results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/checkpoints/batchtopk_seed42/sae_final.pt",
+    "architecture_override": "batchtopk",
+    "sae_release": "husai_batchtopk_seed42",
+    "model_name": "pythia-70m-deduped",
+    "hook_layer": 0,
+    "hook_name": "blocks.0.hook_resid_pre",
+    "reg_type": "l1",
+    "setting": "normal",
+    "ks": [
+      1,
+      2,
+      5
+    ],
+    "dataset_names": [
+      "100_news_fake",
+      "105_click_bait",
+      "106_hate_hate",
+      "107_hate_offensive",
+      "110_aimade_humangpt3",
+      "113_movie_sent",
+      "114_nyc_borough_Manhattan",
+      "115_nyc_borough_Brooklyn"
+    ],
+    "dataset_names_inferred_from_cache": false,
+    "dataset_count": 8,
+    "binarize": false,
+    "device": "cuda",
+    "dtype": "float32",
+    "results_path": "/workspace/HUSAI/results/cache/external_benchmarks/husai_saebench_probe_results_frontier",
+    "model_cache_path": "/tmp/sae_bench_model_cache",
+    "force_rerun": true
+  },
+  "config_hash": "e53ff40f95670f6b00ae2b79347bae869ca4a2556907c0245ecbdd4fc508307b",
+  "sae_meta": {
+    "architecture": "batchtopk",
+    "d_model": 512,
+    "d_sae": 1024,
+    "k": 32
+  },
+  "summary": {
+    "result_key": "husai_batchtopk_seed42_custom_sae",
+    "llm_metrics": {
+      "llm_test_accuracy": 0.6894223197965762,
+      "llm_test_auc": 0.723007634330488,
+      "llm_test_f1": 0.6792727146636758
+    },
+    "sae_metrics_by_k": [
+      {
+        "k": 1,
+        "test_accuracy": 0.6241997694925336,
+        "test_auc": 0.6408079631745889,
+        "test_f1": 0.5868766191329755
+      },
+      {
+        "k": 2,
+        "test_accuracy": 0.6246730297256962,
+        "test_auc": 0.6407326041690029,
+        "test_f1": 0.5713708422807529
+      },
+      {
+        "k": 5,
+        "test_accuracy": 0.6483575954723662,
+        "test_auc": 0.6600292441574206,
+        "test_f1": 0.6029917904803057
+      }
+    ],
+    "best_by_auc": {
+      "k": 5,
+      "test_accuracy": 0.6483575954723662,
+      "test_auc": 0.6600292441574206,
+      "test_f1": 0.6029917904803057
+    },
+    "best_minus_llm_auc": -0.06297839017306739
+  }
+}

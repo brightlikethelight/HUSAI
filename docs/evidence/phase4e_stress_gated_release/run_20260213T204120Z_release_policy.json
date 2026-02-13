@@ -1,0 +1,38 @@
+{
+  "run_metadata": {
+    "timestamp_utc": "2026-02-13T20:41:20+00:00",
+    "git_commit": "884a0397be4f7a424a3e22e9534e25f80b982685",
+    "command": "python scripts/experiments/run_stress_gated_release_policy.py --phase4a-results results/experiments/phase4a_trained_vs_random/results.json --external-summary docs/evidence/phase4b_architecture_frontier_external/run_20260213T173707Z_topk_saebench_summary.json --require-transcoder --require-ood --require-external --min-external-delta 0.0",
+    "run_id": "run_20260213T204120Z"
+  },
+  "inputs": {
+    "phase4a_results": "results/experiments/phase4a_trained_vs_random/results.json",
+    "transcoder_results": null,
+    "ood_results": null,
+    "external_summary": "docs/evidence/phase4b_architecture_frontier_external/run_20260213T173707Z_topk_saebench_summary.json"
+  },
+  "thresholds": {
+    "min_trained_random_delta": 0.0,
+    "min_trained_random_lcb": 0.0,
+    "min_transcoder_delta": 0.0,
+    "max_ood_drop": 0.1,
+    "min_external_delta": 0.0,
+    "require_transcoder": true,
+    "require_ood": true,
+    "require_external": true
+  },
+  "metrics": {
+    "trained_random_delta": 0.0012296229600906594,
+    "trained_random_delta_lcb": 6.183199584486321e-05,
+    "transcoder_delta": null,
+    "ood_drop": null,
+    "external_delta": -0.1328355796129408
+  },
+  "gates": {
+    "random_model": true,
+    "transcoder": false,
+    "ood": false,
+    "external": false,
+    "pass_all": false
+  }
+}

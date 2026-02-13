@@ -1,233 +1,175 @@
-# High-Impact Follow-Ups: Execution Report
+# High-Impact Follow-Ups: Cycle 2 Completion Report
 
 Date: 2026-02-13
 
 ## Scope
 
-This report consolidates the highest-impact follow-ups executed in this cycle:
-1. CI + smoke workflow hardening.
-2. Absolute-path portability fixes in `scripts/experiments/*` and `scripts/analysis/*`.
-3. Phase 4a trained-vs-random reproduction with manifest logging.
-4. Phase 4c core ablations (`k` sweep and `d_sae` sweep) with uncertainty-aware summaries.
-5. External benchmark alignment, including official SAEBench runs, direct HUSAI custom SAEBench runs, and official CE-Bench compatibility execution.
+This report closes the five highest-leverage follow-ups requested for this cycle:
+1. direct HUSAI-checkpoint CE-Bench adapter/eval with matched baseline,
+2. matched-budget architecture frontier on external metrics,
+3. external-metric scaling study (`token budget`, `hook layer`, `d_sae`),
+4. assignment-aware consistency objective v2 with external acceptance,
+5. stress-gated release policy (`random-model`, `transcoder`, `OOD`, `external`).
 
-## Executive Findings
+All runs are artifact-backed and reproducible.
 
-- Engineering reliability improved materially (CI, smoke, path normalization, dependency fixes, benchmark log streaming, CE-Bench compatibility shims).
-- Internal consistency findings remain directionally positive but regime-sensitive and often modest in absolute size.
-- Adaptive low-L0 remains the strongest internal positive signal.
-- External benchmark evidence is now execution-backed, not preflight-only:
-  - official SAEBench command run completed;
-  - direct HUSAI custom-checkpoint SAEBench path completed with 3 seeds;
-  - official CE-Bench compatibility run completed end-to-end.
-- Current HUSAI checkpoint family remains below logreg LLM-baseline on SAEBench SAE-probes (AUC), with low seed variance.
-- CE-Bench is now operational for official/public SAE targets in this environment; direct HUSAI-checkpoint CE-Bench support is still the highest-priority remaining benchmark gap.
+## Completion Status
 
-## Follow-up 1: CI + Smoke Workflow
+| Follow-up | Status | Primary artifact |
+|---|---|---|
+| Direct HUSAI CE-Bench + matched baseline | complete | `docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json` |
+| Architecture frontier (external) | complete | `docs/evidence/phase4b_architecture_frontier_external/run_20260213T173707Z_results.json` |
+| External scaling study | complete | `docs/evidence/phase4e_external_scaling_study/run_20260213T203923Z_results.json` |
+| Assignment-aware consistency v2 | complete | `docs/evidence/phase4d_assignment_consistency_v2/run_20260213T203957Z_results.json` |
+| Stress-gated release policy | complete | `docs/evidence/phase4e_stress_gated_release/run_20260213T204120Z_release_policy.json` |
 
-Evidence:
-- `.github/workflows/ci.yml`
-- `scripts/ci/smoke_pipeline.sh`
+## Key Results
 
-Status:
-- Fail-fast smoke job runs before quality checks.
-- Incremental lint/typecheck gate plus full `pytest` gate in CI.
+### 1) Direct HUSAI CE-Bench with matched baseline
 
-Result:
-- Local and remote smoke paths execute successfully.
-- Full test suite remains green (`83 passed`).
+Matched baseline (public SAE, `max_rows=200`):
+- artifact: `docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json`
+- interpretability max: `47.9516`
 
-## Follow-up 2: Remove Absolute Path Fragility
+HUSAI architecture frontier deltas vs matched baseline:
+- artifact: `docs/evidence/phase4b_architecture_frontier_external/run_20260213T173707Z_cebench_deltas_vs_matched200.md`
+- topk delta interpretability: `-40.3662`
+- relu delta interpretability: `-43.7235`
+- batchtopk delta interpretability: `-41.4848`
+- jumprelu delta interpretability: `-43.6006`
 
-Evidence:
-- `scripts/experiments/run_phase4a_reproduction.py`
-- `scripts/experiments/run_core_ablations.py`
-- `scripts/experiments/run_external_benchmark_slice.py`
-- `scripts/experiments/multi_architecture_stability.py`
-- `scripts/experiments/comprehensive_stability_analysis.py`
+Conclusion:
+- direct HUSAI CE-Bench path is operational and reproducible,
+- all tested custom checkpoints are substantially below matched public baseline.
 
-Status:
-- Core runner paths are repo-relative/workspace-rooted.
-- Machine-specific usage examples (`~/miniconda3/...`) removed from experiment docstrings.
-
-Result:
-- Remote execution no longer depends on local absolute directories for the primary follow-up path.
-
-## Follow-up 3: Phase 4a Full Reproduction (Remote B200)
+### 2) Matched-budget architecture frontier (TopK/ReLU/BatchTopK/JumpReLU)
 
 Artifact:
-- `results/experiments/phase4a_trained_vs_random/results.json`
+- `docs/evidence/phase4b_architecture_frontier_external/run_20260213T173707Z_summary_table.md`
 
-Readout (5 trained seeds vs 5 random controls):
-- trained mean PWMCC: `0.300059`
-- random mean PWMCC: `0.298829`
-- delta: `+0.001230`
-- ratio: `1.0041`
-- one-sided Mann-Whitney p-value: `8.629e-03`
-- conclusion: `training_signal_present`
+Per-architecture external snapshot:
+- TopK: SAEBench delta `-0.1328`, CE-Bench interpretability `7.5854`
+- ReLU: SAEBench delta `-0.0346`, CE-Bench interpretability `4.2281`
+- BatchTopK: SAEBench delta `-0.0630`, CE-Bench interpretability `6.4668`
+- JumpReLU: SAEBench delta `-0.0488`, CE-Bench interpretability `4.3510`
 
-Interpretation:
-- Statistical signal exists, but effect size is small in this rerun.
+Conclusion:
+- benchmark preference is split: ReLU/JumpReLU better on SAEBench delta, TopK/BatchTopK better on CE-Bench,
+- no tested architecture closes the external baseline gap.
 
-## Follow-up 4: Core Ablations with CIs (Remote B200)
-
-Artifact:
-- `results/experiments/phase4c_core_ablations/run_20260212T200711Z/results.json`
-
-Best `k`-sweep condition:
-- `k=8`, `d_sae=128`
-- delta PWMCC: `+0.009773`
-- ratio: `1.0398`
-- EV mean: `0.2282`
-
-Best `d_sae`-sweep condition:
-- `d_sae=64`, `k=32`
-- delta PWMCC: `+0.119986`
-- ratio: `1.5272`
-- EV mean: `0.2941`
-
-Interpretation:
-- Geometry (`d_sae`) can dominate effect magnitude.
-- Stability-reconstruction tradeoffs remain substantial across regimes.
-
-## Follow-up 5: External Benchmark Alignment and Official Runs
-
-### 5a) Internal benchmark-aligned slice
+### 3) External scaling study (`token/layer/d_sae`)
 
 Artifact:
-- `results/experiments/phase4e_external_benchmark_slice/benchmark_slice.json`
+- `docs/evidence/phase4e_external_scaling_study/run_20260213T203923Z_results.json`
+- extracted table: `docs/evidence/phase4e_external_scaling_study/run_20260213T203923Z_summary_table.md`
 
-Readout:
-- internal gating pass: `True`
-- ready for external benchmark claim: `False`
+Grid:
+- token budgets: `10000, 30000`
+- hook layers: `0, 1`
+- d_sae: `1024, 2048`
+- seeds: `42`
+- total conditions: `8`
 
-### 5b) Official SAEBench harness execution (public SAE target)
+Axis aggregates:
+- by token budget:
+  - `10000`: SAEBench delta mean `-0.07854`, CE-Bench interpretability mean `8.0104`
+  - `30000`: SAEBench delta mean `-0.08497`, CE-Bench interpretability mean `8.1203`
+- by hook layer:
+  - layer `0`: SAEBench delta mean `-0.06873`, CE-Bench interpretability mean `6.8769`
+  - layer `1`: SAEBench delta mean `-0.09479`, CE-Bench interpretability mean `9.2538`
+- by d_sae:
+  - `1024`: SAEBench delta mean `-0.07996`, CE-Bench interpretability mean `7.1746`
+  - `2048`: SAEBench delta mean `-0.08355`, CE-Bench interpretability mean `8.9561`
 
-Harness run artifact:
-- `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/`
+Conclusion:
+- external metric tradeoff is systematic (layer 1 and larger `d_sae` help CE-Bench but hurt SAEBench delta),
+- additional tokens did not recover SAEBench delta.
 
-Command status:
-- `commands.json`: SAEBench attempted `True`, success `True`, return code `0`
+### 4) Assignment-aware consistency objective v2
 
-Aggregate SAE-vs-baseline (best SAE over `k in {1,2,5}` minus baseline logreg):
-- `test_f1` mean delta: `-0.0952`
-- `test_acc` mean delta: `-0.0513`
-- `test_auc` mean delta: `-0.0651`
-- `test_auc` wins/losses/ties: `21 / 88 / 4`
+Artifact:
+- `docs/evidence/phase4d_assignment_consistency_v2/run_20260213T203957Z_results.json`
 
-### 5c) Official HUSAI custom-checkpoint SAEBench path (multi-seed)
+Best condition:
+- lambda: `0.2`
+- delta PWMCC: `+0.07080`
+- conservative delta LCB: `+0.05442`
+- EV drop vs baseline: `0.000878` (well under `0.05` budget)
 
-HUSAI custom run artifacts:
-- seed 42: `results/experiments/phase4e_external_benchmark_official/run_20260213T024329Z/`
-- seed 123: `results/experiments/phase4e_external_benchmark_official/run_20260213T031247Z/`
-- seed 456: `results/experiments/phase4e_external_benchmark_official/run_20260213T032116Z/`
+Acceptance gates:
+- internal consistency gates: pass,
+- external gate (`min_external_delta >= 0`): fail (`-0.1328`),
+- overall: `pass_all = False`.
 
-Tracked evidence copies:
-- `docs/evidence/phase4e_husai_custom_multiseed/summary.json`
-- `docs/evidence/phase4e_husai_custom_multiseed/summary.md`
+Conclusion:
+- assignment-aware regularization improves internal consistency strongly,
+- external gate blocks release claim upgrades.
 
-Per-seed best AUC (all at `k=5`):
-- seed 42: `0.623311`
-- seed 123: `0.622244`
-- seed 456: `0.622249`
+### 5) Stress-gated release policy
 
-Multi-seed aggregate:
-- best AUC mean ± std: `0.622601 ± 0.000615`
-- best AUC 95% CI: `[0.621905, 0.623297]`
-- delta AUC vs LLM baseline mean ± std: `-0.051801 ± 0.000615`
-- delta AUC vs LLM baseline 95% CI: `[-0.052496, -0.051105]`
+Artifact:
+- `docs/evidence/phase4e_stress_gated_release/run_20260213T204120Z_release_policy.json`
 
-Interpretation:
-- HUSAI custom benchmark path is operational and reproducible.
-- Results are consistently below the LLM baseline and do not support SOTA claims.
+Strict gate result:
+- random-model gate: pass,
+- transcoder gate: fail (missing result),
+- OOD gate: fail (missing result),
+- external gate: fail (negative external delta),
+- overall: `pass_all = False`.
 
-### 5d) Official CE-Bench compatibility run (public SAE target)
+Additional enforcement upgrade:
+- `scripts/experiments/run_stress_gated_release_policy.py` now supports `--fail-on-gate-fail` for CI fail-fast.
 
-Primary run artifact:
-- `results/experiments/phase4e_external_benchmark_official/run_20260213T103218Z/`
+## Major Engineering Fixes Landed
 
-Tracked evidence copies:
-- `docs/evidence/phase4e_cebench_official/run_20260213T103218Z_harness_summary.md`
-- `docs/evidence/phase4e_cebench_official/run_20260213T103218Z_commands.json`
-- `docs/evidence/phase4e_cebench_official/run_20260213T103218Z_cebench_results.json`
-- `docs/evidence/phase4e_cebench_official/run_20260213T103218Z_cebench_metrics_summary.json`
+Code fixes that unblocked valid experiments:
+- `run_architecture_frontier_external.py`
+  - BatchTopK threshold train/inference handling,
+  - custom SAE non-degenerate init,
+  - explicit SAEBench dataset passing,
+  - path normalization and dataset-limit controls.
+- `run_cebench_compat.py`
+  - `--max-rows` support for matched-budget CE-Bench runs.
+- `run_external_metric_scaling_study.py`
+  - fail-fast dataset resolution for SAEBench,
+  - explicit dataset forwarding into custom SAEBench eval,
+  - CE-Bench `--max-rows` forwarding.
+- `run_assignment_consistency_v2.py`
+  - new `--fail-on-acceptance-fail` flag.
+- `run_stress_gated_release_policy.py`
+  - new `--fail-on-gate-fail` flag.
 
-Command status:
-- `commands.json`: CE-Bench attempted `True`, success `True`, return code `0`
+Validation:
+- `python -m py_compile ...` passes on modified scripts.
+- `pytest -q` remains green (`83 passed`).
 
-CE-Bench metric snapshot (`total_rows=5000`):
-- `contrastive_score_mean.max`: `49.1142`
-- `independent_score_mean.max`: `53.6982`
-- `interpretability_score_mean.max`: `47.4812`
-- SAE target: `pythia-70m-deduped-res-sm / blocks.0.hook_resid_pre`
+## Updated Highest-Leverage Next 5 (Ranked)
 
-Interpretation:
-- CE-Bench execution path is now operational in this environment.
-- CE-Bench metric scale differs from SAEBench AUC/F1 and should not be directly compared numerically.
-- Legacy CE-Bench relative-output behavior (`scores_dump.txt` append) was identified and patched for deterministic run-local outputs.
+1. Add matched transcoder + OOD stress benchmarks and wire them into strict release gates.
+- Why: current release policy fails primarily because these gates are missing.
 
-## Reliability and Correctness Issues Fixed During This Program
+2. Expand architecture frontier to Matryoshka/RouteSAE/HierarchicalTopK with matched external protocol.
+- Why: current 4-architecture frontier exposes tradeoffs but no win-region.
 
-1. `.gitignore` tracking bug from over-broad `src/data/` exclusion.
-2. NumPy/TransformerLens compatibility pinning issue.
-3. Relative path failures in core experiment scripts.
-4. Official benchmark harness updated to stream subprocess logs to disk.
-5. HUSAI custom SAEBench dataset auto-inference bug fixed (empty dataset list issue).
-6. CE-Bench compatibility drift fixed (`sae_lens.toolkit` aliasing, multiprocessing shim, `stw.Stopwatch` API mismatch).
-7. CE-Bench runner now writes run-local metrics summaries and cleans run-local relative outputs before execution.
+3. Run multi-seed external confidence intervals for frontier/scaling best candidates.
+- Why: current frontier/scaling is mostly seed-1; uncertainty on external metrics is undercharacterized.
 
-## Ranked Next 5 Highest-Leverage Follow-Ups
+4. Add dual-objective model selection (internal consistency + external score Pareto) for checkpoint promotion.
+- Why: objective v2 improves internal signal but fails external gate; we need explicit multi-objective selection.
 
-1. Add direct HUSAI-checkpoint CE-Bench adapter/evaluation path with matched baselines and manifests.
-2. Run a matched-budget architecture frontier sweep on external benchmarks (TopK, JumpReLU, BatchTopK, Matryoshka, RouteSAE, HierarchicalTopK).
-3. Improve HUSAI external metrics with data/width/layer scaling experiments and confidence intervals.
-4. Implement consistency-objective v2 (assignment-aware/joint multi-seed) with explicit external-metric acceptance criteria.
-5. Add transcoder + random-model + OOD stress controls as mandatory release gates.
+5. Add layer-aware architecture routing (e.g., layer0 TopK-family, layer1 ReLU-family) under fixed parameter budget.
+- Why: scaling suggests layer-specific metric preferences; a single architecture may be suboptimal.
 
-## Primary-Source References
+## Primary Sources
 
-- Paulo & Belrose (2025): https://arxiv.org/abs/2501.16615
-- Song et al. (2025): https://arxiv.org/abs/2505.20254
 - SAEBench (ICML 2025): https://proceedings.mlr.press/v267/karvonen25a.html
-- SAEBench repository: https://github.com/adamkarvonen/SAEBench
+- SAEBench repo: https://github.com/adamkarvonen/SAEBench
 - CE-Bench (2025): https://arxiv.org/abs/2509.00691
-- CE-Bench repository: https://github.com/Yusen-Peng/CE-Bench
-- OpenAI SAE scaling/eval: https://arxiv.org/abs/2406.04093
+- CE-Bench repo: https://github.com/Yusen-Peng/CE-Bench
 - JumpReLU: https://arxiv.org/abs/2407.14435
 - BatchTopK: https://arxiv.org/abs/2412.06410
 - Matryoshka SAEs: https://arxiv.org/abs/2503.17547
-- Route Sparse Autoencoders: https://aclanthology.org/2025.emnlp-main.346/
+- RouteSAE: https://aclanthology.org/2025.emnlp-main.346/
 - HierarchicalTopK SAEs: https://aclanthology.org/2025.emnlp-main.515/
 - Transcoders Beat SAEs: https://arxiv.org/abs/2501.18823
-- Automated metrics vs random transformers: https://arxiv.org/abs/2501.17727
-
-## Cycle 2 Update (2026-02-13)
-
-This cycle targeted the updated ranked roadmap:
-1. direct HUSAI-checkpoint CE-Bench adapter/eval path
-2. matched-budget architecture frontier sweep on external metrics
-3. external-metric scaling study (token budget / hook layer / `d_sae`)
-4. assignment-aware consistency objective v2 with external acceptance criteria
-5. stress-gated release policy (transcoder + random-model + OOD)
-
-Implemented code paths:
-- `scripts/experiments/run_husai_cebench_custom_eval.py`
-- `scripts/experiments/run_official_external_benchmarks.py` (custom CE-Bench path + summary ingestion)
-- `scripts/experiments/husai_custom_sae_adapter.py`
-- `scripts/experiments/run_architecture_frontier_external.py`
-- `scripts/experiments/run_external_metric_scaling_study.py`
-- `scripts/experiments/run_assignment_consistency_v2.py`
-- `scripts/experiments/run_stress_gated_release_policy.py`
-
-Validation status:
-- local syntax checks passed for all new scripts (`python -m py_compile ...`)
-- full regression suite remains green (`83 passed`)
-- remote execution in progress for the first combined official+custom CE-Bench matched-baseline run
-  (`results/experiments/phase4e_external_benchmark_official/run_20260213T152344Z`)
-
-Pending in this cycle writeup (to be filled from completed run artifacts):
-- matched baseline deltas for HUSAI custom CE-Bench
-- architecture frontier pilot metrics
-- scaling study pilot metrics
-- assignment-aware v2 acceptance gate outcome
-- stress-gated release policy status
+- Automated metrics vs random-transformer controls: https://arxiv.org/abs/2501.17727

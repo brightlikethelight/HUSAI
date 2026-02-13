@@ -1,0 +1,62 @@
+{
+    "contrastive_dataset": "GulkoA/contrastive-stories-v4",
+    "sae_release": "pythia-70m-deduped-res-sm",
+    "sae_id": "blocks.0.hook_resid_pre",
+    "contrastive_score_mean": {
+        "max": 50.51130743026734,
+        "mean": 6.82193785905838e-10,
+        "outlier_count_1_both": 269.07,
+        "outlier_count_1_upper": 269.07,
+        "outlier_count_2_both": 203.53,
+        "outlier_count_2_upper": 203.53,
+        "outlier_count_3_both": 184.155,
+        "outlier_count_3_upper": 184.155
+    },
+    "independent_score_mean": {
+        "max": 50.99926634788513,
+        "mean": -6.54981704428792e-10,
+        "outlier_count_1_both": 507.045,
+        "outlier_count_1_upper": 507.045,
+        "outlier_count_2_both": 278.435,
+        "outlier_count_2_upper": 278.435,
+        "outlier_count_3_both": 225.51,
+        "outlier_count_3_upper": 225.51
+    },
+    "interpretability_score_mean": {
+        "max": 47.951611585617066,
+        "mean": -6.021582521498204e-10,
+        "outlier_count_1_both": 315.18,
+        "outlier_count_1_upper": 315.18,
+        "outlier_count_2_both": 230.085,
+        "outlier_count_2_upper": 230.085,
+        "outlier_count_3_both": 205.595,
+        "outlier_count_3_upper": 205.595
+    },
+    "total_rows": 200,
+    "sae_config": {
+        "d_in": 512,
+        "d_sae": 32768,
+        "dtype": "float32",
+        "device": "cuda",
+        "apply_b_dec_to_input": true,
+        "normalize_activations": "none",
+        "reshape_activations": "none",
+        "metadata": {
+            "sae_lens_version": "6.36.2",
+            "sae_lens_training_version": null,
+            "model_name": "pythia-70m-deduped",
+            "hook_name": "blocks.0.hook_resid_pre",
+            "hook_head_index": null,
+            "prepend_bos": false,
+            "dataset_path": "EleutherAI/the_pile_deduplicated",
+            "context_size": 128,
+            "neuronpedia_id": "pythia-70m-deduped/e-att-sm",
+            "hook_layer": 0,
+            "dataset_trust_remote_code": null,
+            "model_from_pretrained_kwargs": {},
+            "exclude_special_tokens": null
+        },
+        "architecture": "standard"
+    },
+    "date": "2026-02-13 18:59:31"
+}

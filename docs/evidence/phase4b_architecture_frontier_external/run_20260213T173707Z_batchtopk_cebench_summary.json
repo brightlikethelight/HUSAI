@@ -1,0 +1,58 @@
+{
+  "timestamp_utc": "2026-02-13T17:46:05+00:00",
+  "command": "python scripts/experiments/run_husai_cebench_custom_eval.py --cebench-repo /workspace/CE-Bench --checkpoint /workspace/HUSAI/results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/checkpoints/batchtopk_seed42/sae_final.pt --architecture batchtopk --sae-release husai_batchtopk_seed42 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --sae-dtype float32 --output-folder /workspace/HUSAI/results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/external_eval/batchtopk_seed42/cebench --artifacts-path /workspace/HUSAI/results/cache/external_benchmarks/ce_bench_artifacts_frontier --max-rows 200",
+  "config_hash": "34e54904b823072f6cf435ce88fdb22c7a59b9d381d30c8d88dcf0622cc0cdb9",
+  "config": {
+    "cebench_repo": "/workspace/CE-Bench",
+    "checkpoint": "/workspace/HUSAI/results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/checkpoints/batchtopk_seed42/sae_final.pt",
+    "architecture_override": "batchtopk",
+    "checkpoint_sha256": "2a2ee3c2ac2e74bb9388a1267e3af5341d3ab3f43ed9d5656fba3e972a68b2e1",
+    "sae_release": "husai_batchtopk_seed42",
+    "model_name": "pythia-70m-deduped",
+    "hook_layer": 0,
+    "hook_name": "blocks.0.hook_resid_pre",
+    "device": "cuda",
+    "sae_dtype": "float32",
+    "llm_batch_size": 512,
+    "llm_dtype": "float32",
+    "random_seed": 42,
+    "dataset_name": "GulkoA/contrastive-stories-v4",
+    "dataset_rows_total": 5000,
+    "dataset_rows_used": 200,
+    "max_rows": 200,
+    "output_folder": "/workspace/HUSAI/results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/external_eval/batchtopk_seed42/cebench",
+    "artifacts_path": "/workspace/HUSAI/results/cache/external_benchmarks/ce_bench_artifacts_frontier",
+    "matched_baseline_summary": null
+  },
+  "sae_meta": {
+    "architecture": "batchtopk",
+    "d_model": 512,
+    "d_sae": 1024,
+    "k": 32
+  },
+  "cebench_summary": {
+    "output_folder": "/workspace/HUSAI/results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/external_eval/batchtopk_seed42/cebench",
+    "results_json": "/workspace/HUSAI/results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/external_eval/batchtopk_seed42/cebench/interpretability_eval/husai_batchtopk_seed42/custom_sae/results.json",
+    "scores_dump": "/workspace/HUSAI/results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/external_eval/batchtopk_seed42/cebench/scores_dump.txt",
+    "total_rows": 200,
+    "contrastive_score_mean_max": 6.804405152797699,
+    "independent_score_mean_max": 7.664323370456696,
+    "interpretability_score_mean_max": 6.4668281817436215,
+    "sae_release": "husai_batchtopk_seed42",
+    "sae_id": "custom_sae",
+    "date": "2026-02-13 17:46:05",
+    "scores_dump_line_count": 200
+  },
+  "custom_metrics": {
+    "contrastive_score_mean_max": 6.804405152797699,
+    "independent_score_mean_max": 7.664323370456696,
+    "interpretability_score_mean_max": 6.4668281817436215
+  },
+  "matched_baseline_metrics": null,
+  "delta_vs_matched_baseline": null,
+  "matched_baseline_payload": null,
+  "artifacts": {
+    "cebench_metrics_summary_json": "results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/external_eval/batchtopk_seed42/cebench/cebench_metrics_summary.json",
+    "cebench_metrics_summary_md": "results/experiments/phase4b_architecture_frontier_external/run_20260213T173707Z/external_eval/batchtopk_seed42/cebench/cebench_metrics_summary.md"
+  }
+}
