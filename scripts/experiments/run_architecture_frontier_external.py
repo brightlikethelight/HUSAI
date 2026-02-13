@@ -140,6 +140,10 @@ def train_single(
         device=device,
         dtype=dtype,
     )
+    # BatchTopK requires thresholded inference, but threshold is only meaningful
+    # after training/calibration. Train in explicit top-k mode first.
+    if architecture == "batchtopk" and hasattr(model, "use_threshold"):
+        model.use_threshold = False
     model.train()
 
     dataset = TensorDataset(activations)
@@ -172,6 +176,9 @@ def train_single(
                 with torch.no_grad():
                     model.W_dec.data = F.normalize(model.W_dec.data, dim=1)
 
+    if architecture == "batchtopk":
+        calibrate_batchtopk_threshold(model=model, activations=activations, batch_size=batch_size, device=device)
+
     model.eval()
     with torch.no_grad():
         full = activations.to(device)
@@ -184,6 +191,43 @@ def train_single(
         l0 = float((feats > 0).float().sum(dim=-1).mean().item())
 
     return model.cpu(), TrainMetrics(mse=mse, explained_variance=ev, l0=l0)
+
+
+def calibrate_batchtopk_threshold(
+    *,
+    model: torch.nn.Module,
+    activations: torch.Tensor,
+    batch_size: int,
+    device: str,
+) -> float:
+    if not hasattr(model, "k") or not hasattr(model, "threshold") or not hasattr(model, "use_threshold"):
+        raise ValueError("BatchTopK calibration requested on non-BatchTopK model")
+
+    model.use_threshold = False
+    k = int(model.k.item()) if hasattr(model.k, "item") else int(model.k)
+    dataset = TensorDataset(activations)
+    loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, drop_last=False)
+    kth_values: list[torch.Tensor] = []
+
+    with torch.no_grad():
+        for (batch_cpu,) in loader:
+            batch = batch_cpu.to(device)
+            post_relu = F.relu((batch - model.b_dec) @ model.W_enc + model.b_enc)
+            kth = torch.topk(post_relu, k=k, dim=-1, sorted=True).values[:, -1]
+            kth_values.append(kth.detach().float().cpu())
+
+    if not kth_values:
+        raise ValueError("No activations available for BatchTopK threshold calibration")
+
+    kth_concat = torch.cat(kth_values, dim=0)
+    positive_kth = kth_concat[kth_concat > 0]
+    if positive_kth.numel() > 0:
+        threshold = float(positive_kth.median().item())
+    else:
+        threshold = 0.0
+    model.threshold.copy_(torch.tensor(threshold, device=model.threshold.device, dtype=model.threshold.dtype))
+    model.use_threshold = True
+    return threshold
 
 
 def write_checkpoint(
