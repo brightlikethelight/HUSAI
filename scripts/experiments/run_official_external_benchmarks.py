@@ -295,9 +295,10 @@ def build_cebench_command(args: argparse.Namespace, run_dir: Path) -> str | None
         return None
 
     output_folder = args.cebench_output_folder or (run_dir / "cebench")
+    compat_script = PROJECT_ROOT / "scripts" / "experiments" / "run_cebench_compat.py"
     command_parts = [
         "python",
-        "scripts/experiments/run_cebench_compat.py",
+        str(compat_script),
         "--cebench-repo",
         str(args.cebench_repo),
         "--sae-regex-pattern",
@@ -456,7 +457,10 @@ def main() -> None:
         )
 
     if not args.skip_cebench:
-        cebench_cwd = Path(cebench["repo_path"]) if cebench["repo_path"] else PROJECT_ROOT
+        if args.cebench_use_compat_runner and not args.cebench_command.strip():
+            cebench_cwd = PROJECT_ROOT
+        else:
+            cebench_cwd = Path(cebench["repo_path"]) if cebench["repo_path"] else PROJECT_ROOT
         command_results.append(
             run_command(
                 name="cebench",
