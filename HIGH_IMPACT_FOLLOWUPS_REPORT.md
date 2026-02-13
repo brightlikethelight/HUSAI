@@ -9,18 +9,19 @@ This report consolidates the highest-impact follow-ups executed in this cycle:
 2. Absolute-path portability fixes in `scripts/experiments/*` and `scripts/analysis/*`.
 3. Phase 4a trained-vs-random reproduction with manifest logging.
 4. Phase 4c core ablations (`k` sweep and `d_sae` sweep) with uncertainty-aware summaries.
-5. External benchmark alignment, including official SAEBench harness runs and direct HUSAI custom-checkpoint evaluation.
+5. External benchmark alignment, including official SAEBench runs, direct HUSAI custom SAEBench runs, and official CE-Bench compatibility execution.
 
 ## Executive Findings
 
-- Engineering reliability improved materially (CI, smoke, path normalization, dependency fixes, streaming benchmark logs).
-- Internal consistency findings remain directionally positive but are regime-sensitive and often modest in absolute size.
+- Engineering reliability improved materially (CI, smoke, path normalization, dependency fixes, benchmark log streaming, CE-Bench compatibility shims).
+- Internal consistency findings remain directionally positive but regime-sensitive and often modest in absolute size.
 - Adaptive low-L0 remains the strongest internal positive signal.
-- External benchmark evidence is now stronger than preflight-only status:
+- External benchmark evidence is now execution-backed, not preflight-only:
   - official SAEBench command run completed;
-  - direct HUSAI custom-checkpoint path completed with 3 seeds.
+  - direct HUSAI custom-checkpoint SAEBench path completed with 3 seeds;
+  - official CE-Bench compatibility run completed end-to-end.
 - Current HUSAI checkpoint family remains below logreg LLM-baseline on SAEBench SAE-probes (AUC), with low seed variance.
-- CE-Bench execution is still pending in this environment.
+- CE-Bench is now operational for official/public SAE targets in this environment; direct HUSAI-checkpoint CE-Bench support is still the highest-priority remaining benchmark gap.
 
 ## Follow-up 1: CI + Smoke Workflow
 
@@ -137,8 +138,33 @@ Multi-seed aggregate:
 - delta AUC vs LLM baseline 95% CI: `[-0.052496, -0.051105]`
 
 Interpretation:
-- HUSAI custom benchmark path is now operational and reproducible.
+- HUSAI custom benchmark path is operational and reproducible.
 - Results are consistently below the LLM baseline and do not support SOTA claims.
+
+### 5d) Official CE-Bench compatibility run (public SAE target)
+
+Primary run artifact:
+- `results/experiments/phase4e_external_benchmark_official/run_20260213T103218Z/`
+
+Tracked evidence copies:
+- `docs/evidence/phase4e_cebench_official/run_20260213T103218Z_harness_summary.md`
+- `docs/evidence/phase4e_cebench_official/run_20260213T103218Z_commands.json`
+- `docs/evidence/phase4e_cebench_official/run_20260213T103218Z_cebench_results.json`
+- `docs/evidence/phase4e_cebench_official/run_20260213T103218Z_cebench_metrics_summary.json`
+
+Command status:
+- `commands.json`: CE-Bench attempted `True`, success `True`, return code `0`
+
+CE-Bench metric snapshot (`total_rows=5000`):
+- `contrastive_score_mean.max`: `49.1142`
+- `independent_score_mean.max`: `53.6982`
+- `interpretability_score_mean.max`: `47.4812`
+- SAE target: `pythia-70m-deduped-res-sm / blocks.0.hook_resid_pre`
+
+Interpretation:
+- CE-Bench execution path is now operational in this environment.
+- CE-Bench metric scale differs from SAEBench AUC/F1 and should not be directly compared numerically.
+- Legacy CE-Bench relative-output behavior (`scores_dump.txt` append) was identified and patched for deterministic run-local outputs.
 
 ## Reliability and Correctness Issues Fixed During This Program
 
@@ -147,13 +173,15 @@ Interpretation:
 3. Relative path failures in core experiment scripts.
 4. Official benchmark harness updated to stream subprocess logs to disk.
 5. HUSAI custom SAEBench dataset auto-inference bug fixed (empty dataset list issue).
+6. CE-Bench compatibility drift fixed (`sae_lens.toolkit` aliasing, multiprocessing shim, `stw.Stopwatch` API mismatch).
+7. CE-Bench runner now writes run-local metrics summaries and cleans run-local relative outputs before execution.
 
 ## Ranked Next 5 Highest-Leverage Follow-Ups
 
-1. Execute CE-Bench officially (artifacted, manifested) for HUSAI and baseline SAE targets.
-2. Run a matched-budget architecture frontier sweep on the same benchmark stack (TopK, JumpReLU, BatchTopK, Matryoshka, RouteSAE, HierarchicalTopK).
-3. Improve HUSAI external AUC with data/width/layer scaling experiments and report confidence intervals.
-4. Implement consistency-objective v2 (assignment-aware or joint multi-seed) with explicit external-metric acceptance criteria.
+1. Add direct HUSAI-checkpoint CE-Bench adapter/evaluation path with matched baselines and manifests.
+2. Run a matched-budget architecture frontier sweep on external benchmarks (TopK, JumpReLU, BatchTopK, Matryoshka, RouteSAE, HierarchicalTopK).
+3. Improve HUSAI external metrics with data/width/layer scaling experiments and confidence intervals.
+4. Implement consistency-objective v2 (assignment-aware/joint multi-seed) with explicit external-metric acceptance criteria.
 5. Add transcoder + random-model + OOD stress controls as mandatory release gates.
 
 ## Primary-Source References

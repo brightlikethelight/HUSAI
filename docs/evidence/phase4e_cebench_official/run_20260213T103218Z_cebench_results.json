@@ -1,0 +1,62 @@
+{
+    "contrastive_dataset": "GulkoA/contrastive-stories-v4",
+    "sae_release": "pythia-70m-deduped-res-sm",
+    "sae_id": "blocks.0.hook_resid_pre",
+    "contrastive_score_mean": {
+        "max": 49.11421939086914,
+        "mean": -3.4128897823393343e-10,
+        "outlier_count_1_both": 273.7252,
+        "outlier_count_1_upper": 273.7252,
+        "outlier_count_2_both": 205.9716,
+        "outlier_count_2_upper": 205.9716,
+        "outlier_count_3_both": 186.2836,
+        "outlier_count_3_upper": 186.2836
+    },
+    "independent_score_mean": {
+        "max": 53.69819771347046,
+        "mean": 2.296917955391109e-10,
+        "outlier_count_1_both": 478.066,
+        "outlier_count_1_upper": 478.066,
+        "outlier_count_2_both": 280.5352,
+        "outlier_count_2_upper": 280.5352,
+        "outlier_count_3_both": 228.876,
+        "outlier_count_3_upper": 228.876
+    },
+    "interpretability_score_mean": {
+        "max": 47.481240758132934,
+        "mean": -2.0795996533706785e-10,
+        "outlier_count_1_both": 323.0018,
+        "outlier_count_1_upper": 323.0018,
+        "outlier_count_2_both": 235.0076,
+        "outlier_count_2_upper": 235.0076,
+        "outlier_count_3_both": 207.9316,
+        "outlier_count_3_upper": 207.9316
+    },
+    "total_rows": 5000,
+    "sae_config": {
+        "d_in": 512,
+        "d_sae": 32768,
+        "dtype": "float32",
+        "device": "cuda",
+        "apply_b_dec_to_input": true,
+        "normalize_activations": "none",
+        "reshape_activations": "none",
+        "metadata": {
+            "sae_lens_version": "6.36.2",
+            "sae_lens_training_version": null,
+            "model_name": "pythia-70m-deduped",
+            "hook_name": "blocks.0.hook_resid_pre",
+            "hook_head_index": null,
+            "prepend_bos": false,
+            "dataset_path": "EleutherAI/the_pile_deduplicated",
+            "context_size": 128,
+            "neuronpedia_id": "pythia-70m-deduped/e-att-sm",
+            "hook_layer": 0,
+            "dataset_trust_remote_code": null,
+            "model_from_pretrained_kwargs": {},
+            "exclude_special_tokens": null
+        },
+        "architecture": "standard"
+    },
+    "date": "2026-02-13 12:39:20"
+}

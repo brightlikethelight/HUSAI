@@ -1,7 +1,7 @@
 # Reliability-First Evaluation of SAE Consistency in HUSAI: Internal Gains and External Benchmark Reality
 
 ## Abstract
-We executed a reliability-first research cycle for sparse autoencoder (SAE) consistency in HUSAI. We first fixed reproducibility-critical issues (CI smoke coverage, path portability, benchmark harness logging, and artifact-grounded consistency checks), then ran remote GPU reproductions and external benchmarks. Internal trained-vs-random consistency remained statistically positive but small (`delta PWMCC +0.001230`, one-sided `p=8.629e-03`), while ablations showed strong regime dependence (`d_sae=64, k=32` yielded `delta +0.119986`). We completed official SAEBench harness execution and direct HUSAI custom-checkpoint SAEBench evaluation across three seeds. HUSAI custom results were stable across seeds but below baseline probes (best AUC mean `0.622601`, delta vs baseline `-0.051801`, 95% CI `[-0.052496, -0.051105]`). These results support stronger claims about engineering rigor and uncertainty-aware evaluation, but do not support external SOTA-style claims. We provide a ranked roadmap centered on CE-Bench execution and architecture/objective variants designed to improve external metrics under strict reproducibility constraints.
+We executed a reliability-first research cycle for sparse autoencoder (SAE) consistency in HUSAI. We first fixed reproducibility-critical issues (CI smoke coverage, path portability, benchmark harness logging, and artifact-grounded consistency checks), then ran remote GPU reproductions and external benchmarks. Internal trained-vs-random consistency remained statistically positive but small (`delta PWMCC +0.001230`, one-sided `p=8.629e-03`), while ablations showed strong regime dependence (`d_sae=64, k=32` yielded `delta +0.119986`). We completed official SAEBench harness execution and direct HUSAI custom-checkpoint SAEBench evaluation across three seeds. HUSAI custom results were stable across seeds but below baseline probes (best AUC mean `0.622601`, delta vs baseline `-0.051801`, 95% CI `[-0.052496, -0.051105]`). These results support stronger claims about engineering rigor and uncertainty-aware evaluation, but do not support external SOTA-style claims. We also completed official CE-Bench compatibility execution for a public SAE target and provide a ranked roadmap centered on direct HUSAI CE-Bench integration plus architecture/objective variants designed to improve external metrics under strict reproducibility constraints.
 
 ## 1. Introduction
 Feature-level reproducibility is foundational for mechanistic interpretability. Prior work shows SAEs trained on identical data with different seeds can learn divergent dictionaries, challenging naive interpretation stability assumptions.
@@ -112,6 +112,23 @@ Interpretation:
 - custom checkpoint path is reproducible and low-variance,
 - but consistently below baseline probes.
 
+### 4.5 Official CE-Bench compatibility execution (public SAE target)
+Artifact:
+- `results/experiments/phase4e_external_benchmark_official/run_20260213T103218Z/`
+- tracked evidence: `docs/evidence/phase4e_cebench_official/`
+
+Command status:
+- CE-Bench attempted `True`, success `True`, return code `0`
+
+Key CE-Bench summary metrics (`total_rows=5000`):
+- `contrastive_score_mean.max`: `49.1142`
+- `independent_score_mean.max`: `53.6982`
+- `interpretability_score_mean.max`: `47.4812`
+
+Interpretation:
+- CE-Bench execution is now unblocked and reproducible in this environment.
+- This run evaluated a public SAE target; direct HUSAI-checkpoint CE-Bench evaluation remains a key follow-up.
+
 ## 5. Discussion
 
 ### 5.1 Supported claims
@@ -127,12 +144,12 @@ Interpretation:
 - Negative external results narrowed the search space for future work.
 
 ## 6. Limitations
-- CE-Bench has not yet been executed in this environment.
+- CE-Bench is operational for public SAE targets, but direct HUSAI-checkpoint CE-Bench support is not yet integrated.
 - Current external runs use one model/hook family; broader generalization remains untested.
 - Stress controls (random-model/OOD/transcoder) are not yet release-gated.
 
 ## 7. Ranked Next Steps
-1. Execute CE-Bench for HUSAI and baseline targets with full manifests.
+1. Integrate direct HUSAI-checkpoint CE-Bench evaluation and run matched baseline comparisons with full manifests.
 2. Run matched-budget architecture frontier sweep on external metrics.
 3. Run external-metric scaling (`token budget`, `hook layer`, `d_sae`).
 4. Implement assignment-aware consistency objective v2 and re-evaluate externally.

@@ -82,7 +82,7 @@ Current status in this workspace: full test suite passes.
 
 ## 5) Remaining Risks
 
-- CE-Bench execution is still pending in this environment.
+- CE-Bench compatibility execution is completed for a public SAE target (`run_20260213T103218Z`), with evidence tracked under `docs/evidence/phase4e_cebench_official/`.
 - HUSAI custom SAEBench path is now integrated and reproducible, but current external AUC remains below baseline (see `docs/evidence/phase4e_husai_custom_multiseed/summary.json`).
 - Environment specs remain split across `environment.yml`, `requirements*.txt`, and `pyproject.toml` without lockfile pinning.
 - CI lint/typecheck are intentionally incremental because repository-wide static-analysis debt is still high.

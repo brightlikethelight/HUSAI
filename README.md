@@ -69,7 +69,7 @@ Latest high-impact follow-up artifacts and conclusions:
   - Tracked aggregate summary: `docs/evidence/phase4e_husai_custom_multiseed/summary.json`
   - Aggregate best AUC mean: `0.622601` (95% CI `[0.621905, 0.623297]`)
   - Aggregate delta vs LLM baseline AUC mean: `-0.051801` (95% CI `[-0.052496, -0.051105]`)
-- CE-Bench remains pending in this environment.
+- Official CE-Bench compatibility execution is completed for a public SAE target (run: `run_20260213T103218Z`; evidence: `docs/evidence/phase4e_cebench_official/`).
 - Automated result-consistency audit continues to guard claim drift against artifact JSONs.
   - Script: `scripts/analysis/verify_experiment_consistency.py`
   - Report: `results/analysis/experiment_consistency_report.md`

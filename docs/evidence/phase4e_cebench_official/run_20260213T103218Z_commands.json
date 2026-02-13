@@ -1,0 +1,13 @@
+[
+  {
+    "name": "cebench",
+    "attempted": true,
+    "success": true,
+    "returncode": 0,
+    "command": "python /workspace/HUSAI/scripts/experiments/run_cebench_compat.py --cebench-repo /workspace/CE-Bench --sae-regex-pattern pythia-70m-deduped-res-sm --sae-block-pattern blocks.0.hook_resid_pre --output-folder /workspace/HUSAI/results/experiments/phase4e_external_benchmark_official/run_20260213T103218Z/cebench --artifacts-path /tmp/ce_bench_artifacts --force-rerun",
+    "cwd": "/workspace/HUSAI",
+    "stdout_log": "results/experiments/phase4e_external_benchmark_official/run_20260213T103218Z/logs/cebench.stdout.log",
+    "stderr_log": "results/experiments/phase4e_external_benchmark_official/run_20260213T103218Z/logs/cebench.stderr.log",
+    "note": "completed"
+  }
+]

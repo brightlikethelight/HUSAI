@@ -10,12 +10,15 @@ Completed this cycle:
 - Phase 4a/4c/4e runs were re-executed on RunPod B200 with manifests.
 - Official SAEBench command execution succeeded:
   - `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/`
-- HUSAI custom SAEBench checkpoint path is now fully executed across 3 seeds:
+- HUSAI custom SAEBench checkpoint path is fully executed across 3 seeds:
   - `run_20260213T024329Z`, `run_20260213T031247Z`, `run_20260213T032116Z`
   - aggregate evidence: `docs/evidence/phase4e_husai_custom_multiseed/summary.json`
+- Official CE-Bench compatibility execution succeeded:
+  - `results/experiments/phase4e_external_benchmark_official/run_20260213T103218Z/`
+  - tracked evidence: `docs/evidence/phase4e_cebench_official/`
 
 Current blockers:
-- CE-Bench is still not executed in this environment.
+- CE-Bench is validated only for public SAE targets so far; direct HUSAI-checkpoint CE-Bench support is still missing.
 - HUSAI custom SAEBench AUC remains below baseline logreg probes (mean delta `-0.0518`).
 - Objective-level consistency regularization v1 remains statistically unresolved.
 
@@ -29,29 +32,30 @@ Anchors:
 
 ## Ranked Next 5 Highest-Leverage Follow-Ups (Now)
 
-1. CE-Bench execution for HUSAI + baseline targets
+1. Direct HUSAI-checkpoint CE-Bench integration
 - Why #1:
-  - External claim quality is currently bottlenecked by missing CE-Bench evidence.
+  - CE-Bench infra is now operational, but it still evaluates public SAE targets only.
 - Concrete work:
-  - Add reproducible CE-Bench run path in `scripts/experiments/run_official_external_benchmarks.py` with explicit env notes and manifests.
+  - Add a custom-checkpoint CE-Bench adapter path analogous to `run_husai_saebench_custom_eval.py`.
+  - Report matched baseline and HUSAI deltas with CIs and manifests.
 - Success criteria:
-  - Completed CE-Bench runs with `commands.json`, `summary.md`, logs, and per-seed table.
+  - HUSAI CE-Bench run completes with `commands.json`, `summary.md`, logs, and tracked metric JSON.
 
 2. Matched-budget architecture frontier sweep on external stack
 - Why #2:
-  - Current HUSAI external gap is systematic; architecture choice likely higher leverage than small objective tweaks.
+  - Current HUSAI external gap is systematic; architecture choice is likely higher leverage than small objective tweaks.
 - Methods:
   - TopK, JumpReLU, BatchTopK, Matryoshka, RouteSAE, HierarchicalTopK.
 - Success criteria:
-  - At least one variant improves external AUC with CI excluding zero versus current HUSAI baseline.
+  - At least one variant improves external metrics with CI excluding zero versus current HUSAI baseline.
 
 3. External-metric-focused scaling study (data/layer/width)
 - Why #3:
-  - Current runs are stable across seeds but uniformly under baseline, indicating capacity/data mismatch rather than seed noise.
+  - Current runs are stable across seeds but uniformly under baseline, suggesting capacity/data mismatch.
 - Concrete work:
   - Sweep activation token budget, hook layer, and `d_sae` under fixed compute envelopes.
 - Success criteria:
-  - Demonstrable movement in SAEBench/CE-Bench metrics with full uncertainty reporting.
+  - Demonstrable movement in SAEBench and CE-Bench with full uncertainty reporting.
 
 4. Consistency-objective v2 (assignment-aware)
 - Why #4:
@@ -75,23 +79,23 @@ Anchors:
 ## Rare but High-Value Novel Contributions We Can Target
 
 1. Geometry-conditioned architecture selector
-- Learn policy mapping activation geometry to best SAE family/sparsity.
+- Learn a policy mapping activation geometry descriptors to best SAE family/sparsity regime.
 
 2. Dual-objective model selection
-- Optimize external benchmark score and consistency delta jointly rather than sequentially.
+- Optimize external benchmark score and consistency delta jointly (Pareto frontier), not sequentially.
 
 3. Polysemantic-aware consistency training
 - Adapt PolySAE ideas to improve stability while preserving external utility.
 
 4. Cross-task dictionary transfer under consistency constraints
-- Train on one task family, evaluate transfer and alignment on another with controlled shift.
+- Train on one task family, evaluate transfer/alignment on another with controlled shift.
 
 5. Claims ledger automation
 - Auto-generate claim tables from artifact JSONs and fail CI on unsupported statements.
 
 ## Immediate Execution Sequence
 
-1. Land CE-Bench reproducible run path and execute baseline + HUSAI targets.
+1. Build and validate direct HUSAI CE-Bench adapter path.
 2. Launch matched-budget architecture frontier sweep.
 3. Run external-metric scaling study (`tokens/layer/d_sae`).
 4. Implement assignment-aware consistency objective v2.

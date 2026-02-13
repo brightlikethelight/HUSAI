@@ -72,6 +72,21 @@ Interpretation:
 - but consistently below baseline in current form,
 - so no SOTA-style claim is justified.
 
+## Official CE-Bench Compatibility Run: Completed
+
+Public SAE target run:
+- `results/experiments/phase4e_external_benchmark_official/run_20260213T103218Z/`
+- evidence snapshot: `docs/evidence/phase4e_cebench_official/`
+
+Key CE-Bench summary metrics (`total_rows=5000`):
+- `contrastive_score_mean.max`: `49.1142`
+- `independent_score_mean.max`: `53.6982`
+- `interpretability_score_mean.max`: `47.4812`
+
+Interpretation:
+- CE-Bench execution path is now operational in this environment.
+- This run targets a public SAE release; direct HUSAI-checkpoint CE-Bench support remains the next benchmark milestone.
+
 ## What We Can Claim Now
 
 Supported:
@@ -86,7 +101,7 @@ Not supported:
 
 ## Next 5 Highest-Leverage Steps (Ranked)
 
-1. Execute CE-Bench for HUSAI + baseline targets with full manifests.
+1. Add direct HUSAI-checkpoint CE-Bench integration and run matched baseline comparisons with manifests.
 2. Run a matched-budget architecture frontier sweep (TopK, JumpReLU, BatchTopK, Matryoshka, RouteSAE, HierarchicalTopK).
 3. Run external-metric-focused scaling (`token budget`, `hook layer`, `d_sae`).
 4. Implement assignment-aware consistency objective v2 with CI-based acceptance criteria.

@@ -1,0 +1,26 @@
+{
+  "timestamp_utc": "2026-02-13T12:39:23+00:00",
+  "git_commit": "59876a5d729d91ccb18571ca86fe94ef72b4795b",
+  "config_hash": "70c5d1b4d2ce1e93bab4592d0ec28e09da742e819e0e020090654d6abe5467b5",
+  "saebench": {
+    "module_available": true,
+    "repo_path": null,
+    "custom_runner": null,
+    "recommended_refs": {
+      "repo": "https://github.com/adamkarvonen/SAEBench",
+      "custom_saes_readme": "sae_bench/custom_saes/README.md",
+      "example_eval_cmd": "python -m sae_bench.evals.sparse_probing.main --sae_regex_pattern <pattern> --sae_block_pattern <block> --model_name <model>",
+      "example_custom_cmd": "python scripts/experiments/run_husai_saebench_custom_eval.py --checkpoint results/saes/<run>/sae_final.pt"
+    }
+  },
+  "cebench": {
+    "module_available": false,
+    "repo_path": "/workspace/CE-Bench",
+    "auto_script": "/workspace/CE-Bench/auto_script.sh",
+    "recommended_refs": {
+      "repo": "https://github.com/Yusen-Peng/CE-Bench",
+      "paper": "https://arxiv.org/abs/2509.00691"
+    }
+  },
+  "local_sae_index_count": 8
+}

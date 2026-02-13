@@ -660,3 +660,74 @@ python scripts/experiments/run_official_external_benchmarks.py \
   - delta AUC vs baseline 95% CI: `[-0.052496, -0.051105]`
 - Interpretation:
   - HUSAI custom external performance is stable across seeds but consistently below baseline.
+
+## 2026-02-13 - CE-Bench Compatibility Closure and Evidence Capture
+
+### Run 39: CE-Bench compatibility rerun surfaced `Stopwatch.stop` API drift
+- Command:
+```bash
+python scripts/experiments/run_official_external_benchmarks.py \
+  --skip-saebench \
+  --cebench-repo /workspace/CE-Bench \
+  --cebench-use-compat-runner \
+  --cebench-sae-regex-pattern pythia-70m-deduped-res-sm \
+  --cebench-sae-block-pattern blocks.0.hook_resid_pre \
+  --cebench-artifacts-path /tmp/ce_bench_artifacts \
+  --cebench-force-rerun \
+  --execute
+```
+- Outcome: failed
+- Run directory:
+  - `results/experiments/phase4e_external_benchmark_official/run_20260213T051046Z/`
+- Failure signature:
+  - `AttributeError: 'CompatStopwatch' object has no attribute 'stop'`
+- Root cause:
+  - New `stw` API removed both `start=` and `stop()` methods expected by CE-Bench.
+
+### Run 40: CE-Bench official compatibility run after shim fix
+- Command:
+```bash
+python scripts/experiments/run_official_external_benchmarks.py \
+  --skip-saebench \
+  --cebench-repo /workspace/CE-Bench \
+  --cebench-use-compat-runner \
+  --cebench-sae-regex-pattern pythia-70m-deduped-res-sm \
+  --cebench-sae-block-pattern blocks.0.hook_resid_pre \
+  --cebench-artifacts-path /tmp/ce_bench_artifacts \
+  --cebench-force-rerun \
+  --execute
+```
+- Outcome: success
+- Run directory:
+  - `results/experiments/phase4e_external_benchmark_official/run_20260213T103218Z/`
+- Command status:
+  - `cebench`: attempted `True`, success `True`, return code `0`
+- Key outputs:
+  - `summary.md`
+  - `commands.json`
+  - `logs/cebench.stdout.log`
+  - `logs/cebench.stderr.log`
+- CE-Bench metric snapshot:
+  - `total_rows`: `5000`
+  - `contrastive_score_mean.max`: `49.11421939086914`
+  - `independent_score_mean.max`: `53.69819771347046`
+  - `interpretability_score_mean.max`: `47.481240758132934`
+  - SAE target: `pythia-70m-deduped-res-sm / blocks.0.hook_resid_pre`
+
+### Run 41: CE-Bench artifact capture + deterministic output hardening
+- Changes:
+  - Added CE-Bench metric summary emission in compat runner:
+    - `scripts/experiments/run_cebench_compat.py`
+  - Added CE-Bench summary block in official harness markdown:
+    - `scripts/experiments/run_official_external_benchmarks.py`
+  - Added deterministic cleanup of run-local CE-Bench relative outputs (`scores_dump.txt`, `interpretability_eval`) before execution:
+    - `scripts/experiments/run_cebench_compat.py`
+- Evidence capture:
+  - `docs/evidence/phase4e_cebench_official/run_20260213T103218Z_harness_summary.md`
+  - `docs/evidence/phase4e_cebench_official/run_20260213T103218Z_commands.json`
+  - `docs/evidence/phase4e_cebench_official/run_20260213T103218Z_preflight.json`
+  - `docs/evidence/phase4e_cebench_official/run_20260213T103218Z_cebench_metrics_summary.json`
+  - `docs/evidence/phase4e_cebench_official/run_20260213T103218Z_cebench_results.json`
+- Notes:
+  - Captured `scores_dump_line_count=10000` reflects legacy append behavior from earlier CE-Bench runs.
+  - Deterministic cleanup fix is now in place for subsequent runs.
