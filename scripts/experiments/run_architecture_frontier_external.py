@@ -359,6 +359,7 @@ def main() -> None:
     parser.add_argument("--run-cebench", action="store_true")
     parser.add_argument("--cebench-repo", type=Path, default=None)
     parser.add_argument("--cebench-max-rows", type=int, default=None)
+    parser.add_argument("--cebench-matched-baseline-summary", type=Path, default=None)
     parser.add_argument("--saebench-datasets", type=str, default="")
     parser.add_argument("--saebench-dataset-limit", type=int, default=0)
 
@@ -387,6 +388,8 @@ def main() -> None:
     args.output_dir = to_abs_repo_path(args.output_dir)
     if args.cebench_repo is not None:
         args.cebench_repo = to_abs_repo_path(args.cebench_repo)
+    if args.cebench_matched_baseline_summary is not None:
+        args.cebench_matched_baseline_summary = to_abs_repo_path(args.cebench_matched_baseline_summary)
 
     if args.device == "cuda" and not torch.cuda.is_available():
         raise RuntimeError("CUDA requested but not available")
@@ -536,6 +539,8 @@ def main() -> None:
                 ]
                 if args.cebench_max_rows is not None:
                     command.extend(["--max-rows", str(args.cebench_max_rows)])
+                if args.cebench_matched_baseline_summary is not None:
+                    command.extend(["--matched-baseline-summary", str(args.cebench_matched_baseline_summary)])
                 rc, output = run_subprocess(command, PROJECT_ROOT)
                 (logs_dir / f"{condition_id}_cebench.log").write_text(output)
                 rec["cebench_returncode"] = rc
@@ -579,6 +584,16 @@ def main() -> None:
                     for r in rows
                 ]
             ),
+            "cebench_interp_delta_vs_baseline": summary_stats(
+                [
+                    maybe_float(
+                        (r.get("cebench") or {})
+                        .get("delta_vs_matched_baseline", {})
+                        .get("interpretability_score_mean_max")
+                    )
+                    for r in rows
+                ]
+            ),
         }
 
     payload = {
@@ -606,6 +621,9 @@ def main() -> None:
             "run_cebench": args.run_cebench,
             "cebench_repo": str(args.cebench_repo) if args.cebench_repo else None,
             "cebench_max_rows": args.cebench_max_rows,
+            "cebench_matched_baseline_summary": (
+                str(args.cebench_matched_baseline_summary) if args.cebench_matched_baseline_summary else None
+            ),
             "saebench_datasets": parse_csv_strings(args.saebench_datasets),
             "saebench_dataset_limit": args.saebench_dataset_limit,
             "relu_l1_coef": args.relu_l1_coef,
@@ -635,8 +653,8 @@ def main() -> None:
         f"- d_sae / k: `{args.d_sae}` / `{args.k}`",
         f"- Rows used: `{data_meta['total_rows']}`",
         "",
-        "| architecture | train EV mean | SAEBench best-LLM AUC mean | CE-Bench interpretability max mean |",
-        "|---|---:|---:|---:|",
+        "| architecture | train EV mean | SAEBench best-LLM AUC mean | CE-Bench interpretability max mean | CE-Bench interp delta vs baseline mean |",
+        "|---|---:|---:|---:|---:|",
     ]
 
     for arch in architectures:
@@ -646,7 +664,8 @@ def main() -> None:
             f"{arch} | "
             f"{row['train_ev']['mean']} | "
             f"{row['saebench_best_minus_llm_auc']['mean']} | "
-            f"{row['cebench_interpretability_max']['mean']} |"
+            f"{row['cebench_interpretability_max']['mean']} | "
+            f"{row['cebench_interp_delta_vs_baseline']['mean']} |"
         )
 
     out_md.write_text("\n".join(lines) + "\n")

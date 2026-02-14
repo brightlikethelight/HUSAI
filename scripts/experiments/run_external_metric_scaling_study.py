@@ -120,6 +120,7 @@ def main() -> None:
     parser.add_argument("--run-cebench", action="store_true")
     parser.add_argument("--cebench-repo", type=Path, default=None)
     parser.add_argument("--cebench-max-rows", type=int, default=None)
+    parser.add_argument("--cebench-matched-baseline-summary", type=Path, default=None)
 
     parser.add_argument(
         "--saebench-results-path",
@@ -153,6 +154,8 @@ def main() -> None:
     args.output_dir = to_abs_repo_path(args.output_dir)
     if args.cebench_repo is not None:
         args.cebench_repo = to_abs_repo_path(args.cebench_repo)
+    if args.cebench_matched_baseline_summary is not None:
+        args.cebench_matched_baseline_summary = to_abs_repo_path(args.cebench_matched_baseline_summary)
 
     token_budgets = parse_ints(args.token_budgets)
     hook_layers = parse_ints(args.hook_layers)
@@ -318,6 +321,8 @@ def main() -> None:
             ]
             if args.cebench_max_rows is not None:
                 ce_cmd.extend(["--max-rows", str(args.cebench_max_rows)])
+            if args.cebench_matched_baseline_summary is not None:
+                ce_cmd.extend(["--matched-baseline-summary", str(args.cebench_matched_baseline_summary)])
             rc, output = run_subprocess(ce_cmd, PROJECT_ROOT)
             (logs_dir / f"{cond_id}_cebench.log").write_text(output)
             rec["cebench_returncode"] = rc
@@ -334,6 +339,11 @@ def main() -> None:
     def extract_cebench_interp(record: dict[str, Any]) -> float | None:
         return maybe_float((record.get("cebench") or {}).get("custom_metrics", {}).get("interpretability_score_mean_max"))
 
+    def extract_cebench_delta(record: dict[str, Any]) -> float | None:
+        return maybe_float(
+            (record.get("cebench") or {}).get("delta_vs_matched_baseline", {}).get("interpretability_score_mean_max")
+        )
+
     aggregates: dict[str, Any] = {
         "by_token_budget": {},
         "by_hook_layer": {},
@@ -345,6 +355,7 @@ def main() -> None:
         aggregates["by_token_budget"][str(token_budget)] = {
             "saebench_best_minus_llm_auc": summary_stats([extract_saebench_delta(r) for r in rows]),
             "cebench_interpretability_max": summary_stats([extract_cebench_interp(r) for r in rows]),
+            "cebench_interp_delta_vs_baseline": summary_stats([extract_cebench_delta(r) for r in rows]),
         }
 
     for hook_layer in hook_layers:
@@ -352,6 +363,7 @@ def main() -> None:
         aggregates["by_hook_layer"][str(hook_layer)] = {
             "saebench_best_minus_llm_auc": summary_stats([extract_saebench_delta(r) for r in rows]),
             "cebench_interpretability_max": summary_stats([extract_cebench_interp(r) for r in rows]),
+            "cebench_interp_delta_vs_baseline": summary_stats([extract_cebench_delta(r) for r in rows]),
         }
 
     for d_sae in d_sae_values:
@@ -359,6 +371,7 @@ def main() -> None:
         aggregates["by_d_sae"][str(d_sae)] = {
             "saebench_best_minus_llm_auc": summary_stats([extract_saebench_delta(r) for r in rows]),
             "cebench_interpretability_max": summary_stats([extract_cebench_interp(r) for r in rows]),
+            "cebench_interp_delta_vs_baseline": summary_stats([extract_cebench_delta(r) for r in rows]),
         }
 
     payload = {
@@ -385,6 +398,9 @@ def main() -> None:
             "run_cebench": args.run_cebench,
             "cebench_repo": str(args.cebench_repo) if args.cebench_repo else None,
             "cebench_max_rows": args.cebench_max_rows,
+            "cebench_matched_baseline_summary": (
+                str(args.cebench_matched_baseline_summary) if args.cebench_matched_baseline_summary else None
+            ),
             "saebench_datasets": parse_csv_strings(args.saebench_datasets),
             "saebench_dataset_limit": args.saebench_dataset_limit,
             "run_id": run_id,
@@ -408,8 +424,8 @@ def main() -> None:
         "",
         "## Aggregates by Token Budget",
         "",
-        "| token_budget | SAEBench best-LLM AUC mean | CE-Bench interpretability max mean |",
-        "|---:|---:|---:|",
+        "| token_budget | SAEBench best-LLM AUC mean | CE-Bench interpretability max mean | CE-Bench interp delta vs baseline mean |",
+        "|---:|---:|---:|---:|",
     ]
 
     for token_budget in token_budgets:
@@ -418,7 +434,8 @@ def main() -> None:
             "| "
             f"{token_budget} | "
             f"{row['saebench_best_minus_llm_auc']['mean']} | "
-            f"{row['cebench_interpretability_max']['mean']} |"
+            f"{row['cebench_interpretability_max']['mean']} | "
+            f"{row['cebench_interp_delta_vs_baseline']['mean']} |"
         )
 
     out_md.write_text("\n".join(lines) + "\n")
