@@ -948,3 +948,123 @@ KMP_DUPLICATE_LIB_OK=TRUE python scripts/experiments/run_ood_stress_eval.py --he
 - Notes:
   - CLI parser and argument surface validated.
   - Full end-to-end execution deferred in this local workspace due missing SAEBench activation cache.
+
+## 2026-02-14 - High-Impact External Baseline Calibration
+
+### Run 51: CE-Bench adapter check with matched public baseline
+- Remote command (B200):
+```bash
+python scripts/experiments/run_husai_cebench_custom_eval.py \
+  --cebench-repo /workspace/CE-Bench \
+  --checkpoint results/saes/husai_pythia70m_topk_seed42/sae_final.pt \
+  --architecture topk \
+  --sae-release husai_topk_seed42_adaptercheck \
+  --model-name pythia-70m-deduped \
+  --hook-layer 0 \
+  --hook-name blocks.0.hook_resid_pre \
+  --device cuda \
+  --sae-dtype float32 \
+  --max-rows 200 \
+  --output-folder results/experiments/high_impact_adapter_check/run_20260214T202232Z \
+  --artifacts-path /tmp/ce_bench_artifacts_adapter_parity \
+  --matched-baseline-summary docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json
+```
+- Outcome: success
+- Key outputs:
+  - `results/experiments/high_impact_adapter_check/run_20260214T202232Z/husai_custom_cebench_summary.json`
+  - `results/experiments/high_impact_adapter_check/run_20260214T202232Z/cebench_metrics_summary.json`
+  - tracked copy: `docs/evidence/high_impact_adapter_check/run_20260214T202232Z_husai_custom_cebench_summary.json`
+- Result summary:
+  - CE-Bench interpretability max: `10.8933`
+  - Delta vs matched public baseline interpretability max: `-37.0583`
+  - Matched-baseline delta fields are now populated and reproducible in the adapter summary schema.
+
+### Run 52: Matched-budget architecture frontier external (multi-seed, matched-baseline enabled)
+- Remote launch command (B200):
+```bash
+python scripts/experiments/run_architecture_frontier_external.py \
+  --activation-cache-dir /tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped \
+  --activation-glob '*_blocks.0.hook_resid_pre.pt' \
+  --architectures topk,relu,batchtopk,jumprelu \
+  --seeds 42,123,456,789,1011 \
+  --d-sae 1024 \
+  --k 32 \
+  --epochs 6 \
+  --batch-size 4096 \
+  --learning-rate 0.001 \
+  --device cuda \
+  --run-saebench --run-cebench \
+  --cebench-repo /workspace/CE-Bench \
+  --cebench-max-rows 200 \
+  --cebench-matched-baseline-summary docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json \
+  --saebench-results-path /tmp/husai_saebench_probe_results_frontier_multiseed \
+  --saebench-model-cache-path /tmp/sae_bench_model_cache \
+  --saebench-dataset-limit 8 \
+  --cebench-artifacts-path /tmp/ce_bench_artifacts_frontier_multiseed \
+  --output-dir results/experiments/phase4b_architecture_frontier_external_multiseed
+```
+- Launch log:
+  - `results/experiments/phase4b_architecture_frontier_external_multiseed/launch_frontier_multiseed_20260214T202700Z.log`
+- Current status:
+  - in progress on B200 (run id: `run_20260214T202538Z`)
+  - first condition (`topk_seed42`) completed through CE-Bench with matched-baseline delta capture
+  - progress counters at `2026-02-14T20:30:05Z`:
+    - checkpoints: `2`
+    - SAEBench summaries: `2`
+    - CE-Bench summaries: `1`
+
+## 2026-02-14 - Reflective Integrity Update and Ongoing Frontier Multiseed
+
+### Run 53: Consistency-audit refresh (assignment-v2 + stress gates included)
+- Command:
+```bash
+python scripts/analysis/verify_experiment_consistency.py
+```
+- Outcome: success
+- Key outputs:
+  - `results/analysis/experiment_consistency_report.json`
+  - `results/analysis/experiment_consistency_report.md`
+- Result summary:
+  - `overall_pass=False`
+  - failing checks:
+    - `assignment_v2_external_gate_pass=False`
+    - `stress_release_policy_pass_all=False`
+- Notes:
+  - This prevents false-green status from legacy-only consistency checks.
+
+### Run 54: Architecture frontier multiseed external (B200, in progress)
+- Remote run:
+  - `results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/`
+- Current monitored snapshot (`~20:59 UTC`):
+  - checkpoints: `13`
+  - SAEBench summaries: `13`
+  - CE-Bench summaries: `12`
+- Notes:
+  - run continues through `topk,relu,batchtopk,jumprelu` x seeds `42,123,456,789,1011`.
+
+### Run 55: Remote high-impact queue orchestration launch (B200)
+- Remote launcher command (from local controller):
+```bash
+nohup bash scripts/experiments/run_b200_high_impact_queue.sh > results/experiments/cycle3_queue/queue_launcher_<timestamp>.log 2>&1 &
+```
+- Queue script path:
+  - `scripts/experiments/run_b200_high_impact_queue.sh`
+- Queue behavior:
+  1. wait for active frontier multiseed run completion,
+  2. run multiseed scaling study,
+  3. select best frontier external candidate,
+  4. run transcoder and OOD stress,
+  5. run strict release gate.
+- Launch status:
+  - active on remote (`PID 43530` at launch check)
+  - queue log: `results/experiments/cycle3_queue/queue_launcher_20260214T210734Z.log`
+
+### Run 56: Frontier multiseed interim metric snapshot
+- Snapshot artifact:
+  - `docs/evidence/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z_interim_snapshot_20260214T211200Z.md`
+- Snapshot counts (UTC ~21:12):
+  - checkpoints `15`, SAEBench summaries `15`, CE-Bench summaries `14`
+- Partial means:
+  - `topk`: SAEBench delta `-0.04059`, CE-Bench interp `7.72677`
+  - `relu`: SAEBench delta `-0.02469`, CE-Bench interp `4.25769`
+  - `batchtopk`: SAEBench delta `-0.04336`, CE-Bench interp `6.58815`

@@ -91,3 +91,36 @@ What the evidence says:
 - HierarchicalTopK: https://aclanthology.org/2025.emnlp-main.515/
 - Transcoders Beat SAEs: https://arxiv.org/abs/2501.18823
 - Random-transformer control framing: https://arxiv.org/abs/2501.17727
+
+## 2026-02-14 Literature Refresh and Novelty Upgrade
+
+Additional primary-source signals:
+- SAEBench 2026 release notes emphasize broader benchmark coverage and architectural diversity in reported results:
+  - https://github.com/adamkarvonen/SAEBench
+- MIB benchmark (2025) extends evaluation toward richer mechanistic interpretability behaviors:
+  - https://arxiv.org/abs/2504.13151
+- PolySAE (2026) reports stronger reconstruction/sparsity/interpretability tradeoffs at scale:
+  - https://arxiv.org/abs/2602.01322
+- Taming polysemanticity via SAE recovery theory (2025):
+  - https://arxiv.org/abs/2506.14002
+
+Concrete novelty opportunities for HUSAI (high confidence):
+1. Multi-objective frontier paper:
+- define and optimize the Pareto surface over `internal consistency` vs `SAEBench delta` vs `CE-Bench delta`.
+- novelty: explicit tri-objective externalization, not single-metric optimization.
+
+2. External-gated consistency training:
+- combine assignment-aware objective with external proxy constraints and strict release gates.
+- novelty: consistency training that is benchmark-aware by construction.
+
+3. Architecture-by-layer policy:
+- choose architecture family per hook layer under a fixed parameter budget.
+- novelty: layer-specialized SAE architecture policy learned from external metric profiles.
+
+4. Circuit-grounded closure track:
+- add Tracr/known-circuit recovery quality as a co-equal axis with SAEBench/CE-Bench.
+- novelty: links stability claims to identifiable ground truth, closing original proposal scope.
+
+5. Automatic claim ledger:
+- machine-generated claim table from artifacts with CI gate enforcement.
+- novelty: prevents publication drift between narrative and measured evidence.

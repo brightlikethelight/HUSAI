@@ -173,3 +173,24 @@ Validation:
 - HierarchicalTopK SAEs: https://aclanthology.org/2025.emnlp-main.515/
 - Transcoders Beat SAEs: https://arxiv.org/abs/2501.18823
 - Automated metrics vs random-transformer controls: https://arxiv.org/abs/2501.17727
+
+## 2026-02-14 Update (Cycle 3 In Progress)
+
+### Newly executed/high-impact updates
+- Direct adapter parity re-check (matched CE-Bench baseline) completed:
+  - `docs/evidence/high_impact_adapter_check/run_20260214T202232Z_husai_custom_cebench_summary.json`
+- Matched-budget architecture frontier **multiseed** run launched on B200 and in progress:
+  - `results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/`
+  - Current progress snapshot: 13 checkpoints, 13 SAEBench summaries, 12 CE-Bench summaries.
+
+### Integrity correction
+- Consistency audit has been upgraded to include assignment-v2 and stress-gate artifacts so report status cannot be falsely green when external gates fail.
+  - Script: `scripts/analysis/verify_experiment_consistency.py`
+  - Latest report: `results/analysis/experiment_consistency_report.md` (`overall_pass=False`)
+
+### Updated highest-leverage next 5 (ranked)
+1. Add direct HUSAI-checkpoint CE-Bench adapter/eval path with matched baselines. (completed)
+2. Run matched-budget architecture frontier sweep on external benchmarks. (multiseed run in progress)
+3. Run external-metric scaling study (token budget, hook layer, d_sae). (single-seed complete; multiseed extension pending)
+4. Implement assignment-aware consistency objective v2 with external acceptance criteria. (completed)
+5. Add stress-gated release policy (transcoder, random-model, OOD). (implemented; strict gate currently failing pending fresh transcoder/OOD + external-positive candidate)

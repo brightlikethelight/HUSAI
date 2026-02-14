@@ -1,0 +1,13 @@
+{
+  "output_folder": "/workspace/HUSAI/results/experiments/high_impact_adapter_check/run_20260214T202232Z",
+  "results_json": "/workspace/HUSAI/results/experiments/high_impact_adapter_check/run_20260214T202232Z/interpretability_eval/husai_topk_seed42_adaptercheck/custom_sae/results.json",
+  "scores_dump": "/workspace/HUSAI/results/experiments/high_impact_adapter_check/run_20260214T202232Z/scores_dump.txt",
+  "total_rows": 200,
+  "contrastive_score_mean_max": 10.793190078735352,
+  "independent_score_mean_max": 11.216932382583618,
+  "interpretability_score_mean_max": 10.893302972316741,
+  "sae_release": "husai_topk_seed42_adaptercheck",
+  "sae_id": "custom_sae",
+  "date": "2026-02-14 20:24:58",
+  "scores_dump_line_count": 200
+}

@@ -127,3 +127,7 @@ Not supported:
 Bottom line:
 - This cycle reduced uncertainty, not just metrics.
 - The repo is now much more honest: we know exactly where the external gap is, and we have a concrete, reproducible path to attack it.
+
+## 2026-02-14 Errata and Reality Check
+
+As of 2026-02-14, internal consistency improvements remain reproducible, but external benchmark deltas are still negative versus matched baselines. The updated consistency audit (`results/analysis/experiment_consistency_report.md`) now reports `overall_pass=False` because assignment-v2 external gate and stress release gates fail. See `PROPOSAL_COMPLETENESS_REVIEW.md` for closure status vs the original research plan.

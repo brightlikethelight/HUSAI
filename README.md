@@ -250,3 +250,27 @@ This project builds on foundational work by:
 **Building reproducible, interpretable AI — one feature at a time.**
 
 </div>
+
+---
+
+## Claim Status Check (2026-02-14)
+
+To keep claims aligned with artifacts:
+- Internal consistency claims are supported.
+- External superiority/SOTA claims are **not** supported in the current runs.
+- Latest consistency audit now includes assignment-v2 + stress-gate artifacts and reports:
+  - `results/analysis/experiment_consistency_report.md` -> `overall_pass=False`
+
+Primary blockers for claim upgrade:
+- negative external deltas vs matched baselines,
+- missing/failed stress-gate evidence (transcoder + OOD + external-positive candidate).
+
+### B200 one-click follow-up queue
+
+On a remote single-GPU node (e.g., RunPod B200), use:
+
+```bash
+scripts/experiments/run_b200_high_impact_queue.sh
+```
+
+This waits for active frontier runs and then executes scaling + stress closure with a manifest under `results/experiments/cycle3_queue/`.

@@ -44,6 +44,13 @@ def find_latest_result(root: Path) -> Path:
     return candidates[-1]
 
 
+def find_latest_named_result(root: Path, filename: str) -> Path:
+    candidates = sorted(root.glob(f"run_*/{filename}"))
+    if not candidates:
+        raise FileNotFoundError(f"No run_*/{filename} under {root}")
+    return candidates[-1]
+
+
 def load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text())
 
@@ -97,8 +104,8 @@ def find_consistency_baseline_and_selected(
     records: list[dict[str, Any]],
     selected_lambda: float,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    baseline = min(records, key=lambda r: abs(float(r["lambda_consistency"])))
-    selected = min(records, key=lambda r: abs(float(r["lambda_consistency"]) - selected_lambda))
+    baseline = min(records, key=lambda r: abs(float(r.get("lambda_consistency", 0.0))))
+    selected = min(records, key=lambda r: abs(float(r.get("lambda_consistency", 0.0)) - selected_lambda))
     return baseline, selected
 
 
@@ -123,6 +130,16 @@ def main() -> None:
         "--consistency-root",
         type=Path,
         default=PROJECT_ROOT / "results" / "experiments" / "consistency_objective_sweep",
+    )
+    parser.add_argument(
+        "--assignment-v2-root",
+        type=Path,
+        default=PROJECT_ROOT / "results" / "experiments" / "phase4d_assignment_consistency_v2",
+    )
+    parser.add_argument(
+        "--stress-gates-root",
+        type=Path,
+        default=PROJECT_ROOT / "results" / "experiments" / "release_stress_gates",
     )
     parser.add_argument(
         "--output-json",
@@ -150,6 +167,12 @@ def main() -> None:
     consistency_path = find_latest_result(args.consistency_root)
     consistency = load_json(consistency_path)
 
+    assignment_v2_path = find_latest_result(args.assignment_v2_root)
+    assignment_v2 = load_json(assignment_v2_path)
+
+    stress_gate_path = find_latest_named_result(args.stress_gates_root, "release_policy.json")
+    stress_gate = load_json(stress_gate_path)
+
     core_k_best = max(core.get("k_sweep", []), key=lambda r: float(r.get("delta_pwmcc", float("-inf"))))
     core_d_best = max(core.get("d_sae_sweep", []), key=lambda r: float(r.get("delta_pwmcc", float("-inf"))))
 
@@ -165,13 +188,23 @@ def main() -> None:
         seed=37,
     )
 
-    selected_lambda = float(consistency["selection"]["selected_lambda"])
-    baseline_rec, selected_rec = find_consistency_baseline_and_selected(consistency["records"], selected_lambda)
+    consistency_selection = consistency.get("selection", {})
+    selected_lambda = float(consistency_selection.get("selected_lambda", consistency_selection.get("best_lambda", 0.0)))
+    consistency_records = consistency.get("records") or consistency.get("results") or []
+    baseline_rec, selected_rec = find_consistency_baseline_and_selected(consistency_records, selected_lambda)
     consistency_gain, consistency_gain_lo, consistency_gain_hi = bootstrap_mean_diff_ci(
         selected_rec.get("trained_pairwise_pwmcc_values", []),
         baseline_rec.get("trained_pairwise_pwmcc_values", []),
         seed=53,
     )
+
+    assignment_acceptance = assignment_v2.get("acceptance", {})
+    assignment_best_delta_lcb = assignment_acceptance.get("best_delta_lcb")
+    assignment_ev_drop = assignment_acceptance.get("ev_drop")
+    assignment_gate_external = assignment_acceptance.get("gate_external")
+
+    stress_gates = stress_gate.get("gates", {})
+    stress_metrics = stress_gate.get("metrics", {})
 
     checks = [
         {
@@ -217,6 +250,41 @@ def main() -> None:
                 "gain_ci95": [consistency_gain_lo, consistency_gain_hi],
             },
         },
+        {
+            "id": "assignment_v2_internal_gain_positive",
+            "pass": bool(
+                isinstance(assignment_best_delta_lcb, (float, int))
+                and isinstance(assignment_ev_drop, (float, int))
+                and float(assignment_best_delta_lcb) > 0.0
+                and float(assignment_ev_drop) <= 0.05
+            ),
+            "evidence": {
+                "best_lambda": assignment_acceptance.get("best_lambda"),
+                "best_delta_lcb": assignment_best_delta_lcb,
+                "ev_drop": assignment_ev_drop,
+            },
+        },
+        {
+            "id": "assignment_v2_external_gate_pass",
+            "pass": bool(assignment_gate_external is True),
+            "evidence": {
+                "gate_external": assignment_gate_external,
+                "external_delta": assignment_acceptance.get("external_delta"),
+                "min_external_delta": assignment_acceptance.get("min_external_delta"),
+            },
+        },
+        {
+            "id": "stress_release_policy_pass_all",
+            "pass": bool(stress_gates.get("pass_all") is True),
+            "evidence": {
+                "pass_all": stress_gates.get("pass_all"),
+                "random_model": stress_gates.get("random_model"),
+                "transcoder": stress_gates.get("transcoder"),
+                "ood": stress_gates.get("ood"),
+                "external": stress_gates.get("external"),
+                "external_delta": stress_metrics.get("external_delta"),
+            },
+        },
     ]
 
     overall_pass = all(check["pass"] for check in checks)
@@ -232,6 +300,8 @@ def main() -> None:
                     "adaptive_search": str(adaptive_search_path),
                     "adaptive_control": str(adaptive_control_path),
                     "consistency": str(consistency_path),
+                    "assignment_v2": str(assignment_v2_path),
+                    "stress_gates": str(stress_gate_path),
                 }
             ),
         },
@@ -241,6 +311,8 @@ def main() -> None:
             "adaptive_search": str(adaptive_search_path.relative_to(PROJECT_ROOT)),
             "adaptive_control": str(adaptive_control_path.relative_to(PROJECT_ROOT)),
             "consistency": str(consistency_path.relative_to(PROJECT_ROOT)),
+            "assignment_v2": str(assignment_v2_path.relative_to(PROJECT_ROOT)),
+            "stress_gates": str(stress_gate_path.relative_to(PROJECT_ROOT)),
         },
         "checks": checks,
         "overall_pass": overall_pass,
@@ -262,6 +334,8 @@ def main() -> None:
         f"- Adaptive search: `{report['inputs']['adaptive_search']}`",
         f"- Adaptive control: `{report['inputs']['adaptive_control']}`",
         f"- Consistency sweep: `{report['inputs']['consistency']}`",
+        f"- Assignment v2: `{report['inputs']['assignment_v2']}`",
+        f"- Stress gates: `{report['inputs']['stress_gates']}`",
         "",
         "## Checks",
         "",

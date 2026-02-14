@@ -284,3 +284,21 @@ python scripts/experiments/run_stress_gated_release_policy.py \
   --require-transcoder --require-ood --require-external \
   --fail-on-gate-fail
 ```
+
+## 10) One-Click B200 Queue (Frontier -> Scaling -> Stress Gates)
+
+When running on a single remote GPU, use:
+```bash
+scripts/experiments/run_b200_high_impact_queue.sh
+```
+
+Behavior:
+1. waits for any active `run_architecture_frontier_external.py` process,
+2. runs multiseed external scaling,
+3. selects best frontier external candidate (SAEBench best-minus-LLM),
+4. runs transcoder + OOD stress evals,
+5. executes strict release gate.
+
+Primary artifacts:
+- `results/experiments/cycle3_queue/run_*/queue.log`
+- `results/experiments/cycle3_queue/run_*/manifest.json`
