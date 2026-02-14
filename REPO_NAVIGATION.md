@@ -1,12 +1,13 @@
 # Repository Navigation (Canonical Index)
 
-Updated: 2026-02-13
+Updated: 2026-02-14
 
 Use this file as the entry point for understanding and operating this repository.
 
 ## 1) Start Here
 
 - Project overview: `README.md`
+- Study guide (recommended first): `PROJECT_STUDY_GUIDE.md`
 - Fast setup and run path: `RUNBOOK.md`
 - Quick setup and run path: `QUICK_START.md`
 - Experiment provenance log: `EXPERIMENT_LOG.md`
@@ -45,6 +46,12 @@ Core library modules:
   - `results/experiments/adaptive_l0_calibration/`
 - Consistency-objective sweep:
   - `results/experiments/consistency_objective_sweep/`
+- Transcoder stress artifacts:
+  - `results/experiments/phase4e_transcoder_stress/`
+- OOD stress artifacts:
+  - `results/experiments/phase4e_ood_stress/`
+- Release gate evaluations:
+  - `results/experiments/release_stress_gates/`
 
 ## 4) Reliability and Audit Documents
 
@@ -59,6 +66,10 @@ Core library modules:
 
 - Official benchmark harness script:
   - `scripts/experiments/run_official_external_benchmarks.py`
+- Stress benchmark scripts:
+  - `scripts/experiments/run_transcoder_stress_eval.py`
+  - `scripts/experiments/run_ood_stress_eval.py`
+  - `scripts/experiments/run_stress_gated_release_policy.py`
 - Artifact-claim consistency check:
   - `scripts/analysis/verify_experiment_consistency.py`
 - Generated consistency report:
@@ -76,6 +87,9 @@ Useful targets:
 - `make ablate-core`
 - `make benchmark-slice`
 - `make benchmark-official`
+- `make transcoder-stress`
+- `make ood-stress`
+- `make release-gate-strict`
 - `make audit-results`
 
 ## 7) Archive and Legacy Materials

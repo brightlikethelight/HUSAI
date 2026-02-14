@@ -12,14 +12,14 @@ Can be parallelized if multiple GPUs available.
 
 Usage:
     # Train all new SAEs (sequential)
-    KMP_DUPLICATE_LIB_OK=TRUE python scripts/train_expanded_seeds.py
+    KMP_DUPLICATE_LIB_OK=TRUE python scripts/training/train_expanded_seeds.py
     
     # Train specific architecture
-    KMP_DUPLICATE_LIB_OK=TRUE python scripts/train_expanded_seeds.py --arch topk
-    KMP_DUPLICATE_LIB_OK=TRUE python scripts/train_expanded_seeds.py --arch relu
+    KMP_DUPLICATE_LIB_OK=TRUE python scripts/training/train_expanded_seeds.py --arch topk
+    KMP_DUPLICATE_LIB_OK=TRUE python scripts/training/train_expanded_seeds.py --arch relu
     
     # Train specific seed range
-    KMP_DUPLICATE_LIB_OK=TRUE python scripts/train_expanded_seeds.py --seeds 2022,2023,2024
+    KMP_DUPLICATE_LIB_OK=TRUE python scripts/training/train_expanded_seeds.py --seeds 2022,2023,2024
 """
 
 import argparse
@@ -37,7 +37,7 @@ import sys
 import time
 
 # Add project root
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from src.models.transformer import ModularArithmeticTransformer
 from src.data.modular_arithmetic import ModularArithmeticDataset
@@ -45,7 +45,7 @@ from src.utils.config import TransformerConfig
 from torch.utils.data import DataLoader
 
 # Paths
-BASE_DIR = Path('/Users/brightliu/School_Work/HUSAI')
+BASE_DIR = Path(__file__).resolve().parents[2]
 RESULTS_DIR = BASE_DIR / 'results'
 SAE_DIR = RESULTS_DIR / 'saes'
 
@@ -84,6 +84,12 @@ class TopKSAE(nn.Module):
         nn.init.kaiming_uniform_(self.decoder.weight)
         nn.init.zeros_(self.encoder.bias)
         nn.init.zeros_(self.decoder.bias)
+        self.normalize_decoder()
+
+    def normalize_decoder(self) -> None:
+        """Normalize decoder columns to unit norm after updates."""
+        with torch.no_grad():
+            self.decoder.weight.data = F.normalize(self.decoder.weight.data, dim=0)
     
     def encode(self, x: torch.Tensor) -> torch.Tensor:
         latents = self.encoder(x)
@@ -116,6 +122,12 @@ class ReLUSAE(nn.Module):
         nn.init.kaiming_uniform_(self.decoder.weight)
         nn.init.zeros_(self.encoder.bias)
         nn.init.zeros_(self.decoder.bias)
+        self.normalize_decoder()
+
+    def normalize_decoder(self) -> None:
+        """Normalize decoder columns to unit norm after updates."""
+        with torch.no_grad():
+            self.decoder.weight.data = F.normalize(self.decoder.weight.data, dim=0)
     
     def encode(self, x: torch.Tensor) -> torch.Tensor:
         return F.relu(self.encoder(x))

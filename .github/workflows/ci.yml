@@ -72,13 +72,17 @@ jobs:
             scripts/experiments/run_external_benchmark_slice.py \
             scripts/experiments/run_official_external_benchmarks.py \
             scripts/experiments/run_cebench_compat.py \
+            scripts/experiments/run_transcoder_stress_eval.py \
+            scripts/experiments/run_ood_stress_eval.py \
             --max-line-length 130 --extend-ignore=E402
 
       - name: Script syntax smoke
         run: |
           python -m py_compile \
             scripts/experiments/run_official_external_benchmarks.py \
-            scripts/experiments/run_cebench_compat.py
+            scripts/experiments/run_cebench_compat.py \
+            scripts/experiments/run_transcoder_stress_eval.py \
+            scripts/experiments/run_ood_stress_eval.py
 
       - name: Typecheck (incremental gate)
         run: mypy src/utils/config.py src/data/modular_arithmetic.py

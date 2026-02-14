@@ -1,9 +1,10 @@
 # Quick Start
 
-Updated: 2026-02-12
+Updated: 2026-02-14
 
 For the full operational path and troubleshooting, use `RUNBOOK.md`.
-For repository orientation, use `REPO_NAVIGATION.md`.
+For a learner-first understanding path, use `PROJECT_STUDY_GUIDE.md`.
+For canonical repository orientation, use `REPO_NAVIGATION.md`.
 
 ## 1) Setup
 
@@ -70,3 +71,19 @@ pytest tests -q
 - `FINAL_BLOG.md`
 - `FINAL_PAPER.md`
 - `HIGH_IMPACT_FOLLOWUPS_REPORT.md`
+
+## 8) Stress Gate Artifacts
+
+```bash
+# Transcoder stress artifact
+make transcoder-stress
+
+# OOD stress artifact
+make ood-stress
+
+# Strict release-gate evaluation (paths required)
+make release-gate-strict \
+  TRANSCODER_RESULTS=<path/to/transcoder_stress_summary.json> \
+  OOD_RESULTS=<path/to/ood_stress_summary.json> \
+  EXTERNAL_SUMMARY=<path/to/external_summary.json>
+```

@@ -1,6 +1,6 @@
 # Runbook (Current State)
 
-Updated: 2026-02-13
+Updated: 2026-02-14
 
 Primary navigation index: `REPO_NAVIGATION.md`
 
@@ -86,6 +86,7 @@ Current status in this workspace: full test suite passes.
 - HUSAI custom SAEBench path is now integrated and reproducible, but current external AUC remains below baseline (see `docs/evidence/phase4e_husai_custom_multiseed/summary.json`).
 - Environment specs remain split across `environment.yml`, `requirements*.txt`, and `pyproject.toml` without lockfile pinning.
 - CI lint/typecheck are intentionally incremental because repository-wide static-analysis debt is still high.
+- Production stress runners now exist for transcoder and OOD checks (`scripts/experiments/run_transcoder_stress_eval.py`, `scripts/experiments/run_ood_stress_eval.py`), but strict release still requires fresh artifacts from these runners.
 
 ## 6) CI and Follow-up Automation
 
@@ -153,6 +154,9 @@ python ce_bench/CE_Bench.py \
 - `results/experiments/phase4c_core_ablations/`
 - `results/experiments/phase4e_external_benchmark_slice/`
 - `results/experiments/phase4e_external_benchmark_official/`
+- `results/experiments/phase4e_transcoder_stress/`
+- `results/experiments/phase4e_ood_stress/`
+- `results/experiments/release_stress_gates/`
 
 ## 7) Highest-Impact Follow-up Commands
 
@@ -253,12 +257,30 @@ python scripts/experiments/run_assignment_consistency_v2.py \
   --external-summary <path/to/external/summary.json>
 ```
 
-Stress-gated release policy:
+Transcoder stress artifact generation:
+```bash
+python scripts/experiments/run_transcoder_stress_eval.py \
+  --transformer-checkpoint results/transformer_5000ep/transformer_best.pt \
+  --device cuda
+```
+
+OOD stress artifact generation:
+```bash
+python scripts/experiments/run_ood_stress_eval.py \
+  --checkpoint results/saes/husai_pythia70m_topk_seed42/sae_final.pt \
+  --model-name pythia-70m-deduped \
+  --hook-layer 0 \
+  --hook-name blocks.0.hook_resid_pre \
+  --device cuda
+```
+
+Stress-gated release policy (strict):
 ```bash
 python scripts/experiments/run_stress_gated_release_policy.py \
   --phase4a-results results/experiments/phase4a_trained_vs_random/results.json \
-  --transcoder-results <path/to/transcoder.json> \
-  --ood-results <path/to/ood.json> \
+  --transcoder-results <path/to/transcoder_stress_summary.json> \
+  --ood-results <path/to/ood_stress_summary.json> \
   --external-summary <path/to/external/summary.json> \
-  --require-transcoder --require-ood --require-external
+  --require-transcoder --require-ood --require-external \
+  --fail-on-gate-fail
 ```

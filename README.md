@@ -11,7 +11,7 @@
 
 ## 🔬 Verified Key Findings
 
-Our research provides the **first systematic empirical validation** of SAE stability on algorithmic tasks:
+Our research provides a **systematic empirical validation** of SAE stability on algorithmic tasks:
 
 ### 1. Dense Ground Truth → Low Stability (Validated)
 
@@ -127,7 +127,11 @@ HUSAI/
 
 ## 🧭 Repository Navigation
 
-For a canonical index of where everything lives (current docs, experiments, reliability reports, and archived material), start with:
+For a learner-first map of what to read, what we ran, and what we found, start with:
+
+- `PROJECT_STUDY_GUIDE.md`
+
+For the canonical index of where everything lives (current docs, experiments, reliability reports, and archived material), use:
 
 - `REPO_NAVIGATION.md`
 
@@ -208,7 +212,7 @@ KMP_DUPLICATE_LIB_OK=TRUE python scripts/analysis/hungarian_matching_analysis.py
 
 1. **Dense ground truth → low stability** — matches identifiability theory (Cui et al., 2025)
 2. **Stability decreases with sparsity** — verified for TopK architecture (r = -0.917)
-3. **Task-independent baseline** — consistent across modular arithmetic and copy task
+3. **Task baseline remains under active validation** — currently strongest on modular arithmetic
 4. **Stability-reconstruction tradeoff** — fundamental property of SAE training
 
 ### Recommendations for Practitioners

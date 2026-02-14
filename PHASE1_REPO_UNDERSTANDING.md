@@ -64,7 +64,7 @@ Observed now:
 ### Remaining limitations after initial fixes
 - Commands now execute from both module and direct script paths for baseline, extraction, and SAE training smoke tests.
 - One-epoch SAE smoke runs show poor explained variance (quality issue, not execution blocker).
-- External benchmark integration (SAEBench/CE-Bench) is still missing, so SOTA claims are not yet supportable.
+- This file is a historical phase snapshot (2026-02-12); external benchmark integration status is now tracked in `HIGH_IMPACT_FOLLOWUPS_REPORT.md`, `EXECUTIVE_SUMMARY.md`, and `LIT_REVIEW.md`.
 
 ## 3) How It Works Diagram (Data -> Artifacts)
 

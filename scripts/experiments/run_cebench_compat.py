@@ -174,7 +174,6 @@ def clean_run_local_outputs(output_folder: Path) -> None:
         shutil.rmtree(interp_dir)
 
 
-
 def _copy_if_present(src: Path, dst: Path) -> bool:
     if not src.exists():
         return False

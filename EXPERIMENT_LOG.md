@@ -916,3 +916,35 @@ python scripts/experiments/run_stress_gated_release_policy.py \
 - Validation:
   - `python -m py_compile ...` passed
   - `pytest -q` passed (`83 passed`)
+
+## 2026-02-14 - Stress Runner Implementation Validation
+
+### Run 49: Transcoder stress runner smoke validation
+- Command:
+```bash
+KMP_DUPLICATE_LIB_OK=TRUE TMPDIR=/tmp MPLCONFIGDIR=/tmp/mpl \
+python scripts/experiments/run_transcoder_stress_eval.py \
+  --device cpu \
+  --epochs 1 \
+  --seeds 42,123 \
+  --batch-size 256 \
+  --max-samples 512 \
+  --output-dir /tmp/husai_transcoder_smoke
+```
+- Outcome: success
+- Key outputs:
+  - `/tmp/husai_transcoder_smoke/run_20260214T041827Z/transcoder_stress_summary.json`
+  - `/tmp/husai_transcoder_smoke/run_20260214T041827Z/transcoder_stress_summary.md`
+- Notes:
+  - Validates new `run_transcoder_stress_eval.py` execution path and artifact schema.
+  - Fixed path portability issue for non-repo output directories in the same cycle.
+
+### Run 50: OOD stress runner interface validation
+- Command:
+```bash
+KMP_DUPLICATE_LIB_OK=TRUE python scripts/experiments/run_ood_stress_eval.py --help
+```
+- Outcome: success
+- Notes:
+  - CLI parser and argument surface validated.
+  - Full end-to-end execution deferred in this local workspace due missing SAEBench activation cache.

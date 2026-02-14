@@ -12,7 +12,7 @@ Key questions to answer:
 - Does PWMCC stabilize, or continue changing?
 
 Usage:
-    KMP_DUPLICATE_LIB_OK=TRUE python scripts/analyze_training_dynamics.py
+    KMP_DUPLICATE_LIB_OK=TRUE python scripts/analysis/analyze_training_dynamics.py
     
 Runtime: ~3-4 hours (3 seed pairs × ~1 hour each)
 """
@@ -75,6 +75,12 @@ class TopKSAE(nn.Module):
         nn.init.kaiming_uniform_(self.decoder.weight)
         nn.init.zeros_(self.encoder.bias)
         nn.init.zeros_(self.decoder.bias)
+        self.normalize_decoder()
+
+    def normalize_decoder(self) -> None:
+        """Normalize decoder columns to unit norm after updates."""
+        with torch.no_grad():
+            self.decoder.weight.data = F.normalize(self.decoder.weight.data, dim=0)
     
     def encode(self, x: torch.Tensor) -> torch.Tensor:
         latents = self.encoder(x)

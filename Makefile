@@ -1,4 +1,4 @@
-.PHONY: help install install-dev setup test test-cov smoke lint format typecheck clean run-notebooks reproduce-phase4a ablate-core benchmark-slice benchmark-official audit-results adaptive-l0 adaptive-l0-control consistency-sweep
+.PHONY: help install install-dev setup test test-cov smoke lint format typecheck clean run-notebooks reproduce-phase4a ablate-core benchmark-slice benchmark-official audit-results adaptive-l0 adaptive-l0-control consistency-sweep transcoder-stress ood-stress release-gate-strict
 
 .DEFAULT_GOAL := help
 
@@ -194,3 +194,30 @@ adaptive-l0-control: ## Run matched control retrain at k=32
 
 consistency-sweep: ## Run consistency-regularization sweep
 	python scripts/experiments/run_consistency_regularization_sweep.py --device cpu --k 4
+
+transcoder-stress: ## Run transcoder-vs-SAE stress evaluation (gate artifact)
+	python scripts/experiments/run_transcoder_stress_eval.py
+
+ood-stress: ## Run ID-vs-OOD SAEBench stress evaluation (gate artifact)
+	python scripts/experiments/run_ood_stress_eval.py \
+		--checkpoint results/saes/husai_pythia70m_topk_seed42/sae_final.pt \
+		--model-name pythia-70m-deduped \
+		--hook-layer 0 \
+		--hook-name blocks.0.hook_resid_pre \
+		--device cpu
+
+TRANSCODER_RESULTS ?=
+OOD_RESULTS ?=
+EXTERNAL_SUMMARY ?=
+
+release-gate-strict: ## Evaluate strict release gates (set TRANSCODER_RESULTS, OOD_RESULTS, EXTERNAL_SUMMARY)
+	@test -n "$(TRANSCODER_RESULTS)" || (echo "Set TRANSCODER_RESULTS=<path>"; exit 2)
+	@test -n "$(OOD_RESULTS)" || (echo "Set OOD_RESULTS=<path>"; exit 2)
+	@test -n "$(EXTERNAL_SUMMARY)" || (echo "Set EXTERNAL_SUMMARY=<path>"; exit 2)
+	python scripts/experiments/run_stress_gated_release_policy.py \
+		--phase4a-results results/experiments/phase4a_trained_vs_random/results.json \
+		--transcoder-results $(TRANSCODER_RESULTS) \
+		--ood-results $(OOD_RESULTS) \
+		--external-summary $(EXTERNAL_SUMMARY) \
+		--require-transcoder --require-ood --require-external \
+		--fail-on-gate-fail

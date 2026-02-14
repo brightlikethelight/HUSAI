@@ -227,7 +227,7 @@ def test_visualization():
 
     fig = visualize_results(results)
 
-    save_path = Path('/Users/brightliu/School_Work/HUSAI/figures/knockoff_test.png')
+    save_path = project_root / 'figures' / 'knockoff_test.png'
     save_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(save_path, dpi=150, bbox_inches='tight')
 
