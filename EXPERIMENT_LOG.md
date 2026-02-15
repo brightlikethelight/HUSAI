@@ -1264,3 +1264,23 @@ pytest -q tests/unit
 - Outcome: success (`84 passed` unit tests).
 - Next action:
   - Pull fixes on B200 and rerun failed stage/queue to regenerate complete selector+gate outputs.
+
+### Run 64: Known-circuit closure run on B200 (trained vs random Fourier checks)
+- Remote command:
+```bash
+python scripts/experiments/run_known_circuit_recovery_closure.py \
+  --transformer-checkpoint results/transformer_5000ep/transformer_best.pt \
+  --sae-checkpoint-glob 'results/experiments/phase4d_assignment_consistency_v2/run_20260213T203957Z/checkpoints/lambda_0.2/sae_seed*.pt' \
+  --output-dir results/experiments/known_circuit_recovery_closure
+```
+- Outcome: success (closure artifact produced)
+- Key outputs:
+  - `docs/evidence/known_circuit_recovery_closure/run_20260215T165907Z_closure_summary.json`
+  - `docs/evidence/known_circuit_recovery_closure/run_20260215T165907Z_closure_summary.md`
+- Result summary:
+  - transformer Fourier R²: `0.020268`
+  - random-transformer mean R²: `0.020717`
+  - transformer delta vs random mean: `-0.000449`
+  - transformer delta vs random LCB: `-0.000881`
+  - SAE checkpoint matches on remote for requested glob: `0` (path absent on pod), so SAE overlap gate unresolved/fail in this run.
+  - overall `pass_all=False`

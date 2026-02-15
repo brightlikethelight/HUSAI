@@ -22,6 +22,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+import torch
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
@@ -84,6 +86,40 @@ def load_json(path: Path | None) -> dict[str, Any] | None:
     if path is None or not path.exists():
         return None
     return json.loads(path.read_text())
+
+
+def checkpoint_d_model(checkpoint: Path) -> int | None:
+    obj = torch.load(checkpoint, map_location="cpu")
+    if isinstance(obj, dict):
+        if isinstance(obj.get("d_model"), int):
+            return int(obj["d_model"])
+        state = obj.get("model_state_dict") or obj
+    else:
+        state = obj
+
+    if isinstance(state, dict):
+        if "decoder.weight" in state:
+            dec = state["decoder.weight"]
+            if isinstance(dec, torch.Tensor) and dec.ndim == 2:
+                return int(dec.shape[0])
+        if "W_dec" in state:
+            dec = state["W_dec"]
+            if isinstance(dec, torch.Tensor) and dec.ndim == 2:
+                return int(dec.shape[1])
+    return None
+
+
+def infer_external_d_model_from_cache(model_cache_path: Path, model_name: str, hook_name: str) -> int | None:
+    cache_dir = model_cache_path / f"model_activations_{model_name}"
+    if not cache_dir.exists():
+        return None
+    files = sorted(cache_dir.glob(f"*_{hook_name}.pt"))
+    if not files:
+        return None
+    acts = torch.load(files[0], map_location="cpu")
+    if isinstance(acts, torch.Tensor) and acts.ndim == 2:
+        return int(acts.shape[1])
+    return None
 
 
 def normalize(values: list[float | None]) -> dict[int, float]:
@@ -177,7 +213,25 @@ def evaluate_external_for_checkpoint(
         "cebench_returncode": None,
         "saebench_summary_path": None,
         "cebench_summary_path": None,
+        "external_skip_reason": None,
     }
+
+    ckpt_d_model = checkpoint_d_model(checkpoint)
+    external_d_model = infer_external_d_model_from_cache(
+        model_cache_path=args.saebench_model_cache_path,
+        model_name=args.model_name,
+        hook_name=args.hook_name,
+    )
+    if (
+        (args.run_saebench or args.run_cebench)
+        and ckpt_d_model is not None
+        and external_d_model is not None
+        and ckpt_d_model != external_d_model
+    ):
+        out["external_skip_reason"] = (
+            f"d_model_mismatch checkpoint={ckpt_d_model} external_cache={external_d_model}"
+        )
+        return out
 
     if args.run_saebench:
         saebench_out = ext_dir / "saebench"
