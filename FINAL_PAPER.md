@@ -1,9 +1,9 @@
-# Reliability-First SAE Evaluation in HUSAI (Cycle 4 Update)
+# Reliability-First SAE Evaluation in HUSAI (Cycle 4 + Post-Fix Reruns)
 
 Date: 2026-02-15
 
 ## Abstract
-We present a reliability-first SAE research program that explicitly tests whether internal consistency improvements transfer to external benchmark gains. HUSAI integrates multiseed internal ablations, external evaluations (SAEBench, CE-Bench), stress tests (random-model, transcoder, OOD), and strict release gating. Across cycle3 and cycle4 runs, internal consistency gains were reproducible, but external deltas remained negative for release-candidate settings under uncertainty-aware (LCB) criteria. The strict gate remained failing (`pass_all=false`). We also identify and fix two critical evaluation risks: custom-SAE dead-decoder normalization failures and a known-circuit SAE overlap geometry mismatch. The resulting repository is methodologically strong and reproducible, while scientific closure on external competitiveness remains open.
+We present a reliability-first SAE research program that explicitly tests whether internal consistency improvements transfer to external benchmark gains. HUSAI integrates multiseed internal ablations, external evaluations (SAEBench, CE-Bench), stress tests (random-model, transcoder, OOD), and strict release gating. Across cycle3/cycle4 runs, internal consistency gains were reproducible, but external deltas remained negative for release-candidate settings under uncertainty-aware (LCB) criteria. The strict gate remained failing (`pass_all=false`). We additionally fixed two critical methodological bugs (custom-SAE dead-decoder normalization failures and known-circuit SAE overlap geometry mismatch) and validated both via post-fix reruns.
 
 ## 1. Introduction
 SAE interpretability research often emphasizes internal metrics without robust external or stress controls. HUSAI addresses this by enforcing a strict gate over:
@@ -29,6 +29,7 @@ Primary question:
 3. External architecture frontier and scaling studies.
 4. Transcoder/OOD stress evaluations.
 5. Known-circuit closure track.
+6. Post-fix reruns after bug corrections.
 
 ## 3. Experimental Setup
 
@@ -44,8 +45,9 @@ Scaling:
 - hook layers: `0`, `1`
 - widths: `d_sae=1024,2048`
 
-Cycle4 followup root:
+Evidence roots:
 - `docs/evidence/cycle4_followups_run_20260215T190004Z/`
+- `docs/evidence/cycle4_postfix_reruns/`
 
 ## 4. Results
 
@@ -66,10 +68,15 @@ Key metrics:
 - `saebench_delta_ci95_low = -0.04478959689939781`
 - `cebench_interp_delta_vs_baseline_ci95_low = -40.467037470119465`
 
-### 4.3 New-Family and Closure Status
-- Matryoshka run in cycle4 artifacts failed due dead-feature collapse and adapter normalization failure.
-- Assignment-v3 external stage skipped in latest artifact due `d_model` mismatch.
-- Known-circuit closure artifact run was pre-fix and not final.
+### 4.3 Post-Fix Rerun Validation
+Known-circuit closure rerun:
+- `docs/evidence/cycle4_postfix_reruns/known_circuit_run_20260215T203809Z_summary.json`
+- now evaluates 20 checkpoints (vs 0 in earlier artifact run).
+
+Matryoshka rerun:
+- `docs/evidence/cycle4_postfix_reruns/matryoshka/run_20260215T203710Z_results.json`
+- no crash, no collapse (`l0=32`), full external outputs for all seeds.
+- external deltas remain negative.
 
 ## 5. Engineering Corrections Applied
 
@@ -92,25 +99,26 @@ Key metrics:
 ### 6.1 Supported Claims
 - Internal consistency gains are real.
 - Reliability-first infrastructure and strict claim gating are effective.
+- Post-fix reruns resolve previously invalid failure modes.
 
 ### 6.2 Unsupported Claims
 - External superiority for current candidates.
-- Full closure on known-circuit recovery from current published artifacts.
+- Full proposal closure on joint internal+external improvement.
 
 ### 6.3 Main Scientific Insight
 Internal consistency and external interpretability objectives are not automatically aligned; explicit multi-objective optimization remains necessary.
 
 ## 7. Limitations
 - External-positive candidate not yet found under strict LCB gates.
-- New-family frontier still requires post-fix rerun.
-- Known-circuit closure requires post-fix rerun for final interpretation.
+- Assignment-v3 external stage needs dimension-compatible rerun.
+- New-family exploration should be extended (e.g., RouteSAE) under matched budgets.
 
 ## 8. Reproducibility Checklist
 - Entrypoint: `START_HERE.md`
 - Runbook: `RUNBOOK.md`
 - Experiment provenance: `EXPERIMENT_LOG.md`
-- Latest reflective synthesis: `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
+- Reflective synthesis: `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
 - Latest gate evidence: `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.md`
 
 ## 9. Conclusion
-HUSAI is now a robust reliability-first SAE research platform. It delivers strong evidence for internal consistency progress while transparently showing that external transfer remains unresolved under strict controls. This narrows the true frontier and sets up a clear next experiment program.
+HUSAI is now a robust reliability-first SAE research platform. It delivers strong evidence for internal consistency progress while transparently showing that external transfer remains unresolved under strict controls. Post-fix reruns improved methodological validity and narrowed the remaining frontier.

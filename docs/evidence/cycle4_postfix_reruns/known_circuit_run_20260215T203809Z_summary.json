@@ -1,0 +1,245 @@
+{
+  "run_metadata": {
+    "timestamp_utc": "2026-02-15T20:38:11+00:00",
+    "git_commit": "de8d70b6ce64b385522364c175fe12a873020758",
+    "command": "python scripts/experiments/run_known_circuit_recovery_closure.py --transformer-checkpoint results/transformer_5000ep/transformer_best.pt --sae-checkpoint-glob results/experiments/phase4d_assignment_consistency_v3/run_*/checkpoints/lambda_*/sae_seed*.pt --output-dir results/experiments/known_circuit_recovery_closure",
+    "config_hash": "9a826118bd9df4fb60289f6a8bc1ca56214e0b999efd66e29f5306bd03109a0c",
+    "run_id": "run_20260215T203809Z"
+  },
+  "config": {
+    "transformer_checkpoint": "/workspace/HUSAI/results/transformer_5000ep/transformer_best.pt",
+    "modulus": 113,
+    "top_k_frequencies": 10,
+    "r2_frequency_count": 5,
+    "random_transformer_seeds": [
+      11,
+      23,
+      37,
+      41,
+      53
+    ],
+    "sae_checkpoint_glob": "results/experiments/phase4d_assignment_consistency_v3/run_*/checkpoints/lambda_*/sae_seed*.pt",
+    "random_sae_seeds": [
+      101,
+      103,
+      107,
+      109,
+      113
+    ],
+    "min_transformer_r2_delta": 0.1,
+    "min_sae_overlap_delta": 0.0,
+    "sae_basis_space": "model_space_projection_from_token_fourier"
+  },
+  "transformer": {
+    "trained": {
+      "r2": 0.020267724990844727,
+      "top_frequencies": [
+        60,
+        53,
+        34,
+        79,
+        10,
+        103,
+        91,
+        22,
+        86,
+        27
+      ],
+      "frequencies_used_for_r2": [
+        60,
+        53,
+        34,
+        79,
+        10
+      ],
+      "embedding_shape": [
+        113,
+        128
+      ]
+    },
+    "random_stats": {
+      "mean": 0.020716989040374757,
+      "std": 0.0004921995921923886,
+      "min": 0.020147204399108887,
+      "max": 0.02136296033859253,
+      "ci95_low": 0.020285557075691935,
+      "ci95_high": 0.02114842100505758,
+      "n": 5
+    },
+    "random_values": [
+      0.02136296033859253,
+      0.020866453647613525,
+      0.020147204399108887,
+      0.020304739475250244,
+      0.020903587341308594
+    ],
+    "delta_vs_random_mean": -0.0004492640495300307,
+    "delta_vs_random_lcb": -0.0008806960142128534
+  },
+  "sae": {
+    "fourier_basis": {
+      "token_basis_dim": 10,
+      "model_basis_dim": 10,
+      "dropped_components": 0
+    },
+    "checkpoints_discovered": 20,
+    "checkpoints_evaluated": 20,
+    "checkpoints_skipped_decode_failure": 0,
+    "checkpoints_skipped_dimension_mismatch": 0,
+    "skipped_checkpoints": [],
+    "records": [
+      {
+        "checkpoint": "results/experiments/phase4d_assignment_consistency_v3/run_20260215T190154Z/checkpoints/lambda_0.0/sae_seed123.pt",
+        "overlap": 0.14290326833724976,
+        "d_model": 128,
+        "d_sae": 128
+      },
+      {
+        "checkpoint": "results/experiments/phase4d_assignment_consistency_v3/run_20260215T190154Z/checkpoints/lambda_0.0/sae_seed42.pt",
+        "overlap": 0.14246317744255066,
+        "d_model": 128,
+        "d_sae": 128
+      },
+      {
+        "checkpoint": "results/experiments/phase4d_assignment_consistency_v3/run_20260215T190154Z/checkpoints/lambda_0.0/sae_seed456.pt",
+        "overlap": 0.14833834767341614,
+        "d_model": 128,
+        "d_sae": 128
+      },
+      {
+        "checkpoint": "results/experiments/phase4d_assignment_consistency_v3/run_20260215T190154Z/checkpoints/lambda_0.0/sae_seed789.pt",
+        "overlap": 0.14131824672222137,
+        "d_model": 128,
+        "d_sae": 128
+      },
+      {
+        "checkpoint": "results/experiments/phase4d_assignment_consistency_v3/run_20260215T190154Z/checkpoints/lambda_0.05/sae_seed123.pt",
+        "overlap": 0.14300426840782166,
+        "d_model": 128,
+        "d_sae": 128
+      },
+      {
+        "checkpoint": "results/experiments/phase4d_assignment_consistency_v3/run_20260215T190154Z/checkpoints/lambda_0.05/sae_seed42.pt",
+        "overlap": 0.14246317744255066,
+        "d_model": 128,
+        "d_sae": 128
+      },
+      {
+        "checkpoint": "results/experiments/phase4d_assignment_consistency_v3/run_20260215T190154Z/checkpoints/lambda_0.05/sae_seed456.pt",
+        "overlap": 0.148167222738266,
+        "d_model": 128,
+        "d_sae": 128
+      },
+      {
+        "checkpoint": "results/experiments/phase4d_assignment_consistency_v3/run_20260215T190154Z/checkpoints/lambda_0.05/sae_seed789.pt",
+        "overlap": 0.1412597894668579,
+        "d_model": 128,
+        "d_sae": 128
+      },
+      {
+        "checkpoint": "results/experiments/phase4d_assignment_consistency_v3/run_20260215T190154Z/checkpoints/lambda_0.1/sae_seed123.pt",
+        "overlap": 0.14289720356464386,
+        "d_model": 128,
+        "d_sae": 128
+      },
+      {
+        "checkpoint": "results/experiments/phase4d_assignment_consistency_v3/run_20260215T190154Z/checkpoints/lambda_0.1/sae_seed42.pt",
+        "overlap": 0.14246317744255066,
+        "d_model": 128,
+        "d_sae": 128
+      },
+      {
+        "checkpoint": "results/experiments/phase4d_assignment_consistency_v3/run_20260215T190154Z/checkpoints/lambda_0.1/sae_seed456.pt",
+        "overlap": 0.14804168045520782,
+        "d_model": 128,
+        "d_sae": 128
+      },
+      {
+        "checkpoint": "results/experiments/phase4d_assignment_consistency_v3/run_20260215T190154Z/checkpoints/lambda_0.1/sae_seed789.pt",
+        "overlap": 0.1409105509519577,
+        "d_model": 128,
+        "d_sae": 128
+      },
+      {
+        "checkpoint": "results/experiments/phase4d_assignment_consistency_v3/run_20260215T190154Z/checkpoints/lambda_0.2/sae_seed123.pt",
+        "overlap": 0.1424645185470581,
+        "d_model": 128,
+        "d_sae": 128
+      },
+      {
+        "checkpoint": "results/experiments/phase4d_assignment_consistency_v3/run_20260215T190154Z/checkpoints/lambda_0.2/sae_seed42.pt",
+        "overlap": 0.14246317744255066,
+        "d_model": 128,
+        "d_sae": 128
+      },
+      {
+        "checkpoint": "results/experiments/phase4d_assignment_consistency_v3/run_20260215T190154Z/checkpoints/lambda_0.2/sae_seed456.pt",
+        "overlap": 0.14819762110710144,
+        "d_model": 128,
+        "d_sae": 128
+      },
+      {
+        "checkpoint": "results/experiments/phase4d_assignment_consistency_v3/run_20260215T190154Z/checkpoints/lambda_0.2/sae_seed789.pt",
+        "overlap": 0.1409352570772171,
+        "d_model": 128,
+        "d_sae": 128
+      },
+      {
+        "checkpoint": "results/experiments/phase4d_assignment_consistency_v3/run_20260215T190154Z/checkpoints/lambda_0.3/sae_seed123.pt",
+        "overlap": 0.14144642651081085,
+        "d_model": 128,
+        "d_sae": 128
+      },
+      {
+        "checkpoint": "results/experiments/phase4d_assignment_consistency_v3/run_20260215T190154Z/checkpoints/lambda_0.3/sae_seed42.pt",
+        "overlap": 0.14246317744255066,
+        "d_model": 128,
+        "d_sae": 128
+      },
+      {
+        "checkpoint": "results/experiments/phase4d_assignment_consistency_v3/run_20260215T190154Z/checkpoints/lambda_0.3/sae_seed456.pt",
+        "overlap": 0.14847275614738464,
+        "d_model": 128,
+        "d_sae": 128
+      },
+      {
+        "checkpoint": "results/experiments/phase4d_assignment_consistency_v3/run_20260215T190154Z/checkpoints/lambda_0.3/sae_seed789.pt",
+        "overlap": 0.14057864248752594,
+        "d_model": 128,
+        "d_sae": 128
+      }
+    ],
+    "trained_stats": {
+      "mean": 0.14356258437037467,
+      "std": 0.0028632215507407945,
+      "min": 0.14057864248752594,
+      "max": 0.14847275614738464,
+      "ci95_low": 0.1423077221980433,
+      "ci95_high": 0.14481744654270604,
+      "n": 20
+    },
+    "random_stats": {
+      "mean": 0.14618245959281922,
+      "std": 0.0052065611496910505,
+      "min": 0.13945528864860535,
+      "max": 0.15201567113399506,
+      "ci95_low": 0.1416187075262095,
+      "ci95_high": 0.15074621165942895,
+      "n": 5
+    },
+    "random_values": [
+      0.14291340112686157,
+      0.13945528864860535,
+      0.1504775434732437,
+      0.14605039358139038,
+      0.15201567113399506
+    ],
+    "delta_vs_random_mean": -0.0026198752224445565,
+    "delta_vs_random_lcb": -0.008438489461385645
+  },
+  "gates": {
+    "transformer_r2": false,
+    "sae_overlap": false,
+    "pass_all": false
+  }
+}

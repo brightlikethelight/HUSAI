@@ -6,7 +6,7 @@ The core question remained the same:
 
 Can we make SAE features more consistent and also improve external interpretability benchmarks?
 
-After running the B200 program and cycle4 followups, the answer is now clearer.
+After running the B200 program, cycle4 followups, and post-fix reruns, the answer is clearer.
 
 ## What We Executed
 
@@ -16,9 +16,11 @@ After running the B200 program and cycle4 followups, the answer is now clearer.
 4. Assignment-aware objective tracks (v2 and v3).
 5. Transcoder and OOD stress checks.
 6. Strict release gate with grouped uncertainty-aware (LCB) candidate selection.
+7. Post-fix reruns for known-circuit closure and Matryoshka frontier.
 
-Cycle4 canonical artifact root:
+Evidence roots:
 - `docs/evidence/cycle4_followups_run_20260215T190004Z/`
+- `docs/evidence/cycle4_postfix_reruns/`
 
 ## The Short Scientific Answer
 
@@ -46,39 +48,32 @@ Key values:
 - `saebench_delta_ci95_low = -0.044790`
 - `cebench_delta_ci95_low = -40.467037`
 
+## What the Post-Fix Reruns Changed
+
+1. Known-circuit closure is now measurable (not empty).
+- We now evaluate 20 SAE checkpoints (previous artifact had 0).
+- Gate still fails, but the metric is now valid.
+
+2. Matryoshka no longer collapses/crashes.
+- Previous cycle4 artifact: `l0=0`, adapter normalization crash.
+- Post-fix rerun: `l0=32`, full SAEBench/CE-Bench outputs for all 3 seeds.
+- External deltas are still negative.
+
 ## Why This Is Still a Strong Outcome
 
-This is a high-value result because it is hard to fake:
+This is valuable because it is hard to fake:
 - We did not stop at internal metrics.
 - We forced claims through external and stress gates.
-- We identified concrete failure modes and fixed real code issues.
+- We found and fixed concrete methodological bugs.
 
-That makes the next iterations scientifically meaningful, not cosmetic.
-
-## Critical Fixes We Added
-
-1. Robust custom-SAE adapter handling for dead decoder rows.
-- File: `scripts/experiments/husai_custom_sae_adapter.py`
-
-2. Corrected known-circuit overlap geometry.
-- File: `scripts/experiments/run_known_circuit_recovery_closure.py`
-- SAE overlap now uses model-space projected Fourier basis.
-
-3. Matryoshka training path stabilization.
-- File: `scripts/experiments/run_matryoshka_frontier_external.py`
-- Uses HUSAI TopK with dead-feature recovery auxiliary objective.
-
-4. Unit tests for both bug classes.
-- `tests/unit/test_husai_custom_sae_adapter.py`
-- `tests/unit/test_known_circuit_recovery_closure.py`
+That makes future improvements scientifically meaningful.
 
 ## What Still Needs to Be Done
 
-1. Re-run Matryoshka frontier post-fix.
-2. Re-run known-circuit closure post-fix.
-3. Re-run assignment-v3 with external-compatible dimensions.
-4. Add RouteSAE family under matched-budget protocol.
-5. Re-run strict gate and update canonical status from fresh artifacts.
+1. Assignment-v3 rerun with external-compatible dimensional setup.
+2. Add RouteSAE family under matched-budget protocol.
+3. Re-run grouped-LCB candidate selection with new family included.
+4. Re-run strict gate and update canonical status.
 
 ## Final Takeaway
 

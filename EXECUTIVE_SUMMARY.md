@@ -15,10 +15,11 @@ HUSAI tests a central mechanistic-interpretability question: whether SAE feature
 
 Canonical current-status artifacts:
 - `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.md`
-- `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.json`
+- `docs/evidence/cycle4_postfix_reruns/known_circuit_run_20260215T203809Z_summary.md`
+- `docs/evidence/cycle4_postfix_reruns/matryoshka/run_20260215T203710Z_summary.md`
 - `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
 
-## Cycle 4 Key Metrics (Latest)
+## Cycle 4 Key Metrics (Gate Run)
 
 Run IDs:
 - Followups orchestrator: `run_20260215T190004Z`
@@ -41,45 +42,49 @@ Numerical highlights:
 - `saebench_delta_ci95_low = -0.0447896`
 - `cebench_interp_delta_vs_baseline_ci95_low = -40.4670`
 
-## Top 10 Issues (Severity-Ranked)
+## Post-Fix Rerun Highlights (This Pass)
 
-1. `P0` External gate fails with large negative CE-Bench delta.
+1. Known-circuit rerun now evaluates all checkpoints.
+- `checkpoints_evaluated: 20` (previously 0)
+- gate still fails, but now result is valid and interpretable.
+
+2. Matryoshka rerun no longer crashes and no longer collapses.
+- `train_l0_mean = 32.0` (previous cycle4 artifact had `l0=0`).
+- `train_ev_mean = 0.6166`.
+- external summaries produced for all 3 seeds.
+- external deltas still negative.
+
+## Top Issues (Current)
+
+1. `P0` External benchmark gap remains large (CE-Bench delta heavily negative).
 2. `P0` No candidate currently satisfies both external gates jointly.
-3. `P0` Matryoshka frontier run collapsed (`l0=0`) and external eval crashed in cycle4 artifacts.
-4. `P1` Assignment-v3 external stage skipped (`d_model` mismatch), so external claims are unresolved there.
-5. `P1` Known-circuit closure artifacts are not trustworthy yet (pre-fix basis mismatch path).
-6. `P1` Canonical docs were cycle3-pinned and drifted from latest evidence.
-7. `P1` W&B coverage is inconsistent across experiment scripts (some runs are file-artifact only).
-8. `P2` Determinism warnings around CuBLAS were present in queue logs.
-9. `P2` Historical docs can still be mistaken as canonical if entrypoint is ignored.
-10. `P2` External benchmark protocol variants can drift unless baseline-map strictness is enforced.
+3. `P1` Assignment-v3 external stage remains unresolved due dimensional mismatch in current artifact run.
+4. `P1` Strict release gate still blocks promotion (`pass_all=False`).
+5. `P2` W&B instrumentation remains inconsistent across scripts.
 
 ## What Changed in This Update
 
 Code fixes:
 - `scripts/experiments/husai_custom_sae_adapter.py`
-  - Added dead-decoder-row repair + encoder masking before SAEBench/CE-Bench adapter checks.
+  - dead-decoder-row repair + encoder masking before custom-SAE norm checks.
 - `scripts/experiments/run_known_circuit_recovery_closure.py`
-  - Fixed SAE Fourier overlap geometry to use **model-space projected Fourier basis**.
-  - Added skip-reason accounting for checkpoint decode/dimension failures.
+  - corrected SAE Fourier overlap geometry to model-space projection.
 - `scripts/experiments/run_matryoshka_frontier_external.py`
-  - Switched Matryoshka training to HUSAI `TopKSAE` (with auxiliary dead-feature revival) to prevent all-dead collapse.
+  - switched training path to HUSAI TopK with dead-feature recovery auxiliary loss.
 
 Tests added:
 - `tests/unit/test_husai_custom_sae_adapter.py`
 - `tests/unit/test_known_circuit_recovery_closure.py`
 
-Documentation sync:
-- `START_HERE.md`, `README.md`, `PROJECT_STUDY_GUIDE.md`, `REPO_NAVIGATION.md`, `HIGH_IMPACT_FOLLOWUPS_REPORT.md`, `PROPOSAL_COMPLETENESS_REVIEW.md`, `FINAL_READINESS_REVIEW.md`, `ADVISOR_BRIEF.md`
-- New canonical reflective synthesis: `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
+Docs synchronized to cycle4 truth and reflective status.
 
 ## Highest-Leverage Next 5 (Ranked)
 
-1. Re-run Matryoshka frontier with fixed training+adapter and compare against topk grouped-LCB candidate.
-2. Re-run known-circuit closure with fixed model-space basis and report trained-vs-random CIs.
-3. Run assignment-v3 on external-compatible activations (`d_model` matched) so external gates are actually evaluated.
-4. Add RouteSAE family under matched budget protocol and grouped-LCB selection.
-5. Make grouped-LCB + strict joint external gate the only release-eligible path in all queue scripts.
+1. Assignment-v3 rerun with external-compatible `d_model` configuration.
+2. Add RouteSAE under matched budget and run full external protocol.
+3. Re-run grouped-LCB candidate selection including new family runs.
+4. Re-run OOD/transcoder stress on the new selected candidate.
+5. Re-run strict gate and update canonical summaries only from latest artifacts.
 
 ## Read Next
 

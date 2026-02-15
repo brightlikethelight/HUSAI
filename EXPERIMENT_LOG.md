@@ -1486,3 +1486,51 @@ python scripts/analysis/verify_experiment_consistency.py
   - consistency report regenerated:
     - `results/analysis/experiment_consistency_report.json`
     - `results/analysis/experiment_consistency_report.md`
+
+### Run 73: Post-fix reruns on B200 (known-circuit + matryoshka)
+- Remote code baseline:
+  - pulled `main` at commit `de8d70b` on RunPod.
+
+#### 73a) Known-circuit closure rerun
+- Command:
+```bash
+python scripts/experiments/run_known_circuit_recovery_closure.py \
+  --transformer-checkpoint results/transformer_5000ep/transformer_best.pt \
+  --sae-checkpoint-glob 'results/experiments/phase4d_assignment_consistency_v3/run_*/checkpoints/lambda_*/sae_seed*.pt' \
+  --output-dir results/experiments/known_circuit_recovery_closure
+```
+- Output:
+  - `results/experiments/known_circuit_recovery_closure/run_20260215T203809Z/closure_summary.json`
+- Synced evidence:
+  - `docs/evidence/cycle4_postfix_reruns/known_circuit_run_20260215T203809Z_summary.json`
+- Key result:
+  - `checkpoints_evaluated=20` (previous artifact run had 0)
+  - gate still failing, but now scientifically valid.
+
+#### 73b) Matryoshka frontier rerun after fixes
+- Command:
+```bash
+python scripts/experiments/run_matryoshka_frontier_external.py \
+  --activation-cache-dir /tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped \
+  --activation-glob '*_blocks.0.hook_resid_pre.pt' \
+  --max-files 80 --max-rows-per-file 2048 --max-total-rows 150000 \
+  --seeds 42,123,456 --d-sae 1024 --k 32 --epochs 6 --batch-size 4096 \
+  --learning-rate 0.001 --device cuda --dtype float32 \
+  --run-saebench --run-cebench --cebench-repo /workspace/CE-Bench \
+  --cebench-max-rows 200 \
+  --cebench-matched-baseline-summary docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json \
+  --saebench-model-cache-path /tmp/sae_bench_model_cache \
+  --saebench-results-path /tmp/husai_saebench_probe_results_frontier_matryoshka_v2 \
+  --cebench-artifacts-path /tmp/ce_bench_artifacts_frontier_matryoshka_v2 \
+  --saebench-dataset-limit 8 \
+  --output-dir results/experiments/phase4b_matryoshka_frontier_external
+```
+- Output:
+  - `results/experiments/phase4b_matryoshka_frontier_external/run_20260215T203710Z/results.json`
+- Synced evidence:
+  - `docs/evidence/cycle4_postfix_reruns/matryoshka/run_20260215T203710Z_results.json`
+- Key result:
+  - external eval succeeds for all 3 seeds (no adapter normalization crash)
+  - `train_l0_mean=32.0`, `train_ev_mean=0.6166`
+  - `saebench_best_minus_llm_auc_mean=-0.03444`
+  - `cebench_interp_delta_vs_baseline_mean=-40.16739`

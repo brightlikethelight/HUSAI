@@ -14,21 +14,22 @@ Reality:
 
 Primary evidence:
 - `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.json`
-- `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
+- `docs/evidence/cycle4_postfix_reruns/matryoshka/run_20260215T203710Z_results.json`
+- `docs/evidence/cycle4_postfix_reruns/known_circuit_run_20260215T203809Z_summary.json`
 
 ## 2) Readiness by Area
 
 1. Engineering readiness: high.
 2. Reproducibility readiness: high.
 3. Scientific readiness for strong external claim: low-to-moderate.
-4. Documentation readiness: high after this cycle4 sync.
+4. Documentation readiness: high after cycle4 sync.
 
 ## 3) Blocking Issues (Ranked)
 
 1. `P0` External gate failure (SAEBench and CE-Bench negative LCB deltas).
-2. `P1` Matryoshka run quality failure in cycle4 artifacts (dead-feature collapse).
-3. `P1` Assignment-v3 external stage skipped due `d_model` mismatch.
-4. `P1` Known-circuit closure not complete in published cycle4 artifact run.
+2. `P1` No release-eligible candidate under strict joint external constraints.
+3. `P1` Assignment-v3 external stage unresolved due dimensional mismatch setup.
+4. `P2` W&B logging policy remains inconsistent across scripts.
 
 ## 4) What Is Complete
 
@@ -36,6 +37,7 @@ Primary evidence:
 - Multiseed architecture frontier and scaling studies.
 - Grouped LCB candidate selection.
 - Transcoder/OOD stress evaluation integrated into release gate.
+- Post-fix validation reruns for known-circuit and Matryoshka tracks.
 
 ## 5) Finish Criteria (Strict)
 
@@ -48,11 +50,11 @@ Project is fully claim-ready only if all are true:
 
 ## 6) Immediate Next Actions
 
-1. Re-run Matryoshka frontier after training+adapter fixes.
-2. Re-run known-circuit closure after basis-space fix.
-3. Re-run assignment-v3 with external-compatible dimensional setup.
-4. Add RouteSAE family under matched-budget protocol.
+1. Assignment-v3 external-compatible rerun.
+2. Add RouteSAE family under matched-budget protocol.
+3. Re-run grouped-LCB selector on expanded candidate pool.
+4. Re-run strict gate and update canonical status.
 
 ## 7) Bottom Line
 
-The repository is polished and dependable as a research system. The remaining work is scientific, not organizational: finding a candidate that passes strict external gates.
+The repository is polished and dependable as a research system. Remaining work is scientific: finding a candidate that passes strict external gates.

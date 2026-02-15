@@ -14,8 +14,8 @@ Current bottom line:
 ## 2) Strongest Artifact-Backed Evidence
 
 - `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.json`
-- `docs/evidence/cycle4_followups_run_20260215T190004Z/transcoder_sweep/summary.md`
-- `docs/evidence/cycle4_followups_run_20260215T190004Z/ood/ood_stress_summary.md`
+- `docs/evidence/cycle4_postfix_reruns/matryoshka/run_20260215T203710Z_results.json`
+- `docs/evidence/cycle4_postfix_reruns/known_circuit_run_20260215T203809Z_summary.json`
 
 Latest gate:
 - random pass, transcoder pass, OOD pass, external fail, `pass_all=false`.
@@ -25,21 +25,21 @@ Latest gate:
 1. Internal consistency gains are real but not sufficient for external success.
 2. SAEBench and CE-Bench pressures differ and create a nontrivial frontier.
 3. Strict gate enforcement prevents unsupported external claims.
+4. Post-fix reruns converted two previously invalid tracks into usable evidence.
 
 ## 4) Current High-Risk Gaps
 
 1. External deltas remain negative at LCB level.
-2. Matryoshka frontier evidence run failed and needs post-fix rerun.
-3. Known-circuit closure requires rerun after corrected basis mapping.
-4. Assignment-v3 must be rerun with external-compatible dimensional setup.
+2. Assignment-v3 external stage needs dimension-compatible rerun.
+3. No candidate currently passes strict release policy end-to-end.
 
 ## 5) Highest-Impact Next Work
 
-1. Matryoshka rerun under matched budget with fixed training+adapter path.
-2. Known-circuit closure rerun with confidence bounds.
-3. Assignment-v3 external-compatible rerun.
-4. Add RouteSAE family under matched protocol.
-5. Re-run strict release gate and update canonical status from new artifacts.
+1. Assignment-v3 rerun with external-compatible `d_model`.
+2. Add RouteSAE family under matched protocol.
+3. Re-run grouped-LCB selection with updated candidate pool.
+4. Re-run stress gates and strict release gate.
+5. Refresh canonical summaries from new gate artifacts.
 
 ## 6) Literature Anchors (Primary Sources)
 

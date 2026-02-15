@@ -36,91 +36,81 @@ Key gate metrics:
 - `saebench_delta_ci95_low = -0.044790`
 - `cebench_interp_delta_vs_baseline_ci95_low = -40.467037`
 
-## 3) What Is Finished vs Not Finished
+## 3) Post-Fix Reruns in This Pass
+
+### 3.1 Known-circuit closure rerun (fixed metric geometry)
+
+Artifact:
+- `docs/evidence/cycle4_postfix_reruns/known_circuit_run_20260215T203809Z_summary.json`
+
+Result:
+- Previously: `checkpoints_evaluated=0` (not scientifically useful).
+- Now: `checkpoints_discovered=20`, `checkpoints_evaluated=20`, `skipped_dimension_mismatch=0`.
+- Gates still fail (`pass_all=False`), but evidence is now valid and interpretable.
+
+### 3.2 Matryoshka rerun (fixed training + adapter path)
+
+Artifacts:
+- `docs/evidence/cycle4_postfix_reruns/matryoshka/run_20260215T203710Z_summary.md`
+- `docs/evidence/cycle4_postfix_reruns/matryoshka/run_20260215T203710Z_results.json`
+
+Result:
+- Previous cycle4 run: collapsed (`l0=0`) and adapter crash.
+- New run: external eval succeeds for all 3 seeds.
+- Aggregate metrics:
+  - `train_ev_mean = 0.6166`
+  - `train_l0_mean = 32.0`
+  - `saebench_best_minus_llm_auc_mean = -0.03444`
+  - `cebench_interpretability_mean = 7.7842`
+  - `cebench_delta_vs_baseline_mean = -40.1674`
+
+Interpretation:
+- Crash is fixed and training is no longer degenerate.
+- External deltas remain negative, so release gate remains blocked.
+
+## 4) What Is Finished vs Not Finished
 
 Finished (engineering/reliability):
 - Reproducible queue orchestration, manifests, logs, evidence syncing, strict release gating.
 - Grouped uncertainty-aware (LCB) candidate selection and policy wiring.
 - External benchmark adapters and matched-baseline comparison paths.
+- Fixed critical evaluation bugs (adapter + known-circuit geometry + Matryoshka training path).
 
 Not finished (scientific):
 - No release-eligible external-positive candidate yet.
-- Known-circuit closure not complete in current published artifacts.
-- New architecture family track (Matryoshka) did not produce valid external eval in cycle4 evidence.
+- Assignment-v3 external stage still needs a `d_model`-compatible rerun.
 
-## 4) Critical Issues Found in Cycle 4 Artifacts
+## 5) Remaining Critical Issues
 
-1. Matryoshka external eval failed for all seeds.
-- Evidence: `docs/evidence/cycle4_followups_run_20260215T190004Z/matryoshka/logs/*.log`
-- Failure: `ValueError: Failed to normalize decoder rows for custom SAE`
-- Train signal in that run: `l0=0.0` (collapsed features).
+1. External gate still fails with large negative CE-Bench delta.
+2. Assignment-v3 external-aware acceptance is unresolved due dimensional mismatch in current artifact run.
+3. Strict gate remains failing; no candidate meets all acceptance criteria simultaneously.
 
-2. Assignment-v3 external evaluation was skipped.
-- Evidence: `docs/evidence/cycle4_followups_run_20260215T190004Z/assignment_v3/results.json`
-- Reason: `d_model_mismatch checkpoint=128 external_cache=512`
-- Implication: external-aware acceptance in that run is not informative.
-
-3. Known-circuit closure did not evaluate SAE checkpoints meaningfully.
-- Evidence: `docs/evidence/cycle4_followups_run_20260215T190004Z/known_circuit/closure_summary.json`
-- Reported `checkpoints_evaluated=0` and failed gates.
-
-## 5) High-Impact Fixes Applied in This Pass
-
-1. Adapter robustness fix.
-- File: `scripts/experiments/husai_custom_sae_adapter.py`
-- Added deterministic dead-decoder-row repair + encoder masking before norm checks.
-
-2. Known-circuit geometry fix.
-- File: `scripts/experiments/run_known_circuit_recovery_closure.py`
-- SAE overlap now uses model-space Fourier basis from token-space projection via embedding matrix.
-- Added explicit skipped-checkpoint reason accounting.
-
-3. Matryoshka training stabilization path.
-- File: `scripts/experiments/run_matryoshka_frontier_external.py`
-- Uses HUSAI `TopKSAE` with auxiliary dead-feature recovery objective instead of bare custom TopK path.
-
-4. Unit-test coverage for both bug classes.
-- Files:
-  - `tests/unit/test_husai_custom_sae_adapter.py`
-  - `tests/unit/test_known_circuit_recovery_closure.py`
-
-## 6) What To Read (If You Want Full Understanding Fast)
+## 6) What To Read (Fast Path)
 
 1. `START_HERE.md`
 2. `PROJECT_STUDY_GUIDE.md`
 3. `EXECUTIVE_SUMMARY.md`
 4. `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.md`
-5. `docs/evidence/cycle4_followups_run_20260215T190004Z/transcoder_sweep/summary.md`
-6. `docs/evidence/cycle4_followups_run_20260215T190004Z/ood/ood_stress_summary.md`
-7. `docs/evidence/cycle4_followups_run_20260215T190004Z/matryoshka/summary.md`
-8. `docs/evidence/cycle4_followups_run_20260215T190004Z/assignment_v3/summary.md`
-9. `docs/evidence/cycle4_followups_run_20260215T190004Z/known_circuit/closure_summary.md`
-10. `RUNBOOK.md`
+5. `docs/evidence/cycle4_postfix_reruns/known_circuit_run_20260215T203809Z_summary.md`
+6. `docs/evidence/cycle4_postfix_reruns/matryoshka/run_20260215T203710Z_summary.md`
+7. `RUNBOOK.md`
 
-## 7) Are We Satisfied / "Project Finished"?
+## 7) Are We Scientifically Finished?
 
-Not yet scientifically.
+Not yet.
 
-We are close to "finished" on engineering hygiene and reproducibility. We are not yet finished on the core scientific promise (joint internal+external improvement with strict gate pass).
+We are close to finished on engineering/reproducibility and clear on the scientific bottleneck. We are not yet finished on the original goal of joint internal + external improvement under strict gates.
 
-## 8) Recommended Immediate Experiment Queue (B200)
+## 8) Recommended Immediate B200 Queue
 
-1. Matryoshka rerun (post-fix) under matched budget.
-- Goal: verify non-collapsed `l0`, successful SAEBench/CE-Bench adapter execution.
+1. Assignment-v3 rerun with external-compatible `d_model` setup.
+2. RouteSAE matched-budget run (same SAEBench/CE-Bench protocol).
+3. Grouped-LCB selection across frontier + scaling + new family.
+4. OOD + transcoder stress on selected candidate.
+5. Strict release gate rerun and canonical status refresh.
 
-2. Known-circuit closure rerun (post-fix).
-- Goal: obtain non-empty SAE overlap statistics with CIs.
-
-3. Assignment-v3 external-compatible run.
-- Goal: run v3 where checkpoint `d_model` matches external cache/model.
-
-4. New architecture family run (RouteSAE) under same protocol.
-- Goal: test whether external frontier can improve without violating internal/OOD/transcoder gates.
-
-5. Strict gate rerun from grouped-LCB selected candidate.
-- Goal: update final `pass_all` truth after fixes.
-
-## 9) Claim Policy (Unchanged and Strict)
+## 9) Claim Policy
 
 No strong external claim unless strict release gate passes:
 - `pass_all=True`
