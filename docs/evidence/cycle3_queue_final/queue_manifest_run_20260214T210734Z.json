@@ -1,0 +1,10 @@
+{
+  "queue_id": "run_20260214T210734Z",
+  "frontier_run": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z",
+  "scaling_run": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260214T212435Z",
+  "candidate_json": "results/experiments/cycle3_queue/latest_external_candidate.json",
+  "transcoder_summary": "results/experiments/phase4e_transcoder_stress_b200/run_20260214T224242Z/transcoder_stress_summary.json",
+  "ood_summary": "results/experiments/phase4e_ood_stress_b200/run_20260214T224309Z/ood_stress_summary.json",
+  "best_external_summary": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/relu_seed42/saebench/husai_custom_sae_summary.json",
+  "release_policy_rc": 2
+}

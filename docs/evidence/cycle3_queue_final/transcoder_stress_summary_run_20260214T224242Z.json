@@ -1,0 +1,131 @@
+{
+  "run_metadata": {
+    "timestamp_utc": "2026-02-14T22:43:06+00:00",
+    "git_commit": "511c56c059a37db98375f00166e56ff9030bfab2",
+    "command": "python scripts/experiments/run_transcoder_stress_eval.py --transformer-checkpoint results/transformer_5000ep/transformer_best.pt --device cuda --epochs 12 --seeds 42,123,456 --batch-size 512 --output-dir results/experiments/phase4e_transcoder_stress_b200",
+    "config_hash": "4c264a61601ef22553e15e207fca4b065d49907c3df0bb02198c95c93c1be146",
+    "run_id": "run_20260214T224242Z"
+  },
+  "config": {
+    "transformer_checkpoint": "/workspace/HUSAI/results/transformer_5000ep/transformer_best.pt",
+    "layer": 1,
+    "position": "answer",
+    "modulus": 113,
+    "batch_size": 512,
+    "max_samples": 0,
+    "d_sae": 128,
+    "k": 32,
+    "seeds": [
+      42,
+      123,
+      456
+    ],
+    "epochs": 12,
+    "learning_rate": 0.0003,
+    "bootstrap_samples": 10000,
+    "device": "cuda",
+    "run_id": "run_20260214T224242Z"
+  },
+  "data": {
+    "samples": 12769,
+    "d_model": 128,
+    "mlp_input_mean": 4.7533914766972885e-05,
+    "mlp_output_mean": 0.08191993087530136,
+    "mlp_input_std": 1.0019391775131226,
+    "mlp_output_std": 0.9101483821868896
+  },
+  "per_seed": [
+    {
+      "seed": 42,
+      "transcoder": {
+        "mse": 0.25753509998321533,
+        "l0": 32.0,
+        "checkpoint": "results/experiments/phase4e_transcoder_stress_b200/run_20260214T224242Z/checkpoints/transcoder_seed42.pt"
+      },
+      "sae": {
+        "mse": 0.3062335252761841,
+        "l0": 32.0,
+        "checkpoint": "results/experiments/phase4e_transcoder_stress_b200/run_20260214T224242Z/checkpoints/sae_seed42.pt"
+      }
+    },
+    {
+      "seed": 123,
+      "transcoder": {
+        "mse": 0.2718949019908905,
+        "l0": 32.0,
+        "checkpoint": "results/experiments/phase4e_transcoder_stress_b200/run_20260214T224242Z/checkpoints/transcoder_seed123.pt"
+      },
+      "sae": {
+        "mse": 0.3041316866874695,
+        "l0": 32.0,
+        "checkpoint": "results/experiments/phase4e_transcoder_stress_b200/run_20260214T224242Z/checkpoints/sae_seed123.pt"
+      }
+    },
+    {
+      "seed": 456,
+      "transcoder": {
+        "mse": 0.28233203291893005,
+        "l0": 32.0,
+        "checkpoint": "results/experiments/phase4e_transcoder_stress_b200/run_20260214T224242Z/checkpoints/transcoder_seed456.pt"
+      },
+      "sae": {
+        "mse": 0.28980082273483276,
+        "l0": 32.0,
+        "checkpoint": "results/experiments/phase4e_transcoder_stress_b200/run_20260214T224242Z/checkpoints/sae_seed456.pt"
+      }
+    }
+  ],
+  "transcoder": {
+    "pairwise_pwmcc_values": [
+      0.26641567051410675,
+      0.2702806890010834,
+      0.2682995945215225
+    ],
+    "summary": {
+      "mean": 0.26833198467890423,
+      "std": 0.0019327128130917886,
+      "min": 0.26641567051410675,
+      "max": 0.2702806890010834,
+      "n": 3,
+      "ci95_low": 0.26641567051410675,
+      "ci95_high": 0.2702806890010834
+    }
+  },
+  "sae": {
+    "pairwise_pwmcc_values": [
+      0.26780956983566284,
+      0.27006515860557556,
+      0.2738051265478134
+    ],
+    "summary": {
+      "mean": 0.2705599516630173,
+      "std": 0.0030282487017124003,
+      "min": 0.26780956983566284,
+      "max": 0.2738051265478134,
+      "n": 3,
+      "ci95_low": 0.26780956983566284,
+      "ci95_high": 0.2738051265478134
+    }
+  },
+  "random_baseline": {
+    "pairwise_pwmcc_values": [
+      0.2508258521556854,
+      0.2499678060412407,
+      0.24296744167804718
+    ],
+    "summary": {
+      "mean": 0.2479203666249911,
+      "std": 0.004310760945723271,
+      "min": 0.24296744167804718,
+      "max": 0.2508258521556854,
+      "n": 3
+    }
+  },
+  "delta": -0.002227966984113039,
+  "transcoder_delta": -0.002227966984113039,
+  "metrics": {
+    "transcoder_delta": -0.002227966984113039,
+    "ratio_transcoder_vs_random": 1.0823313482945438,
+    "ratio_sae_vs_random": 1.0913179717593402
+  }
+}

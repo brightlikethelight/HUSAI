@@ -1,0 +1,38 @@
+{
+  "run_metadata": {
+    "timestamp_utc": "2026-02-14T22:50:29+00:00",
+    "git_commit": "511c56c059a37db98375f00166e56ff9030bfab2",
+    "command": "python scripts/experiments/run_stress_gated_release_policy.py --phase4a-results results/experiments/phase4a_trained_vs_random/results.json --transcoder-results results/experiments/phase4e_transcoder_stress_b200/run_20260214T224242Z/transcoder_stress_summary.json --ood-results results/experiments/phase4e_ood_stress_b200/run_20260214T224309Z/ood_stress_summary.json --external-summary results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/relu_seed42/saebench/husai_custom_sae_summary.json --require-transcoder --require-ood --require-external --fail-on-gate-fail",
+    "run_id": "run_20260214T225029Z"
+  },
+  "inputs": {
+    "phase4a_results": "results/experiments/phase4a_trained_vs_random/results.json",
+    "transcoder_results": "results/experiments/phase4e_transcoder_stress_b200/run_20260214T224242Z/transcoder_stress_summary.json",
+    "ood_results": "results/experiments/phase4e_ood_stress_b200/run_20260214T224309Z/ood_stress_summary.json",
+    "external_summary": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/relu_seed42/saebench/husai_custom_sae_summary.json"
+  },
+  "thresholds": {
+    "min_trained_random_delta": 0.0,
+    "min_trained_random_lcb": 0.0,
+    "min_transcoder_delta": 0.0,
+    "max_ood_drop": 0.1,
+    "min_external_delta": 0.0,
+    "require_transcoder": true,
+    "require_ood": true,
+    "require_external": true
+  },
+  "metrics": {
+    "trained_random_delta": 0.0012296229600906594,
+    "trained_random_delta_lcb": 6.183199584486321e-05,
+    "transcoder_delta": -0.002227966984113039,
+    "ood_drop": 0.01445406161520213,
+    "external_delta": -0.017257680751151527
+  },
+  "gates": {
+    "random_model": true,
+    "transcoder": false,
+    "ood": true,
+    "external": false,
+    "pass_all": false
+  }
+}
