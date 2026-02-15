@@ -34,9 +34,16 @@ def load_json(path: Path | None) -> dict[str, Any] | None:
     return json.loads(path.read_text())
 
 
+def maybe_float(value: Any) -> float | None:
+    if isinstance(value, (int, float)):
+        return float(value)
+    return None
+
+
 def extract_phase4a_delta(payload: dict[str, Any] | None) -> tuple[float | None, float | None]:
     if payload is None:
         return None, None
+
     delta = None
     lcb = None
     comp = payload.get("comparison") or {}
@@ -50,7 +57,7 @@ def extract_phase4a_delta(payload: dict[str, Any] | None) -> tuple[float | None,
     return delta, lcb
 
 
-def extract_external_delta(payload: dict[str, Any] | None) -> float | None:
+def extract_legacy_external_delta(payload: dict[str, Any] | None) -> float | None:
     if payload is None:
         return None
     candidates: list[Any] = [
@@ -59,11 +66,66 @@ def extract_external_delta(payload: dict[str, Any] | None) -> float | None:
         (payload.get("delta_vs_matched_baseline") or {}).get("interpretability_score_mean_max"),
         (payload.get("delta_vs_matched_baseline") or {}).get("contrastive_score_mean_max"),
         (payload.get("delta_vs_matched_baseline") or {}).get("independent_score_mean_max"),
+        payload.get("external_delta"),
     ]
     for value in candidates:
         if isinstance(value, (int, float)):
             return float(value)
     return None
+
+
+def extract_external_metrics(payload: dict[str, Any] | None) -> dict[str, float | None]:
+    if payload is None:
+        return {
+            "saebench_delta": None,
+            "cebench_interp_delta_vs_baseline": None,
+            "cebench_interpretability_max": None,
+            "legacy_external_delta": None,
+        }
+
+    obj = payload
+    selected = payload.get("selected_candidate")
+    if isinstance(selected, dict):
+        obj = selected
+
+    metrics = obj.get("metrics") if isinstance(obj.get("metrics"), dict) else {}
+
+    saebench_candidates = [
+        metrics.get("saebench_delta"),
+        obj.get("saebench_delta"),
+        obj.get("best_minus_llm_auc"),
+        (obj.get("summary") or {}).get("best_minus_llm_auc"),
+    ]
+
+    cebench_delta_candidates = [
+        metrics.get("cebench_interp_delta_vs_baseline"),
+        metrics.get("cebench_delta"),
+        obj.get("cebench_interp_delta_vs_baseline"),
+        obj.get("cebench_delta"),
+        (obj.get("delta_vs_matched_baseline") or {}).get("interpretability_score_mean_max"),
+    ]
+
+    cebench_interp_candidates = [
+        metrics.get("cebench_interpretability_max"),
+        obj.get("cebench_interpretability_max"),
+        (obj.get("custom_metrics") or {}).get("interpretability_score_mean_max"),
+        (obj.get("cebench_summary") or {}).get("interpretability_score_mean_max"),
+    ]
+
+    saebench_delta = next((float(v) for v in saebench_candidates if isinstance(v, (int, float))), None)
+    cebench_delta = next((float(v) for v in cebench_delta_candidates if isinstance(v, (int, float))), None)
+    cebench_interp = next((float(v) for v in cebench_interp_candidates if isinstance(v, (int, float))), None)
+
+    legacy_external_delta = extract_legacy_external_delta(obj)
+    if legacy_external_delta is None:
+        legacy_external_delta = saebench_delta if saebench_delta is not None else cebench_delta
+
+    return {
+        "saebench_delta": saebench_delta,
+        "cebench_interp_delta_vs_baseline": cebench_delta,
+        "cebench_interpretability_max": cebench_interp,
+        "legacy_external_delta": legacy_external_delta,
+    }
 
 
 def extract_transcoder_delta(payload: dict[str, Any] | None) -> float | None:
@@ -107,6 +169,49 @@ def repo_rel(path: Path | None) -> str | None:
         return str(abs_path)
 
 
+def threshold_gate(value: float | None, threshold: float, required: bool) -> bool:
+    if value is None:
+        return not required
+    return float(value) >= float(threshold)
+
+
+def evaluate_external_gates(
+    *,
+    external_mode: str,
+    require_external: bool,
+    min_external_delta: float,
+    min_saebench_delta: float,
+    min_cebench_delta: float,
+    external_metrics: dict[str, float | None],
+) -> tuple[bool, bool, bool, str, float | None]:
+    saebench_delta = external_metrics.get("saebench_delta")
+    cebench_delta = external_metrics.get("cebench_interp_delta_vs_baseline")
+    legacy_external_delta = external_metrics.get("legacy_external_delta")
+
+    gate_external_saebench = threshold_gate(saebench_delta, min_saebench_delta, require_external)
+    gate_external_cebench = threshold_gate(cebench_delta, min_cebench_delta, require_external)
+
+    mode_used = external_mode
+    if external_mode == "saebench":
+        gate_external = gate_external_saebench
+    elif external_mode == "cebench":
+        gate_external = gate_external_cebench
+    elif external_mode == "joint":
+        gate_external = gate_external_saebench and gate_external_cebench
+    elif external_mode == "auto":
+        # Prefer joint gating if both metrics are present.
+        if saebench_delta is not None and cebench_delta is not None:
+            gate_external = gate_external_saebench and gate_external_cebench
+            mode_used = "auto_joint"
+        else:
+            gate_external = threshold_gate(legacy_external_delta, min_external_delta, require_external)
+            mode_used = "auto_legacy"
+    else:
+        raise ValueError(f"Unsupported external_mode: {external_mode}")
+
+    return gate_external, gate_external_saebench, gate_external_cebench, mode_used, legacy_external_delta
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Stress-gated release policy evaluator")
     parser.add_argument(
@@ -117,12 +222,21 @@ def main() -> None:
     parser.add_argument("--transcoder-results", type=Path, default=None)
     parser.add_argument("--ood-results", type=Path, default=None)
     parser.add_argument("--external-summary", type=Path, default=None)
+    parser.add_argument("--external-candidate-json", type=Path, default=None)
 
     parser.add_argument("--min-trained-random-delta", type=float, default=0.0)
     parser.add_argument("--min-trained-random-lcb", type=float, default=0.0)
     parser.add_argument("--min-transcoder-delta", type=float, default=0.0)
     parser.add_argument("--max-ood-drop", type=float, default=0.1)
     parser.add_argument("--min-external-delta", type=float, default=0.0)
+    parser.add_argument("--min-saebench-delta", type=float, default=0.0)
+    parser.add_argument("--min-cebench-delta", type=float, default=0.0)
+    parser.add_argument(
+        "--external-mode",
+        type=str,
+        choices=["auto", "saebench", "cebench", "joint"],
+        default="auto",
+    )
 
     parser.add_argument("--require-transcoder", action="store_true")
     parser.add_argument("--require-ood", action="store_true")
@@ -139,12 +253,14 @@ def main() -> None:
     phase4a = load_json(args.phase4a_results)
     transcoder = load_json(args.transcoder_results)
     ood = load_json(args.ood_results)
-    external = load_json(args.external_summary)
+
+    external_source = args.external_candidate_json if args.external_candidate_json is not None else args.external_summary
+    external_payload = load_json(external_source)
 
     trained_delta, trained_lcb = extract_phase4a_delta(phase4a)
     transcoder_delta = extract_transcoder_delta(transcoder)
     ood_drop = extract_ood_drop(ood)
-    external_delta = extract_external_delta(external)
+    external_metrics = extract_external_metrics(external_payload)
 
     gate_random = (
         trained_delta is not None
@@ -163,10 +279,20 @@ def main() -> None:
     else:
         gate_ood = ood_drop <= args.max_ood_drop
 
-    if external_delta is None:
-        gate_external = not args.require_external
-    else:
-        gate_external = external_delta >= args.min_external_delta
+    (
+        gate_external,
+        gate_external_saebench,
+        gate_external_cebench,
+        external_mode_used,
+        legacy_external_delta,
+    ) = evaluate_external_gates(
+        external_mode=args.external_mode,
+        require_external=args.require_external,
+        min_external_delta=args.min_external_delta,
+        min_saebench_delta=args.min_saebench_delta,
+        min_cebench_delta=args.min_cebench_delta,
+        external_metrics=external_metrics,
+    )
 
     pass_all = bool(gate_random and gate_transcoder and gate_ood and gate_external)
 
@@ -186,6 +312,8 @@ def main() -> None:
             "transcoder_results": repo_rel(args.transcoder_results),
             "ood_results": repo_rel(args.ood_results),
             "external_summary": repo_rel(args.external_summary),
+            "external_candidate_json": repo_rel(args.external_candidate_json),
+            "external_source_used": repo_rel(external_source),
         },
         "thresholds": {
             "min_trained_random_delta": args.min_trained_random_delta,
@@ -193,6 +321,9 @@ def main() -> None:
             "min_transcoder_delta": args.min_transcoder_delta,
             "max_ood_drop": args.max_ood_drop,
             "min_external_delta": args.min_external_delta,
+            "min_saebench_delta": args.min_saebench_delta,
+            "min_cebench_delta": args.min_cebench_delta,
+            "external_mode": args.external_mode,
             "require_transcoder": args.require_transcoder,
             "require_ood": args.require_ood,
             "require_external": args.require_external,
@@ -202,13 +333,19 @@ def main() -> None:
             "trained_random_delta_lcb": trained_lcb,
             "transcoder_delta": transcoder_delta,
             "ood_drop": ood_drop,
-            "external_delta": external_delta,
+            "external_delta": legacy_external_delta,
+            "saebench_delta": external_metrics.get("saebench_delta"),
+            "cebench_interp_delta_vs_baseline": external_metrics.get("cebench_interp_delta_vs_baseline"),
+            "cebench_interpretability_max": external_metrics.get("cebench_interpretability_max"),
         },
         "gates": {
             "random_model": gate_random,
             "transcoder": gate_transcoder,
             "ood": gate_ood,
             "external": gate_external,
+            "external_saebench": gate_external_saebench,
+            "external_cebench": gate_external_cebench,
+            "external_mode_used": external_mode_used,
             "pass_all": pass_all,
         },
     }
@@ -223,6 +360,7 @@ def main() -> None:
         "",
         f"- Run ID: `{run_id}`",
         f"- pass_all: `{pass_all}`",
+        f"- external_mode_used: `{external_mode_used}`",
         "",
         "## Gate Status",
         "",
@@ -230,6 +368,8 @@ def main() -> None:
         f"- transcoder: `{gate_transcoder}`",
         f"- ood: `{gate_ood}`",
         f"- external: `{gate_external}`",
+        f"- external_saebench: `{gate_external_saebench}`",
+        f"- external_cebench: `{gate_external_cebench}`",
         "",
         "## Metrics",
         "",
@@ -237,7 +377,10 @@ def main() -> None:
         f"- trained_random_delta_lcb: `{trained_lcb}`",
         f"- transcoder_delta: `{transcoder_delta}`",
         f"- ood_drop: `{ood_drop}`",
-        f"- external_delta: `{external_delta}`",
+        f"- external_delta (legacy): `{legacy_external_delta}`",
+        f"- saebench_delta: `{external_metrics.get('saebench_delta')}`",
+        f"- cebench_interp_delta_vs_baseline: `{external_metrics.get('cebench_interp_delta_vs_baseline')}`",
+        f"- cebench_interpretability_max: `{external_metrics.get('cebench_interpretability_max')}`",
     ]
     out_md.write_text("\n".join(lines) + "\n")
 

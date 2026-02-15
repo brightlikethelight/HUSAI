@@ -13,6 +13,8 @@ exec > >(tee -a "$LOG_PATH") 2>&1
 
 WAIT_SECONDS="${WAIT_SECONDS:-60}"
 CEBENCH_REPO="${CEBENCH_REPO:-/workspace/CE-Bench}"
+MIN_SAEBENCH_DELTA="${MIN_SAEBENCH_DELTA:-0.0}"
+MIN_CEBENCH_DELTA="${MIN_CEBENCH_DELTA:-0.0}"
 
 SAEBENCH_DATASETS="${SAEBENCH_DATASETS:-100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom}"
 
@@ -36,7 +38,8 @@ fi
 echo "[queue] frontier_run=${FRONTIER_RUN}"
 
 if [[ ! -f "$FRONTIER_RUN/results.json" ]]; then
-  echo "[queue] WARNING: frontier run has no results.json yet; proceeding with available external summaries"
+  echo "[queue] ERROR: frontier run has no results.json: $FRONTIER_RUN/results.json"
+  exit 1
 fi
 
 echo "[queue] launching multiseed external scaling study"
@@ -71,54 +74,50 @@ python scripts/experiments/run_external_metric_scaling_study.py \
 SCALING_RUN="$(ls -1dt results/experiments/phase4e_external_scaling_study_multiseed/run_* | head -n1)"
 echo "[queue] scaling_run=${SCALING_RUN}"
 
-echo "[queue] selecting best external condition from frontier summaries"
-python - <<'PY'
-import glob
+if [[ ! -f "$SCALING_RUN/results.json" ]]; then
+  echo "[queue] ERROR: scaling run has no results.json: $SCALING_RUN/results.json"
+  exit 1
+fi
+
+echo "[queue] selecting release candidate using multi-objective selector"
+python scripts/experiments/select_release_candidate.py \
+  --frontier-results "$FRONTIER_RUN/results.json" \
+  --scaling-results "$SCALING_RUN/results.json" \
+  --require-both-external \
+  --output-dir results/experiments/release_candidate_selection
+
+SELECTOR_RUN="$(ls -1dt results/experiments/release_candidate_selection/run_* | head -n1)"
+SELECTED_JSON="${SELECTOR_RUN}/selected_candidate.json"
+CANDIDATE_JSON="$SELECTED_JSON"
+
+if [[ ! -f "$SELECTED_JSON" ]]; then
+  echo "[queue] ERROR: selector output not found: $SELECTED_JSON"
+  exit 1
+fi
+
+read -r BEST_CHECKPOINT BEST_ARCH BEST_HOOK_LAYER BEST_HOOK_NAME BEST_SAEBENCH_SUMMARY BEST_CEBENCH_SUMMARY < <(
+  SELECTED_JSON="$SELECTED_JSON" python - <<'PY'
 import json
-from pathlib import Path
+import os
 
-frontier_run = Path(glob.glob("results/experiments/phase4b_architecture_frontier_external_multiseed/run_*")[-1])
-summaries = sorted(frontier_run.glob("external_eval/*/saebench/husai_custom_sae_summary.json"))
-if not summaries:
-    raise SystemExit("No frontier SAEBench summaries found")
-
-best = None
-for p in summaries:
-    payload = json.loads(p.read_text())
-    score = (payload.get("summary") or {}).get("best_minus_llm_auc")
-    if score is None:
-        continue
-    condition = p.parts[-3]
-    arch = condition.split("_seed")[0]
-    ckpt = frontier_run / "checkpoints" / condition / "sae_final.pt"
-    row = {
-        "condition": condition,
-        "architecture": arch,
-        "score": float(score),
-        "summary_path": str(p),
-        "checkpoint_path": str(ckpt),
-        "frontier_run": str(frontier_run),
-    }
-    if best is None or row["score"] > best["score"]:
-        best = row
-
-if best is None:
-    raise SystemExit("No valid best_minus_llm_auc found in frontier summaries")
-
-out_path = Path("results/experiments/cycle3_queue") / "latest_external_candidate.json"
-out_path.write_text(json.dumps(best, indent=2) + "\n")
-print(f"[queue] best_condition={best['condition']} score={best['score']}")
-print(f"[queue] candidate_json={out_path}")
+path = os.environ["SELECTED_JSON"]
+d = json.load(open(path))
+print(
+    d.get("checkpoint", ""),
+    d.get("architecture", "topk"),
+    d.get("hook_layer", 0),
+    d.get("hook_name", "blocks.0.hook_resid_pre"),
+    d.get("saebench_summary_path", ""),
+    d.get("cebench_summary_path", ""),
+)
 PY
-
-CANDIDATE_JSON="results/experiments/cycle3_queue/latest_external_candidate.json"
-BEST_CHECKPOINT="$(python -c 'import json;print(json.load(open("results/experiments/cycle3_queue/latest_external_candidate.json"))["checkpoint_path"])')"
-BEST_ARCH="$(python -c 'import json;print(json.load(open("results/experiments/cycle3_queue/latest_external_candidate.json"))["architecture"])')"
-BEST_SUMMARY="$(python -c 'import json;print(json.load(open("results/experiments/cycle3_queue/latest_external_candidate.json"))["summary_path"])')"
+)
 
 echo "[queue] best_checkpoint=${BEST_CHECKPOINT}"
 echo "[queue] best_architecture=${BEST_ARCH}"
-echo "[queue] best_summary=${BEST_SUMMARY}"
+echo "[queue] best_hook_layer=${BEST_HOOK_LAYER}"
+echo "[queue] best_hook_name=${BEST_HOOK_NAME}"
+echo "[queue] selected_candidate_json=${SELECTED_JSON}"
 
 echo "[queue] launching transcoder stress eval"
 KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
@@ -133,15 +132,15 @@ python scripts/experiments/run_transcoder_stress_eval.py \
 TRANSCODER_SUMMARY="$(ls -1dt results/experiments/phase4e_transcoder_stress_b200/run_*/transcoder_stress_summary.json | head -n1)"
 echo "[queue] transcoder_summary=${TRANSCODER_SUMMARY}"
 
-echo "[queue] launching OOD stress eval on best frontier candidate"
+echo "[queue] launching OOD stress eval on selected candidate"
 KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
 python scripts/experiments/run_ood_stress_eval.py \
   --checkpoint "$BEST_CHECKPOINT" \
   --architecture "$BEST_ARCH" \
   --sae-release husai_cycle3_ood \
   --model-name pythia-70m-deduped \
-  --hook-layer 0 \
-  --hook-name blocks.0.hook_resid_pre \
+  --hook-layer "$BEST_HOOK_LAYER" \
+  --hook-name "$BEST_HOOK_NAME" \
   --device cuda \
   --dtype float32 \
   --results-path /tmp/husai_saebench_probe_results_ood_cycle3 \
@@ -152,13 +151,16 @@ python scripts/experiments/run_ood_stress_eval.py \
 OOD_SUMMARY="$(ls -1dt results/experiments/phase4e_ood_stress_b200/run_*/ood_stress_summary.json | head -n1)"
 echo "[queue] ood_summary=${OOD_SUMMARY}"
 
-echo "[queue] evaluating strict release policy"
+echo "[queue] evaluating strict release policy (joint external mode)"
 set +e
 python scripts/experiments/run_stress_gated_release_policy.py \
   --phase4a-results results/experiments/phase4a_trained_vs_random/results.json \
   --transcoder-results "$TRANSCODER_SUMMARY" \
   --ood-results "$OOD_SUMMARY" \
-  --external-summary "$BEST_SUMMARY" \
+  --external-candidate-json "$SELECTED_JSON" \
+  --external-mode joint \
+  --min-saebench-delta "$MIN_SAEBENCH_DELTA" \
+  --min-cebench-delta "$MIN_CEBENCH_DELTA" \
   --require-transcoder \
   --require-ood \
   --require-external \
@@ -173,10 +175,13 @@ cat > "$QUEUE_DIR/manifest.json" <<MANIFEST
   "queue_id": "${QUEUE_ID}",
   "frontier_run": "${FRONTIER_RUN}",
   "scaling_run": "${SCALING_RUN}",
+  "selector_run": "${SELECTOR_RUN}",
+  "selected_candidate_json": "${SELECTED_JSON}",
   "candidate_json": "${CANDIDATE_JSON}",
+  "best_saebench_summary": "${BEST_SAEBENCH_SUMMARY}",
+  "best_cebench_summary": "${BEST_CEBENCH_SUMMARY}",
   "transcoder_summary": "${TRANSCODER_SUMMARY}",
   "ood_summary": "${OOD_SUMMARY}",
-  "best_external_summary": "${BEST_SUMMARY}",
   "release_policy_rc": ${RELEASE_RC}
 }
 MANIFEST

@@ -1085,3 +1085,40 @@ nohup bash scripts/experiments/run_b200_high_impact_queue.sh > results/experimen
   - release `pass_all=False` (transcoder/external gate fails)
   - OOD gate: pass
   - W&B: no active logging artifacts for this queue cycle (file-based logging only)
+
+## 2026-02-15 - Release Policy Refactor Validation
+
+### Run 58: Multi-objective candidate selector + joint release-gate smoke
+- Local validation commands:
+```bash
+python scripts/experiments/select_release_candidate.py \
+  --frontier-results docs/evidence/cycle3_queue_final/frontier_multiseed_results_run_20260214T202538Z.json \
+  --scaling-results docs/evidence/cycle3_queue_final/scaling_multiseed_results_run_20260214T212435Z.json \
+  --require-both-external \
+  --output-dir results/experiments/release_candidate_selection_smoke
+
+python scripts/experiments/run_stress_gated_release_policy.py \
+  --phase4a-results results/experiments/phase4a_trained_vs_random/results.json \
+  --transcoder-results docs/evidence/cycle3_queue_final/transcoder_stress_summary_run_20260214T224242Z.json \
+  --ood-results docs/evidence/cycle3_queue_final/ood_stress_summary_run_20260214T224309Z.json \
+  --external-candidate-json results/experiments/release_candidate_selection_smoke/run_20260215T052937Z/selected_candidate.json \
+  --external-mode joint \
+  --min-saebench-delta 0.0 \
+  --min-cebench-delta 0.0 \
+  --require-transcoder --require-ood --require-external \
+  --fail-on-gate-fail \
+  --output-dir results/experiments/release_stress_gates_smoke
+```
+- Outcome: expected gate failure (`exit code 2`) with explicit joint external diagnostics.
+- Key outputs:
+  - `results/experiments/release_candidate_selection_smoke/run_20260215T052937Z/selected_candidate.json`
+  - `results/experiments/release_stress_gates_smoke/run_20260215T052953Z/release_policy.json`
+- Result summary:
+  - selector chosen candidate: `topk_seed123` (frontier)
+  - selected metrics: SAEBench delta `-0.032604`, CE-Bench delta `-39.910494`
+  - joint release gate fields populated from candidate JSON (`saebench_delta`, `cebench_interp_delta_vs_baseline`)
+  - strict gate remained false due transcoder and external thresholds.
+- Additional validation:
+  - `pytest -q tests/unit/test_release_policy_selector.py` -> `2 passed`
+  - `bash -n scripts/experiments/run_b200_high_impact_queue.sh` -> pass
+  - `python -m py_compile scripts/experiments/select_release_candidate.py scripts/experiments/run_stress_gated_release_policy.py` -> pass

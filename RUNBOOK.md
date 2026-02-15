@@ -76,17 +76,28 @@ python scripts/experiments/run_external_metric_scaling_study.py \
   --run-saebench --run-cebench --cebench-repo <path/to/CE-Bench>
 ```
 
-### Stress and strict release gate
+### Candidate Selection + Stress and Strict Release Gate
 
 ```bash
+# select candidate from frontier/scaling runs
+python scripts/experiments/select_release_candidate.py \
+  --frontier-results <frontier_results.json> \
+  --scaling-results <scaling_results.json> \
+  --require-both-external
+
+# stress runners
 python scripts/experiments/run_transcoder_stress_eval.py --output-dir <out_dir>
 python scripts/experiments/run_ood_stress_eval.py --output-dir <out_dir>
 
+# strict joint external gate
 python scripts/experiments/run_stress_gated_release_policy.py \
   --phase4a-results results/experiments/phase4a_trained_vs_random/results.json \
   --transcoder-results <transcoder_summary.json> \
   --ood-results <ood_summary.json> \
-  --external-summary <external_summary.json> \
+  --external-candidate-json <selected_candidate.json> \
+  --external-mode joint \
+  --min-saebench-delta 0.0 \
+  --min-cebench-delta 0.0 \
   --require-transcoder --require-ood --require-external \
   --fail-on-gate-fail
 ```
@@ -96,8 +107,15 @@ python scripts/experiments/run_stress_gated_release_policy.py \
 End-to-end queue script:
 
 ```bash
-bash scripts/experiments/run_b200_high_impact_queue.sh
+MIN_SAEBENCH_DELTA=0.0 MIN_CEBENCH_DELTA=0.0 \
+  bash scripts/experiments/run_b200_high_impact_queue.sh
 ```
+
+Queue behavior now includes:
+1. scaling run,
+2. multi-objective candidate selection,
+3. stress runs,
+4. joint external gate evaluation.
 
 Cycle-3 queue evidence mirror:
 - `docs/evidence/cycle3_queue_final/`
