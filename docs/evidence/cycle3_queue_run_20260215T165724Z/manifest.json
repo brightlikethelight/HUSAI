@@ -1,0 +1,21 @@
+{
+  "queue_id": "run_20260215T165724Z",
+  "frontier_run": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z",
+  "scaling_run": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z",
+  "selector_run": "results/experiments/release_candidate_selection/run_20260215T180557Z",
+  "selected_candidate_json": "results/experiments/release_candidate_selection/run_20260215T180557Z/selected_candidate.json",
+  "candidate_json": "results/experiments/release_candidate_selection/run_20260215T180557Z/selected_candidate.json",
+  "best_saebench_summary": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/topk_seed123/saebench/husai_custom_sae_summary.json",
+  "best_cebench_summary": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/topk_seed123/cebench/husai_custom_cebench_summary.json",
+  "transcoder_summary": "results/experiments/phase4e_transcoder_stress_b200/run_20260215T180607Z/transcoder_stress_summary.json",
+  "ood_summary": "results/experiments/phase4e_ood_stress_b200/run_20260215T180635Z/ood_stress_summary.json",
+  "release_policy_rc": 2,
+  "cebench_baseline_default": "docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json",
+  "cebench_baseline_map": "docs/evidence/phase4e_cebench_matched200/cebench_baseline_map.json",
+  "selector_group_by_condition": "1",
+  "selector_uncertainty_mode": "lcb",
+  "min_seeds_per_group": "3",
+  "use_external_lcb_gates": "1",
+  "min_saebench_delta_lcb": "0.0",
+  "min_cebench_delta_lcb": "0.0"
+}

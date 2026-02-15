@@ -1,0 +1,57 @@
+{
+  "run_metadata": {
+    "timestamp_utc": "2026-02-15T18:07:06+00:00",
+    "git_commit": "d137ac49887422645421e54b24427e74d63070e6",
+    "command": "python scripts/experiments/run_stress_gated_release_policy.py --phase4a-results results/experiments/phase4a_trained_vs_random/results.json --transcoder-results results/experiments/phase4e_transcoder_stress_b200/run_20260215T180607Z/transcoder_stress_summary.json --ood-results results/experiments/phase4e_ood_stress_b200/run_20260215T180635Z/ood_stress_summary.json --external-candidate-json results/experiments/release_candidate_selection/run_20260215T180557Z/selected_candidate.json --external-mode joint --min-saebench-delta 0.0 --min-cebench-delta 0.0 --require-transcoder --require-ood --require-external --fail-on-gate-fail --use-external-lcb --min-saebench-delta-lcb 0.0 --min-cebench-delta-lcb 0.0",
+    "run_id": "run_20260215T180706Z"
+  },
+  "inputs": {
+    "phase4a_results": "results/experiments/phase4a_trained_vs_random/results.json",
+    "transcoder_results": "results/experiments/phase4e_transcoder_stress_b200/run_20260215T180607Z/transcoder_stress_summary.json",
+    "ood_results": "results/experiments/phase4e_ood_stress_b200/run_20260215T180635Z/ood_stress_summary.json",
+    "external_summary": null,
+    "external_candidate_json": "results/experiments/release_candidate_selection/run_20260215T180557Z/selected_candidate.json",
+    "external_source_used": "results/experiments/release_candidate_selection/run_20260215T180557Z/selected_candidate.json"
+  },
+  "thresholds": {
+    "min_trained_random_delta": 0.0,
+    "min_trained_random_lcb": 0.0,
+    "min_transcoder_delta": 0.0,
+    "max_ood_drop": 0.1,
+    "min_external_delta": 0.0,
+    "min_saebench_delta": 0.0,
+    "min_cebench_delta": 0.0,
+    "min_saebench_delta_lcb": 0.0,
+    "min_cebench_delta_lcb": 0.0,
+    "use_external_lcb": true,
+    "external_mode": "joint",
+    "require_transcoder": true,
+    "require_ood": true,
+    "require_external": true
+  },
+  "metrics": {
+    "trained_random_delta": 0.0012296229600906594,
+    "trained_random_delta_lcb": 6.183199584486321e-05,
+    "transcoder_delta": -0.002731889486312866,
+    "ood_drop": 0.008633019321377944,
+    "external_delta": -0.04478959689939781,
+    "saebench_delta": -0.04478959689939781,
+    "saebench_delta_ci95_low": -0.04478959689939781,
+    "cebench_interp_delta_vs_baseline": -40.467037470119465,
+    "cebench_interp_delta_vs_baseline_ci95_low": -40.467037470119465,
+    "cebench_interpretability_max": 7.4845741154976055,
+    "external_gate_saebench_value": -0.04478959689939781,
+    "external_gate_cebench_value": -40.467037470119465
+  },
+  "gates": {
+    "random_model": true,
+    "transcoder": false,
+    "ood": true,
+    "external": false,
+    "external_saebench": false,
+    "external_cebench": false,
+    "external_mode_used": "joint",
+    "external_threshold_basis": "lcb",
+    "pass_all": false
+  }
+}
