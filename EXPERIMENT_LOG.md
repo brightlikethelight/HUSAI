@@ -1284,3 +1284,32 @@ python scripts/experiments/run_known_circuit_recovery_closure.py \
   - transformer delta vs random LCB: `-0.000881`
   - SAE checkpoint matches on remote for requested glob: `0` (path absent on pod), so SAE overlap gate unresolved/fail in this run.
   - overall `pass_all=False`
+
+### Run 65: B200 queue relaunch with uncertainty-aware selector + LCB gate settings
+- Relaunch configuration:
+```bash
+MIN_SAEBENCH_DELTA=0.0 MIN_CEBENCH_DELTA=0.0 \
+MIN_SAEBENCH_DELTA_LCB=0.0 MIN_CEBENCH_DELTA_LCB=0.0 \
+USE_EXTERNAL_LCB_GATES=1 \
+SELECTOR_GROUP_BY_CONDITION=1 SELECTOR_UNCERTAINTY_MODE=lcb MIN_SEEDS_PER_GROUP=3 \
+CEBENCH_BASELINE_MAP=docs/evidence/phase4e_cebench_matched200/cebench_baseline_map.json \
+bash scripts/experiments/run_b200_high_impact_queue.sh
+```
+- Active queue run:
+  - `results/experiments/cycle3_queue/run_20260215T165724Z`
+- Monitoring snapshot (in progress):
+  - queue stage: scaling multiseed
+  - latest scaling run: `results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z`
+
+### Run 66: Automatic post-queue follow-up chain scheduled on B200
+- Script deployed and launched:
+  - `scripts/experiments/run_cycle4_followups_after_queue.sh`
+  - launcher log: `results/experiments/cycle4_followups/launcher_20260215T170149Z.log`
+- Behavior:
+  1. wait for active queue completion,
+  2. pull latest `main`,
+  3. run `run_transcoder_stress_sweep.py` (pilot grid),
+  4. run `run_matryoshka_frontier_external.py` (pilot),
+  5. run `run_assignment_consistency_v3.py` (internal sweep).
+- Current status:
+  - waiting loop confirmed in launcher log.
