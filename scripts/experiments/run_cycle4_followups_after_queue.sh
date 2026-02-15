@@ -152,8 +152,9 @@ if [[ "$RESUME_FROM_STEP" -le 3 ]]; then
     --d-sae 1024 \
     --k 32 \
     --device cuda \
-    --epochs 20 \
-    --train-seeds 123,456,789 \
+    --epochs 12 \
+    --batch-size 4096 \
+    --train-seeds 123,456 \
     --lambdas 0.0,0.05,0.1,0.2,0.3 \
     --run-saebench \
     --run-cebench \
