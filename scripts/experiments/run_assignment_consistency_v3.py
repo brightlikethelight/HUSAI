@@ -34,6 +34,7 @@ from scripts.experiments.run_assignment_consistency_v2 import (  # noqa: E402
     parse_int_list,
     run_lambda_condition,
 )
+from scripts.experiments.train_husai_sae_on_cached_activations import load_activation_bank  # noqa: E402
 
 
 def utc_now() -> str:
@@ -170,6 +171,47 @@ def summarize_external(saebench_summary: dict[str, Any] | None, cebench_summary:
         "saebench_delta": saebench_delta,
         "cebench_delta": cebench_delta,
         "cebench_interpretability_max": cebench_interp,
+    }
+
+
+def load_training_activations(args: argparse.Namespace) -> tuple[torch.Tensor, dict[str, Any]]:
+    """Load activations from either modular cache or external activation cache."""
+    if args.activation_cache_dir is not None:
+        bank, files_used, data_meta = load_activation_bank(
+            cache_dir=args.activation_cache_dir,
+            activation_glob=args.activation_glob,
+            max_files=args.max_files,
+            max_rows_per_file=args.max_rows_per_file,
+            max_total_rows=args.max_total_rows,
+            seed=args.source_cache_seed if args.source_cache_seed is not None else args.seed_ref,
+        )
+        return bank.float(), {
+            "source": "external_cache",
+            "activation_cache_dir": repo_rel(args.activation_cache_dir),
+            "activation_glob": args.activation_glob,
+            "max_files": args.max_files,
+            "max_rows_per_file": args.max_rows_per_file,
+            "max_total_rows": args.max_total_rows,
+            "source_cache_seed": args.source_cache_seed if args.source_cache_seed is not None else args.seed_ref,
+            "data_meta": data_meta,
+            "source_files": [repo_rel(Path(p)) for p in files_used],
+        }
+
+    acts = load_or_extract_activations(
+        cache_path=args.activation_cache,
+        transformer_checkpoint=args.transformer_checkpoint,
+        layer=args.layer,
+        batch_size=args.batch_size,
+        device=args.device,
+        modulus=args.modulus,
+        seed=args.seed_ref,
+    )
+    return acts.float(), {
+        "source": "modular_assignment",
+        "activation_cache": repo_rel(args.activation_cache),
+        "transformer_checkpoint": repo_rel(args.transformer_checkpoint),
+        "layer": args.layer,
+        "modulus": args.modulus,
     }
 
 
@@ -335,6 +377,28 @@ def main() -> None:
     parser.add_argument("--train-seeds", type=str, default="123,456,789,1011")
     parser.add_argument("--lambdas", type=str, default="0.0,0.05,0.1,0.2,0.3")
 
+    parser.add_argument(
+        "--activation-cache-dir",
+        type=Path,
+        default=None,
+        help="Optional external activation cache directory. If set, overrides modular extraction path.",
+    )
+    parser.add_argument(
+        "--activation-glob",
+        type=str,
+        default="*_blocks.0.hook_resid_pre.pt",
+        help="Glob pattern within --activation-cache-dir when external cache mode is enabled.",
+    )
+    parser.add_argument("--max-files", type=int, default=80)
+    parser.add_argument("--max-rows-per-file", type=int, default=2048)
+    parser.add_argument("--max-total-rows", type=int, default=150000)
+    parser.add_argument(
+        "--source-cache-seed",
+        type=int,
+        default=None,
+        help="Row-sampling seed for external cache loading (defaults to --seed-ref).",
+    )
+
     parser.add_argument("--d-sae", type=int, default=128)
     parser.add_argument("--k", type=int, default=32)
     parser.add_argument("--epochs", type=int, default=30)
@@ -396,6 +460,8 @@ def main() -> None:
     args.saebench_results_path = to_abs(args.saebench_results_path)
     args.saebench_model_cache_path = to_abs(args.saebench_model_cache_path)
     args.cebench_artifacts_path = to_abs(args.cebench_artifacts_path)
+    if args.activation_cache_dir is not None:
+        args.activation_cache_dir = to_abs(args.activation_cache_dir)
     if args.cebench_repo is not None:
         args.cebench_repo = to_abs(args.cebench_repo)
     if args.cebench_matched_baseline_summary is not None:
@@ -412,15 +478,7 @@ def main() -> None:
     checkpoints_root = run_dir / "checkpoints"
     run_dir.mkdir(parents=True, exist_ok=True)
 
-    acts = load_or_extract_activations(
-        cache_path=args.activation_cache,
-        transformer_checkpoint=args.transformer_checkpoint,
-        layer=args.layer,
-        batch_size=args.batch_size,
-        device=args.device,
-        modulus=args.modulus,
-        seed=args.seed_ref,
-    )
+    acts, activation_source = load_training_activations(args)
 
     records: list[dict[str, Any]] = []
     for lam in lambdas:
@@ -554,6 +612,7 @@ def main() -> None:
     config_payload = {
         "transformer_checkpoint": str(args.transformer_checkpoint),
         "activation_cache": str(args.activation_cache),
+        "activation_source": activation_source,
         "layer": args.layer,
         "modulus": args.modulus,
         "seed_ref": args.seed_ref,

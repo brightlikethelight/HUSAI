@@ -41,6 +41,11 @@ def normalize_architecture(architecture: str | None) -> str | None:
         "matryoshka": "matryoshka",
         "matryoshka_topk": "matryoshka",
         "matryoshka-topk": "matryoshka",
+        "routed_topk": "routed_topk",
+        "routed-topk": "routed_topk",
+        "routesae": "routed_topk",
+        "route_sae": "routed_topk",
+        "route-sae": "routed_topk",
     }
     if key not in aliases:
         raise ValueError(f"Unsupported architecture: {architecture}")
@@ -212,7 +217,7 @@ def _map_state_to_custom(
 
     k_value = _extract_k(state, metadata)
 
-    if architecture in {"topk", "batchtopk", "matryoshka"}:
+    if architecture in {"topk", "batchtopk", "matryoshka", "routed_topk"}:
         if k_value is None:
             raise KeyError(f"Checkpoint missing `k` for architecture={architecture}")
         mapped["k"] = torch.tensor(k_value, dtype=torch.int32)
@@ -280,9 +285,9 @@ def build_custom_sae_from_checkpoint(
         "dtype": dtype,
     }
 
-    eval_architecture = "topk" if architecture == "matryoshka" else architecture
+    eval_architecture = "topk" if architecture in {"matryoshka", "routed_topk"} else architecture
 
-    if architecture in {"topk", "matryoshka"}:
+    if architecture in {"topk", "matryoshka", "routed_topk"}:
         sae = TopKSAE(k=int(k_value), **ctor_kwargs)
     elif architecture == "batchtopk":
         sae = BatchTopKSAE(k=int(k_value), **ctor_kwargs)

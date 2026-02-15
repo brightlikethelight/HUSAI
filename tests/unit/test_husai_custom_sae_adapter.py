@@ -15,9 +15,15 @@ def test_normalize_architecture_matryoshka_aliases() -> None:
     assert normalize_architecture("matryoshka-topk") == "matryoshka"
 
 
+def test_normalize_architecture_routed_aliases() -> None:
+    assert normalize_architecture("routed_topk") == "routed_topk"
+    assert normalize_architecture("routed-topk") == "routed_topk"
+    assert normalize_architecture("routesae") == "routed_topk"
+
+
 def test_normalize_architecture_unsupported() -> None:
     with pytest.raises(ValueError):
-        normalize_architecture("routesae")
+        normalize_architecture("unknown_arch")
 
 
 def test_repair_decoder_rows_and_mask_encoder_repairs_dead_features() -> None:

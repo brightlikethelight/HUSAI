@@ -9,6 +9,7 @@ RESUME_FROM_STEP="${RESUME_FROM_STEP:-1}"
 CEBENCH_REPO="${CEBENCH_REPO:-/workspace/CE-Bench}"
 ACTIVATION_CACHE_DIR="${ACTIVATION_CACHE_DIR:-/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped}"
 SAEBENCH_MODEL_CACHE_PATH="${SAEBENCH_MODEL_CACHE_PATH:-/tmp/sae_bench_model_cache}"
+export CUBLAS_WORKSPACE_CONFIG="${CUBLAS_WORKSPACE_CONFIG:-:4096:8}"
 
 MIN_TRANSCODER_DELTA_LCB="${MIN_TRANSCODER_DELTA_LCB:-0.0}"
 FAIL_ON_TRANSCODER_FAIL="${FAIL_ON_TRANSCODER_FAIL:-1}"
@@ -91,7 +92,7 @@ echo "[followups] transcoder_sweep_run=$TRANS_SWEEP_RUN"
 echo "[followups] best_transcoder_summary=$BEST_TRANSCODER_SUMMARY"
 
 if [[ "$RESUME_FROM_STEP" -le 2 ]]; then
-  echo "[followups] step2: matryoshka frontier under matched budget"
+  echo "[followups] step2a: matryoshka frontier under matched budget"
   KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
   python scripts/experiments/run_matryoshka_frontier_external.py \
     --activation-cache-dir "$ACTIVATION_CACHE_DIR" \
@@ -112,12 +113,44 @@ if [[ "$RESUME_FROM_STEP" -le 2 ]]; then
     --saebench-model-cache-path "$SAEBENCH_MODEL_CACHE_PATH" \
     --cebench-artifacts-path /tmp/ce_bench_artifacts_frontier_matryoshka \
     --output-dir results/experiments/phase4b_matryoshka_frontier_external
+
+  echo "[followups] step2b: routed_topk frontier under matched budget"
+  KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
+  python scripts/experiments/run_routed_frontier_external.py \
+    --activation-cache-dir "$ACTIVATION_CACHE_DIR" \
+    --seeds 42,123,456 \
+    --d-sae 1024 \
+    --k 32 \
+    --epochs 6 \
+    --batch-size 4096 \
+    --learning-rate 0.001 \
+    --num-experts 8 \
+    --route-balance-coef 0.2 \
+    --route-entropy-coef 0.01 \
+    --device cuda \
+    --run-saebench \
+    --run-cebench \
+    --cebench-repo "$CEBENCH_REPO" \
+    --cebench-max-rows 200 \
+    --cebench-matched-baseline-summary docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json \
+    --saebench-datasets "$SAEBENCH_DATASETS" \
+    --saebench-results-path /tmp/husai_saebench_probe_results_frontier_routed \
+    --saebench-model-cache-path "$SAEBENCH_MODEL_CACHE_PATH" \
+    --cebench-artifacts-path /tmp/ce_bench_artifacts_frontier_routed \
+    --output-dir results/experiments/phase4b_routed_frontier_external
 fi
 
 if [[ "$RESUME_FROM_STEP" -le 3 ]]; then
-  echo "[followups] step3: assignment-aware v3 with external-aware Pareto selection"
+  echo "[followups] step3: assignment-aware v3 with external-cache training + external-aware Pareto selection"
   KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
   python scripts/experiments/run_assignment_consistency_v3.py \
+    --activation-cache-dir "$ACTIVATION_CACHE_DIR" \
+    --activation-glob '*_blocks.0.hook_resid_pre.pt' \
+    --max-files 80 \
+    --max-rows-per-file 2048 \
+    --max-total-rows 150000 \
+    --d-sae 1024 \
+    --k 32 \
     --device cuda \
     --epochs 20 \
     --train-seeds 123,456,789 \
@@ -128,14 +161,14 @@ if [[ "$RESUME_FROM_STEP" -le 3 ]]; then
     --cebench-max-rows 200 \
     --cebench-matched-baseline-summary docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json \
     --saebench-datasets "$SAEBENCH_DATASETS" \
-    --saebench-results-path /tmp/husai_saebench_probe_results_assignv3 \
+    --saebench-results-path /tmp/husai_saebench_probe_results_assignv3_external \
     --saebench-model-cache-path "$SAEBENCH_MODEL_CACHE_PATH" \
-    --cebench-artifacts-path /tmp/ce_bench_artifacts_assignv3 \
+    --cebench-artifacts-path /tmp/ce_bench_artifacts_assignv3_external \
     --force-rerun-external \
     --require-external \
     --min-saebench-delta 0.0 \
     --min-cebench-delta 0.0 \
-    --output-dir results/experiments/phase4d_assignment_consistency_v3
+    --output-dir results/experiments/phase4d_assignment_consistency_v3_external
 fi
 
 if [[ "$RESUME_FROM_STEP" -le 4 ]]; then
@@ -151,6 +184,8 @@ if [[ "$RESUME_FROM_STEP" -le 5 ]]; then
 
   FRONTIER_BASE="$(ls -1dt results/experiments/phase4b_architecture_frontier_external_multiseed/run_* 2>/dev/null | head -n1 || true)"
   FRONTIER_MATRY="$(ls -1dt results/experiments/phase4b_matryoshka_frontier_external/run_* 2>/dev/null | head -n1 || true)"
+  FRONTIER_ROUTED="$(ls -1dt results/experiments/phase4b_routed_frontier_external/run_* 2>/dev/null | head -n1 || true)"
+  ASSIGN_V3_EXTERNAL_RUN="$(ls -1dt results/experiments/phase4d_assignment_consistency_v3_external/run_* 2>/dev/null | head -n1 || true)"
   SCALING_RUN="$(ls -1dt results/experiments/phase4e_external_scaling_study_multiseed/run_* 2>/dev/null | head -n1 || true)"
 
   SELECTOR_CMD=(
@@ -162,6 +197,9 @@ if [[ "$RESUME_FROM_STEP" -le 5 ]]; then
   )
   if [[ -n "$FRONTIER_MATRY" && -f "$FRONTIER_MATRY/results.json" ]]; then
     SELECTOR_CMD+=(--frontier-results "$FRONTIER_MATRY/results.json")
+  fi
+  if [[ -n "$FRONTIER_ROUTED" && -f "$FRONTIER_ROUTED/results.json" ]]; then
+    SELECTOR_CMD+=(--frontier-results "$FRONTIER_ROUTED/results.json")
   fi
   "${SELECTOR_CMD[@]}"
 
@@ -238,6 +276,8 @@ PY
   "transcoder_sweep_rc": $TRANS_RC,
   "frontier_base_run": "$FRONTIER_BASE",
   "frontier_matry_run": "$FRONTIER_MATRY",
+  "frontier_routed_run": "$FRONTIER_ROUTED",
+  "assignment_v3_external_run": "$ASSIGN_V3_EXTERNAL_RUN",
   "scaling_run": "$SCALING_RUN",
   "selector_run": "$SELECTOR_RUN",
   "selected_candidate_json": "$SELECTED_JSON",
