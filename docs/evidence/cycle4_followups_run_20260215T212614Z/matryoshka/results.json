@@ -1,0 +1,755 @@
+{
+  "timestamp_utc": "2026-02-15T21:36:12+00:00",
+  "command": "python scripts/experiments/run_matryoshka_frontier_external.py --activation-cache-dir /tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped --seeds 42,123,456 --d-sae 1024 --k 32 --epochs 6 --batch-size 4096 --learning-rate 0.001 --device cuda --run-saebench --run-cebench --cebench-repo /workspace/CE-Bench --cebench-max-rows 200 --cebench-matched-baseline-summary docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json --saebench-datasets 100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom --saebench-results-path /tmp/husai_saebench_probe_results_frontier_matryoshka --saebench-model-cache-path /tmp/sae_bench_model_cache --cebench-artifacts-path /tmp/ce_bench_artifacts_frontier_matryoshka --output-dir results/experiments/phase4b_matryoshka_frontier_external",
+  "config": {
+    "activation_cache_dir": "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped",
+    "activation_glob": "*_blocks.0.hook_resid_pre.pt",
+    "max_files": 80,
+    "max_rows_per_file": 2048,
+    "max_total_rows": 150000,
+    "architecture": "matryoshka",
+    "seeds": [
+      42,
+      123,
+      456
+    ],
+    "d_sae": 1024,
+    "k": 32,
+    "epochs": 6,
+    "batch_size": 4096,
+    "learning_rate": 0.001,
+    "device": "cuda",
+    "dtype": "float32",
+    "model_name": "pythia-70m-deduped",
+    "hook_layer": 0,
+    "hook_name": "blocks.0.hook_resid_pre",
+    "run_saebench": true,
+    "run_cebench": true,
+    "cebench_repo": "/workspace/CE-Bench",
+    "cebench_max_rows": 200,
+    "cebench_matched_baseline_summary": "/workspace/HUSAI/docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json",
+    "saebench_datasets": [
+      "100_news_fake",
+      "105_click_bait",
+      "106_hate_hate",
+      "107_hate_offensive",
+      "110_aimade_humangpt3",
+      "113_movie_sent",
+      "114_nyc_borough_Manhattan",
+      "115_nyc_borough_Brooklyn",
+      "116_nyc_borough_Bronx",
+      "117_us_state_FL",
+      "118_us_state_CA",
+      "119_us_state_TX",
+      "120_us_timezone_Chicago",
+      "121_us_timezone_New_York",
+      "122_us_timezone_Los_Angeles",
+      "123_world_country_United_Kingdom"
+    ],
+    "saebench_dataset_limit": 0,
+    "matryoshka_levels": [
+      256,
+      512,
+      1024
+    ],
+    "matryoshka_coef": 0.2,
+    "saebench_results_path": "/tmp/husai_saebench_probe_results_frontier_matryoshka",
+    "saebench_model_cache_path": "/tmp/sae_bench_model_cache",
+    "cebench_artifacts_path": "/tmp/ce_bench_artifacts_frontier_matryoshka",
+    "data_meta": {
+      "num_files_discovered": 113,
+      "num_files_used": 80,
+      "total_rows": 144042,
+      "d_model": 512
+    },
+    "source_files": [
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/100_news_fake_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/105_click_bait_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/106_hate_hate_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/107_hate_offensive_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/110_aimade_humangpt3_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/113_movie_sent_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/114_nyc_borough_Manhattan_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/115_nyc_borough_Brooklyn_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/116_nyc_borough_Bronx_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/117_us_state_FL_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/118_us_state_CA_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/119_us_state_TX_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/120_us_timezone_Chicago_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/121_us_timezone_New_York_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/122_us_timezone_Los_Angeles_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/123_world_country_United_Kingdom_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/124_world_country_United_States_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/125_world_country_Italy_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/126_art_type_book_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/127_art_type_song_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/128_art_type_movie_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/129_arith_mc_A_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/130_temp_cat_Frequency_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/131_temp_cat_Typical Time_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/132_temp_cat_Event Ordering_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/133_context_type_Causality_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/134_context_type_Belief_states_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/135_context_type_Event_duration_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/136_glue_mnli_entailment_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/137_glue_mnli_neutral_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/138_glue_mnli_contradiction_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/139_news_class_Politics_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/140_news_class_Technology_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/141_news_class_Entertainment_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/142_cancer_cat_Thyroid_Cancer_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/143_cancer_cat_Lung_Cancer_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/144_cancer_cat_Colon_Cancer_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/145_disease_class_digestive system diseases_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/146_disease_class_cardiovascular diseases_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/147_disease_class_nervous system diseases_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/148_twt_emotion_worry_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/149_twt_emotion_happiness_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/150_twt_emotion_sadness_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/151_it_tick_HR Support_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/152_it_tick_Hardware_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/153_it_tick_Administrative rights_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/154_athlete_sport_football_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/155_athlete_sport_basketball_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/156_athlete_sport_baseball_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/157_amazon_5star_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/158_code_C_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/159_code_Python_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/160_code_HTML_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/161_agnews_0_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/162_agnews_1_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/163_agnews_2_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/21_headline_istrump_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/22_headline_isobama_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/23_headline_ischina_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/24_headline_isiran_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/26_headline_isfrontpage_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/36_sciq_tf_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/41_truthqa_tf_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/42_temp_sense_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/44_phys_tf_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/47_reasoning_tf_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/48_cm_correct_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/49_cm_isshort_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/50_deon_isvalid_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/51_just_is_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/52_virtue_is_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/54_cs_tf_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/56_wikidatasex_or_gender_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/57_wikidatais_alive_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/58_wikidatapolitical_party_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/59_wikidata_occupation_isjournalist_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/5_hist_fig_ismale_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/60_wikidata_occupation_isathlete_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/61_wikidata_occupation_isactor_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/62_wikidata_occupation_ispolitician_blocks.0.hook_resid_pre.pt"
+    ],
+    "dataset_names_count": 16,
+    "run_id": "run_20260215T212623Z"
+  },
+  "records": [
+    {
+      "architecture": "matryoshka",
+      "seed": 42,
+      "checkpoint": "results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/checkpoints/matryoshka_seed42/sae_final.pt",
+      "train_metrics": {
+        "mse": 0.00032107572769746184,
+        "explained_variance": 0.6129613742217095,
+        "l0": 32.0,
+        "prefix_mse": 0.0005058916673685113
+      },
+      "saebench": {
+        "timestamp_utc": "2026-02-15T21:27:45+00:00",
+        "command": "python scripts/experiments/run_husai_saebench_custom_eval.py --checkpoint /workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/checkpoints/matryoshka_seed42/sae_final.pt --architecture matryoshka --sae-release husai_run_20260215T212623Z_matryoshka_seed42 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --dtype float32 --results-path /tmp/husai_saebench_probe_results_frontier_matryoshka --model-cache-path /tmp/sae_bench_model_cache --output-dir /workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed42/saebench --force-rerun --dataset-names 100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom",
+        "config": {
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/checkpoints/matryoshka_seed42/sae_final.pt",
+          "architecture_override": "matryoshka",
+          "sae_release": "husai_run_20260215T212623Z_matryoshka_seed42",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "reg_type": "l1",
+          "setting": "normal",
+          "ks": [
+            1,
+            2,
+            5
+          ],
+          "dataset_names": [
+            "100_news_fake",
+            "105_click_bait",
+            "106_hate_hate",
+            "107_hate_offensive",
+            "110_aimade_humangpt3",
+            "113_movie_sent",
+            "114_nyc_borough_Manhattan",
+            "115_nyc_borough_Brooklyn",
+            "116_nyc_borough_Bronx",
+            "117_us_state_FL",
+            "118_us_state_CA",
+            "119_us_state_TX",
+            "120_us_timezone_Chicago",
+            "121_us_timezone_New_York",
+            "122_us_timezone_Los_Angeles",
+            "123_world_country_United_Kingdom"
+          ],
+          "dataset_names_inferred_from_cache": false,
+          "dataset_count": 16,
+          "binarize": false,
+          "device": "cuda",
+          "dtype": "float32",
+          "results_path": "/tmp/husai_saebench_probe_results_frontier_matryoshka",
+          "model_cache_path": "/tmp/sae_bench_model_cache",
+          "force_rerun": true
+        },
+        "config_hash": "b67819a9f5b7e1082976de09f7eda87d057ec17ba80fe75d9ccf20854a85ae31",
+        "sae_meta": {
+          "architecture": "matryoshka",
+          "eval_architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32,
+          "dead_features_repaired": 0,
+          "decoder_norm_max_deviation": 1.1920928955078125e-07
+        },
+        "summary": {
+          "result_key": "husai_run_20260215T212623Z_matryoshka_seed42_custom_sae",
+          "llm_metrics": {
+            "llm_test_accuracy": 0.6605360072070458,
+            "llm_test_auc": 0.6928164663947145,
+            "llm_test_f1": 0.6491238078533221
+          },
+          "sae_metrics_by_k": [
+            {
+              "k": 1,
+              "test_accuracy": 0.577868556455322,
+              "test_auc": 0.5913745760101108,
+              "test_f1": 0.5214262346450653
+            },
+            {
+              "k": 2,
+              "test_accuracy": 0.5851422013265963,
+              "test_auc": 0.605750855251014,
+              "test_f1": 0.5327191617253485
+            },
+            {
+              "k": 5,
+              "test_accuracy": 0.5950572833361293,
+              "test_auc": 0.6167272184748015,
+              "test_f1": 0.5601500185675806
+            }
+          ],
+          "best_by_auc": {
+            "k": 5,
+            "test_accuracy": 0.5950572833361293,
+            "test_auc": 0.6167272184748015,
+            "test_f1": 0.5601500185675806
+          },
+          "best_minus_llm_auc": -0.076089247919913
+        }
+      },
+      "cebench": {
+        "timestamp_utc": "2026-02-15T21:30:04+00:00",
+        "command": "python scripts/experiments/run_husai_cebench_custom_eval.py --cebench-repo /workspace/CE-Bench --checkpoint /workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/checkpoints/matryoshka_seed42/sae_final.pt --architecture matryoshka --sae-release husai_run_20260215T212623Z_matryoshka_seed42 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --sae-dtype float32 --output-folder /workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed42/cebench --artifacts-path /tmp/ce_bench_artifacts_frontier_matryoshka --max-rows 200 --matched-baseline-summary /workspace/HUSAI/docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json",
+        "config_hash": "91ae5dc3a4155a5df2f21e9f638d5a680d049c0697c929df8ca0252302f8e8e6",
+        "config": {
+          "cebench_repo": "/workspace/CE-Bench",
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/checkpoints/matryoshka_seed42/sae_final.pt",
+          "architecture_override": "matryoshka",
+          "checkpoint_sha256": "d7f1b7a00b85a4bb9326e30dd9940165675038fee849eded5891585b4f511357",
+          "sae_release": "husai_run_20260215T212623Z_matryoshka_seed42",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "device": "cuda",
+          "sae_dtype": "float32",
+          "llm_batch_size": 512,
+          "llm_dtype": "float32",
+          "random_seed": 42,
+          "dataset_name": "GulkoA/contrastive-stories-v4",
+          "dataset_rows_total": 5000,
+          "dataset_rows_used": 200,
+          "max_rows": 200,
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed42/cebench",
+          "artifacts_path": "/tmp/ce_bench_artifacts_frontier_matryoshka",
+          "matched_baseline_summary": "/workspace/HUSAI/docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json"
+        },
+        "sae_meta": {
+          "architecture": "matryoshka",
+          "eval_architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32,
+          "dead_features_repaired": 0,
+          "decoder_norm_max_deviation": 1.1920928955078125e-07
+        },
+        "cebench_summary": {
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed42/cebench",
+          "results_json": "/workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed42/cebench/interpretability_eval/husai_run_20260215T212623Z_matryoshka_seed42/custom_sae/results.json",
+          "scores_dump": "/workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed42/cebench/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 9.07372272014618,
+          "independent_score_mean_max": 8.869623413085938,
+          "interpretability_score_mean_max": 9.153437433242798,
+          "sae_release": "husai_run_20260215T212623Z_matryoshka_seed42",
+          "sae_id": "custom_sae",
+          "date": "2026-02-15 21:30:04",
+          "scores_dump_line_count": 200
+        },
+        "custom_metrics": {
+          "contrastive_score_mean_max": 9.07372272014618,
+          "independent_score_mean_max": 8.869623413085938,
+          "interpretability_score_mean_max": 9.153437433242798
+        },
+        "matched_baseline_metrics": {
+          "contrastive_score_mean_max": 50.51130743026734,
+          "independent_score_mean_max": 50.99926634788513,
+          "interpretability_score_mean_max": 47.951611585617066
+        },
+        "delta_vs_matched_baseline": {
+          "contrastive_score_mean_max": -41.43758471012116,
+          "independent_score_mean_max": -42.12964293479919,
+          "interpretability_score_mean_max": -38.798174152374266
+        },
+        "matched_baseline_payload": {
+          "output_folder": "results/experiments/phase4e_external_benchmark_official/cebench_matched200",
+          "results_json": "results/experiments/phase4e_external_benchmark_official/cebench_matched200/interpretability_eval/pythia-70m-deduped-res-sm/blocks.0.hook_resid_pre/results.json",
+          "scores_dump": "results/experiments/phase4e_external_benchmark_official/cebench_matched200/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 50.51130743026734,
+          "independent_score_mean_max": 50.99926634788513,
+          "interpretability_score_mean_max": 47.951611585617066,
+          "sae_release": "pythia-70m-deduped-res-sm",
+          "sae_id": "blocks.0.hook_resid_pre",
+          "date": "2026-02-13 18:59:31",
+          "scores_dump_line_count": 200
+        },
+        "artifacts": {
+          "cebench_metrics_summary_json": "results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed42/cebench/cebench_metrics_summary.json",
+          "cebench_metrics_summary_md": "results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed42/cebench/cebench_metrics_summary.md"
+        }
+      },
+      "saebench_returncode": 0,
+      "cebench_returncode": 0
+    },
+    {
+      "architecture": "matryoshka",
+      "seed": 123,
+      "checkpoint": "results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/checkpoints/matryoshka_seed123/sae_final.pt",
+      "train_metrics": {
+        "mse": 0.0003164391964673996,
+        "explained_variance": 0.6185504859104118,
+        "l0": 32.0,
+        "prefix_mse": 0.000484687431404988
+      },
+      "saebench": {
+        "timestamp_utc": "2026-02-15T21:30:49+00:00",
+        "command": "python scripts/experiments/run_husai_saebench_custom_eval.py --checkpoint /workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/checkpoints/matryoshka_seed123/sae_final.pt --architecture matryoshka --sae-release husai_run_20260215T212623Z_matryoshka_seed123 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --dtype float32 --results-path /tmp/husai_saebench_probe_results_frontier_matryoshka --model-cache-path /tmp/sae_bench_model_cache --output-dir /workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed123/saebench --force-rerun --dataset-names 100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom",
+        "config": {
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/checkpoints/matryoshka_seed123/sae_final.pt",
+          "architecture_override": "matryoshka",
+          "sae_release": "husai_run_20260215T212623Z_matryoshka_seed123",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "reg_type": "l1",
+          "setting": "normal",
+          "ks": [
+            1,
+            2,
+            5
+          ],
+          "dataset_names": [
+            "100_news_fake",
+            "105_click_bait",
+            "106_hate_hate",
+            "107_hate_offensive",
+            "110_aimade_humangpt3",
+            "113_movie_sent",
+            "114_nyc_borough_Manhattan",
+            "115_nyc_borough_Brooklyn",
+            "116_nyc_borough_Bronx",
+            "117_us_state_FL",
+            "118_us_state_CA",
+            "119_us_state_TX",
+            "120_us_timezone_Chicago",
+            "121_us_timezone_New_York",
+            "122_us_timezone_Los_Angeles",
+            "123_world_country_United_Kingdom"
+          ],
+          "dataset_names_inferred_from_cache": false,
+          "dataset_count": 16,
+          "binarize": false,
+          "device": "cuda",
+          "dtype": "float32",
+          "results_path": "/tmp/husai_saebench_probe_results_frontier_matryoshka",
+          "model_cache_path": "/tmp/sae_bench_model_cache",
+          "force_rerun": true
+        },
+        "config_hash": "0745b25a4d6be957f3013343bb3b50b0ee048c46d93d1f55b78125e0ab75a8e1",
+        "sae_meta": {
+          "architecture": "matryoshka",
+          "eval_architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32,
+          "dead_features_repaired": 0,
+          "decoder_norm_max_deviation": 1.1920928955078125e-07
+        },
+        "summary": {
+          "result_key": "husai_run_20260215T212623Z_matryoshka_seed123_custom_sae",
+          "llm_metrics": {
+            "llm_test_accuracy": 0.6605360072070458,
+            "llm_test_auc": 0.6928164663947145,
+            "llm_test_f1": 0.6491238078533221
+          },
+          "sae_metrics_by_k": [
+            {
+              "k": 1,
+              "test_accuracy": 0.5891738772151417,
+              "test_auc": 0.5967202931169077,
+              "test_f1": 0.5393657254132752
+            },
+            {
+              "k": 2,
+              "test_accuracy": 0.5975757561450393,
+              "test_auc": 0.6131021799606917,
+              "test_f1": 0.5501939843143823
+            },
+            {
+              "k": 5,
+              "test_accuracy": 0.6097603701724313,
+              "test_auc": 0.6286604613680898,
+              "test_f1": 0.5738197629381427
+            }
+          ],
+          "best_by_auc": {
+            "k": 5,
+            "test_accuracy": 0.6097603701724313,
+            "test_auc": 0.6286604613680898,
+            "test_f1": 0.5738197629381427
+          },
+          "best_minus_llm_auc": -0.06415600502662466
+        }
+      },
+      "cebench": {
+        "timestamp_utc": "2026-02-15T21:33:06+00:00",
+        "command": "python scripts/experiments/run_husai_cebench_custom_eval.py --cebench-repo /workspace/CE-Bench --checkpoint /workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/checkpoints/matryoshka_seed123/sae_final.pt --architecture matryoshka --sae-release husai_run_20260215T212623Z_matryoshka_seed123 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --sae-dtype float32 --output-folder /workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed123/cebench --artifacts-path /tmp/ce_bench_artifacts_frontier_matryoshka --max-rows 200 --matched-baseline-summary /workspace/HUSAI/docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json",
+        "config_hash": "7a66edc62706d6a7a375c10ce4a723ee3f51e917056ac1e923a94ff523862d96",
+        "config": {
+          "cebench_repo": "/workspace/CE-Bench",
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/checkpoints/matryoshka_seed123/sae_final.pt",
+          "architecture_override": "matryoshka",
+          "checkpoint_sha256": "1a26e32601f01e1b29958c6c4e14636239ca83b89121369770b9d8a5a31d4044",
+          "sae_release": "husai_run_20260215T212623Z_matryoshka_seed123",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "device": "cuda",
+          "sae_dtype": "float32",
+          "llm_batch_size": 512,
+          "llm_dtype": "float32",
+          "random_seed": 42,
+          "dataset_name": "GulkoA/contrastive-stories-v4",
+          "dataset_rows_total": 5000,
+          "dataset_rows_used": 200,
+          "max_rows": 200,
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed123/cebench",
+          "artifacts_path": "/tmp/ce_bench_artifacts_frontier_matryoshka",
+          "matched_baseline_summary": "/workspace/HUSAI/docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json"
+        },
+        "sae_meta": {
+          "architecture": "matryoshka",
+          "eval_architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32,
+          "dead_features_repaired": 0,
+          "decoder_norm_max_deviation": 1.1920928955078125e-07
+        },
+        "cebench_summary": {
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed123/cebench",
+          "results_json": "/workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed123/cebench/interpretability_eval/husai_run_20260215T212623Z_matryoshka_seed123/custom_sae/results.json",
+          "scores_dump": "/workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed123/cebench/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 6.965647401809693,
+          "independent_score_mean_max": 7.588241152763366,
+          "interpretability_score_mean_max": 7.086988871097565,
+          "sae_release": "husai_run_20260215T212623Z_matryoshka_seed123",
+          "sae_id": "custom_sae",
+          "date": "2026-02-15 21:33:06",
+          "scores_dump_line_count": 200
+        },
+        "custom_metrics": {
+          "contrastive_score_mean_max": 6.965647401809693,
+          "independent_score_mean_max": 7.588241152763366,
+          "interpretability_score_mean_max": 7.086988871097565
+        },
+        "matched_baseline_metrics": {
+          "contrastive_score_mean_max": 50.51130743026734,
+          "independent_score_mean_max": 50.99926634788513,
+          "interpretability_score_mean_max": 47.951611585617066
+        },
+        "delta_vs_matched_baseline": {
+          "contrastive_score_mean_max": -43.54566002845765,
+          "independent_score_mean_max": -43.411025195121766,
+          "interpretability_score_mean_max": -40.8646227145195
+        },
+        "matched_baseline_payload": {
+          "output_folder": "results/experiments/phase4e_external_benchmark_official/cebench_matched200",
+          "results_json": "results/experiments/phase4e_external_benchmark_official/cebench_matched200/interpretability_eval/pythia-70m-deduped-res-sm/blocks.0.hook_resid_pre/results.json",
+          "scores_dump": "results/experiments/phase4e_external_benchmark_official/cebench_matched200/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 50.51130743026734,
+          "independent_score_mean_max": 50.99926634788513,
+          "interpretability_score_mean_max": 47.951611585617066,
+          "sae_release": "pythia-70m-deduped-res-sm",
+          "sae_id": "blocks.0.hook_resid_pre",
+          "date": "2026-02-13 18:59:31",
+          "scores_dump_line_count": 200
+        },
+        "artifacts": {
+          "cebench_metrics_summary_json": "results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed123/cebench/cebench_metrics_summary.json",
+          "cebench_metrics_summary_md": "results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed123/cebench/cebench_metrics_summary.md"
+        }
+      },
+      "saebench_returncode": 0,
+      "cebench_returncode": 0
+    },
+    {
+      "architecture": "matryoshka",
+      "seed": 456,
+      "checkpoint": "results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/checkpoints/matryoshka_seed456/sae_final.pt",
+      "train_metrics": {
+        "mse": 0.0003165740054100752,
+        "explained_variance": 0.6183887531682601,
+        "l0": 32.0,
+        "prefix_mse": 0.0005090689907471339
+      },
+      "saebench": {
+        "timestamp_utc": "2026-02-15T21:33:50+00:00",
+        "command": "python scripts/experiments/run_husai_saebench_custom_eval.py --checkpoint /workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/checkpoints/matryoshka_seed456/sae_final.pt --architecture matryoshka --sae-release husai_run_20260215T212623Z_matryoshka_seed456 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --dtype float32 --results-path /tmp/husai_saebench_probe_results_frontier_matryoshka --model-cache-path /tmp/sae_bench_model_cache --output-dir /workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed456/saebench --force-rerun --dataset-names 100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom",
+        "config": {
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/checkpoints/matryoshka_seed456/sae_final.pt",
+          "architecture_override": "matryoshka",
+          "sae_release": "husai_run_20260215T212623Z_matryoshka_seed456",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "reg_type": "l1",
+          "setting": "normal",
+          "ks": [
+            1,
+            2,
+            5
+          ],
+          "dataset_names": [
+            "100_news_fake",
+            "105_click_bait",
+            "106_hate_hate",
+            "107_hate_offensive",
+            "110_aimade_humangpt3",
+            "113_movie_sent",
+            "114_nyc_borough_Manhattan",
+            "115_nyc_borough_Brooklyn",
+            "116_nyc_borough_Bronx",
+            "117_us_state_FL",
+            "118_us_state_CA",
+            "119_us_state_TX",
+            "120_us_timezone_Chicago",
+            "121_us_timezone_New_York",
+            "122_us_timezone_Los_Angeles",
+            "123_world_country_United_Kingdom"
+          ],
+          "dataset_names_inferred_from_cache": false,
+          "dataset_count": 16,
+          "binarize": false,
+          "device": "cuda",
+          "dtype": "float32",
+          "results_path": "/tmp/husai_saebench_probe_results_frontier_matryoshka",
+          "model_cache_path": "/tmp/sae_bench_model_cache",
+          "force_rerun": true
+        },
+        "config_hash": "1179629bb6f19d8b3c9c81f8806afdadbad982871e649650245e31c36126a0ee",
+        "sae_meta": {
+          "architecture": "matryoshka",
+          "eval_architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32,
+          "dead_features_repaired": 0,
+          "decoder_norm_max_deviation": 1.1920928955078125e-07
+        },
+        "summary": {
+          "result_key": "husai_run_20260215T212623Z_matryoshka_seed456_custom_sae",
+          "llm_metrics": {
+            "llm_test_accuracy": 0.6605360072070458,
+            "llm_test_auc": 0.6928164663947145,
+            "llm_test_f1": 0.6491238078533221
+          },
+          "sae_metrics_by_k": [
+            {
+              "k": 1,
+              "test_accuracy": 0.5845833580663471,
+              "test_auc": 0.5920150595971603,
+              "test_f1": 0.5288763216129169
+            },
+            {
+              "k": 2,
+              "test_accuracy": 0.5840964230433645,
+              "test_auc": 0.5984970881816067,
+              "test_f1": 0.5337971303361612
+            },
+            {
+              "k": 5,
+              "test_accuracy": 0.6033712593753212,
+              "test_auc": 0.6196663454102049,
+              "test_f1": 0.561023395454352
+            }
+          ],
+          "best_by_auc": {
+            "k": 5,
+            "test_accuracy": 0.6033712593753212,
+            "test_auc": 0.6196663454102049,
+            "test_f1": 0.561023395454352
+          },
+          "best_minus_llm_auc": -0.07315012098450957
+        }
+      },
+      "cebench": {
+        "timestamp_utc": "2026-02-15T21:36:10+00:00",
+        "command": "python scripts/experiments/run_husai_cebench_custom_eval.py --cebench-repo /workspace/CE-Bench --checkpoint /workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/checkpoints/matryoshka_seed456/sae_final.pt --architecture matryoshka --sae-release husai_run_20260215T212623Z_matryoshka_seed456 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --sae-dtype float32 --output-folder /workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed456/cebench --artifacts-path /tmp/ce_bench_artifacts_frontier_matryoshka --max-rows 200 --matched-baseline-summary /workspace/HUSAI/docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json",
+        "config_hash": "99627affecf2da3dde7cbc6331febca89d1b737e80c6f2337efb5acad3672284",
+        "config": {
+          "cebench_repo": "/workspace/CE-Bench",
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/checkpoints/matryoshka_seed456/sae_final.pt",
+          "architecture_override": "matryoshka",
+          "checkpoint_sha256": "f447cc07bb904c85543b16b0b2c813f3550a0cb891183ddf6d4568fd18826930",
+          "sae_release": "husai_run_20260215T212623Z_matryoshka_seed456",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "device": "cuda",
+          "sae_dtype": "float32",
+          "llm_batch_size": 512,
+          "llm_dtype": "float32",
+          "random_seed": 42,
+          "dataset_name": "GulkoA/contrastive-stories-v4",
+          "dataset_rows_total": 5000,
+          "dataset_rows_used": 200,
+          "max_rows": 200,
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed456/cebench",
+          "artifacts_path": "/tmp/ce_bench_artifacts_frontier_matryoshka",
+          "matched_baseline_summary": "/workspace/HUSAI/docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json"
+        },
+        "sae_meta": {
+          "architecture": "matryoshka",
+          "eval_architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32,
+          "dead_features_repaired": 0,
+          "decoder_norm_max_deviation": 1.1920928955078125e-07
+        },
+        "cebench_summary": {
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed456/cebench",
+          "results_json": "/workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed456/cebench/interpretability_eval/husai_run_20260215T212623Z_matryoshka_seed456/custom_sae/results.json",
+          "scores_dump": "/workspace/HUSAI/results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed456/cebench/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 6.938219633102417,
+          "independent_score_mean_max": 7.523940842151642,
+          "interpretability_score_mean_max": 7.112242455482483,
+          "sae_release": "husai_run_20260215T212623Z_matryoshka_seed456",
+          "sae_id": "custom_sae",
+          "date": "2026-02-15 21:36:10",
+          "scores_dump_line_count": 200
+        },
+        "custom_metrics": {
+          "contrastive_score_mean_max": 6.938219633102417,
+          "independent_score_mean_max": 7.523940842151642,
+          "interpretability_score_mean_max": 7.112242455482483
+        },
+        "matched_baseline_metrics": {
+          "contrastive_score_mean_max": 50.51130743026734,
+          "independent_score_mean_max": 50.99926634788513,
+          "interpretability_score_mean_max": 47.951611585617066
+        },
+        "delta_vs_matched_baseline": {
+          "contrastive_score_mean_max": -43.573087797164916,
+          "independent_score_mean_max": -43.475325505733494,
+          "interpretability_score_mean_max": -40.839369130134585
+        },
+        "matched_baseline_payload": {
+          "output_folder": "results/experiments/phase4e_external_benchmark_official/cebench_matched200",
+          "results_json": "results/experiments/phase4e_external_benchmark_official/cebench_matched200/interpretability_eval/pythia-70m-deduped-res-sm/blocks.0.hook_resid_pre/results.json",
+          "scores_dump": "results/experiments/phase4e_external_benchmark_official/cebench_matched200/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 50.51130743026734,
+          "independent_score_mean_max": 50.99926634788513,
+          "interpretability_score_mean_max": 47.951611585617066,
+          "sae_release": "pythia-70m-deduped-res-sm",
+          "sae_id": "blocks.0.hook_resid_pre",
+          "date": "2026-02-13 18:59:31",
+          "scores_dump_line_count": 200
+        },
+        "artifacts": {
+          "cebench_metrics_summary_json": "results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed456/cebench/cebench_metrics_summary.json",
+          "cebench_metrics_summary_md": "results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z/external_eval/matryoshka_seed456/cebench/cebench_metrics_summary.md"
+        }
+      },
+      "saebench_returncode": 0,
+      "cebench_returncode": 0
+    }
+  ],
+  "aggregate": {
+    "train_mse": {
+      "mean": 0.00031802964319164556,
+      "std": 2.6388475657352645e-06,
+      "min": 0.0003164391964673996,
+      "max": 0.00032107572769746184,
+      "n": 3
+    },
+    "train_ev": {
+      "mean": 0.6166335377667939,
+      "std": 0.003181214893143144,
+      "min": 0.6129613742217095,
+      "max": 0.6185504859104118,
+      "n": 3
+    },
+    "train_l0": {
+      "mean": 32.0,
+      "std": 0.0,
+      "min": 32.0,
+      "max": 32.0,
+      "n": 3
+    },
+    "train_prefix_mse": {
+      "mean": 0.0004998826965068778,
+      "std": 1.3255033274217623e-05,
+      "min": 0.000484687431404988,
+      "max": 0.0005090689907471339,
+      "n": 3
+    },
+    "saebench_best_minus_llm_auc": {
+      "mean": -0.07113179131034908,
+      "std": 0.006217379873608478,
+      "min": -0.076089247919913,
+      "max": -0.06415600502662466,
+      "n": 3
+    },
+    "cebench_interpretability_max": {
+      "mean": 7.784222919940949,
+      "std": 1.185841778425093,
+      "min": 7.086988871097565,
+      "max": 9.153437433242798,
+      "n": 3
+    },
+    "cebench_interp_delta_vs_baseline": {
+      "mean": -40.167388665676114,
+      "std": 1.1858417784250939,
+      "min": -40.8646227145195,
+      "max": -38.798174152374266,
+      "n": 3
+    }
+  }
+}

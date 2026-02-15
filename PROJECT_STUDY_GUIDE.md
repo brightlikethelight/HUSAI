@@ -2,7 +2,7 @@
 
 Updated: 2026-02-15
 
-This guide explains what HUSAI was trying to discover, what experiments were run, what we found, and what is still open.
+This guide explains what HUSAI is trying to discover, what we ran, what we found, and what remains open.
 
 ## 1) What Problem Are We Solving?
 
@@ -15,11 +15,11 @@ This directly tests whether SAE-based interpretability claims are robust or arti
 ## 2) Current Bottom Line
 
 - Internal consistency gains: real.
-- External gains vs matched baselines: still negative for current release-candidate settings.
+- External gains vs matched baselines: still negative for current release candidates.
 - Stress-gated release policy: correctly blocks promotion (`pass_all=False`).
 
 Primary evidence:
-- `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.md`
+- `docs/evidence/cycle4_followups_run_20260215T220728Z/release/release_policy.md`
 
 ## 3) Read in This Order
 
@@ -39,6 +39,8 @@ Primary evidence:
 - Scripts:
   - `scripts/experiments/run_architecture_frontier_external.py`
   - `scripts/experiments/run_external_metric_scaling_study.py`
+  - `scripts/experiments/run_matryoshka_frontier_external.py`
+  - `scripts/experiments/run_routed_frontier_external.py`
 
 3. Assignment-aware objective hypothesis.
 - Scripts:
@@ -58,36 +60,39 @@ Primary evidence:
 ## 5) What We Found (Most Important)
 
 1. Internal gains are reproducible.
-- Multiple tracks show positive trained-vs-random consistency signals.
+- Trained-vs-random and assignment-v3 tracks show stable positive internal margins.
 
 2. External transfer remains unresolved.
-- Current strict gate uses LCB criteria and fails because SAEBench/CE-Bench deltas are negative.
+- Strict gate fails on SAEBench/CE-Bench LCB criteria.
 
-3. Transcoder and OOD stress pass for the selected candidate.
-- External gate remains the main blocker.
+3. Assignment-v3 external stage now runs end-to-end.
+- Best lambda (`0.3`) still fails external and EV-drop acceptance criteria.
 
-4. Post-fix reruns resolved two important validity issues.
-- Known-circuit closure now evaluates all checkpoints (20/20).
-- Matryoshka now trains with non-degenerate sparsity (`l0=32`) and completes external evals.
+4. New architecture family added.
+- Routed frontier completed under matched budget, but external deltas remain negative.
+
+5. Stress checks are not the current bottleneck.
+- Random-model, transcoder, and OOD gates pass for selected candidate.
 
 ## 6) Why This Is Interesting Scientifically
 
-- It demonstrates that improving an internal interpretability proxy is not enough for external validity.
-- It gives a benchmarked tradeoff surface rather than anecdotal conclusions.
-- It enforces strong claim hygiene via strict gates, reducing false-positive conclusions.
+- Improving internal interpretability proxies is not sufficient for external benchmark validity.
+- The negative external deltas are robust to seed grouping and LCB selection, not just point-estimate noise.
+- The open problem is now precise: optimize internal consistency and external benchmark deltas jointly.
 
 ## 7) What To Run Next (Highest Impact)
 
-1. Assignment-v3 rerun with external-compatible `d_model` setup.
-2. Add RouteSAE under matched-budget protocol.
-3. Re-run grouped-LCB selection with new families.
-4. Re-run stress gates and strict release gate.
-5. Refresh canonical summaries from latest artifacts.
+1. Routed-family hyper-sweep to avoid under-activation (`train_l0` too low).
+2. Assignment-v3 external-aware multi-objective sweep with larger seed set.
+3. External-aware Pareto checkpointing with CI-lower-bound thresholds as hard constraints.
+4. Known-circuit closure improvement track with explicit trained-vs-random confidence targets.
+5. Unified W&B instrumentation in all queue scripts for live monitoring and comparability.
 
 ## 8) Quick Validation Commands
 
 ```bash
 pytest tests/unit/test_husai_custom_sae_adapter.py -q
+pytest tests/unit/test_assignment_consistency_v3.py -q
 pytest tests/unit/test_known_circuit_recovery_closure.py -q
 python scripts/analysis/verify_experiment_consistency.py
 ```

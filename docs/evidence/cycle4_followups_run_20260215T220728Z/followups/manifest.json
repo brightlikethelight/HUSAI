@@ -1,0 +1,23 @@
+{
+  "run_id": "run_20260215T220728Z",
+  "resume_from_step": 3,
+  "transcoder_sweep_run": "results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z",
+  "transcoder_sweep_results": "results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/results.json",
+  "best_transcoder_summary": "/workspace/HUSAI/results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae128_k32_ep20_lr0.001/run_20260215T185057Z/transcoder_stress_summary.json",
+  "transcoder_sweep_rc": 0,
+  "frontier_base_run": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z",
+  "frontier_matry_run": "results/experiments/phase4b_matryoshka_frontier_external/run_20260215T212623Z",
+  "frontier_routed_run": "results/experiments/phase4b_routed_frontier_external/run_20260215T213621Z",
+  "assignment_v3_external_run": "results/experiments/phase4d_assignment_consistency_v3_external/run_20260215T220737Z",
+  "scaling_run": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z",
+  "selector_run": "results/experiments/release_candidate_selection/run_20260215T223118Z",
+  "selected_candidate_json": "results/experiments/release_candidate_selection/run_20260215T223118Z/selected_candidate.json",
+  "best_checkpoint": "/workspace/HUSAI/results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed123/sae_final.pt",
+  "best_architecture": "topk",
+  "best_hook_layer": "0",
+  "best_hook_name": "blocks.0.hook_resid_pre",
+  "ood_summary": "results/experiments/phase4e_ood_stress_b200/run_20260215T223121Z/ood_stress_summary.json",
+  "release_run": "results/experiments/release_stress_gates/run_20260215T223154Z",
+  "release_policy_json": "results/experiments/release_stress_gates/run_20260215T223154Z/release_policy.json",
+  "release_rc": 0
+}

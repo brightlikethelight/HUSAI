@@ -14,18 +14,19 @@ HUSAI tests a central mechanistic-interpretability question: whether SAE feature
 - Strict release decision: **fail** (`pass_all=False`).
 
 Canonical current-status artifacts:
-- `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.md`
-- `docs/evidence/cycle4_postfix_reruns/known_circuit_run_20260215T203809Z_summary.md`
-- `docs/evidence/cycle4_postfix_reruns/matryoshka/run_20260215T203710Z_summary.md`
+- `docs/evidence/cycle4_followups_run_20260215T220728Z/release/release_policy.json`
+- `docs/evidence/cycle4_followups_run_20260215T220728Z/selector/selection_summary.json`
+- `docs/evidence/cycle4_followups_run_20260215T220728Z/assignment_external/results.json`
 - `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
 
-## Cycle 4 Key Metrics (Gate Run)
+## Cycle 4 Key Metrics (Latest Gate)
 
 Run IDs:
-- Followups orchestrator: `run_20260215T190004Z`
-- Release gate: `run_20260215T191137Z`
-- Transcoder sweep: `run_20260215T184609Z`
-- OOD stress: `run_20260215T190404Z`
+- Followups orchestrator (step 3-5): `run_20260215T220728Z`
+- Release gate: `run_20260215T223154Z`
+- Assignment-v3 external: `run_20260215T220737Z`
+- Routed frontier: `run_20260215T213621Z`
+- Matryoshka frontier: `run_20260215T212623Z`
 
 Gate outcomes:
 - random_model: `True`
@@ -36,55 +37,40 @@ Gate outcomes:
 - pass_all: `False`
 
 Numerical highlights:
-- `trained_random_delta_lcb = 6.18e-05`
-- `transcoder_delta = +0.0049161`
-- `ood_drop = 0.0209946`
-- `saebench_delta_ci95_low = -0.0447896`
-- `cebench_interp_delta_vs_baseline_ci95_low = -40.4670`
+- `trained_random_delta_lcb = 0.00006183199584486321`
+- `transcoder_delta = +0.004916101694107056`
+- `ood_drop = 0.015173514260201082`
+- `saebench_delta_ci95_low = -0.04478959689939781`
+- `cebench_interp_delta_vs_baseline_ci95_low = -40.467037470119465`
 
-## Post-Fix Rerun Highlights (This Pass)
+## New High-Impact Coverage in Latest Pass
 
-1. Known-circuit rerun now evaluates all checkpoints.
-- `checkpoints_evaluated: 20` (previously 0)
-- gate still fails, but now result is valid and interpretable.
+1. Assignment-v3 external path is now complete (no external `d_model` mismatch blocker).
+- Best lambda selected: `0.3`.
+- Internal LCB remains strong (`0.823699951171875`) but external deltas still fail acceptance.
 
-2. Matryoshka rerun no longer crashes and no longer collapses.
-- `train_l0_mean = 32.0` (previous cycle4 artifact had `l0=0`).
-- `train_ev_mean = 0.6166`.
-- external summaries produced for all 3 seeds.
-- external deltas still negative.
+2. New family added and benchmarked: routed frontier.
+- `scripts/experiments/run_routed_frontier_external.py`
+- External deltas remain negative despite routing regularization and matched budget.
+
+3. Grouped LCB selection and strict gate were rerun on updated pool.
+- Selected candidate remains `topk_seed123` from frontier multiseed.
 
 ## Top Issues (Current)
 
-1. `P0` External benchmark gap remains large (CE-Bench delta heavily negative).
+1. `P0` External benchmark gap remains large (especially CE-Bench delta vs matched baseline).
 2. `P0` No candidate currently satisfies both external gates jointly.
-3. `P1` Assignment-v3 external stage remains unresolved due dimensional mismatch in current artifact run.
-4. `P1` Strict release gate still blocks promotion (`pass_all=False`).
-5. `P2` W&B instrumentation remains inconsistent across scripts.
-
-## What Changed in This Update
-
-Code fixes:
-- `scripts/experiments/husai_custom_sae_adapter.py`
-  - dead-decoder-row repair + encoder masking before custom-SAE norm checks.
-- `scripts/experiments/run_known_circuit_recovery_closure.py`
-  - corrected SAE Fourier overlap geometry to model-space projection.
-- `scripts/experiments/run_matryoshka_frontier_external.py`
-  - switched training path to HUSAI TopK with dead-feature recovery auxiliary loss.
-
-Tests added:
-- `tests/unit/test_husai_custom_sae_adapter.py`
-- `tests/unit/test_known_circuit_recovery_closure.py`
-
-Docs synchronized to cycle4 truth and reflective status.
+3. `P1` Known-circuit closure gate still fails trained-vs-random thresholds.
+4. `P2` W&B instrumentation is still not enabled in current remote runs.
+5. `P2` Some historical docs referenced stale cycle4 run IDs (updated in this pass).
 
 ## Highest-Leverage Next 5 (Ranked)
 
-1. Assignment-v3 rerun with external-compatible `d_model` configuration.
-2. Add RouteSAE under matched budget and run full external protocol.
-3. Re-run grouped-LCB candidate selection including new family runs.
-4. Re-run OOD/transcoder stress on the new selected candidate.
-5. Re-run strict gate and update canonical summaries only from latest artifacts.
+1. Improve external transfer while preserving internal consistency (multi-objective training/selection track).
+2. Run routed-family hyper-sweep to fix under-utilized sparsity (`train_l0` too low) before further comparison.
+3. Expand external-aware assignment objective with Pareto checkpointing over larger seed pool.
+4. Close known-circuit gap with targeted architecture/feature-space changes plus confidence bounds.
+5. Enable uniform W&B logging + run dashboard for all queue scripts.
 
 ## Read Next
 

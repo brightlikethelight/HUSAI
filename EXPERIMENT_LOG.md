@@ -1534,3 +1534,41 @@ python scripts/experiments/run_matryoshka_frontier_external.py \
   - `train_l0_mean=32.0`, `train_ev_mean=0.6166`
   - `saebench_best_minus_llm_auc_mean=-0.03444`
   - `cebench_interp_delta_vs_baseline_mean=-40.16739`
+
+### Run 74: Cycle-4 canonical sync + artifact hygiene hardening
+- Scope:
+  - synchronized canonical docs to latest followup evidence run:
+    - `docs/evidence/cycle4_followups_run_20260215T220728Z/`
+  - removed stale statements about unresolved assignment-v3 external compatibility.
+  - updated final writeups and navigation docs to latest gate truth.
+
+- Code hygiene fix:
+  - `scripts/experiments/run_assignment_consistency_v3.py`
+    - added JSON sanitization for non-finite floats (`NaN` -> `null`) before writing `results.json`.
+    - switched JSON write to `allow_nan=False` for standards-compliant artifacts.
+
+- Updated docs:
+  - `README.md`
+  - `START_HERE.md`
+  - `EXECUTIVE_SUMMARY.md`
+  - `PROJECT_STUDY_GUIDE.md`
+  - `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
+  - `ADVISOR_BRIEF.md`
+  - `PROPOSAL_COMPLETENESS_REVIEW.md`
+  - `REPO_NAVIGATION.md`
+  - `FINAL_READINESS_REVIEW.md`
+  - `HIGH_IMPACT_FOLLOWUPS_REPORT.md`
+  - `FINAL_BLOG.md`
+  - `FINAL_PAPER.md`
+
+- Validation:
+```bash
+python -m py_compile scripts/experiments/run_assignment_consistency_v3.py
+pytest -q tests/unit/test_assignment_consistency_v3.py
+pytest -q tests/unit/test_husai_custom_sae_adapter.py tests/unit/test_known_circuit_recovery_closure.py
+```
+
+- Outcome:
+  - py_compile: pass
+  - `test_assignment_consistency_v3`: `2 passed`
+  - adapter/known-circuit tests: `7 passed`

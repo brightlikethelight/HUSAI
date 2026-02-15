@@ -13,9 +13,9 @@ Reality:
 - External gate remains failing in latest cycle4 artifacts.
 
 Primary evidence:
-- `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.json`
-- `docs/evidence/cycle4_postfix_reruns/matryoshka/run_20260215T203710Z_results.json`
-- `docs/evidence/cycle4_postfix_reruns/known_circuit_run_20260215T203809Z_summary.json`
+- `docs/evidence/cycle4_followups_run_20260215T220728Z/release/release_policy.json`
+- `docs/evidence/cycle4_followups_run_20260215T220728Z/assignment_external/results.json`
+- `docs/evidence/cycle4_followups_run_20260215T220728Z/routed/results.json`
 
 ## 2) Readiness by Area
 
@@ -28,7 +28,7 @@ Primary evidence:
 
 1. `P0` External gate failure (SAEBench and CE-Bench negative LCB deltas).
 2. `P1` No release-eligible candidate under strict joint external constraints.
-3. `P1` Assignment-v3 external stage unresolved due dimensional mismatch setup.
+3. `P1` Known-circuit closure gate failure vs random controls.
 4. `P2` W&B logging policy remains inconsistent across scripts.
 
 ## 4) What Is Complete
@@ -37,7 +37,8 @@ Primary evidence:
 - Multiseed architecture frontier and scaling studies.
 - Grouped LCB candidate selection.
 - Transcoder/OOD stress evaluation integrated into release gate.
-- Post-fix validation reruns for known-circuit and Matryoshka tracks.
+- Assignment-v3 external-aware track completed end-to-end.
+- New-family routed frontier integrated and evaluated.
 
 ## 5) Finish Criteria (Strict)
 
@@ -50,8 +51,8 @@ Project is fully claim-ready only if all are true:
 
 ## 6) Immediate Next Actions
 
-1. Assignment-v3 external-compatible rerun.
-2. Add RouteSAE family under matched-budget protocol.
+1. Routed-family hyper-sweep to fix low effective activation regime.
+2. Assignment-v3 external-aware expansion with larger seed set and hard external constraints.
 3. Re-run grouped-LCB selector on expanded candidate pool.
 4. Re-run strict gate and update canonical status.
 

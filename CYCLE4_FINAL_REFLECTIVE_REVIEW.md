@@ -2,26 +2,30 @@
 
 Date: 2026-02-15
 
-## 1) Original Goal vs What We Actually Learned
+## 1) Original Goal vs What We Learned
 
-Original research goal:
-- Find a reproducible "Goldilocks zone" where SAEs recover stable, meaningful features and this stability translates into externally validated interpretability gains.
+Original goal:
+- Find a reproducible SAE "Goldilocks zone" where feature stability is high and external interpretability metrics improve.
 
-What is now evidence-backed:
-- We can improve internal consistency metrics reproducibly.
-- Those internal gains do not automatically transfer to SAEBench/CE-Bench gains.
-- The tradeoff is structured, not random; strict stress gates expose it reliably.
+Evidence-backed outcome:
+- Internal stability gains are real and reproducible.
+- External benchmark deltas remain negative at strict LCB thresholds.
+- Reliability/gating infrastructure is strong and prevents overclaiming.
 
-## 2) Latest Cycle 4 Evidence (Canonical)
+## 2) Canonical Evidence (Latest)
 
-Cycle-4 followups manifest:
-- `docs/evidence/cycle4_followups_run_20260215T190004Z/followups/manifest.json`
+- Followups manifest: `docs/evidence/cycle4_followups_run_20260215T220728Z/followups/manifest.json`
+- Selection summary: `docs/evidence/cycle4_followups_run_20260215T220728Z/selector/selection_summary.json`
+- Release gate: `docs/evidence/cycle4_followups_run_20260215T220728Z/release/release_policy.json`
+- Assignment-v3 external: `docs/evidence/cycle4_followups_run_20260215T220728Z/assignment_external/results.json`
+- Routed frontier: `docs/evidence/cycle4_followups_run_20260215T220728Z/routed/results.json`
+- Matryoshka frontier: `docs/evidence/cycle4_followups_run_20260215T220728Z/matryoshka/results.json`
+- Known-circuit closure: `docs/evidence/cycle4_followups_run_20260215T220728Z/known_circuit/closure_summary.json`
 
-Strict release gate:
-- `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.json`
-- `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.md`
+## 3) Latest Gate State
 
-Current gate state:
+From `docs/evidence/cycle4_followups_run_20260215T220728Z/release/release_policy.json`:
+
 - `pass_all=False`
 - `random_model=True`
 - `transcoder=True`
@@ -29,88 +33,47 @@ Current gate state:
 - `external_saebench=False`
 - `external_cebench=False`
 
-Key gate metrics:
-- `trained_random_delta_lcb = 6.183e-05`
-- `transcoder_delta = +0.004916`
-- `ood_drop = 0.020995`
-- `saebench_delta_ci95_low = -0.044790`
-- `cebench_interp_delta_vs_baseline_ci95_low = -40.467037`
+Key metrics:
+- `trained_random_delta_lcb = 0.00006183199584486321`
+- `transcoder_delta = +0.004916101694107056`
+- `ood_drop = 0.015173514260201082`
+- `saebench_delta_ci95_low = -0.04478959689939781`
+- `cebench_interp_delta_vs_baseline_ci95_low = -40.467037470119465`
 
-## 3) Post-Fix Reruns in This Pass
+## 4) What Changed in This Latest Pass
 
-### 3.1 Known-circuit closure rerun (fixed metric geometry)
+1. Assignment-v3 external path completed.
+- The prior dimensional-compatibility blocker is resolved.
+- Best lambda selected (`0.3`) but does not satisfy external acceptance thresholds.
 
-Artifact:
-- `docs/evidence/cycle4_postfix_reruns/known_circuit_run_20260215T203809Z_summary.json`
+2. New family run completed: routed frontier.
+- Added matched-budget routed track.
+- Result: external deltas still negative; also low effective activation (`train_l0`), suggesting further tuning is needed.
 
-Result:
-- Previously: `checkpoints_evaluated=0` (not scientifically useful).
-- Now: `checkpoints_discovered=20`, `checkpoints_evaluated=20`, `skipped_dimension_mismatch=0`.
-- Gates still fail (`pass_all=False`), but evidence is now valid and interpretable.
+3. Grouped LCB selector rerun on updated pool.
+- Selected candidate remains `topk_seed123`.
 
-### 3.2 Matryoshka rerun (fixed training + adapter path)
+## 5) Critical Findings
 
-Artifacts:
-- `docs/evidence/cycle4_postfix_reruns/matryoshka/run_20260215T203710Z_summary.md`
-- `docs/evidence/cycle4_postfix_reruns/matryoshka/run_20260215T203710Z_results.json`
+1. Internal gains do not guarantee external gains.
+2. External gate is the dominant bottleneck.
+3. Reliability controls are functioning as intended.
+4. Current best candidate is robust on stress gates but weak on external metrics.
 
-Result:
-- Previous cycle4 run: collapsed (`l0=0`) and adapter crash.
-- New run: external eval succeeds for all 3 seeds.
-- Aggregate metrics:
-  - `train_ev_mean = 0.6166`
-  - `train_l0_mean = 32.0`
-  - `saebench_best_minus_llm_auc_mean = -0.03444`
-  - `cebench_interpretability_mean = 7.7842`
-  - `cebench_delta_vs_baseline_mean = -40.1674`
+## 6) Remaining Gaps
 
-Interpretation:
-- Crash is fixed and training is no longer degenerate.
-- External deltas remain negative, so release gate remains blocked.
+1. No release-eligible candidate under strict external LCB criteria.
+2. Known-circuit closure gates remain below threshold.
+3. New-family routing track likely under-tuned and currently under-utilizes features.
 
-## 4) What Is Finished vs Not Finished
+## 7) What To Read Next
 
-Finished (engineering/reliability):
-- Reproducible queue orchestration, manifests, logs, evidence syncing, strict release gating.
-- Grouped uncertainty-aware (LCB) candidate selection and policy wiring.
-- External benchmark adapters and matched-baseline comparison paths.
-- Fixed critical evaluation bugs (adapter + known-circuit geometry + Matryoshka training path).
-
-Not finished (scientific):
-- No release-eligible external-positive candidate yet.
-- Assignment-v3 external stage still needs a `d_model`-compatible rerun.
-
-## 5) Remaining Critical Issues
-
-1. External gate still fails with large negative CE-Bench delta.
-2. Assignment-v3 external-aware acceptance is unresolved due dimensional mismatch in current artifact run.
-3. Strict gate remains failing; no candidate meets all acceptance criteria simultaneously.
-
-## 6) What To Read (Fast Path)
-
-1. `START_HERE.md`
+1. `EXECUTIVE_SUMMARY.md`
 2. `PROJECT_STUDY_GUIDE.md`
-3. `EXECUTIVE_SUMMARY.md`
-4. `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.md`
-5. `docs/evidence/cycle4_postfix_reruns/known_circuit_run_20260215T203809Z_summary.md`
-6. `docs/evidence/cycle4_postfix_reruns/matryoshka/run_20260215T203710Z_summary.md`
-7. `RUNBOOK.md`
+3. `RUNBOOK.md`
+4. `EXPERIMENT_LOG.md`
 
-## 7) Are We Scientifically Finished?
-
-Not yet.
-
-We are close to finished on engineering/reproducibility and clear on the scientific bottleneck. We are not yet finished on the original goal of joint internal + external improvement under strict gates.
-
-## 8) Recommended Immediate B200 Queue
-
-1. Assignment-v3 rerun with external-compatible `d_model` setup.
-2. RouteSAE matched-budget run (same SAEBench/CE-Bench protocol).
-3. Grouped-LCB selection across frontier + scaling + new family.
-4. OOD + transcoder stress on selected candidate.
-5. Strict release gate rerun and canonical status refresh.
-
-## 9) Claim Policy
+## 8) Claim Policy
 
 No strong external claim unless strict release gate passes:
 - `pass_all=True`

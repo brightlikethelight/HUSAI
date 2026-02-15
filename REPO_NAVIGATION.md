@@ -13,8 +13,9 @@ Updated: 2026-02-15
 
 ## 2) Canonical Status Files
 
-- `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.md`
-- `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.json`
+- `docs/evidence/cycle4_followups_run_20260215T220728Z/release/release_policy.md`
+- `docs/evidence/cycle4_followups_run_20260215T220728Z/release/release_policy.json`
+- `docs/evidence/cycle4_followups_run_20260215T220728Z/selector/selection_summary.json`
 - `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
 - `PROPOSAL_COMPLETENESS_REVIEW.md`
 
@@ -38,10 +39,11 @@ Core package:
 
 - Phase 4a trained-vs-random: `results/experiments/phase4a_trained_vs_random/`
 - Core ablations: `results/experiments/phase4c_core_ablations/`
-- Assignment objective: `results/experiments/phase4d_assignment_consistency_v2/`, `results/experiments/phase4d_assignment_consistency_v3/`
+- Assignment objective: `results/experiments/phase4d_assignment_consistency_v2/`, `results/experiments/phase4d_assignment_consistency_v3/`, `results/experiments/phase4d_assignment_consistency_v3_external/`
 - External official/custom: `results/experiments/phase4e_external_benchmark_official/`
 - Architecture frontier multiseed: `results/experiments/phase4b_architecture_frontier_external_multiseed/`
 - Matryoshka frontier: `results/experiments/phase4b_matryoshka_frontier_external/`
+- Routed frontier: `results/experiments/phase4b_routed_frontier_external/`
 - External scaling multiseed: `results/experiments/phase4e_external_scaling_study_multiseed/`
 - Transcoder sweep: `results/experiments/phase4e_transcoder_stress_sweep_b200/`
 - OOD stress: `results/experiments/phase4e_ood_stress_b200/`
@@ -50,8 +52,9 @@ Core package:
 
 ## 5) Evidence Mirrors (Local)
 
-- `docs/evidence/cycle3_queue_final/`
-- `docs/evidence/cycle4_followups_run_20260215T190004Z/`
+- `docs/evidence/cycle4_followups_run_20260215T220728Z/`
+- `docs/evidence/cycle4_followups_run_20260215T212614Z/`
+- `docs/evidence/cycle4_postfix_reruns/`
 - `docs/evidence/phase4e_cebench_matched200/`
 
 ## 6) Reliability / Audit Docs

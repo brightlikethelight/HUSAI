@@ -15,6 +15,7 @@ import argparse
 import hashlib
 import itertools
 import json
+import math
 import shlex
 import subprocess
 import sys
@@ -53,6 +54,19 @@ def stable_hash(payload: dict[str, Any]) -> str:
     raw = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return hashlib.sha256(raw).hexdigest()
 
+
+
+def sanitize_json(value: Any) -> Any:
+    """Convert non-finite floats to None so written JSON stays standards-compliant."""
+    if isinstance(value, dict):
+        return {k: sanitize_json(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [sanitize_json(v) for v in value]
+    if isinstance(value, tuple):
+        return [sanitize_json(v) for v in value]
+    if isinstance(value, float):
+        return value if math.isfinite(value) else None
+    return value
 
 def parse_csv_strings(text: str) -> list[str]:
     return [x.strip() for x in text.split(",") if x.strip()]
@@ -661,9 +675,11 @@ def main() -> None:
         "acceptance": acceptance,
     }
 
+    payload = sanitize_json(payload)
+
     out_json = run_dir / "results.json"
     out_md = run_dir / "summary.md"
-    out_json.write_text(json.dumps(payload, indent=2) + "\n")
+    out_json.write_text(json.dumps(payload, indent=2, allow_nan=False) + "\n")
 
     lines = [
         "# Assignment-Aware Consistency v3",

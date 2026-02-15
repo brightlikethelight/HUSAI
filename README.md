@@ -12,7 +12,7 @@ Canonical status artifacts:
 - `START_HERE.md`
 - `EXECUTIVE_SUMMARY.md`
 - `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
-- `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.md`
+- `docs/evidence/cycle4_followups_run_20260215T220728Z/release/release_policy.md`
 
 ## Main Research Question
 
@@ -32,6 +32,7 @@ Can we improve SAE feature consistency in ways that also improve external benchm
 - `scripts/experiments/run_architecture_frontier_external.py`
 - `scripts/experiments/run_external_metric_scaling_study.py`
 - `scripts/experiments/run_matryoshka_frontier_external.py`
+- `scripts/experiments/run_routed_frontier_external.py`
 
 3. Stress and release policy
 - `scripts/experiments/run_transcoder_stress_eval.py`
@@ -45,7 +46,7 @@ Can we improve SAE feature consistency in ways that also improve external benchm
 
 ## Latest Gate Metrics (Cycle 4)
 
-From `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.md`:
+From `docs/evidence/cycle4_followups_run_20260215T220728Z/release/release_policy.json`:
 
 - `random_model=True`
 - `transcoder=True`
@@ -54,8 +55,9 @@ From `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_p
 - `pass_all=False`
 
 Selected metrics:
+- `trained_random_delta_lcb = 0.00006183199584486321`
 - `transcoder_delta = +0.004916101694107056`
-- `ood_drop = 0.020994556554025268`
+- `ood_drop = 0.015173514260201082`
 - `saebench_delta_ci95_low = -0.04478959689939781`
 - `cebench_interp_delta_vs_baseline_ci95_low = -40.467037470119465`
 

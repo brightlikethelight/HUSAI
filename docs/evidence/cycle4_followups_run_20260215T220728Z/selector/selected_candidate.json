@@ -1,0 +1,128 @@
+{
+  "source": "grouped",
+  "source_results": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/results.json",
+  "row_index": 1,
+  "condition_id": "topk",
+  "architecture": "topk",
+  "seed": 123,
+  "hook_layer": 0,
+  "hook_name": "blocks.0.hook_resid_pre",
+  "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed123/sae_final.pt",
+  "saebench_summary_path": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/topk_seed123/saebench/husai_custom_sae_summary.json",
+  "cebench_summary_path": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/topk_seed123/cebench/husai_custom_cebench_summary.json",
+  "metrics": {
+    "saebench_delta": -0.04478959689939781,
+    "cebench_interp_delta_vs_baseline": -40.467037470119465,
+    "cebench_interpretability_max": 7.4845741154976055,
+    "train_explained_variance": 0.7437727245610648,
+    "saebench_delta_mean": -0.04059280026569467,
+    "saebench_delta_std": 0.004787919673827799,
+    "saebench_delta_ci95_low": -0.04478959689939781,
+    "saebench_delta_ci95_high": -0.03639600363199154,
+    "saebench_delta_n": 5,
+    "cebench_interp_delta_vs_baseline_mean": -40.2248433790207,
+    "cebench_interp_delta_vs_baseline_std": 0.2763073731865414,
+    "cebench_interp_delta_vs_baseline_ci95_low": -40.467037470119465,
+    "cebench_interp_delta_vs_baseline_ci95_high": -39.98264928792193,
+    "cebench_interp_delta_vs_baseline_n": 5,
+    "train_explained_variance_mean": 0.7450903693098756,
+    "train_explained_variance_std": 0.001503236341090101,
+    "train_explained_variance_ci95_low": 0.7437727245610648,
+    "train_explained_variance_ci95_high": 0.7464080140586864,
+    "train_explained_variance_n": 5,
+    "cebench_interpretability_max_mean": 7.726768206596374,
+    "cebench_interpretability_max_std": 0.2763073731865415,
+    "cebench_interpretability_max_ci95_low": 7.4845741154976055,
+    "cebench_interpretability_max_ci95_high": 7.968962297695142,
+    "cebench_interpretability_max_n": 5
+  },
+  "returncodes": {
+    "saebench": 0,
+    "cebench": 0
+  },
+  "selection": {
+    "grouped_from_seed_candidates": 5,
+    "uncertainty_mode": "lcb",
+    "representative_seed": 123,
+    "joint_score": 0.9484851935580828,
+    "normalized_components": {
+      "saebench_norm": 0.7595825082181958,
+      "cebench_delta_norm": 1.0,
+      "train_ev_norm": 0.6869393944898488
+    },
+    "weights": {
+      "saebench": 0.5,
+      "cebench_delta": 0.5,
+      "train_ev": 0.1
+    },
+    "is_pareto": true
+  },
+  "sources": [
+    "frontier"
+  ],
+  "group_id": "topk",
+  "representative_condition_id": "topk_seed123",
+  "seed_count": 5,
+  "seed_candidates": [
+    {
+      "seed": 1011,
+      "condition_id": "topk_seed1011",
+      "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed1011/sae_final.pt",
+      "joint_score": 0.6591076917846889,
+      "metrics": {
+        "saebench_delta": -0.04525995743561939,
+        "cebench_interp_delta_vs_baseline": -40.61637846231461,
+        "cebench_interpretability_max": 7.3352331233024595,
+        "train_explained_variance": 0.7458855330728723
+      }
+    },
+    {
+      "seed": 123,
+      "condition_id": "topk_seed123",
+      "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed123/sae_final.pt",
+      "joint_score": 0.8037878685716286,
+      "metrics": {
+        "saebench_delta": -0.03260442057084412,
+        "cebench_interp_delta_vs_baseline": -39.910494198799135,
+        "cebench_interpretability_max": 8.041117386817932,
+        "train_explained_variance": 0.7434116009878537
+      }
+    },
+    {
+      "seed": 42,
+      "condition_id": "topk_seed42",
+      "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed42/sae_final.pt",
+      "joint_score": 0.7034703420040701,
+      "metrics": {
+        "saebench_delta": -0.041807613913057096,
+        "cebench_interp_delta_vs_baseline": -40.36621643304825,
+        "cebench_interpretability_max": 7.585395152568817,
+        "train_explained_variance": 0.7437508538331046
+      }
+    },
+    {
+      "seed": 456,
+      "condition_id": "topk_seed456",
+      "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed456/sae_final.pt",
+      "joint_score": 0.7136107573662339,
+      "metrics": {
+        "saebench_delta": -0.04274279129189251,
+        "cebench_interp_delta_vs_baseline": -40.184111621379856,
+        "cebench_interpretability_max": 7.767499964237214,
+        "train_explained_variance": 0.745388634657804
+      }
+    },
+    {
+      "seed": 789,
+      "condition_id": "topk_seed789",
+      "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed789/sae_final.pt",
+      "joint_score": 0.7402446951155183,
+      "metrics": {
+        "saebench_delta": -0.04054921811706025,
+        "cebench_interp_delta_vs_baseline": -40.047016179561616,
+        "cebench_interpretability_max": 7.90459540605545,
+        "train_explained_variance": 0.7470152239977429
+      }
+    }
+  ]
+}
