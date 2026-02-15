@@ -290,15 +290,19 @@ def annotate_scores(
             score += weight_train_ev * ev_norm[i]
             detail["train_ev_norm"] = ev_norm[i]
 
-        cand["selection"] = {
-            "joint_score": score,
-            "normalized_components": detail,
-            "weights": {
-                "saebench": weight_saebench,
-                "cebench_delta": weight_cebench,
-                "train_ev": weight_train_ev,
-            },
-        }
+        selection = dict(cand.get("selection") or {})
+        selection.update(
+            {
+                "joint_score": score,
+                "normalized_components": detail,
+                "weights": {
+                    "saebench": weight_saebench,
+                    "cebench_delta": weight_cebench,
+                    "train_ev": weight_train_ev,
+                },
+            }
+        )
+        cand["selection"] = selection
 
 
 def filter_candidates(

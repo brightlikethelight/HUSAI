@@ -1389,3 +1389,27 @@ make smoke
 - Live B200 status snapshot during this run:
   - queue still active: `results/experiments/cycle3_queue/queue_launcher_20260215T165724Z.log`
   - scaling progress snapshot: `train=6/24`, `sae=6/24`, `ce=5/24`
+
+### Run 69: Queue-complete transition + selector metadata preservation
+- Queue outcome observed on B200:
+  - `results/experiments/cycle3_queue/run_20260215T165724Z/manifest.json` produced.
+  - scaling run completed fully: `24/24` train, `24/24` SAEBench, `24/24` CE-Bench.
+  - strict release gate returned non-zero (`release_policy_rc=2`).
+
+- Code refinements after queue completion:
+  - `scripts/experiments/select_release_candidate.py`
+    - preserve grouped metadata (e.g., `uncertainty_mode`, grouped seed count fields) when writing selection scores.
+    - fixes metadata overwrite where `annotate_scores` previously replaced the entire `selection` object.
+  - `scripts/experiments/run_cycle4_followups_after_queue.sh`
+    - hardened queue wait matcher to target only the actual queue process command.
+
+- Validation:
+```bash
+pytest -q tests/unit/test_release_policy_selector.py
+bash -n scripts/experiments/run_cycle4_followups_after_queue.sh
+```
+- Outcome: success (`4 passed`, shell syntax clean).
+
+- Cycle-4 status at log time:
+  - active run: `results/experiments/cycle4_followups/run_20260215T184508Z`
+  - current stage: step 1 transcoder stress hyper-sweep in progress.

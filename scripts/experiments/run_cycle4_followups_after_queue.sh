@@ -21,7 +21,7 @@ exec > >(tee -a "$LOG_PATH") 2>&1
 
 echo "[followups] run_id=$RUN_ID"
 echo "[followups] waiting for active queue to finish..."
-while pgrep -f "run_b200_high_impact_queue.sh" >/dev/null 2>&1; do
+while pgrep -f "^bash scripts/experiments/run_b200_high_impact_queue.sh$" >/dev/null 2>&1; do
   date -u +"[followups] %Y-%m-%dT%H:%M:%SZ queue still running"
   sleep "$WAIT_SECONDS"
 done
@@ -65,7 +65,6 @@ if [[ -n "$BEST_TRANSCODER_SUMMARY" && "$BEST_TRANSCODER_SUMMARY" != /* ]]; then
   BEST_TRANSCODER_SUMMARY="/workspace/HUSAI/${BEST_TRANSCODER_SUMMARY}"
 fi
 
-
 echo "[followups] step3: matryoshka frontier under matched budget"
 KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
 python scripts/experiments/run_matryoshka_frontier_external.py \
@@ -83,7 +82,6 @@ python scripts/experiments/run_matryoshka_frontier_external.py \
   --cebench-matched-baseline-summary docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json \
   --saebench-datasets "$SAEBENCH_DATASETS" \
   --output-dir results/experiments/phase4b_matryoshka_frontier_external
-
 
 echo "[followups] step4: assignment-aware v3 with external-aware Pareto selection"
 KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
@@ -104,13 +102,11 @@ python scripts/experiments/run_assignment_consistency_v3.py \
   --min-cebench-delta 0.0 \
   --output-dir results/experiments/phase4d_assignment_consistency_v3
 
-
 echo "[followups] step5: known-circuit closure with trained-vs-random confidence bounds"
 python scripts/experiments/run_known_circuit_recovery_closure.py \
   --transformer-checkpoint results/transformer_5000ep/transformer_best.pt \
   --sae-checkpoint-glob 'results/experiments/phase4d_assignment_consistency_v3/run_*/checkpoints/lambda_*/sae_seed*.pt' \
   --output-dir results/experiments/known_circuit_recovery_closure
-
 
 echo "[followups] step2: default grouped uncertainty-aware (LCB) candidate selection"
 FRONTIER_BASE="$(ls -1dt results/experiments/phase4b_architecture_frontier_external_multiseed/run_* 2>/dev/null | head -n1 || true)"
@@ -149,7 +145,6 @@ if [[ -n "$BEST_CHECKPOINT" && "$BEST_CHECKPOINT" != /* ]]; then
   BEST_CHECKPOINT="/workspace/HUSAI/$BEST_CHECKPOINT"
 fi
 
-
 echo "[followups] run OOD stress on selected candidate"
 KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
 python scripts/experiments/run_ood_stress_eval.py \
@@ -167,7 +162,6 @@ python scripts/experiments/run_ood_stress_eval.py \
   --force-rerun
 
 OOD_SUMMARY="$(ls -1dt results/experiments/phase4e_ood_stress_b200/run_*/ood_stress_summary.json 2>/dev/null | head -n1 || true)"
-
 
 echo "[followups] strict release gate with external LCB thresholds"
 GATE_ARGS=(
