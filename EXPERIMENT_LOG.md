@@ -1343,3 +1343,49 @@ make smoke
   - latest scaling run: `results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z`
   - completed artifacts observed for early conditions (train + SAEBench + CE-Bench summaries)
   - W&B env still unset on remote (`WANDB_API_KEY/PROJECT/ENTITY/MODE`), so current run remains file-artifact logged only.
+
+### Run 68: Cycle-4 automation hardening for requested five-step program
+- Goal:
+  - Execute the post-queue high-impact program with stricter default selection/gating and cache-safe external reruns.
+
+- Code changes:
+  - `scripts/experiments/select_release_candidate.py`
+    - default selection mode changed to grouped condition-level selection.
+    - default uncertainty mode changed to `lcb`.
+    - default `min_seeds_per_group` changed to `3`.
+    - added explicit opt-out flag `--seed-level-selection`.
+  - `scripts/experiments/run_transcoder_stress_sweep.py`
+    - added `--fail-on-gate-fail` and non-zero exit when CI-LCB gate fails.
+  - `scripts/experiments/run_matryoshka_frontier_external.py`
+    - made SAE release IDs run-unique (`husai_{run_id}_{condition_id}`) for cache-safe external reruns.
+  - `scripts/experiments/run_assignment_consistency_v3.py`
+    - made external eval SAE release IDs run-unique (`husai_assignv3_{run_dir.name}_lambda...`).
+  - `scripts/experiments/run_cycle4_followups_after_queue.sh`
+    - expanded to execute all requested tracks after queue completion:
+      1. transcoder stress hyper-sweep with CI-LCB threshold,
+      2. grouped LCB candidate selection,
+      3. matryoshka matched-budget external run,
+      4. assignment-v3 with external-aware Pareto stage,
+      5. known-circuit closure run with trained-vs-random CI,
+      plus OOD stress and strict release-gate evaluation.
+  - `RUNBOOK.md`
+    - updated defaults/commands for grouped-LCB selection and CI-LCB transcoder gating.
+  - `tests/unit/test_release_policy_selector.py`
+    - explicit `--seed-level-selection` in seed-level test to match new selector defaults.
+
+- Validation commands:
+```bash
+python -m py_compile scripts/experiments/select_release_candidate.py scripts/experiments/run_transcoder_stress_sweep.py scripts/experiments/run_matryoshka_frontier_external.py scripts/experiments/run_assignment_consistency_v3.py
+bash -n scripts/experiments/run_cycle4_followups_after_queue.sh
+pytest -q tests/unit/test_release_policy_selector.py tests/unit/test_husai_custom_sae_adapter.py
+pytest -q tests/unit
+make smoke
+```
+- Outcome: success
+  - targeted unit tests: `6 passed`
+  - full unit suite: `84 passed`
+  - smoke pipeline: pass
+
+- Live B200 status snapshot during this run:
+  - queue still active: `results/experiments/cycle3_queue/queue_launcher_20260215T165724Z.log`
+  - scaling progress snapshot: `train=6/24`, `sae=6/24`, `ce=5/24`

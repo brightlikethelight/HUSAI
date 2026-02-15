@@ -84,6 +84,7 @@ def test_selector_prefers_joint_candidate(tmp_path: Path) -> None:
             "--scaling-results",
             str(scaling_json),
             "--require-both-external",
+            "--seed-level-selection",
             "--output-dir",
             str(out_dir),
         ],

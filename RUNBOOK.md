@@ -86,37 +86,27 @@ python scripts/experiments/run_external_metric_scaling_study.py \
 ### Candidate Selection + Stress and Strict Release Gate
 
 ```bash
-# select candidate from frontier/scaling runs (point-estimate mode)
+# default mode is now grouped + uncertainty-aware LCB over conditions
 python scripts/experiments/select_release_candidate.py \
   --frontier-results <frontier_results.json> \
   --scaling-results <scaling_results.json> \
   --require-both-external
 
-# select candidate with uncertainty-aware grouped mode (recommended for multiseed)
+# optional: force old seed-level point-estimate selection
 python scripts/experiments/select_release_candidate.py \
   --frontier-results <frontier_results.json> \
   --scaling-results <scaling_results.json> \
   --require-both-external \
-  --group-by-condition \
-  --uncertainty-mode lcb \
-  --min-seeds-per-group 3
+  --seed-level-selection \
+  --uncertainty-mode point
 
 # stress runners
 python scripts/experiments/run_transcoder_stress_eval.py --output-dir <out_dir>
-python scripts/experiments/run_transcoder_stress_sweep.py --output-dir <out_dir>
+python scripts/experiments/run_transcoder_stress_sweep.py \
+  --min-delta-lcb 0.0 \
+  --fail-on-gate-fail \
+  --output-dir <out_dir>
 python scripts/experiments/run_ood_stress_eval.py --output-dir <out_dir>
-
-# strict joint external gate (point-threshold mode)
-python scripts/experiments/run_stress_gated_release_policy.py \
-  --phase4a-results results/experiments/phase4a_trained_vs_random/results.json \
-  --transcoder-results <transcoder_summary.json> \
-  --ood-results <ood_summary.json> \
-  --external-candidate-json <selected_candidate.json> \
-  --external-mode joint \
-  --min-saebench-delta 0.0 \
-  --min-cebench-delta 0.0 \
-  --require-transcoder --require-ood --require-external \
-  --fail-on-gate-fail
 
 # strict joint external gate (LCB mode)
 python scripts/experiments/run_stress_gated_release_policy.py \
@@ -125,8 +115,6 @@ python scripts/experiments/run_stress_gated_release_policy.py \
   --ood-results <ood_summary.json> \
   --external-candidate-json <selected_candidate.json> \
   --external-mode joint \
-  --min-saebench-delta 0.0 \
-  --min-cebench-delta 0.0 \
   --use-external-lcb \
   --min-saebench-delta-lcb 0.0 \
   --min-cebench-delta-lcb 0.0 \
@@ -139,7 +127,7 @@ python scripts/experiments/run_stress_gated_release_policy.py \
 ```bash
 python scripts/experiments/run_known_circuit_recovery_closure.py \
   --transformer-checkpoint results/transformer_5000ep/transformer_best.pt \
-  --sae-checkpoint-glob 'results/experiments/phase4d_assignment_consistency_v2/run_*/checkpoints/lambda_0.2/sae_seed*.pt'
+  --sae-checkpoint-glob 'results/experiments/phase4d_assignment_consistency_v3/run_*/checkpoints/lambda_*/sae_seed*.pt'
 ```
 
 ## 4) B200 Queue Execution

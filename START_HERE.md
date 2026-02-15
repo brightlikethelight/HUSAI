@@ -22,7 +22,8 @@ Canonical status files:
 3. `PROJECT_STUDY_GUIDE.md`
 4. `REPO_NAVIGATION.md`
 5. `RUNBOOK.md`
-6. `EXPERIMENT_LOG.md`
+6. `docs/CYCLE4_LITERATURE_ACTIONS.md`
+7. `EXPERIMENT_LOG.md`
 
 ## 3) Research Questions
 

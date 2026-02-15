@@ -423,17 +423,26 @@ def main() -> None:
     parser.add_argument("--require-both-external", action="store_true")
     parser.add_argument(
         "--group-by-condition",
+        dest="group_by_condition",
         action="store_true",
         help="Aggregate candidates across seeds by condition id stem (e.g. *_seed42 -> *).",
+    )
+    parser.add_argument(
+        "--seed-level-selection",
+        dest="group_by_condition",
+        action="store_false",
+        help="Disable grouped selection and score individual seed checkpoints.",
     )
     parser.add_argument(
         "--uncertainty-mode",
         type=str,
         choices=["point", "lcb"],
-        default="point",
+        default="lcb",
         help="Metric mode when grouping: point=mean, lcb=95% lower confidence bound.",
     )
-    parser.add_argument("--min-seeds-per-group", type=int, default=1)
+    parser.add_argument("--min-seeds-per-group", type=int, default=3)
+
+    parser.set_defaults(group_by_condition=True)
 
     parser.add_argument("--weight-saebench", type=float, default=0.5)
     parser.add_argument("--weight-cebench", type=float, default=0.5)

@@ -114,6 +114,7 @@ def main() -> None:
     parser.add_argument("--learning-rate-values", type=str, default="0.0003,0.001")
 
     parser.add_argument("--min-delta-lcb", type=float, default=0.0)
+    parser.add_argument("--fail-on-gate-fail", action="store_true")
 
     parser.add_argument(
         "--output-dir",
@@ -233,6 +234,7 @@ def main() -> None:
             "epochs_values": epochs_values,
             "learning_rate_values": lr_values,
             "min_delta_lcb": args.min_delta_lcb,
+            "fail_on_gate_fail": args.fail_on_gate_fail,
         },
         "records": records,
         "best_condition": best,
@@ -286,6 +288,9 @@ def main() -> None:
     print("Transcoder stress sweep complete")
     print(f"Run dir: {run_dir}")
     print(f"Summary: {out_md}")
+
+    if args.fail_on_gate_fail and not payload["gates"]["pass_all"]:
+        raise SystemExit(2)
 
 
 if __name__ == "__main__":
