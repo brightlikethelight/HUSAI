@@ -43,16 +43,16 @@ def test_select_baseline_prefers_hook_name_then_layer_then_default() -> None:
     assert selected == Path("/tmp/default.json")
 
 
-def test_load_baseline_map_ignores_non_string_values(tmp_path: Path) -> None:
+def test_load_baseline_map_supports_explicit_disable_with_null(tmp_path: Path) -> None:
     payload = {
         "default": "docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json",
-        "1": 123,
-        "bad": None,
+        "1": None,
+        "bad": 123,
     }
     mapping_path = tmp_path / "map.json"
     mapping_path.write_text(json.dumps(payload))
 
     out = load_baseline_map(mapping_path)
     assert "default" in out
-    assert "1" not in out
+    assert out["1"] is None
     assert "bad" not in out

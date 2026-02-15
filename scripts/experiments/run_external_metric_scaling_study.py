@@ -76,16 +76,19 @@ def infer_dataset_names_from_files(files: list[Path], hook_name: str) -> list[st
     return deduped
 
 
-def load_baseline_map(path: Path | None) -> dict[str, str]:
+def load_baseline_map(path: Path | None) -> dict[str, str | None]:
     if path is None or not path.exists():
         return {}
     payload = json.loads(path.read_text())
     if not isinstance(payload, dict):
         raise ValueError("--cebench-matched-baseline-map must be a JSON object")
 
-    out: dict[str, str] = {}
+    out: dict[str, str | None] = {}
     for key, value in payload.items():
-        if isinstance(value, str) and value:
+        # `null` means explicit disable for that key.
+        if value is None:
+            out[str(key)] = None
+        elif isinstance(value, str) and value:
             out[str(key)] = str(to_abs_repo_path(Path(value)))
     return out
 
@@ -95,12 +98,12 @@ def select_baseline_for_condition(
     hook_layer: int,
     hook_name: str,
     default_baseline: Path | None,
-    baseline_map: dict[str, str],
+    baseline_map: dict[str, str | None],
 ) -> Path | None:
     for key in (hook_name, str(hook_layer), "default"):
-        mapped = baseline_map.get(key)
-        if mapped:
-            return Path(mapped)
+        if key in baseline_map:
+            mapped = baseline_map[key]
+            return Path(mapped) if mapped else None
     return default_baseline
 
 

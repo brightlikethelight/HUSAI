@@ -1157,3 +1157,26 @@ make smoke
 - Scientific reason for change:
   - removes a real reproducibility bug in transcoder stress (seed not controlling init).
   - removes layer-mismatch risk for CE-Bench deltas in scaling studies, enabling fairer external comparisons before the next B200 cycle.
+
+### Run 60: CE-Bench layer-baseline integrity check (official SAE availability)
+- Remote probe command (B200):
+```bash
+python scripts/experiments/run_cebench_compat.py \
+  --cebench-repo /workspace/CE-Bench \
+  --sae-regex-pattern pythia-70m-deduped-res-sm \
+  --sae-block-pattern blocks.1.hook_resid_pre \
+  --output-folder results/experiments/phase4e_external_benchmark_official/cebench_matched200_layer1 \
+  --artifacts-path /tmp/ce_bench_artifacts_matched200_layer1 \
+  --max-rows 200 \
+  --force-rerun
+```
+- Outcome: expected failure (`AssertionError: No SAEs selected`).
+- Evidence:
+  - `results/experiments/phase4e_external_benchmark_official/cebench_matched200_layer1_launch.log`
+  - `results/experiments/phase4e_external_benchmark_official/cebench_matched200_layer1/cebench_metrics_summary.json`
+- Follow-up integrity check:
+  - enumerated available `pythia-70m-deduped-res-sm` SAE IDs from SAE-Lens directory.
+  - confirmed `blocks.1.hook_resid_pre` is not available (only `blocks.0.hook_resid_pre` plus `resid_post` layers).
+- Code change from this finding:
+  - `cebench_baseline_map.json` now sets layer-1 pre hook keys to `null`.
+  - scaling harness treats `null` as explicit “no matched baseline” (delta disabled) instead of incorrectly using layer-0 baseline.

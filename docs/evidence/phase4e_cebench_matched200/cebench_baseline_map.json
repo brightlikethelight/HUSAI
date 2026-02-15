@@ -1,5 +1,7 @@
 {
   "default": "docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json",
   "0": "docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json",
-  "blocks.0.hook_resid_pre": "docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json"
+  "blocks.0.hook_resid_pre": "docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json",
+  "1": null,
+  "blocks.1.hook_resid_pre": null
 }
