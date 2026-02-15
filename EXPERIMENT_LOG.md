@@ -1413,3 +1413,29 @@ bash -n scripts/experiments/run_cycle4_followups_after_queue.sh
 - Cycle-4 status at log time:
   - active run: `results/experiments/cycle4_followups/run_20260215T184508Z`
   - current stage: step 1 transcoder stress hyper-sweep in progress.
+
+### Run 70: Cycle-4 step3 blocker fix and resume-capable followup script
+- Observed failure on remote cycle-4 run (`run_20260215T184508Z`):
+  - step3 (matryoshka frontier) crashed with missing activation cache path:
+    - `FileNotFoundError: No activation files matched *_blocks.0.hook_resid_pre.pt under /workspace/HUSAI/results/cache/external_benchmarks/sae_bench_model_cache/model_activations_pythia-70m-deduped`
+
+- Confirmed completed step1 before failure:
+  - `results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/summary.md`
+  - pass_all: `True`
+  - best condition: `dsae128_k32_ep20_lr0.001`
+  - best delta_lcb: `0.0010100603103637695`
+
+- Fixes applied:
+  - `scripts/experiments/run_cycle4_followups_after_queue.sh`
+    - added explicit RunPod cache paths for matryoshka and assignment-v3 external eval stages:
+      - `--activation-cache-dir /tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped`
+      - `--saebench-model-cache-path /tmp/sae_bench_model_cache`
+      - tmp-backed results/artifacts paths for SAEBench/CE-Bench.
+    - added `RESUME_FROM_STEP` to continue without rerunning finished stages.
+    - preserved strict gate pipeline after step5 (selector + OOD + LCB release gate).
+
+- Validation:
+```bash
+bash -n scripts/experiments/run_cycle4_followups_after_queue.sh
+```
+- Outcome: syntax check pass.
