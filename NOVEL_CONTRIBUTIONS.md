@@ -1,126 +1,69 @@
 # Novel Contributions and Highest-Leverage Follow-Ups
 
-Updated: 2026-02-13
+Updated: 2026-02-15
 
-## Reality Check (Post-Cycle 2)
+## Scientific Baseline (Current Evidence)
 
-What is now done end-to-end:
-- Direct HUSAI CE-Bench adapter path exists and runs.
-- Matched-budget architecture frontier (TopK/ReLU/BatchTopK/JumpReLU) is complete on external metrics.
-- External scaling study (`token budget`, `hook layer`, `d_sae`) is complete.
-- Assignment-aware consistency objective v2 is complete with explicit acceptance gates.
-- Stress-gated release policy is complete and now supports fail-fast CI behavior.
+What is true from completed artifact-backed runs:
+- Internal consistency gains are reproducible.
+- External competitiveness is not yet achieved (SAEBench deltas remain negative vs LLM baseline; CE-Bench deltas remain strongly negative vs matched baseline in tested settings).
+- Strict release gate still fails due external + transcoder constraints.
 
-What the evidence says:
-- External delta remains negative across tested settings.
-- Internal consistency can be improved (assignment-v2), but external acceptance still fails.
-- Architecture choice creates cross-benchmark tradeoffs, not a clear global winner.
-
-## Evidence Pointers
-
-- CE-Bench matched baseline summary:
-  - `docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json`
-- Architecture frontier:
-  - `docs/evidence/phase4b_architecture_frontier_external/run_20260213T173707Z_results.json`
-  - `docs/evidence/phase4b_architecture_frontier_external/run_20260213T173707Z_summary_table.md`
-- Scaling study:
-  - `docs/evidence/phase4e_external_scaling_study/run_20260213T203923Z_results.json`
-  - `docs/evidence/phase4e_external_scaling_study/run_20260213T203923Z_summary_table.md`
-- Assignment v2:
-  - `docs/evidence/phase4d_assignment_consistency_v2/run_20260213T203957Z_results.json`
-- Stress policy:
-  - `docs/evidence/phase4e_stress_gated_release/run_20260213T204120Z_release_policy.json`
+Key artifact anchors:
+- `docs/evidence/cycle3_queue_final/frontier_multiseed_results_run_20260214T202538Z.json`
+- `docs/evidence/cycle3_queue_final/scaling_multiseed_results_run_20260214T212435Z.json`
+- `docs/evidence/cycle3_queue_final/release_policy_run_20260214T225029Z.json`
+- `docs/evidence/known_circuit_recovery_closure/run_20260215T165907Z_closure_summary.json`
 
 ## Updated Highest-Leverage Next 5 (Ranked)
 
-1. Add transcoder + OOD stress tracks and enforce strict release gating in CI.
-- Why now:
-  - stress policy currently fails because transcoder/OOD evidence is missing.
-- Deliverable:
-  - `transcoder_results.json`, `ood_results.json`, and CI step that runs `run_stress_gated_release_policy.py --fail-on-gate-fail`.
+1. Transcoder stress recovery sweep (capacity/epochs/lr) with hard gate objective.
+- Goal: recover transcoder gate while preserving external metrics.
+- Success criterion: `transcoder_delta >= 0` on multiseed CI lower bound.
 
-2. Expand external architecture frontier beyond 4 families (Matryoshka/RouteSAE/HierarchicalTopK).
-- Why now:
-  - current frontier exposes tradeoffs but no positive external-delta region.
-- Deliverable:
-  - matched-budget run with identical protocol and uncertainty report.
+2. Joint candidate selection by uncertainty-aware grouped conditions.
+- Goal: select by condition-level LCB, not point-estimate checkpoints.
+- Success criterion: pass strict external thresholds with `--group-by-condition --uncertainty-mode lcb`.
 
-3. Run multi-seed external CIs for frontier + scaling winners.
-- Why now:
-  - most external sweeps are single-seed; claim confidence is underpowered.
-- Deliverable:
-  - >=3 seeds for selected configs, with CI tables for SAEBench/CE-Bench deltas.
+3. Add one new architecture family under matched budget (RouteSAE or Matryoshka-style variant).
+- Goal: test whether architecture family shift can move the external Pareto front.
+- Success criterion: non-negative SAEBench delta and improved CE-Bench delta vs current best family mean.
 
-4. Introduce Pareto checkpoint selection (consistency + external metrics jointly).
-- Why now:
-  - internal-only optimization (assignment-v2) does not satisfy external gate.
-- Deliverable:
-  - model selection script that ranks checkpoints by Pareto dominance and acceptance constraints.
+4. Assignment-aware objective v3 with external-aware Pareto checkpointing.
+- Goal: optimize internal consistency without collapsing external deltas.
+- Success criterion: frontier/scaling candidate selected by joint objective clears external gate.
 
-5. Test layer-aware architecture routing under fixed parameter budget.
-- Why now:
-  - scaling indicates layer-specific metric preferences (layer1 helps CE-Bench, hurts SAEBench delta).
-- Deliverable:
-  - composite model (`layer0` family + `layer1` family) benchmarked against single-family baselines.
+5. Known-circuit closure track completion.
+- Goal: close original proposal scope with explicit trained-vs-random known-circuit evidence.
+- Success criterion: positive trained-over-random effect with confidence bounds for circuit-recovery metric.
 
-## Rare but High-Value Novel Ideas
+## Concrete Novel Contributions We Can Still Claim (If Completed)
 
-1. Benchmark-aware curriculum for SAE training
-- Increase CE-Bench- and SAEBench-aligned slices over training stages to reduce cross-metric collapse.
+1. CI-gated interpretability workflow.
+- Novelty: strict, automated claim gating that binds narrative claims to artifact-backed thresholds.
 
-2. Assignment-aware external regularizer
-- Extend v2 matching with external proxy constraints (e.g., probe separability priors) during training.
+2. Tri-objective SAE selection under uncertainty.
+- Novelty: condition-grouped LCB ranking across internal consistency + SAEBench + CE-Bench.
 
-3. Hook-adaptive sparsity schedules
-- Learn per-layer `k`/`d_sae` schedules from activation geometry rather than fixed global settings.
+3. External-aware consistency training.
+- Novelty: assignment-aware training objective paired with external acceptance constraints, not post-hoc filtering alone.
 
-4. External-metric early stopping
-- Stop on external validation deltas, not reconstruction-only metrics.
+4. Architecture frontier with matched-budget external benchmarking.
+- Novelty: apples-to-apples architecture comparisons under identical token budget, seeds, and external evaluation harness.
 
-5. Claims ledger automation
-- CI-generated claim table from JSON artifacts; block unsupported narrative updates by default.
+5. Proposal-closure discipline for known-circuit recovery.
+- Novelty: explicit closure tests for the original mechanistic claim rather than only benchmark deltas.
 
-## Primary Sources
+## Evidence-Safe Literature Links (Verified)
 
-- SAEBench (ICML 2025): https://proceedings.mlr.press/v267/karvonen25a.html
-- CE-Bench (2025): https://arxiv.org/abs/2509.00691
-- JumpReLU: https://arxiv.org/abs/2407.14435
-- BatchTopK: https://arxiv.org/abs/2412.06410
-- Matryoshka SAEs: https://arxiv.org/abs/2503.17547
-- RouteSAE: https://aclanthology.org/2025.emnlp-main.346/
-- HierarchicalTopK: https://aclanthology.org/2025.emnlp-main.515/
-- Transcoders Beat SAEs: https://arxiv.org/abs/2501.18823
-- Random-transformer control framing: https://arxiv.org/abs/2501.17727
+- SAEBench (benchmarking SAEs): https://arxiv.org/abs/2503.09532
+- CE-Bench (contrastive explanations benchmark): https://aclanthology.org/2025.findings-acl.854/
+- Route Sparse Autoencoders (routing architecture): https://arxiv.org/abs/2503.08200
+- Transcoders Beat Sparse Autoencoders? (representation quality challenge): https://arxiv.org/abs/2501.18823
+- Can Sparse Autoencoders Reason? (logical-task stress for SAEs): https://arxiv.org/abs/2507.18006
 
-## 2026-02-14 Literature Refresh and Novelty Upgrade
+## Guardrails for Future Claims
 
-Additional primary-source signals:
-- SAEBench 2026 release notes emphasize broader benchmark coverage and architectural diversity in reported results:
-  - https://github.com/adamkarvonen/SAEBench
-- MIB benchmark (2025) extends evaluation toward richer mechanistic interpretability behaviors:
-  - https://arxiv.org/abs/2504.13151
-- PolySAE (2026) reports stronger reconstruction/sparsity/interpretability tradeoffs at scale:
-  - https://arxiv.org/abs/2602.01322
-- Taming polysemanticity via SAE recovery theory (2025):
-  - https://arxiv.org/abs/2506.14002
-
-Concrete novelty opportunities for HUSAI (high confidence):
-1. Multi-objective frontier paper:
-- define and optimize the Pareto surface over `internal consistency` vs `SAEBench delta` vs `CE-Bench delta`.
-- novelty: explicit tri-objective externalization, not single-metric optimization.
-
-2. External-gated consistency training:
-- combine assignment-aware objective with external proxy constraints and strict release gates.
-- novelty: consistency training that is benchmark-aware by construction.
-
-3. Architecture-by-layer policy:
-- choose architecture family per hook layer under a fixed parameter budget.
-- novelty: layer-specialized SAE architecture policy learned from external metric profiles.
-
-4. Circuit-grounded closure track:
-- add Tracr/known-circuit recovery quality as a co-equal axis with SAEBench/CE-Bench.
-- novelty: links stability claims to identifiable ground truth, closing original proposal scope.
-
-5. Automatic claim ledger:
-- machine-generated claim table from artifacts with CI gate enforcement.
-- novelty: prevents publication drift between narrative and measured evidence.
+- No external-improvement claim unless matched-baseline deltas and CI bounds are explicitly non-negative.
+- No reliability claim unless strict stress gate passes (`random + transcoder + OOD + external`).
+- No proposal-complete claim until known-circuit closure track is green.
