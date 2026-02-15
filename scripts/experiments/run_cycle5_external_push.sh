@@ -232,15 +232,43 @@ RELEASE_RUN="$(ls -1dt results/experiments/release_stress_gates/run_* 2>/dev/nul
 printf "%s\n" "${ROUTED_RUNS[@]}" > "$RUN_DIR/routed_runs.txt"
 printf "%s\n" "${ASSIGN_RUNS[@]}" > "$RUN_DIR/assignment_runs.txt"
 
-python - "$RUN_DIR/manifest.json" <<'PY'
+python - "$RUN_DIR/manifest.json" \
+  "$RUN_ID" \
+  "$FRONTIER_BASE" \
+  "$SCALING_RUN" \
+  "$SELECTOR_RUN" \
+  "$SELECTED_JSON" \
+  "$BEST_CHECKPOINT" \
+  "$BEST_ARCH" \
+  "$BEST_HOOK_LAYER" \
+  "$BEST_HOOK_NAME" \
+  "$OOD_SUMMARY" \
+  "$BEST_TRANSCODER_SUMMARY" \
+  "$RELEASE_RUN" \
+  "$RELEASE_RC" <<'PY'
 import json
-import os
 import sys
 from pathlib import Path
 
-manifest_path = Path(sys.argv[1])
-run_dir = manifest_path.parent
+(
+    manifest_path,
+    run_id,
+    frontier_base,
+    scaling_run,
+    selector_run,
+    selected_candidate_json,
+    best_checkpoint,
+    best_arch,
+    best_hook_layer,
+    best_hook_name,
+    ood_summary,
+    best_transcoder_summary,
+    release_run,
+    release_rc,
+) = sys.argv[1:]
 
+manifest_path = Path(manifest_path)
+run_dir = manifest_path.parent
 
 def read_lines(path: Path) -> list[str]:
     if not path.exists():
@@ -248,21 +276,21 @@ def read_lines(path: Path) -> list[str]:
     return [line.strip() for line in path.read_text().splitlines() if line.strip()]
 
 payload = {
-    "run_id": os.environ.get("RUN_ID"),
+    "run_id": run_id,
     "routed_runs": read_lines(run_dir / "routed_runs.txt"),
     "assignment_runs": read_lines(run_dir / "assignment_runs.txt"),
-    "frontier_base": os.environ.get("FRONTIER_BASE"),
-    "scaling_run": os.environ.get("SCALING_RUN"),
-    "selector_run": os.environ.get("SELECTOR_RUN"),
-    "selected_candidate_json": os.environ.get("SELECTED_JSON"),
-    "best_checkpoint": os.environ.get("BEST_CHECKPOINT"),
-    "best_architecture": os.environ.get("BEST_ARCH"),
-    "best_hook_layer": os.environ.get("BEST_HOOK_LAYER"),
-    "best_hook_name": os.environ.get("BEST_HOOK_NAME"),
-    "ood_summary": os.environ.get("OOD_SUMMARY"),
-    "transcoder_summary": os.environ.get("BEST_TRANSCODER_SUMMARY"),
-    "release_run": os.environ.get("RELEASE_RUN"),
-    "release_rc": int(os.environ.get("RELEASE_RC", "1")),
+    "frontier_base": frontier_base,
+    "scaling_run": scaling_run,
+    "selector_run": selector_run,
+    "selected_candidate_json": selected_candidate_json,
+    "best_checkpoint": best_checkpoint,
+    "best_architecture": best_arch,
+    "best_hook_layer": best_hook_layer,
+    "best_hook_name": best_hook_name,
+    "ood_summary": ood_summary,
+    "transcoder_summary": best_transcoder_summary,
+    "release_run": release_run,
+    "release_rc": int(release_rc),
 }
 manifest_path.write_text(json.dumps(payload, indent=2) + "\n")
 PY
