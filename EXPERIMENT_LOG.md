@@ -1313,3 +1313,33 @@ bash scripts/experiments/run_b200_high_impact_queue.sh
   5. run `run_assignment_consistency_v3.py` (internal sweep).
 - Current status:
   - waiting loop confirmed in launcher log.
+
+### Run 67: SAEBench cache-contamination hardening + live queue quality audit
+- Why:
+  - Active scaling queue logs repeatedly showed `Skipping dataset ...` in SAEBench probes.
+  - This can be benign cache reuse, but it is a reproducibility risk when release IDs are reused across reruns.
+
+- Code changes:
+  - `scripts/experiments/run_external_metric_scaling_study.py`
+    - changed SAE release ids from `husai_scaling_{cond_id}` to `husai_scaling_{run_id}_{cond_id}`
+      for both SAEBench and CE-Bench custom eval invocations.
+  - `scripts/experiments/run_architecture_frontier_external.py`
+    - changed SAE release ids from `husai_{condition_id}` to `husai_{run_id}_{condition_id}`
+      for both SAEBench and CE-Bench custom eval invocations.
+
+- Validation:
+```bash
+python -m py_compile scripts/experiments/run_external_metric_scaling_study.py scripts/experiments/run_architecture_frontier_external.py
+pytest -q tests/unit/test_release_policy_selector.py tests/unit/test_husai_custom_sae_adapter.py
+make smoke
+```
+- Outcome: success
+  - compile: pass
+  - targeted unit tests: `6 passed`
+  - smoke pipeline: pass
+
+- Live B200 audit snapshot:
+  - queue process still active: `run_b200_high_impact_queue.sh` -> scaling stage
+  - latest scaling run: `results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z`
+  - completed artifacts observed for early conditions (train + SAEBench + CE-Bench summaries)
+  - W&B env still unset on remote (`WANDB_API_KEY/PROJECT/ENTITY/MODE`), so current run remains file-artifact logged only.
