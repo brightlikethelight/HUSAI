@@ -1,101 +1,92 @@
 # Repository Navigation (Canonical Index)
 
-Updated: 2026-02-14
+Updated: 2026-02-15
 
-Use this file as the entry point for understanding and operating this repository.
+Use this file as the canonical map of the repository.
 
-## 1) Start Here
+## 1) Entry Points
 
-- Project overview: `README.md`
-- Study guide (recommended first): `PROJECT_STUDY_GUIDE.md`
-- Fast setup and run path: `RUNBOOK.md`
-- Quick setup and run path: `QUICK_START.md`
-- Experiment provenance log: `EXPERIMENT_LOG.md`
-- Current final writeups:
-  - Blog: `FINAL_BLOG.md`
-  - Paper: `FINAL_PAPER.md`
+1. `START_HERE.md` (recommended first)
+2. `README.md` (project snapshot)
+3. `RUNBOOK.md` (execution and reproduction)
+4. `EXECUTIVE_SUMMARY.md` (cycle-level conclusions)
+5. `EXPERIMENT_LOG.md` (run-by-run provenance)
 
-## 2) Core Research Pipeline
+## 2) Canonical Status and Gate Truth
 
-Main code path:
+- `docs/evidence/cycle3_queue_final/cycle3_final_synthesis_run_20260214T210734Z.md`
+- `results/analysis/experiment_consistency_report.md`
+- `PROPOSAL_COMPLETENESS_REVIEW.md`
+- `FINAL_READINESS_REVIEW.md`
+
+## 3) Core Code Path
+
+Main training/eval flow:
 1. Baseline model training: `scripts/training/train_baseline.py`
 2. Activation extraction: `scripts/analysis/extract_activations.py`
 3. SAE training: `scripts/training/train_sae.py`
-4. Stability evaluation and analyses: `scripts/analysis/` and `scripts/experiments/`
+4. Analyses and experiments: `scripts/analysis/`, `scripts/experiments/`
 
-Core library modules:
+Core package:
 - `src/data/`
 - `src/models/`
 - `src/training/`
 - `src/analysis/`
 - `src/utils/`
 
-## 3) Highest-Impact Experiment Artifacts
+## 4) Major Experiment Programs
 
-- Phase 4a trained vs random:
-  - `results/experiments/phase4a_trained_vs_random/`
-- Core ablations:
-  - `results/experiments/phase4c_core_ablations/`
-- Benchmark-aligned slice:
-  - `results/experiments/phase4e_external_benchmark_slice/`
-- Official benchmark harness runs:
-  - `results/experiments/phase4e_external_benchmark_official/`
-- Tracked HUSAI custom SAEBench multi-seed evidence:
-  - `docs/evidence/phase4e_husai_custom_multiseed/`
-- Adaptive L0 follow-up:
-  - `results/experiments/adaptive_l0_calibration/`
-- Consistency-objective sweep:
-  - `results/experiments/consistency_objective_sweep/`
-- Transcoder stress artifacts:
-  - `results/experiments/phase4e_transcoder_stress/`
-- OOD stress artifacts:
-  - `results/experiments/phase4e_ood_stress/`
-- Release gate evaluations:
-  - `results/experiments/release_stress_gates/`
+- Phase 4a trained-vs-random: `results/experiments/phase4a_trained_vs_random/`
+- Core ablations: `results/experiments/phase4c_core_ablations/`
+- Assignment consistency v2: `results/experiments/phase4d_assignment_consistency_v2/`
+- External official/custom benchmark runs: `results/experiments/phase4e_external_benchmark_official/`
+- Architecture frontier multiseed: `results/experiments/phase4b_architecture_frontier_external_multiseed/`
+- External scaling multiseed: `results/experiments/phase4e_external_scaling_study_multiseed/`
+- Transcoder stress: `results/experiments/phase4e_transcoder_stress_b200/`
+- OOD stress: `results/experiments/phase4e_ood_stress_b200/`
+- Release gates: `results/experiments/release_stress_gates/`
 
-## 4) Reliability and Audit Documents
+## 5) Evidence Mirrors (Pulled Local)
 
-- Architecture map: `ARCHITECTURE.md`
-- Health audit: `AUDIT.md`
-- Bug/risk list: `BUGS.md`
-- Literature and landscape: `LIT_REVIEW.md`
-- Novel contributions and ranked next steps: `NOVEL_CONTRIBUTIONS.md`
-- Subagent-track phase-0 report: `PHASE0_SUBAGENT_REPORTS.md`
+- `docs/evidence/cycle3_queue_final/`
+- `docs/evidence/phase4b_architecture_frontier_external/`
+- `docs/evidence/phase4e_external_scaling_study/`
+- `docs/evidence/phase4e_cebench_matched200/`
 
-## 5) Benchmark and Claim Hygiene
+## 6) Reliability and Audit Docs
 
-- Official benchmark harness script:
-  - `scripts/experiments/run_official_external_benchmarks.py`
-- Stress benchmark scripts:
-  - `scripts/experiments/run_transcoder_stress_eval.py`
-  - `scripts/experiments/run_ood_stress_eval.py`
-  - `scripts/experiments/run_stress_gated_release_policy.py`
-- Artifact-claim consistency check:
-  - `scripts/analysis/verify_experiment_consistency.py`
-- Generated consistency report:
-  - `results/analysis/experiment_consistency_report.md`
+- `ARCHITECTURE.md`
+- `AUDIT.md`
+- `BUGS.md`
+- `LIT_REVIEW.md`
+- `NOVEL_CONTRIBUTIONS.md`
+- `PHASE0_SUBAGENT_REPORTS.md`
 
-## 6) Development and CI
+## 7) CI and Dev
 
 - CI workflow: `.github/workflows/ci.yml`
-- Primary task runner: `Makefile`
-- Unit/integration tests: `tests/`
+- Task runner: `Makefile`
+- Tests: `tests/`
 
 Useful targets:
 - `make smoke`
 - `make reproduce-phase4a`
 - `make ablate-core`
-- `make benchmark-slice`
 - `make benchmark-official`
 - `make transcoder-stress`
 - `make ood-stress`
 - `make release-gate-strict`
 - `make audit-results`
 
-## 7) Archive and Legacy Materials
+## 8) Final Writeups
 
-Historical or superseded artifacts are stored under:
+- Blog: `FINAL_BLOG.md`
+- Paper: `FINAL_PAPER.md`
+
+## 9) Legacy Material
+
+Historical/superseded artifacts are intentionally preserved for provenance:
 - `archive/`
 - `archive/session_notes/dec_2025/root_legacy/`
 
-These are preserved for provenance and should not be treated as current source-of-truth unless explicitly referenced.
+Do not treat legacy content as current source-of-truth unless explicitly referenced.

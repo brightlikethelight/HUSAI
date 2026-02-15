@@ -1,276 +1,97 @@
-# HUSAI: Hunting for Stable AI Features
+# HUSAI: Stable and Trustworthy SAE Features
 
-> **Investigating the reproducibility crisis in sparse autoencoders and discovering the conditions for stable, interpretable features**
+HUSAI studies whether sparse autoencoder (SAE) features are reproducible across seeds and whether internal consistency gains transfer to external interpretability benchmarks.
 
-[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
-[![PyTorch 2.5.1](https://img.shields.io/badge/PyTorch-2.5.1-EE4C2C.svg)](https://pytorch.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Status](https://img.shields.io/badge/Status-Verified_Findings-green)
+## Current Status (Cycle 3 Final, 2026-02-15)
 
----
+- Internal consistency improvements: supported.
+- External superiority claims: not supported.
+- Strict release gate: failing (`pass_all=False`).
 
-## 🔬 Verified Key Findings
+Canonical status artifacts:
+- `START_HERE.md`
+- `docs/evidence/cycle3_queue_final/cycle3_final_synthesis_run_20260214T210734Z.md`
+- `results/analysis/experiment_consistency_report.md`
+- `PROPOSAL_COMPLETENESS_REVIEW.md`
 
-Our research provides a **systematic empirical validation** of SAE stability on algorithmic tasks:
+## Main Research Question
 
-### 1. Dense Ground Truth → Low Stability (Validated)
+Can we improve SAE feature consistency in ways that also improve external benchmark performance?
 
-SAE stability on dense ground truth matches theoretical predictions (Cui et al., 2025):
+## What We Ran
 
-| Setup | PWMCC | Random Baseline | Interpretation |
-|-------|-------|-----------------|----------------|
-| 2-layer transformer | 0.309 | 0.300 | **Matches theory** |
-| Copy task | 0.300 | 0.300 | Task-independent |
+1. Internal baseline and ablations
+- `scripts/experiments/run_phase4a_reproduction.py`
+- `scripts/experiments/run_core_ablations.py`
+- `scripts/experiments/run_adaptive_l0_calibration.py`
+- `scripts/experiments/run_assignment_consistency_v2.py`
 
-**Key insight:** When ground truth is dense (effective rank ~80/128 = 62.5%), SAE stability equals random baseline.
+2. External benchmark program
+- `scripts/experiments/run_husai_saebench_custom_eval.py`
+- `scripts/experiments/run_husai_cebench_custom_eval.py`
+- `scripts/experiments/run_architecture_frontier_external.py`
+- `scripts/experiments/run_external_metric_scaling_study.py`
 
-### 2. Stability Decreases with Sparsity (TopK)
+3. Stress and release policy
+- `scripts/experiments/run_transcoder_stress_eval.py`
+- `scripts/experiments/run_ood_stress_eval.py`
+- `scripts/experiments/run_stress_gated_release_policy.py`
 
-For TopK architecture, stability decreases monotonically with L0:
+4. B200 queue orchestration
+- `scripts/experiments/run_b200_high_impact_queue.sh`
 
-| L0 (k) | PWMCC | Ratio to Random |
-|--------|-------|------------------|
-| 8 | 0.389 | **1.56×** |
-| 16 | 0.339 | **1.36×** |
-| 32 | 0.308 | 1.23× |
-| 64 | 0.282 | 1.13× |
+## Headline Results (Cycle 3 Queue)
 
-**Correlation:** r = -0.917 (strong negative)
+Source: `docs/evidence/cycle3_queue_final/cycle3_final_synthesis_run_20260214T210734Z.md`
 
-### 3. Stability-Reconstruction Tradeoff
+- Frontier multiseed completed (`4 architectures x 5 seeds`, 20 conditions).
+- Scaling multiseed completed (24 conditions).
+- Transcoder stress completed.
+- OOD stress completed.
+- Strict release gate executed and failed.
 
-We discovered a fundamental tradeoff:
-- **Underparameterized (d_sae < eff_rank):** High stability (2.87×), poor reconstruction
-- **Matched (d_sae ≈ eff_rank):** Balanced (1.23-1.62×)
-- **Overparameterized (d_sae > eff_rank):** Low stability (~1×), excellent reconstruction
+Selected metrics:
+- Best SAEBench delta among tested architectures: `relu = -0.024691`.
+- Best CE-Bench interpretability among tested architectures: `topk = 7.726768`.
+- Transcoder delta: `-0.002227966984113039` (gate fail).
+- OOD drop: `0.01445406161520213` (gate pass).
+- Release gates: random pass, transcoder fail, OOD pass, external fail, `pass_all=False`.
 
-### 4. Literature Validation
+## Why This Matters
 
-Our findings align with 2025 SAE literature:
-- **Archetypal SAE (Fel et al., 2025):** Reports cosine similarity ~0.5 for standard SAEs
-- **Our PWMCC:** 0.26-0.31 (consistent with algorithmic tasks being harder)
-- **Cui et al. (2025):** Identifiability theory correctly predicts our dense regime results
+- Internal consistency gains alone are not enough for external validity.
+- SAEBench and CE-Bench reward different regions of the design space.
+- The project now has strict claim hygiene: claims are blocked when gates fail.
 
----
+## Start Here (Reading Order)
 
-## ✅ 2026 Follow-up Status (Artifact-Validated)
+1. `START_HERE.md`
+2. `REPO_NAVIGATION.md`
+3. `RUNBOOK.md`
+4. `EXECUTIVE_SUMMARY.md`
+5. `HIGH_IMPACT_FOLLOWUPS_REPORT.md`
+6. `EXPERIMENT_LOG.md`
 
-Latest high-impact follow-up artifacts and conclusions:
-
-- Adaptive L0 calibration + fair control (`k=4` vs `k=32`) still shows the strongest internal trained-PWMCC gain (`+0.05701`, CI ~ `[+0.055, +0.059]`).
-  - Artifacts: `results/experiments/adaptive_l0_calibration/run_20260212T145416Z/` and `results/experiments/adaptive_l0_calibration/run_20260212T145727Z/`
-- Consistency-regularized objective sweep remains unresolved (small positive mean, CI includes zero).
-  - Artifacts: `results/experiments/consistency_objective_sweep/run_20260212T145529Z/`
-- Official SAEBench harness execution completed through the reproducible harness.
-  - Script: `scripts/experiments/run_official_external_benchmarks.py`
-  - Public-target run artifact: `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/`
-- Direct HUSAI custom-checkpoint SAEBench execution is now completed across 3 seeds.
-  - Run artifacts: `run_20260213T024329Z`, `run_20260213T031247Z`, `run_20260213T032116Z`
-  - Tracked aggregate summary: `docs/evidence/phase4e_husai_custom_multiseed/summary.json`
-  - Aggregate best AUC mean: `0.622601` (95% CI `[0.621905, 0.623297]`)
-  - Aggregate delta vs LLM baseline AUC mean: `-0.051801` (95% CI `[-0.052496, -0.051105]`)
-- Official CE-Bench compatibility execution is completed for a public SAE target (run: `run_20260213T103218Z`; evidence: `docs/evidence/phase4e_cebench_official/`).
-- Automated result-consistency audit continues to guard claim drift against artifact JSONs.
-  - Script: `scripts/analysis/verify_experiment_consistency.py`
-  - Report: `results/analysis/experiment_consistency_report.md`
-
-## 📊 Experimental Results
-
-### Stability-Aware Training Dynamics
-
-![Stability Training](figures/stability_aware_training.pdf)
-
-Training improves stability within each regime, but the matched regime shows dramatically better convergence.
-
-### Task Complexity Analysis
-
-![Task Complexity](figures/task_complexity_experiment.pdf)
-
-Stability is not about task complexity per se, but about:
-1. Model having learned the task well (high accuracy)
-2. Activations having moderate effective rank
-3. SAE size matching effective rank
-
----
-
-## 🎯 The Problem We Addressed
-
-In January 2025, Paulo & Belrose revealed that **SAEs trained on identical data with different random seeds learn entirely different features** — with only ~30% overlap in LLMs.
-
-Our research asked: **Under what conditions can SAEs achieve stable, reproducible features?**
-
----
-
-## 📁 Project Structure
-
-```
-HUSAI/
-├── README.md                    # This file
-├── paper/
-│   └── sae_stability_paper.md   # Full research paper
-├── src/                         # Core library
-│   ├── data/                    # Dataset generation
-│   ├── models/                  # Model architectures (SAE, Transformer)
-│   ├── training/                # Training utilities
-│   └── analysis/                # Analysis tools
-├── scripts/
-│   ├── training/                # SAE training scripts
-│   ├── analysis/                # Analysis and visualization
-│   └── experiments/             # Key experiments
-├── results/                     # Experiment results
-├── figures/                     # Generated figures
-├── tests/                       # Test suite
-└── archive/                     # Historical session notes
-```
-
----
-
-## 🧭 Repository Navigation
-
-For a learner-first map of what to read, what we ran, and what we found, start with:
-
-- `PROJECT_STUDY_GUIDE.md`
-
-For the canonical index of where everything lives (current docs, experiments, reliability reports, and archived material), use:
-
-- `REPO_NAVIGATION.md`
-
----
-
-## 🚀 Quick Start
-
-### Installation
+## Quick Commands
 
 ```bash
-# Clone repository
-git clone https://github.com/brightlikethelight/HUSAI.git
-cd HUSAI
+# quality and smoke
+pytest tests -q
+make smoke
 
-# Create environment
-conda env create -f environment.yml
-conda activate husai
-
-# Verify installation
-python -c "import torch; print(f'PyTorch: {torch.__version__}')"
+# strict release gate
+make release-gate-strict \
+  TRANSCODER_RESULTS=<path/to/transcoder_stress_summary.json> \
+  OOD_RESULTS=<path/to/ood_stress_summary.json> \
+  EXTERNAL_SUMMARY=<path/to/external_summary.json>
 ```
 
-### Run Key Experiments
+## Reproducibility Notes
 
-```bash
-# Stability-aware training (tests matched regime hypothesis)
-KMP_DUPLICATE_LIB_OK=TRUE python scripts/experiments/stability_aware_training.py
+- Keep run manifests and config hashes with artifacts.
+- Always compare against random controls and matched external baselines.
+- Treat `pass_all=True` as a prerequisite for strong external claims.
 
-# Task complexity experiment
-KMP_DUPLICATE_LIB_OK=TRUE python scripts/experiments/task_complexity_experiment.py
+## License
 
-# Hungarian matching analysis
-KMP_DUPLICATE_LIB_OK=TRUE python scripts/analysis/hungarian_matching_analysis.py
-```
-
----
-
-## 🛠️ Key Scripts
-
-### Training
-| Script | Purpose |
-|--------|---------|
-| `scripts/training/train_sae.py` | Train SAE on transformer activations |
-| `scripts/training/train_expanded_seeds.py` | Multi-seed SAE training |
-
-### Analysis
-| Script | Purpose |
-|--------|---------|
-| `scripts/analysis/analyze_feature_stability.py` | Compute PWMCC stability metrics |
-| `scripts/analysis/hungarian_matching_analysis.py` | Hungarian matching for feature alignment |
-| `scripts/analysis/comprehensive_statistical_analysis.py` | Full statistical analysis |
-
-### Experiments
-| Script | Purpose |
-|--------|---------|
-| `scripts/experiments/stability_aware_training.py` | Test Song et al. (2025) insights |
-| `scripts/experiments/task_complexity_experiment.py` | Test task complexity hypothesis |
-| `scripts/experiments/expansion_factor_analysis.py` | Analyze SAE size effects |
-
----
-
-## 📚 Key References
-
-### Our Work Builds On
-- **Paulo & Belrose (2025)** - "SAEs Trained on the Same Data Learn Different Features" ([arXiv:2501.16615](https://arxiv.org/abs/2501.16615))
-- **Song et al. (2025)** - "Position: Mechanistic Interpretability Should Prioritize Feature Consistency in SAEs" ([arXiv:2505.20254](https://arxiv.org/abs/2505.20254))
-- **Nanda et al. (2023)** - "Progress measures for grokking via mechanistic interpretability" ([arXiv:2301.05217](https://arxiv.org/abs/2301.05217))
-
-### SAE Methods
-- **OpenAI (2024)** - "Scaling and evaluating sparse autoencoders" ([arXiv:2406.04093](https://arxiv.org/abs/2406.04093))
-- **Anthropic (2024)** - "Scaling Monosemanticity" ([transformer-circuits.pub](https://transformer-circuits.pub/2024/scaling-monosemanticity/))
-
----
-
-## 🎓 Conclusions
-
-### Verified Conclusions
-
-1. **Dense ground truth → low stability** — matches identifiability theory (Cui et al., 2025)
-2. **Stability decreases with sparsity** — verified for TopK architecture (r = -0.917)
-3. **Task baseline remains under active validation** — currently strongest on modular arithmetic
-4. **Stability-reconstruction tradeoff** — fundamental property of SAE training
-
-### Recommendations for Practitioners
-
-1. **Always train multiple seeds** — single SAEs are unreliable
-2. **Report stability metrics** — PWMCC should be standard alongside MSE
-3. **Match d_sae to effective rank** — for best stability-reconstruction balance
-4. **Validate interpretations across seeds** — if features don't replicate, they're not robust
-
----
-
-## 📝 License
-
-MIT License - see [LICENSE](LICENSE) for details.
-
----
-
-## 🙏 Acknowledgments
-
-This project builds on foundational work by:
-- Neel Nanda, Joseph Bloom, and the TransformerLens/SAELens teams
-- Anthropic's interpretability research team
-- The broader mechanistic interpretability community
-
----
-
-## 📬 Contact
-
-**Project Lead:** Bright Liu (brightliu@college.harvard.edu)
-
----
-
-<div align="center">
-
-**Building reproducible, interpretable AI — one feature at a time.**
-
-</div>
-
----
-
-## Claim Status Check (2026-02-14)
-
-To keep claims aligned with artifacts:
-- Internal consistency claims are supported.
-- External superiority/SOTA claims are **not** supported in the current runs.
-- Latest consistency audit now includes assignment-v2 + stress-gate artifacts and reports:
-  - `results/analysis/experiment_consistency_report.md` -> `overall_pass=False`
-
-Primary blockers for claim upgrade:
-- negative external deltas vs matched baselines,
-- missing/failed stress-gate evidence (transcoder + OOD + external-positive candidate).
-
-### B200 one-click follow-up queue
-
-On a remote single-GPU node (e.g., RunPod B200), use:
-
-```bash
-scripts/experiments/run_b200_high_impact_queue.sh
-```
-
-This waits for active frontier runs and then executes scaling + stress closure with a manifest under `results/experiments/cycle3_queue/`.
+MIT (`LICENSE`).
