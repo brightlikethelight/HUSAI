@@ -12,6 +12,7 @@ import argparse
 import hashlib
 import itertools
 import json
+import os
 import random
 import subprocess
 import sys
@@ -77,6 +78,11 @@ def set_seed(seed: int) -> None:
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
     torch.use_deterministic_algorithms(True, warn_only=True)
+
+
+def configure_determinism_env() -> None:
+    # Required by CuBLAS for deterministic linear algebra on CUDA >= 10.2.
+    os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
 
 
 def position_to_index(position: str) -> int:
@@ -339,6 +345,7 @@ def main() -> None:
     if args.device == "cuda" and not torch.cuda.is_available():
         raise RuntimeError("CUDA requested but not available")
 
+    configure_determinism_env()
     seeds = parse_int_list(args.seeds)
     run_id = datetime.now(timezone.utc).strftime("run_%Y%m%dT%H%M%SZ")
     run_dir = args.output_dir / run_id
@@ -363,6 +370,8 @@ def main() -> None:
     per_seed: list[dict[str, Any]] = []
 
     for seed in seeds:
+        # Seed before model construction so initialization is deterministic per seed.
+        set_seed(seed)
         transcoder = TopKEncoderDecoder(d_model=d_model, d_sae=args.d_sae, k=args.k)
         transcoder, transcoder_metrics = train_model(
             model=transcoder,
@@ -378,6 +387,8 @@ def main() -> None:
         save_checkpoint(path=transcoder_ckpt, model=transcoder, seed=seed, mode="transcoder")
         transcoder_decoders[seed] = transcoder.decoder.weight.detach().float().cpu()
 
+        # Keep SAE initialization deterministic and comparable for the same seed.
+        set_seed(seed)
         sae = TopKEncoderDecoder(d_model=d_model, d_sae=args.d_sae, k=args.k)
         sae, sae_metrics = train_model(
             model=sae,
@@ -449,6 +460,9 @@ def main() -> None:
             "run_id": run_id,
         },
         "config": config_payload,
+        "runtime": {
+            "cublas_workspace_config": os.environ.get("CUBLAS_WORKSPACE_CONFIG"),
+        },
         "data": {
             "samples": int(activations_in.shape[0]),
             "d_model": d_model,

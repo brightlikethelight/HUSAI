@@ -76,6 +76,34 @@ def infer_dataset_names_from_files(files: list[Path], hook_name: str) -> list[st
     return deduped
 
 
+def load_baseline_map(path: Path | None) -> dict[str, str]:
+    if path is None or not path.exists():
+        return {}
+    payload = json.loads(path.read_text())
+    if not isinstance(payload, dict):
+        raise ValueError("--cebench-matched-baseline-map must be a JSON object")
+
+    out: dict[str, str] = {}
+    for key, value in payload.items():
+        if isinstance(value, str) and value:
+            out[str(key)] = str(to_abs_repo_path(Path(value)))
+    return out
+
+
+def select_baseline_for_condition(
+    *,
+    hook_layer: int,
+    hook_name: str,
+    default_baseline: Path | None,
+    baseline_map: dict[str, str],
+) -> Path | None:
+    for key in (hook_name, str(hook_layer), "default"):
+        mapped = baseline_map.get(key)
+        if mapped:
+            return Path(mapped)
+    return default_baseline
+
+
 def summary_stats(values: list[float | None]) -> dict[str, float | None]:
     clean = [float(v) for v in values if v is not None]
     if not clean:
@@ -121,6 +149,12 @@ def main() -> None:
     parser.add_argument("--cebench-repo", type=Path, default=None)
     parser.add_argument("--cebench-max-rows", type=int, default=None)
     parser.add_argument("--cebench-matched-baseline-summary", type=Path, default=None)
+    parser.add_argument(
+        "--cebench-matched-baseline-map",
+        type=Path,
+        default=None,
+        help="Optional JSON map from hook key to matched CE-Bench baseline summary path. Keys: hook_name, hook_layer as string, or default.",
+    )
 
     parser.add_argument(
         "--saebench-results-path",
@@ -156,6 +190,8 @@ def main() -> None:
         args.cebench_repo = to_abs_repo_path(args.cebench_repo)
     if args.cebench_matched_baseline_summary is not None:
         args.cebench_matched_baseline_summary = to_abs_repo_path(args.cebench_matched_baseline_summary)
+    if args.cebench_matched_baseline_map is not None:
+        args.cebench_matched_baseline_map = to_abs_repo_path(args.cebench_matched_baseline_map)
 
     token_budgets = parse_ints(args.token_budgets)
     hook_layers = parse_ints(args.hook_layers)
@@ -164,6 +200,9 @@ def main() -> None:
 
     if args.run_cebench and args.cebench_repo is None:
         raise ValueError("--cebench-repo is required when --run-cebench is set")
+
+    baseline_map = load_baseline_map(args.cebench_matched_baseline_map)
+    default_baseline = args.cebench_matched_baseline_summary
 
     run_id = datetime.now(timezone.utc).strftime("run_%Y%m%dT%H%M%SZ")
     run_dir = args.output_dir / run_id
@@ -180,6 +219,12 @@ def main() -> None:
     for token_budget, hook_layer, d_sae, seed in itertools.product(token_budgets, hook_layers, d_sae_values, seeds):
         cond_id = f"tok{token_budget}_layer{hook_layer}_dsae{d_sae}_seed{seed}"
         hook_name = args.hook_name_template.format(layer=hook_layer)
+        matched_baseline_summary = select_baseline_for_condition(
+            hook_layer=hook_layer,
+            hook_name=hook_name,
+            default_baseline=default_baseline,
+            baseline_map=baseline_map,
+        )
         activation_glob = args.activation_glob_template.format(layer=hook_layer)
         activation_files = sorted(args.activation_cache_dir.glob(activation_glob))
 
@@ -247,6 +292,9 @@ def main() -> None:
             "saebench": None,
             "cebench": None,
             "checkpoint": to_repo_rel(checkpoint_path) if checkpoint_path.exists() else None,
+            "cebench_matched_baseline_summary": (
+                to_repo_rel(matched_baseline_summary) if matched_baseline_summary is not None else None
+            ),
         }
 
         train_summary_path = output_ckpt_dir / "summary.json"
@@ -321,8 +369,8 @@ def main() -> None:
             ]
             if args.cebench_max_rows is not None:
                 ce_cmd.extend(["--max-rows", str(args.cebench_max_rows)])
-            if args.cebench_matched_baseline_summary is not None:
-                ce_cmd.extend(["--matched-baseline-summary", str(args.cebench_matched_baseline_summary)])
+            if matched_baseline_summary is not None:
+                ce_cmd.extend(["--matched-baseline-summary", str(matched_baseline_summary)])
             rc, output = run_subprocess(ce_cmd, PROJECT_ROOT)
             (logs_dir / f"{cond_id}_cebench.log").write_text(output)
             rec["cebench_returncode"] = rc
@@ -401,6 +449,10 @@ def main() -> None:
             "cebench_matched_baseline_summary": (
                 str(args.cebench_matched_baseline_summary) if args.cebench_matched_baseline_summary else None
             ),
+            "cebench_matched_baseline_map": (
+                str(args.cebench_matched_baseline_map) if args.cebench_matched_baseline_map else None
+            ),
+            "resolved_cebench_baseline_map": baseline_map,
             "saebench_datasets": parse_csv_strings(args.saebench_datasets),
             "saebench_dataset_limit": args.saebench_dataset_limit,
             "run_id": run_id,

@@ -18,6 +18,7 @@ Common local env flags used in this repo:
 ```bash
 export KMP_DUPLICATE_LIB_OK=TRUE
 export TMPDIR=/tmp
+export CUBLAS_WORKSPACE_CONFIG=:4096:8
 ```
 
 ## 2) Quality Checks
@@ -73,7 +74,8 @@ python scripts/experiments/run_external_metric_scaling_study.py \
   --hook-layers 0,1 \
   --d-sae-values 1024,2048 \
   --seeds 42,123,456 \
-  --run-saebench --run-cebench --cebench-repo <path/to/CE-Bench>
+  --run-saebench --run-cebench --cebench-repo <path/to/CE-Bench> \
+  --cebench-matched-baseline-map docs/evidence/phase4e_cebench_matched200/cebench_baseline_map.json
 ```
 
 ### Candidate Selection + Stress and Strict Release Gate
@@ -108,6 +110,7 @@ End-to-end queue script:
 
 ```bash
 MIN_SAEBENCH_DELTA=0.0 MIN_CEBENCH_DELTA=0.0 \
+  CEBENCH_BASELINE_MAP=docs/evidence/phase4e_cebench_matched200/cebench_baseline_map.json \
   bash scripts/experiments/run_b200_high_impact_queue.sh
 ```
 

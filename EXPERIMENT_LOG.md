@@ -1122,3 +1122,38 @@ python scripts/experiments/run_stress_gated_release_policy.py \
   - `pytest -q tests/unit/test_release_policy_selector.py` -> `2 passed`
   - `bash -n scripts/experiments/run_b200_high_impact_queue.sh` -> pass
   - `python -m py_compile scripts/experiments/select_release_candidate.py scripts/experiments/run_stress_gated_release_policy.py` -> pass
+
+### Run 59: Determinism fix + layer-aware CE-Bench baseline mapping (pre-cycle rerun)
+- Local code changes:
+  - `scripts/experiments/run_transcoder_stress_eval.py`
+    - seed before model construction (transcoder + SAE) to make initialization deterministic per seed.
+    - set/log `CUBLAS_WORKSPACE_CONFIG` for stronger CUDA determinism.
+  - `scripts/experiments/run_external_metric_scaling_study.py`
+    - add `--cebench-matched-baseline-map` for hook-aware CE-Bench matched baselines.
+    - per-condition baseline selection priority: `hook_name` -> `hook_layer` -> `default`.
+    - record resolved baseline path per condition in `records[*].cebench_matched_baseline_summary`.
+  - `scripts/experiments/run_b200_high_impact_queue.sh`
+    - queue now accepts baseline map via `CEBENCH_BASELINE_MAP` and forwards it to scaling.
+    - queue manifest now records baseline default/map paths.
+  - added baseline map artifact scaffold:
+    - `docs/evidence/phase4e_cebench_matched200/cebench_baseline_map.json`
+  - added unit tests:
+    - `tests/unit/test_external_scaling_baseline_map.py`
+
+- Validation commands:
+```bash
+python -m py_compile scripts/experiments/run_transcoder_stress_eval.py scripts/experiments/run_external_metric_scaling_study.py
+pytest -q tests/unit/test_external_scaling_baseline_map.py tests/unit/test_release_policy_selector.py
+pytest -q tests/unit
+bash -n scripts/experiments/run_b200_high_impact_queue.sh
+make smoke
+```
+
+- Outcome: success
+  - `tests/unit`: `80 passed`
+  - smoke pipeline: pass
+  - queue shell syntax: pass
+
+- Scientific reason for change:
+  - removes a real reproducibility bug in transcoder stress (seed not controlling init).
+  - removes layer-mismatch risk for CE-Bench deltas in scaling studies, enabling fairer external comparisons before the next B200 cycle.

@@ -15,6 +15,8 @@ WAIT_SECONDS="${WAIT_SECONDS:-60}"
 CEBENCH_REPO="${CEBENCH_REPO:-/workspace/CE-Bench}"
 MIN_SAEBENCH_DELTA="${MIN_SAEBENCH_DELTA:-0.0}"
 MIN_CEBENCH_DELTA="${MIN_CEBENCH_DELTA:-0.0}"
+DEFAULT_CEBENCH_BASELINE="docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json"
+CEBENCH_BASELINE_MAP="${CEBENCH_BASELINE_MAP:-docs/evidence/phase4e_cebench_matched200/cebench_baseline_map.json}"
 
 SAEBENCH_DATASETS="${SAEBENCH_DATASETS:-100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom}"
 
@@ -43,6 +45,16 @@ if [[ ! -f "$FRONTIER_RUN/results.json" ]]; then
 fi
 
 echo "[queue] launching multiseed external scaling study"
+SCALING_CEBENCH_ARGS=(
+  --cebench-matched-baseline-summary "$DEFAULT_CEBENCH_BASELINE"
+)
+if [[ -f "$CEBENCH_BASELINE_MAP" ]]; then
+  SCALING_CEBENCH_ARGS+=(--cebench-matched-baseline-map "$CEBENCH_BASELINE_MAP")
+  echo "[queue] using CE-Bench baseline map: $CEBENCH_BASELINE_MAP"
+else
+  echo "[queue] CE-Bench baseline map not found, using default baseline only: $DEFAULT_CEBENCH_BASELINE"
+fi
+
 KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
 python scripts/experiments/run_external_metric_scaling_study.py \
   --activation-cache-dir /tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped \
@@ -62,7 +74,7 @@ python scripts/experiments/run_external_metric_scaling_study.py \
   --run-cebench \
   --cebench-repo "$CEBENCH_REPO" \
   --cebench-max-rows 200 \
-  --cebench-matched-baseline-summary docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json \
+  "${SCALING_CEBENCH_ARGS[@]}" \
   --saebench-datasets "$SAEBENCH_DATASETS" \
   --saebench-results-path /tmp/husai_saebench_probe_results_scaling_multiseed \
   --saebench-model-cache-path /tmp/sae_bench_model_cache \
@@ -182,7 +194,9 @@ cat > "$QUEUE_DIR/manifest.json" <<MANIFEST
   "best_cebench_summary": "${BEST_CEBENCH_SUMMARY}",
   "transcoder_summary": "${TRANSCODER_SUMMARY}",
   "ood_summary": "${OOD_SUMMARY}",
-  "release_policy_rc": ${RELEASE_RC}
+  "release_policy_rc": ${RELEASE_RC},
+  "cebench_baseline_default": "${DEFAULT_CEBENCH_BASELINE}",
+  "cebench_baseline_map": "${CEBENCH_BASELINE_MAP}"
 }
 MANIFEST
 
