@@ -550,6 +550,14 @@ def main() -> None:
 
             records.append(rec)
 
+    def nested_metric(record: dict[str, Any], *keys: str) -> float | None:
+        cur: Any = record
+        for key in keys:
+            if not isinstance(cur, dict):
+                return None
+            cur = cur.get(key)
+        return maybe_float(cur)
+
     aggregate: dict[str, Any] = {}
     for arch in architectures:
         rows = [r for r in records if r["architecture"] == arch]
@@ -558,41 +566,22 @@ def main() -> None:
             "train_ev": summary_stats([r["train_metrics"]["explained_variance"] for r in rows]),
             "train_l0": summary_stats([r["train_metrics"]["l0"] for r in rows]),
             "saebench_best_auc": summary_stats(
-                [
-                    maybe_float((r.get("saebench") or {}).get("summary", {}).get("best_by_auc", {}).get("test_auc"))
-                    for r in rows
-                ]
+                [nested_metric(r, "saebench", "summary", "best_by_auc", "test_auc") for r in rows]
             ),
             "saebench_best_minus_llm_auc": summary_stats(
-                [maybe_float((r.get("saebench") or {}).get("summary", {}).get("best_minus_llm_auc")) for r in rows]
+                [nested_metric(r, "saebench", "summary", "best_minus_llm_auc") for r in rows]
             ),
             "cebench_contrastive_max": summary_stats(
-                [
-                    maybe_float((r.get("cebench") or {}).get("custom_metrics", {}).get("contrastive_score_mean_max"))
-                    for r in rows
-                ]
+                [nested_metric(r, "cebench", "custom_metrics", "contrastive_score_mean_max") for r in rows]
             ),
             "cebench_independent_max": summary_stats(
-                [
-                    maybe_float((r.get("cebench") or {}).get("custom_metrics", {}).get("independent_score_mean_max"))
-                    for r in rows
-                ]
+                [nested_metric(r, "cebench", "custom_metrics", "independent_score_mean_max") for r in rows]
             ),
             "cebench_interpretability_max": summary_stats(
-                [
-                    maybe_float((r.get("cebench") or {}).get("custom_metrics", {}).get("interpretability_score_mean_max"))
-                    for r in rows
-                ]
+                [nested_metric(r, "cebench", "custom_metrics", "interpretability_score_mean_max") for r in rows]
             ),
             "cebench_interp_delta_vs_baseline": summary_stats(
-                [
-                    maybe_float(
-                        (r.get("cebench") or {})
-                        .get("delta_vs_matched_baseline", {})
-                        .get("interpretability_score_mean_max")
-                    )
-                    for r in rows
-                ]
+                [nested_metric(r, "cebench", "delta_vs_matched_baseline", "interpretability_score_mean_max") for r in rows]
             ),
         }
 

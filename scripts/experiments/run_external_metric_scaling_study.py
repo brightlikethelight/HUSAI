@@ -384,16 +384,22 @@ def main() -> None:
         records.append(rec)
 
     # Aggregate by each scaling axis.
+    def nested_metric(record: dict[str, Any], *keys: str) -> float | None:
+        cur: Any = record
+        for key in keys:
+            if not isinstance(cur, dict):
+                return None
+            cur = cur.get(key)
+        return maybe_float(cur)
+
     def extract_saebench_delta(record: dict[str, Any]) -> float | None:
-        return maybe_float((record.get("saebench") or {}).get("summary", {}).get("best_minus_llm_auc"))
+        return nested_metric(record, "saebench", "summary", "best_minus_llm_auc")
 
     def extract_cebench_interp(record: dict[str, Any]) -> float | None:
-        return maybe_float((record.get("cebench") or {}).get("custom_metrics", {}).get("interpretability_score_mean_max"))
+        return nested_metric(record, "cebench", "custom_metrics", "interpretability_score_mean_max")
 
     def extract_cebench_delta(record: dict[str, Any]) -> float | None:
-        return maybe_float(
-            (record.get("cebench") or {}).get("delta_vs_matched_baseline", {}).get("interpretability_score_mean_max")
-        )
+        return nested_metric(record, "cebench", "delta_vs_matched_baseline", "interpretability_score_mean_max")
 
     aggregates: dict[str, Any] = {
         "by_token_budget": {},

@@ -4,6 +4,9 @@
 This selector consumes frontier/scaling result JSON files, constructs per-checkpoint
 candidate rows, computes a Pareto front over SAEBench and CE-Bench deltas, and
 selects a final candidate using a weighted normalized score.
+
+It also supports uncertainty-aware selection by grouping candidates across seeds
+per condition and scoring conservative lower-confidence-bound (LCB) metrics.
 """
 
 from __future__ import annotations
@@ -11,8 +14,11 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
+import statistics
 import subprocess
 import sys
+from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -161,6 +167,7 @@ def extract_candidates(results_path: Path, source: str) -> list[dict[str, Any]]:
         checkpoint = to_abs(Path(checkpoint_raw))
         saebench_summary_path, cebench_summary_path = build_summary_paths(checkpoint, condition_id)
 
+        hook_layer, hook_name = extract_hook_info(rec)
         candidate = {
             "source": source,
             "source_results": repo_rel(results_path),
@@ -168,8 +175,8 @@ def extract_candidates(results_path: Path, source: str) -> list[dict[str, Any]]:
             "condition_id": condition_id,
             "architecture": extract_architecture(rec),
             "seed": rec.get("seed"),
-            "hook_layer": extract_hook_info(rec)[0],
-            "hook_name": extract_hook_info(rec)[1],
+            "hook_layer": hook_layer,
+            "hook_name": hook_name,
             "checkpoint": repo_rel(checkpoint),
             "saebench_summary_path": repo_rel(saebench_summary_path),
             "cebench_summary_path": repo_rel(cebench_summary_path),
@@ -200,6 +207,45 @@ def normalize_metric(values: list[float | None]) -> dict[int, float]:
     if hi <= lo:
         return {i: 0.5 for i, _ in valid}
     return {i: (float(v) - lo) / (hi - lo) for i, v in valid}
+
+
+def confidence_stats(values: list[float | None]) -> dict[str, float | int | None]:
+    clean = [float(v) for v in values if v is not None and not math.isnan(float(v))]
+    if not clean:
+        return {
+            "mean": None,
+            "std": None,
+            "ci95_low": None,
+            "ci95_high": None,
+            "n": 0,
+        }
+
+    mean = float(statistics.fmean(clean))
+    if len(clean) > 1:
+        std = float(statistics.stdev(clean))
+        half_width = 1.96 * std / math.sqrt(len(clean))
+    else:
+        std = 0.0
+        half_width = 0.0
+
+    return {
+        "mean": mean,
+        "std": std,
+        "ci95_low": mean - half_width,
+        "ci95_high": mean + half_width,
+        "n": len(clean),
+    }
+
+
+def pick_metric_from_stats(stats: dict[str, float | int | None], mode: str) -> float | None:
+    if mode == "lcb":
+        return maybe_float(stats.get("ci95_low"))
+    return maybe_float(stats.get("mean"))
+
+
+def infer_group_id(condition_id: str) -> str:
+    # topk_seed42 -> topk, tok10000_layer0_dsae1024_seed42 -> tok10000_layer0_dsae1024
+    return re.sub(r"_seed\d+$", "", condition_id)
 
 
 def dominates(a: dict[str, Any], b: dict[str, Any]) -> bool:
@@ -301,6 +347,72 @@ def to_serializable(candidate: dict[str, Any]) -> dict[str, Any]:
     return json.loads(json.dumps(candidate))
 
 
+def aggregate_condition_groups(
+    candidates: list[dict[str, Any]],
+    *,
+    uncertainty_mode: str,
+    min_seeds_per_group: int,
+) -> list[dict[str, Any]]:
+    grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for cand in candidates:
+        condition_id = str(cand.get("condition_id", "unknown"))
+        grouped[infer_group_id(condition_id)].append(cand)
+
+    out: list[dict[str, Any]] = []
+    for group_id, rows in grouped.items():
+        if len(rows) < min_seeds_per_group:
+            continue
+
+        rep = max(
+            rows,
+            key=lambda c: float((c.get("selection") or {}).get("joint_score", float("-inf"))),
+        )
+        agg = to_serializable(rep)
+        agg["source"] = "grouped"
+        agg["sources"] = sorted({str(r.get("source", "unknown")) for r in rows})
+        agg["group_id"] = group_id
+        agg["condition_id"] = group_id
+        agg["representative_condition_id"] = rep.get("condition_id")
+        agg["seed_count"] = len(rows)
+        agg["seed_candidates"] = [
+            {
+                "seed": r.get("seed"),
+                "condition_id": r.get("condition_id"),
+                "checkpoint": r.get("checkpoint"),
+                "joint_score": (r.get("selection") or {}).get("joint_score"),
+                "metrics": r.get("metrics"),
+            }
+            for r in sorted(rows, key=lambda r: str(r.get("seed")))
+        ]
+
+        metrics = dict(agg.get("metrics") or {})
+        metric_specs = [
+            "saebench_delta",
+            "cebench_interp_delta_vs_baseline",
+            "train_explained_variance",
+            "cebench_interpretability_max",
+        ]
+        for key in metric_specs:
+            stats = confidence_stats([maybe_float((r.get("metrics") or {}).get(key)) for r in rows])
+            metrics[f"{key}_mean"] = maybe_float(stats.get("mean"))
+            metrics[f"{key}_std"] = maybe_float(stats.get("std"))
+            metrics[f"{key}_ci95_low"] = maybe_float(stats.get("ci95_low"))
+            metrics[f"{key}_ci95_high"] = maybe_float(stats.get("ci95_high"))
+            metrics[f"{key}_n"] = int(stats.get("n") or 0)
+            # Primary metric used for filtering/pareto/scoring in grouped mode.
+            metrics[key] = pick_metric_from_stats(stats, uncertainty_mode)
+
+        agg["metrics"] = metrics
+        agg["selection"] = {
+            "grouped_from_seed_candidates": len(rows),
+            "uncertainty_mode": uncertainty_mode,
+            "representative_seed": rep.get("seed"),
+        }
+        out.append(agg)
+
+    return out
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Select best release candidate from external benchmark runs")
     parser.add_argument("--frontier-results", type=Path, action="append", default=[])
@@ -309,6 +421,19 @@ def main() -> None:
     parser.add_argument("--min-saebench-delta", type=float, default=-1e9)
     parser.add_argument("--min-cebench-delta", type=float, default=-1e9)
     parser.add_argument("--require-both-external", action="store_true")
+    parser.add_argument(
+        "--group-by-condition",
+        action="store_true",
+        help="Aggregate candidates across seeds by condition id stem (e.g. *_seed42 -> *).",
+    )
+    parser.add_argument(
+        "--uncertainty-mode",
+        type=str,
+        choices=["point", "lcb"],
+        default="point",
+        help="Metric mode when grouping: point=mean, lcb=95% lower confidence bound.",
+    )
+    parser.add_argument("--min-seeds-per-group", type=int, default=1)
 
     parser.add_argument("--weight-saebench", type=float, default=0.5)
     parser.add_argument("--weight-cebench", type=float, default=0.5)
@@ -347,16 +472,37 @@ def main() -> None:
     if not filtered:
         raise RuntimeError("No eligible candidates after filtering thresholds/returncodes")
 
+    # Seed-level score annotation is reused when selecting representative checkpoints
+    # for grouped candidates.
     annotate_scores(
         filtered,
         weight_saebench=args.weight_saebench,
         weight_cebench=args.weight_cebench,
         weight_train_ev=args.weight_train_ev,
     )
-    pareto = compute_pareto_front(filtered)
+
+    selected_population = filtered
+    if args.group_by_condition:
+        selected_population = aggregate_condition_groups(
+            filtered,
+            uncertainty_mode=args.uncertainty_mode,
+            min_seeds_per_group=max(1, args.min_seeds_per_group),
+        )
+        if not selected_population:
+            raise RuntimeError(
+                "No grouped candidates after applying --group-by-condition and --min-seeds-per-group"
+            )
+        annotate_scores(
+            selected_population,
+            weight_saebench=args.weight_saebench,
+            weight_cebench=args.weight_cebench,
+            weight_train_ev=args.weight_train_ev,
+        )
+
+    pareto = compute_pareto_front(selected_population)
 
     ordered = sorted(
-        filtered,
+        selected_population,
         key=lambda c: (
             bool((c.get("selection") or {}).get("is_pareto", False)),
             float((c.get("selection") or {}).get("joint_score", float("-inf"))),
@@ -381,13 +527,17 @@ def main() -> None:
             "min_saebench_delta": args.min_saebench_delta,
             "min_cebench_delta": args.min_cebench_delta,
             "require_both_external": args.require_both_external,
+            "group_by_condition": args.group_by_condition,
+            "uncertainty_mode": args.uncertainty_mode,
+            "min_seeds_per_group": args.min_seeds_per_group,
             "weight_saebench": args.weight_saebench,
             "weight_cebench": args.weight_cebench,
             "weight_train_ev": args.weight_train_ev,
         },
         "counts": {
             "total_candidates": len(all_candidates),
-            "eligible_candidates": len(filtered),
+            "eligible_seed_candidates": len(filtered),
+            "eligible_candidates": len(selected_population),
             "pareto_count": len(pareto),
         },
         "selected_candidate": to_serializable(selected),
@@ -412,20 +562,29 @@ def main() -> None:
         "# Release Candidate Selection",
         "",
         f"- Run ID: `{run_id}`",
-        f"- Eligible candidates: `{len(filtered)}`",
+        f"- Selection mode: `{'grouped' if args.group_by_condition else 'seed'}`",
+        f"- Uncertainty mode: `{args.uncertainty_mode}`",
+        f"- Eligible seed candidates: `{len(filtered)}`",
+        f"- Eligible candidates: `{len(selected_population)}`",
         f"- Pareto candidates: `{len(pareto)}`",
         "",
         "## Selected Candidate",
         "",
         f"- source: `{selected.get('source')}`",
         f"- condition_id: `{selected.get('condition_id')}`",
+        f"- group_id: `{selected.get('group_id')}`",
         f"- architecture: `{selected.get('architecture')}`",
         f"- seed: `{selected.get('seed')}`",
+        f"- seed_count: `{selected.get('seed_count')}`",
         f"- checkpoint: `{selected.get('checkpoint')}`",
         f"- saebench_summary_path: `{selected.get('saebench_summary_path')}`",
         f"- cebench_summary_path: `{selected.get('cebench_summary_path')}`",
         f"- saebench_delta: `{sel_metrics.get('saebench_delta')}`",
+        f"- saebench_delta_ci95_low: `{sel_metrics.get('saebench_delta_ci95_low')}`",
+        f"- saebench_delta_ci95_high: `{sel_metrics.get('saebench_delta_ci95_high')}`",
         f"- cebench_interp_delta_vs_baseline: `{sel_metrics.get('cebench_interp_delta_vs_baseline')}`",
+        f"- cebench_interp_delta_vs_baseline_ci95_low: `{sel_metrics.get('cebench_interp_delta_vs_baseline_ci95_low')}`",
+        f"- cebench_interp_delta_vs_baseline_ci95_high: `{sel_metrics.get('cebench_interp_delta_vs_baseline_ci95_high')}`",
         f"- cebench_interpretability_max: `{sel_metrics.get('cebench_interpretability_max')}`",
         f"- train_explained_variance: `{sel_metrics.get('train_explained_variance')}`",
         f"- joint_score: `{sel_score}`",

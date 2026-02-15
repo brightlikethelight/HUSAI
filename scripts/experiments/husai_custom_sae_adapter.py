@@ -38,6 +38,9 @@ def normalize_architecture(architecture: str | None) -> str | None:
         "jumprelu": "jumprelu",
         "jump_relu": "jumprelu",
         "jump-relu": "jumprelu",
+        "matryoshka": "matryoshka",
+        "matryoshka_topk": "matryoshka",
+        "matryoshka-topk": "matryoshka",
     }
     if key not in aliases:
         raise ValueError(f"Unsupported architecture: {architecture}")
@@ -147,7 +150,7 @@ def _map_state_to_custom(
 
     k_value = _extract_k(state, metadata)
 
-    if architecture in {"topk", "batchtopk"}:
+    if architecture in {"topk", "batchtopk", "matryoshka"}:
         if k_value is None:
             raise KeyError(f"Checkpoint missing `k` for architecture={architecture}")
         mapped["k"] = torch.tensor(k_value, dtype=torch.int32)
@@ -210,7 +213,9 @@ def build_custom_sae_from_checkpoint(
         "dtype": dtype,
     }
 
-    if architecture == "topk":
+    eval_architecture = "topk" if architecture == "matryoshka" else architecture
+
+    if architecture in {"topk", "matryoshka"}:
         sae = TopKSAE(k=int(k_value), **ctor_kwargs)
     elif architecture == "batchtopk":
         sae = BatchTopKSAE(k=int(k_value), **ctor_kwargs)
@@ -222,7 +227,7 @@ def build_custom_sae_from_checkpoint(
         raise ValueError(f"Unsupported architecture: {architecture}")
 
     sae.load_state_dict(mapped_state, strict=False)
-    sae.cfg.architecture = architecture
+    sae.cfg.architecture = eval_architecture
     sae.to(device=torch.device(device), dtype=dtype)
 
     # Keep decoder rows unit-normalized; SAEBench eval expects this.
@@ -235,6 +240,7 @@ def build_custom_sae_from_checkpoint(
 
     metadata_out = {
         "architecture": architecture,
+        "eval_architecture": eval_architecture,
         "d_model": d_model,
         "d_sae": d_sae,
         "k": k_value,

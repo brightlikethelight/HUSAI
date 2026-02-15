@@ -15,8 +15,14 @@ WAIT_SECONDS="${WAIT_SECONDS:-60}"
 CEBENCH_REPO="${CEBENCH_REPO:-/workspace/CE-Bench}"
 MIN_SAEBENCH_DELTA="${MIN_SAEBENCH_DELTA:-0.0}"
 MIN_CEBENCH_DELTA="${MIN_CEBENCH_DELTA:-0.0}"
+MIN_SAEBENCH_DELTA_LCB="${MIN_SAEBENCH_DELTA_LCB:-0.0}"
+MIN_CEBENCH_DELTA_LCB="${MIN_CEBENCH_DELTA_LCB:-0.0}"
+USE_EXTERNAL_LCB_GATES="${USE_EXTERNAL_LCB_GATES:-1}"
 DEFAULT_CEBENCH_BASELINE="docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json"
 CEBENCH_BASELINE_MAP="${CEBENCH_BASELINE_MAP:-docs/evidence/phase4e_cebench_matched200/cebench_baseline_map.json}"
+SELECTOR_GROUP_BY_CONDITION="${SELECTOR_GROUP_BY_CONDITION:-1}"
+SELECTOR_UNCERTAINTY_MODE="${SELECTOR_UNCERTAINTY_MODE:-lcb}"
+MIN_SEEDS_PER_GROUP="${MIN_SEEDS_PER_GROUP:-3}"
 
 SAEBENCH_DATASETS="${SAEBENCH_DATASETS:-100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom}"
 
@@ -92,11 +98,20 @@ if [[ ! -f "$SCALING_RUN/results.json" ]]; then
 fi
 
 echo "[queue] selecting release candidate using multi-objective selector"
-python scripts/experiments/select_release_candidate.py \
-  --frontier-results "$FRONTIER_RUN/results.json" \
-  --scaling-results "$SCALING_RUN/results.json" \
-  --require-both-external \
+SELECTOR_ARGS=(
+  --frontier-results "$FRONTIER_RUN/results.json"
+  --scaling-results "$SCALING_RUN/results.json"
+  --require-both-external
   --output-dir results/experiments/release_candidate_selection
+)
+if [[ "$SELECTOR_GROUP_BY_CONDITION" == "1" ]]; then
+  SELECTOR_ARGS+=(
+    --group-by-condition
+    --uncertainty-mode "$SELECTOR_UNCERTAINTY_MODE"
+    --min-seeds-per-group "$MIN_SEEDS_PER_GROUP"
+  )
+fi
+python scripts/experiments/select_release_candidate.py "${SELECTOR_ARGS[@]}"
 
 SELECTOR_RUN="$(ls -1dt results/experiments/release_candidate_selection/run_* | head -n1)"
 SELECTED_JSON="${SELECTOR_RUN}/selected_candidate.json"
@@ -164,19 +179,29 @@ OOD_SUMMARY="$(ls -1dt results/experiments/phase4e_ood_stress_b200/run_*/ood_str
 echo "[queue] ood_summary=${OOD_SUMMARY}"
 
 echo "[queue] evaluating strict release policy (joint external mode)"
-set +e
-python scripts/experiments/run_stress_gated_release_policy.py \
-  --phase4a-results results/experiments/phase4a_trained_vs_random/results.json \
-  --transcoder-results "$TRANSCODER_SUMMARY" \
-  --ood-results "$OOD_SUMMARY" \
-  --external-candidate-json "$SELECTED_JSON" \
-  --external-mode joint \
-  --min-saebench-delta "$MIN_SAEBENCH_DELTA" \
-  --min-cebench-delta "$MIN_CEBENCH_DELTA" \
-  --require-transcoder \
-  --require-ood \
-  --require-external \
+GATE_ARGS=(
+  --phase4a-results results/experiments/phase4a_trained_vs_random/results.json
+  --transcoder-results "$TRANSCODER_SUMMARY"
+  --ood-results "$OOD_SUMMARY"
+  --external-candidate-json "$SELECTED_JSON"
+  --external-mode joint
+  --min-saebench-delta "$MIN_SAEBENCH_DELTA"
+  --min-cebench-delta "$MIN_CEBENCH_DELTA"
+  --require-transcoder
+  --require-ood
+  --require-external
   --fail-on-gate-fail
+)
+if [[ "$USE_EXTERNAL_LCB_GATES" == "1" ]]; then
+  GATE_ARGS+=(
+    --use-external-lcb
+    --min-saebench-delta-lcb "$MIN_SAEBENCH_DELTA_LCB"
+    --min-cebench-delta-lcb "$MIN_CEBENCH_DELTA_LCB"
+  )
+fi
+
+set +e
+python scripts/experiments/run_stress_gated_release_policy.py "${GATE_ARGS[@]}"
 RELEASE_RC=$?
 set -e
 
@@ -196,7 +221,13 @@ cat > "$QUEUE_DIR/manifest.json" <<MANIFEST
   "ood_summary": "${OOD_SUMMARY}",
   "release_policy_rc": ${RELEASE_RC},
   "cebench_baseline_default": "${DEFAULT_CEBENCH_BASELINE}",
-  "cebench_baseline_map": "${CEBENCH_BASELINE_MAP}"
+  "cebench_baseline_map": "${CEBENCH_BASELINE_MAP}",
+  "selector_group_by_condition": "${SELECTOR_GROUP_BY_CONDITION}",
+  "selector_uncertainty_mode": "${SELECTOR_UNCERTAINTY_MODE}",
+  "min_seeds_per_group": "${MIN_SEEDS_PER_GROUP}",
+  "use_external_lcb_gates": "${USE_EXTERNAL_LCB_GATES}",
+  "min_saebench_delta_lcb": "${MIN_SAEBENCH_DELTA_LCB}",
+  "min_cebench_delta_lcb": "${MIN_CEBENCH_DELTA_LCB}"
 }
 MANIFEST
 

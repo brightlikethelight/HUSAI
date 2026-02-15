@@ -102,6 +102,115 @@ def test_selector_prefers_joint_candidate(tmp_path: Path) -> None:
     assert selected["condition_id"] == "tok10000_layer0_dsae1024_seed42"
 
 
+def test_selector_grouped_lcb_prefers_stable_group(tmp_path: Path) -> None:
+    run_root = tmp_path / "runs"
+    run_a = run_root / "frontier" / "run_aaa"
+
+    ckpts = {}
+    for arch in ("topk", "relu"):
+        for seed in (42, 123):
+            ckpt = run_a / "checkpoints" / f"{arch}_seed{seed}" / "sae_final.pt"
+            ckpt.parent.mkdir(parents=True, exist_ok=True)
+            ckpt.write_text("x")
+            ckpts[(arch, seed)] = ckpt
+
+    payload = {
+        "records": [
+            {
+                "architecture": "topk",
+                "seed": 42,
+                "checkpoint": str(ckpts[("topk", 42)]),
+                "train_metrics": {"explained_variance": 0.85},
+                "saebench": {"summary": {"best_minus_llm_auc": -0.005}},
+                "cebench": {
+                    "delta_vs_matched_baseline": {"interpretability_score_mean_max": 0.30},
+                    "custom_metrics": {"interpretability_score_mean_max": 7.5},
+                    "sae_meta": {"architecture": "topk"},
+                },
+                "saebench_returncode": 0,
+                "cebench_returncode": 0,
+            },
+            {
+                "architecture": "topk",
+                "seed": 123,
+                "checkpoint": str(ckpts[("topk", 123)]),
+                "train_metrics": {"explained_variance": 0.85},
+                "saebench": {"summary": {"best_minus_llm_auc": -0.095}},
+                "cebench": {
+                    "delta_vs_matched_baseline": {"interpretability_score_mean_max": -0.10},
+                    "custom_metrics": {"interpretability_score_mean_max": 7.2},
+                    "sae_meta": {"architecture": "topk"},
+                },
+                "saebench_returncode": 0,
+                "cebench_returncode": 0,
+            },
+            {
+                "architecture": "relu",
+                "seed": 42,
+                "checkpoint": str(ckpts[("relu", 42)]),
+                "train_metrics": {"explained_variance": 0.82},
+                "saebench": {"summary": {"best_minus_llm_auc": -0.040}},
+                "cebench": {
+                    "delta_vs_matched_baseline": {"interpretability_score_mean_max": 0.08},
+                    "custom_metrics": {"interpretability_score_mean_max": 6.9},
+                    "sae_meta": {"architecture": "relu"},
+                },
+                "saebench_returncode": 0,
+                "cebench_returncode": 0,
+            },
+            {
+                "architecture": "relu",
+                "seed": 123,
+                "checkpoint": str(ckpts[("relu", 123)]),
+                "train_metrics": {"explained_variance": 0.82},
+                "saebench": {"summary": {"best_minus_llm_auc": -0.042}},
+                "cebench": {
+                    "delta_vs_matched_baseline": {"interpretability_score_mean_max": 0.09},
+                    "custom_metrics": {"interpretability_score_mean_max": 6.8},
+                    "sae_meta": {"architecture": "relu"},
+                },
+                "saebench_returncode": 0,
+                "cebench_returncode": 0,
+            },
+        ]
+    }
+
+    frontier_json = tmp_path / "frontier_results.json"
+    _write_json(frontier_json, payload)
+
+    out_dir = tmp_path / "selector_out"
+    proc = subprocess.run(
+        [
+            sys.executable,
+            str(SELECTOR),
+            "--frontier-results",
+            str(frontier_json),
+            "--require-both-external",
+            "--group-by-condition",
+            "--uncertainty-mode",
+            "lcb",
+            "--min-seeds-per-group",
+            "2",
+            "--output-dir",
+            str(out_dir),
+        ],
+        cwd=str(ROOT),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert proc.returncode == 0, proc.stdout + "\n" + proc.stderr
+
+    run_dirs = sorted(out_dir.glob("run_*"))
+    assert run_dirs
+    selected = json.loads((run_dirs[-1] / "selected_candidate.json").read_text())
+
+    # Grouped-LCB mode should prefer the lower-variance relu group.
+    assert selected["group_id"] == "relu"
+    assert selected["metrics"]["saebench_delta_ci95_low"] is not None
+    assert selected["metrics"]["cebench_interp_delta_vs_baseline_ci95_low"] is not None
+
+
 def test_release_gate_joint_mode_with_candidate_json(tmp_path: Path) -> None:
     phase4a = {
         "comparison": {"difference": 0.01},
@@ -181,6 +290,112 @@ def test_release_gate_joint_mode_with_candidate_json(tmp_path: Path) -> None:
             "0.0",
             "--min-cebench-delta",
             "-1.0",
+            "--require-transcoder",
+            "--require-ood",
+            "--require-external",
+            "--fail-on-gate-fail",
+            "--output-dir",
+            str(out_dir),
+        ],
+        cwd=str(ROOT),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert proc_pass.returncode == 0, proc_pass.stdout + "\n" + proc_pass.stderr
+
+
+def test_release_gate_lcb_mode_uses_ci_fields(tmp_path: Path) -> None:
+    phase4a = {
+        "comparison": {"difference": 0.02},
+        "trained": {"ci95_low": 0.2},
+        "random": {"ci95_high": 0.1},
+    }
+    transcoder = {"transcoder_delta": 0.02}
+    ood = {"ood_drop": 0.01}
+    candidate = {
+        "metrics": {
+            "saebench_delta": 0.10,
+            "saebench_delta_ci95_low": -0.02,
+            "cebench_interp_delta_vs_baseline": 0.12,
+            "cebench_interp_delta_vs_baseline_ci95_low": -0.03,
+            "cebench_interpretability_max": 9.0,
+        }
+    }
+
+    phase4a_json = tmp_path / "phase4a.json"
+    transcoder_json = tmp_path / "transcoder.json"
+    ood_json = tmp_path / "ood.json"
+    candidate_json = tmp_path / "candidate.json"
+    _write_json(phase4a_json, phase4a)
+    _write_json(transcoder_json, transcoder)
+    _write_json(ood_json, ood)
+    _write_json(candidate_json, candidate)
+
+    out_dir = tmp_path / "gate_out"
+
+    # With LCB thresholds at 0.0, should fail despite positive point estimates.
+    proc_fail = subprocess.run(
+        [
+            sys.executable,
+            str(RELEASE_GATE),
+            "--phase4a-results",
+            str(phase4a_json),
+            "--transcoder-results",
+            str(transcoder_json),
+            "--ood-results",
+            str(ood_json),
+            "--external-candidate-json",
+            str(candidate_json),
+            "--external-mode",
+            "joint",
+            "--min-saebench-delta",
+            "0.0",
+            "--min-cebench-delta",
+            "0.0",
+            "--use-external-lcb",
+            "--min-saebench-delta-lcb",
+            "0.0",
+            "--min-cebench-delta-lcb",
+            "0.0",
+            "--require-transcoder",
+            "--require-ood",
+            "--require-external",
+            "--fail-on-gate-fail",
+            "--output-dir",
+            str(out_dir),
+        ],
+        cwd=str(ROOT),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert proc_fail.returncode == 2, proc_fail.stdout + "\n" + proc_fail.stderr
+
+    # Relax LCB thresholds to pass.
+    proc_pass = subprocess.run(
+        [
+            sys.executable,
+            str(RELEASE_GATE),
+            "--phase4a-results",
+            str(phase4a_json),
+            "--transcoder-results",
+            str(transcoder_json),
+            "--ood-results",
+            str(ood_json),
+            "--external-candidate-json",
+            str(candidate_json),
+            "--external-mode",
+            "joint",
+            "--min-saebench-delta",
+            "0.0",
+            "--min-cebench-delta",
+            "0.0",
+            "--use-external-lcb",
+            "--min-saebench-delta-lcb",
+            "-0.05",
+            "--min-cebench-delta-lcb",
+            "-0.05",
             "--require-transcoder",
             "--require-ood",
             "--require-external",

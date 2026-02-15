@@ -74,11 +74,20 @@ def extract_legacy_external_delta(payload: dict[str, Any] | None) -> float | Non
     return None
 
 
+def _pick_first_float(candidates: list[Any]) -> float | None:
+    for value in candidates:
+        if isinstance(value, (int, float)):
+            return float(value)
+    return None
+
+
 def extract_external_metrics(payload: dict[str, Any] | None) -> dict[str, float | None]:
     if payload is None:
         return {
             "saebench_delta": None,
+            "saebench_delta_ci95_low": None,
             "cebench_interp_delta_vs_baseline": None,
+            "cebench_interp_delta_vs_baseline_ci95_low": None,
             "cebench_interpretability_max": None,
             "legacy_external_delta": None,
         }
@@ -90,31 +99,47 @@ def extract_external_metrics(payload: dict[str, Any] | None) -> dict[str, float 
 
     metrics = obj.get("metrics") if isinstance(obj.get("metrics"), dict) else {}
 
-    saebench_candidates = [
-        metrics.get("saebench_delta"),
-        obj.get("saebench_delta"),
-        obj.get("best_minus_llm_auc"),
-        (obj.get("summary") or {}).get("best_minus_llm_auc"),
-    ]
+    saebench_delta = _pick_first_float(
+        [
+            metrics.get("saebench_delta"),
+            obj.get("saebench_delta"),
+            obj.get("best_minus_llm_auc"),
+            (obj.get("summary") or {}).get("best_minus_llm_auc"),
+        ]
+    )
 
-    cebench_delta_candidates = [
-        metrics.get("cebench_interp_delta_vs_baseline"),
-        metrics.get("cebench_delta"),
-        obj.get("cebench_interp_delta_vs_baseline"),
-        obj.get("cebench_delta"),
-        (obj.get("delta_vs_matched_baseline") or {}).get("interpretability_score_mean_max"),
-    ]
+    saebench_delta_lcb = _pick_first_float(
+        [
+            metrics.get("saebench_delta_ci95_low"),
+            obj.get("saebench_delta_ci95_low"),
+        ]
+    )
 
-    cebench_interp_candidates = [
-        metrics.get("cebench_interpretability_max"),
-        obj.get("cebench_interpretability_max"),
-        (obj.get("custom_metrics") or {}).get("interpretability_score_mean_max"),
-        (obj.get("cebench_summary") or {}).get("interpretability_score_mean_max"),
-    ]
+    cebench_delta = _pick_first_float(
+        [
+            metrics.get("cebench_interp_delta_vs_baseline"),
+            metrics.get("cebench_delta"),
+            obj.get("cebench_interp_delta_vs_baseline"),
+            obj.get("cebench_delta"),
+            (obj.get("delta_vs_matched_baseline") or {}).get("interpretability_score_mean_max"),
+        ]
+    )
 
-    saebench_delta = next((float(v) for v in saebench_candidates if isinstance(v, (int, float))), None)
-    cebench_delta = next((float(v) for v in cebench_delta_candidates if isinstance(v, (int, float))), None)
-    cebench_interp = next((float(v) for v in cebench_interp_candidates if isinstance(v, (int, float))), None)
+    cebench_delta_lcb = _pick_first_float(
+        [
+            metrics.get("cebench_interp_delta_vs_baseline_ci95_low"),
+            obj.get("cebench_interp_delta_vs_baseline_ci95_low"),
+        ]
+    )
+
+    cebench_interp = _pick_first_float(
+        [
+            metrics.get("cebench_interpretability_max"),
+            obj.get("cebench_interpretability_max"),
+            (obj.get("custom_metrics") or {}).get("interpretability_score_mean_max"),
+            (obj.get("cebench_summary") or {}).get("interpretability_score_mean_max"),
+        ]
+    )
 
     legacy_external_delta = extract_legacy_external_delta(obj)
     if legacy_external_delta is None:
@@ -122,7 +147,9 @@ def extract_external_metrics(payload: dict[str, Any] | None) -> dict[str, float 
 
     return {
         "saebench_delta": saebench_delta,
+        "saebench_delta_ci95_low": saebench_delta_lcb,
         "cebench_interp_delta_vs_baseline": cebench_delta,
+        "cebench_interp_delta_vs_baseline_ci95_low": cebench_delta_lcb,
         "cebench_interpretability_max": cebench_interp,
         "legacy_external_delta": legacy_external_delta,
     }
@@ -182,14 +209,38 @@ def evaluate_external_gates(
     min_external_delta: float,
     min_saebench_delta: float,
     min_cebench_delta: float,
+    min_saebench_delta_lcb: float | None,
+    min_cebench_delta_lcb: float | None,
+    use_external_lcb: bool,
     external_metrics: dict[str, float | None],
-) -> tuple[bool, bool, bool, str, float | None]:
+) -> tuple[bool, bool, bool, str, float | None, float | None, float | None]:
     saebench_delta = external_metrics.get("saebench_delta")
     cebench_delta = external_metrics.get("cebench_interp_delta_vs_baseline")
+    saebench_delta_lcb = external_metrics.get("saebench_delta_ci95_low")
+    cebench_delta_lcb = external_metrics.get("cebench_interp_delta_vs_baseline_ci95_low")
     legacy_external_delta = external_metrics.get("legacy_external_delta")
 
-    gate_external_saebench = threshold_gate(saebench_delta, min_saebench_delta, require_external)
-    gate_external_cebench = threshold_gate(cebench_delta, min_cebench_delta, require_external)
+    if use_external_lcb:
+        saebench_gate_value = saebench_delta_lcb
+        cebench_gate_value = cebench_delta_lcb
+        saebench_threshold = (
+            float(min_saebench_delta_lcb)
+            if min_saebench_delta_lcb is not None
+            else float(min_saebench_delta)
+        )
+        cebench_threshold = (
+            float(min_cebench_delta_lcb)
+            if min_cebench_delta_lcb is not None
+            else float(min_cebench_delta)
+        )
+    else:
+        saebench_gate_value = saebench_delta
+        cebench_gate_value = cebench_delta
+        saebench_threshold = float(min_saebench_delta)
+        cebench_threshold = float(min_cebench_delta)
+
+    gate_external_saebench = threshold_gate(saebench_gate_value, saebench_threshold, require_external)
+    gate_external_cebench = threshold_gate(cebench_gate_value, cebench_threshold, require_external)
 
     mode_used = external_mode
     if external_mode == "saebench":
@@ -200,16 +251,32 @@ def evaluate_external_gates(
         gate_external = gate_external_saebench and gate_external_cebench
     elif external_mode == "auto":
         # Prefer joint gating if both metrics are present.
-        if saebench_delta is not None and cebench_delta is not None:
-            gate_external = gate_external_saebench and gate_external_cebench
-            mode_used = "auto_joint"
+        if use_external_lcb:
+            if saebench_delta_lcb is not None and cebench_delta_lcb is not None:
+                gate_external = gate_external_saebench and gate_external_cebench
+                mode_used = "auto_joint_lcb"
+            else:
+                gate_external = False if require_external else True
+                mode_used = "auto_lcb_missing"
         else:
-            gate_external = threshold_gate(legacy_external_delta, min_external_delta, require_external)
-            mode_used = "auto_legacy"
+            if saebench_delta is not None and cebench_delta is not None:
+                gate_external = gate_external_saebench and gate_external_cebench
+                mode_used = "auto_joint"
+            else:
+                gate_external = threshold_gate(legacy_external_delta, min_external_delta, require_external)
+                mode_used = "auto_legacy"
     else:
         raise ValueError(f"Unsupported external_mode: {external_mode}")
 
-    return gate_external, gate_external_saebench, gate_external_cebench, mode_used, legacy_external_delta
+    return (
+        gate_external,
+        gate_external_saebench,
+        gate_external_cebench,
+        mode_used,
+        legacy_external_delta,
+        saebench_gate_value,
+        cebench_gate_value,
+    )
 
 
 def main() -> None:
@@ -231,6 +298,23 @@ def main() -> None:
     parser.add_argument("--min-external-delta", type=float, default=0.0)
     parser.add_argument("--min-saebench-delta", type=float, default=0.0)
     parser.add_argument("--min-cebench-delta", type=float, default=0.0)
+    parser.add_argument(
+        "--min-saebench-delta-lcb",
+        type=float,
+        default=None,
+        help="Optional LCB threshold for SAEBench delta when --use-external-lcb is set.",
+    )
+    parser.add_argument(
+        "--min-cebench-delta-lcb",
+        type=float,
+        default=None,
+        help="Optional LCB threshold for CE-Bench delta when --use-external-lcb is set.",
+    )
+    parser.add_argument(
+        "--use-external-lcb",
+        action="store_true",
+        help="Gate external metrics using conservative CI lower bounds when available.",
+    )
     parser.add_argument(
         "--external-mode",
         type=str,
@@ -285,12 +369,17 @@ def main() -> None:
         gate_external_cebench,
         external_mode_used,
         legacy_external_delta,
+        saebench_gate_value,
+        cebench_gate_value,
     ) = evaluate_external_gates(
         external_mode=args.external_mode,
         require_external=args.require_external,
         min_external_delta=args.min_external_delta,
         min_saebench_delta=args.min_saebench_delta,
         min_cebench_delta=args.min_cebench_delta,
+        min_saebench_delta_lcb=args.min_saebench_delta_lcb,
+        min_cebench_delta_lcb=args.min_cebench_delta_lcb,
+        use_external_lcb=args.use_external_lcb,
         external_metrics=external_metrics,
     )
 
@@ -323,6 +412,9 @@ def main() -> None:
             "min_external_delta": args.min_external_delta,
             "min_saebench_delta": args.min_saebench_delta,
             "min_cebench_delta": args.min_cebench_delta,
+            "min_saebench_delta_lcb": args.min_saebench_delta_lcb,
+            "min_cebench_delta_lcb": args.min_cebench_delta_lcb,
+            "use_external_lcb": args.use_external_lcb,
             "external_mode": args.external_mode,
             "require_transcoder": args.require_transcoder,
             "require_ood": args.require_ood,
@@ -335,8 +427,12 @@ def main() -> None:
             "ood_drop": ood_drop,
             "external_delta": legacy_external_delta,
             "saebench_delta": external_metrics.get("saebench_delta"),
+            "saebench_delta_ci95_low": external_metrics.get("saebench_delta_ci95_low"),
             "cebench_interp_delta_vs_baseline": external_metrics.get("cebench_interp_delta_vs_baseline"),
+            "cebench_interp_delta_vs_baseline_ci95_low": external_metrics.get("cebench_interp_delta_vs_baseline_ci95_low"),
             "cebench_interpretability_max": external_metrics.get("cebench_interpretability_max"),
+            "external_gate_saebench_value": saebench_gate_value,
+            "external_gate_cebench_value": cebench_gate_value,
         },
         "gates": {
             "random_model": gate_random,
@@ -346,6 +442,7 @@ def main() -> None:
             "external_saebench": gate_external_saebench,
             "external_cebench": gate_external_cebench,
             "external_mode_used": external_mode_used,
+            "external_threshold_basis": "lcb" if args.use_external_lcb else "point",
             "pass_all": pass_all,
         },
     }
@@ -361,6 +458,7 @@ def main() -> None:
         f"- Run ID: `{run_id}`",
         f"- pass_all: `{pass_all}`",
         f"- external_mode_used: `{external_mode_used}`",
+        f"- external_threshold_basis: `{'lcb' if args.use_external_lcb else 'point'}`",
         "",
         "## Gate Status",
         "",
@@ -379,7 +477,9 @@ def main() -> None:
         f"- ood_drop: `{ood_drop}`",
         f"- external_delta (legacy): `{legacy_external_delta}`",
         f"- saebench_delta: `{external_metrics.get('saebench_delta')}`",
+        f"- saebench_delta_ci95_low: `{external_metrics.get('saebench_delta_ci95_low')}`",
         f"- cebench_interp_delta_vs_baseline: `{external_metrics.get('cebench_interp_delta_vs_baseline')}`",
+        f"- cebench_interp_delta_vs_baseline_ci95_low: `{external_metrics.get('cebench_interp_delta_vs_baseline_ci95_low')}`",
         f"- cebench_interpretability_max: `{external_metrics.get('cebench_interpretability_max')}`",
     ]
     out_md.write_text("\n".join(lines) + "\n")

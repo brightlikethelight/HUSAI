@@ -1180,3 +1180,87 @@ python scripts/experiments/run_cebench_compat.py \
 - Code change from this finding:
   - `cebench_baseline_map.json` now sets layer-1 pre hook keys to `null`.
   - scaling harness treats `null` as explicit “no matched baseline” (delta disabled) instead of incorrectly using layer-0 baseline.
+
+### Run 61: Cycle-4 implementation pass (uncertainty-aware gates + new experiment harnesses)
+- Local code changes:
+  - `scripts/experiments/select_release_candidate.py`
+    - added grouped-across-seeds selection mode (`--group-by-condition`).
+    - added uncertainty mode (`--uncertainty-mode point|lcb`) and per-group CI metrics (`*_ci95_low/high`).
+  - `scripts/experiments/run_stress_gated_release_policy.py`
+    - added CI-aware external gating:
+      - `--use-external-lcb`
+      - `--min-saebench-delta-lcb`
+      - `--min-cebench-delta-lcb`
+    - records gate basis (`point` vs `lcb`) and gated values used.
+  - `scripts/experiments/run_b200_high_impact_queue.sh`
+    - added selector/gate configuration for uncertainty-aware mode via env vars:
+      - `SELECTOR_GROUP_BY_CONDITION`, `SELECTOR_UNCERTAINTY_MODE`, `MIN_SEEDS_PER_GROUP`
+      - `USE_EXTERNAL_LCB_GATES`, `MIN_SAEBENCH_DELTA_LCB`, `MIN_CEBENCH_DELTA_LCB`
+  - `scripts/experiments/husai_custom_sae_adapter.py`
+    - added `matryoshka` architecture alias support and TopK eval compatibility mapping.
+  - new experiment scripts:
+    - `scripts/experiments/run_transcoder_stress_sweep.py`
+    - `scripts/experiments/run_assignment_consistency_v3.py`
+    - `scripts/experiments/run_matryoshka_frontier_external.py`
+    - `scripts/experiments/run_known_circuit_recovery_closure.py`
+  - new/updated tests:
+    - `tests/unit/test_release_policy_selector.py` (grouped LCB selector + LCB gate behavior)
+    - `tests/unit/test_husai_custom_sae_adapter.py`
+
+- Validation commands:
+```bash
+pytest -q tests/unit/test_release_policy_selector.py tests/unit/test_husai_custom_sae_adapter.py
+pytest -q tests/unit
+python -m py_compile scripts/experiments/select_release_candidate.py scripts/experiments/run_stress_gated_release_policy.py scripts/experiments/husai_custom_sae_adapter.py scripts/experiments/run_transcoder_stress_sweep.py scripts/experiments/run_assignment_consistency_v3.py scripts/experiments/run_matryoshka_frontier_external.py scripts/experiments/run_known_circuit_recovery_closure.py
+bash -n scripts/experiments/run_b200_high_impact_queue.sh
+make smoke
+```
+- Outcome: success
+  - unit tests: `84 passed`
+  - smoke: pass
+  - shell syntax + py compile: pass
+
+### Run 62: Live B200 monitoring checkpoint (cycle queue still active)
+- Remote monitoring command summary:
+```bash
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@198.13.252.68 -p 34426 -i ~/.ssh/runpod_key '<status/log checks>'
+```
+- Observed status:
+  - active queue: `results/experiments/cycle3_queue/run_20260215T153651Z`
+  - active stage: scaling multiseed (`run_external_metric_scaling_study.py`)
+  - progress snapshot:
+    - checkpoints: `22`
+    - SAEBench summaries: `22`
+    - CE-Bench summaries: `21`
+    - pending condition: `tok30000_layer1_dsae2048_seed42`
+  - sample CE-Bench log shows healthy completion (200/200 rows, no runtime error).
+- W&B status:
+  - `WANDB_API_KEY`, `WANDB_PROJECT`, `WANDB_ENTITY`, `WANDB_MODE` not set on remote process env snapshot.
+  - no active W&B run artifacts observed for this queue stage (file-based logs/artifacts only).
+
+### Run 63: Null-baseline aggregation crash fix (scaling/frontier)
+- Trigger:
+  - Remote queue `results/experiments/cycle3_queue/run_20260215T153651Z` crashed after completing all condition evals.
+  - Exception in scaling aggregation:
+    - `AttributeError: 'NoneType' object has no attribute 'get'`
+    - Source: `scripts/experiments/run_external_metric_scaling_study.py` when `delta_vs_matched_baseline` is explicitly `null`.
+
+- Root cause:
+  - Nested `.get(...).get(...)` chains assumed intermediate dicts.
+  - With explicit baseline disable (`null`), intermediate value is `None`.
+
+- Code fix:
+  - `scripts/experiments/run_external_metric_scaling_study.py`
+    - Added defensive nested metric extraction for aggregation metrics.
+  - `scripts/experiments/run_architecture_frontier_external.py`
+    - Applied the same defensive nested metric extraction pattern to avoid mirrored failure mode.
+
+- Validation:
+```bash
+python -m py_compile scripts/experiments/run_external_metric_scaling_study.py scripts/experiments/run_architecture_frontier_external.py
+pytest -q tests/unit/test_external_scaling_baseline_map.py tests/unit/test_release_policy_selector.py
+pytest -q tests/unit
+```
+- Outcome: success (`84 passed` unit tests).
+- Next action:
+  - Pull fixes on B200 and rerun failed stage/queue to regenerate complete selector+gate outputs.
