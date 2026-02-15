@@ -1,12 +1,16 @@
-# Reliability-First SAE Evaluation in HUSAI
+# Reliability-First SAE Evaluation in HUSAI (Cycle 4 Update)
 
 Date: 2026-02-15
 
 ## Abstract
-We executed an end-to-end reliability-first experiment program for sparse autoencoders (SAEs) in HUSAI to test whether internal consistency improvements transfer to external benchmark gains. The program covered direct HUSAI-checkpoint CE-Bench integration with matched baseline comparisons, a multiseed architecture frontier on SAEBench/CE-Bench, a multiseed external scaling study (`token budget`, `hook layer`, `d_sae`), assignment-aware consistency objective v2, and strict stress-gated release checks. Internal consistency improvements were reproducible, but external gains remained negative relative to matched baselines and LLM references. Final strict gates failed (`pass_all=false`) due transcoder and external criteria. These results support methodological rigor and reproducibility, but do not support external superiority claims.
+We present a reliability-first SAE research program that explicitly tests whether internal consistency improvements transfer to external benchmark gains. HUSAI integrates multiseed internal ablations, external evaluations (SAEBench, CE-Bench), stress tests (random-model, transcoder, OOD), and strict release gating. Across cycle3 and cycle4 runs, internal consistency gains were reproducible, but external deltas remained negative for release-candidate settings under uncertainty-aware (LCB) criteria. The strict gate remained failing (`pass_all=false`). We also identify and fix two critical evaluation risks: custom-SAE dead-decoder normalization failures and a known-circuit SAE overlap geometry mismatch. The resulting repository is methodologically strong and reproducible, while scientific closure on external competitiveness remains open.
 
 ## 1. Introduction
-SAE interpretability research often overindexes on internal metrics without fully stress-testing external validity. HUSAI targets this gap with a claim-gated workflow: every major claim must tie to artifact-backed metrics and pass strict release criteria.
+SAE interpretability research often emphasizes internal metrics without robust external or stress controls. HUSAI addresses this by enforcing a strict gate over:
+- random-model baseline,
+- transcoder stress,
+- OOD robustness,
+- external benchmark deltas.
 
 Primary question:
 - Can internal consistency gains be achieved without external regressions?
@@ -14,122 +18,99 @@ Primary question:
 ## 2. Method
 
 ### 2.1 Reliability Protocol
-- Reproducible run manifests and config hashing.
+- Reproducible run manifests + config hashing.
 - Matched-baseline external comparisons.
-- Stress gates for random-model, transcoder, OOD, external metrics.
-- Consistency audit linking narrative claims to artifacts.
+- Grouped uncertainty-aware (LCB) candidate selection.
+- Strict release policy and fail-fast semantics.
 
 ### 2.2 Experiment Tracks
-1. Trained-vs-random baseline and core ablations.
-2. Assignment-aware consistency objective v2.
-3. Direct custom checkpoint external eval (SAEBench + CE-Bench).
-4. Architecture frontier (multiseed).
-5. External scaling study (multiseed).
-6. Stress and strict release policy.
+1. Trained-vs-random and core ablations.
+2. Assignment-aware consistency objectives (v2/v3).
+3. External architecture frontier and scaling studies.
+4. Transcoder/OOD stress evaluations.
+5. Known-circuit closure track.
 
 ## 3. Experimental Setup
 
-Compute and orchestration:
-- B200 queue execution for cycle-3 high-impact runs.
+Compute:
+- B200 queue execution for high-impact programs.
 
-External frontier setup:
-- Architectures: `topk,relu,batchtopk,jumprelu`
-- Seeds: `42,123,456,789,1011`
-- Matched CE-Bench budget with baseline-comparable protocol.
+External frontier:
+- Architectures: `topk`, `relu`, `batchtopk`, `jumprelu`
+- Multiseed matched-budget evaluation.
 
-Scaling setup:
-- Token budgets: `10000,30000`
-- Hook layers: `0,1`
-- `d_sae`: `1024,2048`
-- Seeds: `42,123,456`
+Scaling:
+- token budgets: `10k`, `30k`
+- hook layers: `0`, `1`
+- widths: `d_sae=1024,2048`
 
-Primary synthesis artifact:
-- `docs/evidence/cycle3_queue_final/cycle3_final_synthesis_run_20260214T210734Z.md`
+Cycle4 followup root:
+- `docs/evidence/cycle4_followups_run_20260215T190004Z/`
 
 ## 4. Results
 
-### 4.1 Architecture Frontier (Multiseed)
-Source: `docs/evidence/cycle3_queue_final/frontier_multiseed_results_run_20260214T202538Z.json`
+### 4.1 Internal vs External
+Internal consistency gains are reproducible across tracks, but external improvements do not follow automatically.
 
-SAEBench best-minus-LLM AUC mean deltas:
-- `relu = -0.024691`
-- `jumprelu = -0.030577`
-- `topk = -0.040593`
-- `batchtopk = -0.043356`
-
-CE-Bench interpretability means:
-- `topk = 7.726768`
-- `batchtopk = 6.537639`
-- `jumprelu = 4.379002`
-- `relu = 4.257686`
-
-Interpretation:
-- Benchmarks favor different architectures.
-- No tested architecture closed external gaps.
-
-### 4.2 External Scaling (Multiseed)
-Source: `docs/evidence/cycle3_queue_final/scaling_multiseed_results_run_20260214T212435Z.json`
-
-By hook layer:
-- Layer 0: SAEBench mean `-0.077427`, CE-Bench mean `6.749414`
-- Layer 1: SAEBench mean `-0.093996`, CE-Bench mean `9.139791`
-
-By width:
-- `d_sae=1024`: SAEBench mean `-0.082122`, CE-Bench mean `7.167310`
-- `d_sae=2048`: SAEBench mean `-0.089301`, CE-Bench mean `8.721896`
-
-Interpretation:
-- CE-Bench improves in regions that worsen SAEBench deltas.
-
-### 4.3 Stress-Gated Release
-Source: `docs/evidence/cycle3_queue_final/release_policy_run_20260214T225029Z.json`
-
-Gate status:
-- `random_model = true`
-- `transcoder = false`
-- `ood = true`
-- `external = false`
-- `pass_all = false`
+### 4.2 Strict Release Gate (Latest)
+From `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.json`:
+- `random_model=True`
+- `transcoder=True`
+- `ood=True`
+- `external=False`
+- `pass_all=False`
 
 Key metrics:
-- `transcoder_delta = -0.002227966984113039`
-- `ood_drop = 0.01445406161520213`
-- `external_delta = -0.017257680751151527`
+- `transcoder_delta = +0.004916101694107056`
+- `ood_drop = 0.020994556554025268`
+- `saebench_delta_ci95_low = -0.04478959689939781`
+- `cebench_interp_delta_vs_baseline_ci95_low = -40.467037470119465`
 
-Interpretation:
-- Strict gating correctly blocks promotion.
+### 4.3 New-Family and Closure Status
+- Matryoshka run in cycle4 artifacts failed due dead-feature collapse and adapter normalization failure.
+- Assignment-v3 external stage skipped in latest artifact due `d_model` mismatch.
+- Known-circuit closure artifact run was pre-fix and not final.
 
-## 5. Discussion
+## 5. Engineering Corrections Applied
 
-### 5.1 Supported Claims
-- Internal consistency can be improved.
-- External evaluation stack is reproducible and matched-baseline aware.
-- Claim-gating infrastructure is operational and useful.
+1. `scripts/experiments/husai_custom_sae_adapter.py`
+- Added deterministic dead-decoder-row repair and encoder masking before norm checks.
 
-### 5.2 Unsupported Claims
-- External superiority over matched/public baselines.
-- SOTA-style performance claims for current methods.
+2. `scripts/experiments/run_known_circuit_recovery_closure.py`
+- Corrected SAE overlap metric to model-space Fourier projection.
+- Added skipped-checkpoint reason accounting.
 
-### 5.3 Core Scientific Takeaway
-Internal consistency optimization and external benchmark performance are misaligned in this regime; solving this likely requires explicit multi-objective optimization and selection.
+3. `scripts/experiments/run_matryoshka_frontier_external.py`
+- Switched to HUSAI TopK training path with dead-feature recovery auxiliary objective.
 
-## 6. Limitations
-- Known-ground-truth circuit recovery from the original proposal is incomplete.
-- Candidate selection for release gating should be formalized beyond single-summary input wiring.
-- Architecture space is still limited relative to newest SAE families.
+4. Added unit tests:
+- `tests/unit/test_husai_custom_sae_adapter.py`
+- `tests/unit/test_known_circuit_recovery_closure.py`
 
-## 7. Reproducibility Checklist
-- Canonical orientation: `START_HERE.md`
+## 6. Discussion
+
+### 6.1 Supported Claims
+- Internal consistency gains are real.
+- Reliability-first infrastructure and strict claim gating are effective.
+
+### 6.2 Unsupported Claims
+- External superiority for current candidates.
+- Full closure on known-circuit recovery from current published artifacts.
+
+### 6.3 Main Scientific Insight
+Internal consistency and external interpretability objectives are not automatically aligned; explicit multi-objective optimization remains necessary.
+
+## 7. Limitations
+- External-positive candidate not yet found under strict LCB gates.
+- New-family frontier still requires post-fix rerun.
+- Known-circuit closure requires post-fix rerun for final interpretation.
+
+## 8. Reproducibility Checklist
+- Entrypoint: `START_HERE.md`
 - Runbook: `RUNBOOK.md`
-- Full provenance: `EXPERIMENT_LOG.md`
-- Consistency audit: `results/analysis/experiment_consistency_report.md`
-- Final queue evidence mirror: `docs/evidence/cycle3_queue_final/`
-
-## 8. Next Steps
-1. Multi-objective training/selection over internal + external metrics.
-2. Add one new architecture family under matched protocol.
-3. Close known-circuit recovery track.
-4. CI guardrail for narrative-to-gate consistency.
+- Experiment provenance: `EXPERIMENT_LOG.md`
+- Latest reflective synthesis: `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
+- Latest gate evidence: `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.md`
 
 ## 9. Conclusion
-HUSAI is now a robust reliability-first SAE research platform. It provides strong evidence for internal consistency gains and equally strong evidence that those gains do not yet transfer externally in tested settings. This clarifies the real frontier and prevents false confidence.
+HUSAI is now a robust reliability-first SAE research platform. It delivers strong evidence for internal consistency progress while transparently showing that external transfer remains unresolved under strict controls. This narrows the true frontier and sets up a clear next experiment program.

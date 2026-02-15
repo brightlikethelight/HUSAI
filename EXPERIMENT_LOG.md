@@ -1439,3 +1439,50 @@ bash -n scripts/experiments/run_cycle4_followups_after_queue.sh
 bash -n scripts/experiments/run_cycle4_followups_after_queue.sh
 ```
 - Outcome: syntax check pass.
+
+### Run 71: Cycle-4 followups completion evidence sync and gate verification
+- Evidence synced locally from B200 run root:
+  - `docs/evidence/cycle4_followups_run_20260215T190004Z/followups/manifest.json`
+  - `docs/evidence/cycle4_followups_run_20260215T190004Z/selector/selection_summary.json`
+  - `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.json`
+  - `docs/evidence/cycle4_followups_run_20260215T190004Z/transcoder_sweep/results.json`
+  - `docs/evidence/cycle4_followups_run_20260215T190004Z/matryoshka/results.json`
+  - `docs/evidence/cycle4_followups_run_20260215T190004Z/assignment_v3/results.json`
+  - `docs/evidence/cycle4_followups_run_20260215T190004Z/known_circuit/closure_summary.json`
+
+- Outcome summary:
+  - strict gate `pass_all=False`
+  - random/transcoder/OOD pass
+  - external SAEBench + CE-Bench fail
+  - matryoshka cycle4 run had adapter normalization failures with dead-feature collapse (`l0=0`)
+  - assignment-v3 external eval skipped due `d_model` mismatch
+
+### Run 72: Reflective hardening pass (adapter + known-circuit + matryoshka path)
+- Code updates:
+  - `scripts/experiments/husai_custom_sae_adapter.py`
+    - dead-decoder-row repair + encoder masking before decoder norm checks.
+  - `scripts/experiments/run_known_circuit_recovery_closure.py`
+    - switched SAE overlap basis to model-space projection from token Fourier basis.
+    - added skipped-checkpoint reason accounting.
+  - `scripts/experiments/run_matryoshka_frontier_external.py`
+    - switched Matryoshka training to HUSAI `TopKSAE` with auxiliary dead-feature recovery.
+
+- Tests added:
+  - `tests/unit/test_husai_custom_sae_adapter.py`
+  - `tests/unit/test_known_circuit_recovery_closure.py`
+
+- Validation commands:
+```bash
+python -m py_compile scripts/experiments/husai_custom_sae_adapter.py scripts/experiments/run_known_circuit_recovery_closure.py scripts/experiments/run_matryoshka_frontier_external.py
+pytest -q tests/unit/test_husai_custom_sae_adapter.py tests/unit/test_known_circuit_recovery_closure.py
+pytest -q tests/unit/test_release_policy_selector.py tests/unit/test_external_scaling_baseline_map.py
+python scripts/analysis/verify_experiment_consistency.py
+```
+
+- Outcome:
+  - compile checks: pass
+  - targeted unit tests: `6 passed`
+  - selector/baseline tests: `6 passed`
+  - consistency report regenerated:
+    - `results/analysis/experiment_consistency_report.json`
+    - `results/analysis/experiment_consistency_report.md`

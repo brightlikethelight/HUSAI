@@ -1,0 +1,247 @@
+{
+  "run_metadata": {
+    "timestamp_utc": "2026-02-15T18:56:47+00:00",
+    "command": "python scripts/experiments/run_transcoder_stress_sweep.py --d-sae-values 128,256 --k-values 16,32 --epochs-values 12,20 --learning-rate-values 0.0003,0.001 --device cuda --min-delta-lcb 0.0 --output-dir results/experiments/phase4e_transcoder_stress_sweep_b200 --fail-on-gate-fail",
+    "run_id": "run_20260215T184609Z"
+  },
+  "config": {
+    "transformer_checkpoint": "/workspace/HUSAI/results/transformer_5000ep/transformer_best.pt",
+    "layer": 1,
+    "position": "answer",
+    "modulus": 113,
+    "batch_size": 512,
+    "max_samples": 0,
+    "seeds": "42,123,456",
+    "bootstrap_samples": 10000,
+    "device": "cuda",
+    "d_sae_values": [
+      128,
+      256
+    ],
+    "k_values": [
+      16,
+      32
+    ],
+    "epochs_values": [
+      12,
+      20
+    ],
+    "learning_rate_values": [
+      0.0003,
+      0.001
+    ],
+    "min_delta_lcb": 0.0,
+    "fail_on_gate_fail": true
+  },
+  "records": [
+    {
+      "condition_id": "dsae128_k16_ep12_lr0.0003",
+      "d_sae": 128,
+      "k": 16,
+      "epochs": 12,
+      "learning_rate": 0.0003,
+      "returncode": 0,
+      "command": "/usr/local/bin/python scripts/experiments/run_transcoder_stress_eval.py --transformer-checkpoint /workspace/HUSAI/results/transformer_5000ep/transformer_best.pt --layer 1 --position answer --modulus 113 --batch-size 512 --max-samples 0 --d-sae 128 --k 16 --seeds 42,123,456 --epochs 12 --learning-rate 0.0003 --bootstrap-samples 10000 --device cuda --output-dir /workspace/HUSAI/results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae128_k16_ep12_lr0.0003",
+      "summary_path": "results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae128_k16_ep12_lr0.0003/run_20260215T184617Z/transcoder_stress_summary.json",
+      "delta": -0.006101757287979126,
+      "delta_lcb": -0.01249706745147705
+    },
+    {
+      "condition_id": "dsae128_k16_ep12_lr0.001",
+      "d_sae": 128,
+      "k": 16,
+      "epochs": 12,
+      "learning_rate": 0.001,
+      "returncode": 0,
+      "command": "/usr/local/bin/python scripts/experiments/run_transcoder_stress_eval.py --transformer-checkpoint /workspace/HUSAI/results/transformer_5000ep/transformer_best.pt --layer 1 --position answer --modulus 113 --batch-size 512 --max-samples 0 --d-sae 128 --k 16 --seeds 42,123,456 --epochs 12 --learning-rate 0.001 --bootstrap-samples 10000 --device cuda --output-dir /workspace/HUSAI/results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae128_k16_ep12_lr0.001",
+      "summary_path": "results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae128_k16_ep12_lr0.001/run_20260215T184649Z/transcoder_stress_summary.json",
+      "delta": -0.0011306603749592914,
+      "delta_lcb": -0.007056504487991333
+    },
+    {
+      "condition_id": "dsae128_k16_ep20_lr0.0003",
+      "d_sae": 128,
+      "k": 16,
+      "epochs": 20,
+      "learning_rate": 0.0003,
+      "returncode": 0,
+      "command": "/usr/local/bin/python scripts/experiments/run_transcoder_stress_eval.py --transformer-checkpoint /workspace/HUSAI/results/transformer_5000ep/transformer_best.pt --layer 1 --position answer --modulus 113 --batch-size 512 --max-samples 0 --d-sae 128 --k 16 --seeds 42,123,456 --epochs 20 --learning-rate 0.0003 --bootstrap-samples 10000 --device cuda --output-dir /workspace/HUSAI/results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae128_k16_ep20_lr0.0003",
+      "summary_path": "results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae128_k16_ep20_lr0.0003/run_20260215T184723Z/transcoder_stress_summary.json",
+      "delta": -0.0034758299589157104,
+      "delta_lcb": -0.008447438478469849
+    },
+    {
+      "condition_id": "dsae128_k16_ep20_lr0.001",
+      "d_sae": 128,
+      "k": 16,
+      "epochs": 20,
+      "learning_rate": 0.001,
+      "returncode": 0,
+      "command": "/usr/local/bin/python scripts/experiments/run_transcoder_stress_eval.py --transformer-checkpoint /workspace/HUSAI/results/transformer_5000ep/transformer_best.pt --layer 1 --position answer --modulus 113 --batch-size 512 --max-samples 0 --d-sae 128 --k 16 --seeds 42,123,456 --epochs 20 --learning-rate 0.001 --bootstrap-samples 10000 --device cuda --output-dir /workspace/HUSAI/results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae128_k16_ep20_lr0.001",
+      "summary_path": "results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae128_k16_ep20_lr0.001/run_20260215T184812Z/transcoder_stress_summary.json",
+      "delta": 0.002002512415250124,
+      "delta_lcb": -0.002546161413192749
+    },
+    {
+      "condition_id": "dsae128_k32_ep12_lr0.0003",
+      "d_sae": 128,
+      "k": 32,
+      "epochs": 12,
+      "learning_rate": 0.0003,
+      "returncode": 0,
+      "command": "/usr/local/bin/python scripts/experiments/run_transcoder_stress_eval.py --transformer-checkpoint /workspace/HUSAI/results/transformer_5000ep/transformer_best.pt --layer 1 --position answer --modulus 113 --batch-size 512 --max-samples 0 --d-sae 128 --k 32 --seeds 42,123,456 --epochs 12 --learning-rate 0.0003 --bootstrap-samples 10000 --device cuda --output-dir /workspace/HUSAI/results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae128_k32_ep12_lr0.0003",
+      "summary_path": "results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae128_k32_ep12_lr0.0003/run_20260215T184901Z/transcoder_stress_summary.json",
+      "delta": -0.002731889486312866,
+      "delta_lcb": -0.006192415952682495
+    },
+    {
+      "condition_id": "dsae128_k32_ep12_lr0.001",
+      "d_sae": 128,
+      "k": 32,
+      "epochs": 12,
+      "learning_rate": 0.001,
+      "returncode": 0,
+      "command": "/usr/local/bin/python scripts/experiments/run_transcoder_stress_eval.py --transformer-checkpoint /workspace/HUSAI/results/transformer_5000ep/transformer_best.pt --layer 1 --position answer --modulus 113 --batch-size 512 --max-samples 0 --d-sae 128 --k 32 --seeds 42,123,456 --epochs 12 --learning-rate 0.001 --bootstrap-samples 10000 --device cuda --output-dir /workspace/HUSAI/results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae128_k32_ep12_lr0.001",
+      "summary_path": "results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae128_k32_ep12_lr0.001/run_20260215T184935Z/transcoder_stress_summary.json",
+      "delta": 0.003673344850540161,
+      "delta_lcb": -0.00190812349319458
+    },
+    {
+      "condition_id": "dsae128_k32_ep20_lr0.0003",
+      "d_sae": 128,
+      "k": 32,
+      "epochs": 20,
+      "learning_rate": 0.0003,
+      "returncode": 0,
+      "command": "/usr/local/bin/python scripts/experiments/run_transcoder_stress_eval.py --transformer-checkpoint /workspace/HUSAI/results/transformer_5000ep/transformer_best.pt --layer 1 --position answer --modulus 113 --batch-size 512 --max-samples 0 --d-sae 128 --k 32 --seeds 42,123,456 --epochs 20 --learning-rate 0.0003 --bootstrap-samples 10000 --device cuda --output-dir /workspace/HUSAI/results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae128_k32_ep20_lr0.0003",
+      "summary_path": "results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae128_k32_ep20_lr0.0003/run_20260215T185008Z/transcoder_stress_summary.json",
+      "delta": -0.002308989564577757,
+      "delta_lcb": -0.008230969309806824
+    },
+    {
+      "condition_id": "dsae128_k32_ep20_lr0.001",
+      "d_sae": 128,
+      "k": 32,
+      "epochs": 20,
+      "learning_rate": 0.001,
+      "returncode": 0,
+      "command": "/usr/local/bin/python scripts/experiments/run_transcoder_stress_eval.py --transformer-checkpoint /workspace/HUSAI/results/transformer_5000ep/transformer_best.pt --layer 1 --position answer --modulus 113 --batch-size 512 --max-samples 0 --d-sae 128 --k 32 --seeds 42,123,456 --epochs 20 --learning-rate 0.001 --bootstrap-samples 10000 --device cuda --output-dir /workspace/HUSAI/results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae128_k32_ep20_lr0.001",
+      "summary_path": "results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae128_k32_ep20_lr0.001/run_20260215T185057Z/transcoder_stress_summary.json",
+      "delta": 0.004916101694107056,
+      "delta_lcb": 0.0010100603103637695
+    },
+    {
+      "condition_id": "dsae256_k16_ep12_lr0.0003",
+      "d_sae": 256,
+      "k": 16,
+      "epochs": 12,
+      "learning_rate": 0.0003,
+      "returncode": 0,
+      "command": "/usr/local/bin/python scripts/experiments/run_transcoder_stress_eval.py --transformer-checkpoint /workspace/HUSAI/results/transformer_5000ep/transformer_best.pt --layer 1 --position answer --modulus 113 --batch-size 512 --max-samples 0 --d-sae 256 --k 16 --seeds 42,123,456 --epochs 12 --learning-rate 0.0003 --bootstrap-samples 10000 --device cuda --output-dir /workspace/HUSAI/results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae256_k16_ep12_lr0.0003",
+      "summary_path": "results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae256_k16_ep12_lr0.0003/run_20260215T185146Z/transcoder_stress_summary.json",
+      "delta": -0.000446240107218443,
+      "delta_lcb": -0.0048438310623168945
+    },
+    {
+      "condition_id": "dsae256_k16_ep12_lr0.001",
+      "d_sae": 256,
+      "k": 16,
+      "epochs": 12,
+      "learning_rate": 0.001,
+      "returncode": 0,
+      "command": "/usr/local/bin/python scripts/experiments/run_transcoder_stress_eval.py --transformer-checkpoint /workspace/HUSAI/results/transformer_5000ep/transformer_best.pt --layer 1 --position answer --modulus 113 --batch-size 512 --max-samples 0 --d-sae 256 --k 16 --seeds 42,123,456 --epochs 12 --learning-rate 0.001 --bootstrap-samples 10000 --device cuda --output-dir /workspace/HUSAI/results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae256_k16_ep12_lr0.001",
+      "summary_path": "results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae256_k16_ep12_lr0.001/run_20260215T185219Z/transcoder_stress_summary.json",
+      "delta": 0.0029052893320719586,
+      "delta_lcb": -3.878772258758545e-05
+    },
+    {
+      "condition_id": "dsae256_k16_ep20_lr0.0003",
+      "d_sae": 256,
+      "k": 16,
+      "epochs": 20,
+      "learning_rate": 0.0003,
+      "returncode": 0,
+      "command": "/usr/local/bin/python scripts/experiments/run_transcoder_stress_eval.py --transformer-checkpoint /workspace/HUSAI/results/transformer_5000ep/transformer_best.pt --layer 1 --position answer --modulus 113 --batch-size 512 --max-samples 0 --d-sae 256 --k 16 --seeds 42,123,456 --epochs 20 --learning-rate 0.0003 --bootstrap-samples 10000 --device cuda --output-dir /workspace/HUSAI/results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae256_k16_ep20_lr0.0003",
+      "summary_path": "results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae256_k16_ep20_lr0.0003/run_20260215T185251Z/transcoder_stress_summary.json",
+      "delta": 0.00120820601781213,
+      "delta_lcb": -0.001215815544128418
+    },
+    {
+      "condition_id": "dsae256_k16_ep20_lr0.001",
+      "d_sae": 256,
+      "k": 16,
+      "epochs": 20,
+      "learning_rate": 0.001,
+      "returncode": 0,
+      "command": "/usr/local/bin/python scripts/experiments/run_transcoder_stress_eval.py --transformer-checkpoint /workspace/HUSAI/results/transformer_5000ep/transformer_best.pt --layer 1 --position answer --modulus 113 --batch-size 512 --max-samples 0 --d-sae 256 --k 16 --seeds 42,123,456 --epochs 20 --learning-rate 0.001 --bootstrap-samples 10000 --device cuda --output-dir /workspace/HUSAI/results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae256_k16_ep20_lr0.001",
+      "summary_path": "results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae256_k16_ep20_lr0.001/run_20260215T185336Z/transcoder_stress_summary.json",
+      "delta": 0.003559395670890808,
+      "delta_lcb": 0.00012049078941345215
+    },
+    {
+      "condition_id": "dsae256_k32_ep12_lr0.0003",
+      "d_sae": 256,
+      "k": 32,
+      "epochs": 12,
+      "learning_rate": 0.0003,
+      "returncode": 0,
+      "command": "/usr/local/bin/python scripts/experiments/run_transcoder_stress_eval.py --transformer-checkpoint /workspace/HUSAI/results/transformer_5000ep/transformer_best.pt --layer 1 --position answer --modulus 113 --batch-size 512 --max-samples 0 --d-sae 256 --k 32 --seeds 42,123,456 --epochs 12 --learning-rate 0.0003 --bootstrap-samples 10000 --device cuda --output-dir /workspace/HUSAI/results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae256_k32_ep12_lr0.0003",
+      "summary_path": "results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae256_k32_ep12_lr0.0003/run_20260215T185424Z/transcoder_stress_summary.json",
+      "delta": -0.00010613103707629579,
+      "delta_lcb": -0.004074648022651672
+    },
+    {
+      "condition_id": "dsae256_k32_ep12_lr0.001",
+      "d_sae": 256,
+      "k": 32,
+      "epochs": 12,
+      "learning_rate": 0.001,
+      "returncode": 0,
+      "command": "/usr/local/bin/python scripts/experiments/run_transcoder_stress_eval.py --transformer-checkpoint /workspace/HUSAI/results/transformer_5000ep/transformer_best.pt --layer 1 --position answer --modulus 113 --batch-size 512 --max-samples 0 --d-sae 256 --k 32 --seeds 42,123,456 --epochs 12 --learning-rate 0.001 --bootstrap-samples 10000 --device cuda --output-dir /workspace/HUSAI/results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae256_k32_ep12_lr0.001",
+      "summary_path": "results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae256_k32_ep12_lr0.001/run_20260215T185456Z/transcoder_stress_summary.json",
+      "delta": 0.0019533584515253333,
+      "delta_lcb": 0.0004483908414840698
+    },
+    {
+      "condition_id": "dsae256_k32_ep20_lr0.0003",
+      "d_sae": 256,
+      "k": 32,
+      "epochs": 20,
+      "learning_rate": 0.0003,
+      "returncode": 0,
+      "command": "/usr/local/bin/python scripts/experiments/run_transcoder_stress_eval.py --transformer-checkpoint /workspace/HUSAI/results/transformer_5000ep/transformer_best.pt --layer 1 --position answer --modulus 113 --batch-size 512 --max-samples 0 --d-sae 256 --k 32 --seeds 42,123,456 --epochs 20 --learning-rate 0.0003 --bootstrap-samples 10000 --device cuda --output-dir /workspace/HUSAI/results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae256_k32_ep20_lr0.0003",
+      "summary_path": "results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae256_k32_ep20_lr0.0003/run_20260215T185529Z/transcoder_stress_summary.json",
+      "delta": 0.0017852584520975934,
+      "delta_lcb": -0.0018456131219863892
+    },
+    {
+      "condition_id": "dsae256_k32_ep20_lr0.001",
+      "d_sae": 256,
+      "k": 32,
+      "epochs": 20,
+      "learning_rate": 0.001,
+      "returncode": 0,
+      "command": "/usr/local/bin/python scripts/experiments/run_transcoder_stress_eval.py --transformer-checkpoint /workspace/HUSAI/results/transformer_5000ep/transformer_best.pt --layer 1 --position answer --modulus 113 --batch-size 512 --max-samples 0 --d-sae 256 --k 32 --seeds 42,123,456 --epochs 20 --learning-rate 0.001 --bootstrap-samples 10000 --device cuda --output-dir /workspace/HUSAI/results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae256_k32_ep20_lr0.001",
+      "summary_path": "results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae256_k32_ep20_lr0.001/run_20260215T185606Z/transcoder_stress_summary.json",
+      "delta": 0.0015359173218409405,
+      "delta_lcb": -0.0006260573863983154
+    }
+  ],
+  "best_condition": {
+    "condition_id": "dsae128_k32_ep20_lr0.001",
+    "d_sae": 128,
+    "k": 32,
+    "epochs": 20,
+    "learning_rate": 0.001,
+    "returncode": 0,
+    "command": "/usr/local/bin/python scripts/experiments/run_transcoder_stress_eval.py --transformer-checkpoint /workspace/HUSAI/results/transformer_5000ep/transformer_best.pt --layer 1 --position answer --modulus 113 --batch-size 512 --max-samples 0 --d-sae 128 --k 32 --seeds 42,123,456 --epochs 20 --learning-rate 0.001 --bootstrap-samples 10000 --device cuda --output-dir /workspace/HUSAI/results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae128_k32_ep20_lr0.001",
+    "summary_path": "results/experiments/phase4e_transcoder_stress_sweep_b200/run_20260215T184609Z/conditions/dsae128_k32_ep20_lr0.001/run_20260215T185057Z/transcoder_stress_summary.json",
+    "delta": 0.004916101694107056,
+    "delta_lcb": 0.0010100603103637695
+  },
+  "gates": {
+    "has_valid_condition": true,
+    "gate_delta_lcb": true,
+    "pass_all": true
+  }
+}

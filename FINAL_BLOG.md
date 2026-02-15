@@ -1,76 +1,87 @@
-# What We Learned After Running the Full B200 HUSAI Program
+# What We Learned After Cycle 4: Reliable SAE Research Without Overclaiming
 
 Date: 2026-02-15
 
-The original question was simple but important:
+The core question remained the same:
 
 Can we make SAE features more consistent and also improve external interpretability benchmarks?
 
-We ran the full high-impact program end-to-end and forced every claim through artifact-backed gates.
+After running the B200 program and cycle4 followups, the answer is now clearer.
 
 ## What We Executed
 
-1. Direct HUSAI-checkpoint CE-Bench adapter path with matched baselines.
-2. Matched-budget architecture frontier (`topk`, `relu`, `batchtopk`, `jumprelu`) with multiseed external evals.
-3. External scaling study across token budget, hook layer, and `d_sae`.
-4. Assignment-aware consistency objective v2.
-5. Stress-gated release policy with random-model, transcoder, OOD, and external gates.
+1. Matched-baseline CE-Bench adapter path for direct HUSAI checkpoints.
+2. Multiseed external architecture frontier (`topk`, `relu`, `batchtopk`, `jumprelu`).
+3. Multiseed external scaling study (token budget, hook layer, `d_sae`).
+4. Assignment-aware objective tracks (v2 and v3).
+5. Transcoder and OOD stress checks.
+6. Strict release gate with grouped uncertainty-aware (LCB) candidate selection.
 
-Primary synthesis artifact:
-- `docs/evidence/cycle3_queue_final/cycle3_final_synthesis_run_20260214T210734Z.md`
+Cycle4 canonical artifact root:
+- `docs/evidence/cycle4_followups_run_20260215T190004Z/`
 
-## What Held Up
+## The Short Scientific Answer
 
-- Internal consistency can be improved reliably.
-- External benchmark stack is fully operational and reproducible.
-- Stress-gated release policy blocks unsupported claims.
+- Internal consistency improvements: yes.
+- External benchmark superiority: no.
+- Strict release decision: fail (`pass_all=false`).
 
-## What Did Not Hold Up
+Latest gate evidence:
+- `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.md`
 
-- External superiority claims.
-- Any narrative that internal improvements alone imply external gains.
+## What Passed and What Failed
 
-## Key Results
+Passed:
+- random-model gate
+- transcoder gate (after hyper-sweep)
+- OOD gate
 
-Frontier multiseed (`4 architectures x 5 seeds`):
-- Best SAEBench delta among tested: `relu = -0.024691`.
-- Best CE-Bench interpretability among tested: `topk = 7.726768`.
-- CE-Bench deltas vs matched baseline stayed strongly negative.
+Failed:
+- SAEBench external gate
+- CE-Bench external gate
 
-Scaling multiseed (24 conditions):
-- Layer 1 and larger width improve CE-Bench.
-- Those same settings worsen SAEBench deltas.
+Key values:
+- `transcoder_delta = +0.004916`
+- `ood_drop = 0.020995`
+- `saebench_delta_ci95_low = -0.044790`
+- `cebench_delta_ci95_low = -40.467037`
 
-Stress gates:
-- `random_model = pass`
-- `transcoder = fail` (`transcoder_delta = -0.002227966984113039`)
-- `ood = pass` (`ood_drop = 0.01445406161520213`)
-- `external = fail` (`external_delta = -0.017257680751151527`)
-- `pass_all = false`
+## Why This Is Still a Strong Outcome
 
-Gate evidence:
-- `docs/evidence/cycle3_queue_final/release_policy_run_20260214T225029Z.json`
+This is a high-value result because it is hard to fake:
+- We did not stop at internal metrics.
+- We forced claims through external and stress gates.
+- We identified concrete failure modes and fixed real code issues.
 
-## Why This Is Still a Strong Research Outcome
+That makes the next iterations scientifically meaningful, not cosmetic.
 
-This is a high-quality negative/nuanced result:
-- We reduced uncertainty.
-- We prevented overclaiming.
-- We exposed the true frontier: internal consistency and external validity are not aligned by default.
+## Critical Fixes We Added
 
-That is exactly the kind of result that makes future progress real rather than cosmetic.
+1. Robust custom-SAE adapter handling for dead decoder rows.
+- File: `scripts/experiments/husai_custom_sae_adapter.py`
 
-## What To Do Next
+2. Corrected known-circuit overlap geometry.
+- File: `scripts/experiments/run_known_circuit_recovery_closure.py`
+- SAE overlap now uses model-space projected Fourier basis.
 
-1. Add explicit multi-objective optimization/selection over internal + external metrics.
-2. Add one newer architecture family under matched protocols.
-3. Close known-ground-truth circuit recovery from the original proposal.
-4. Gate all future summary claims directly on strict release results.
+3. Matryoshka training path stabilization.
+- File: `scripts/experiments/run_matryoshka_frontier_external.py`
+- Uses HUSAI TopK with dead-feature recovery auxiliary objective.
 
-## Read Next
+4. Unit tests for both bug classes.
+- `tests/unit/test_husai_custom_sae_adapter.py`
+- `tests/unit/test_known_circuit_recovery_closure.py`
 
-- `START_HERE.md`
-- `EXECUTIVE_SUMMARY.md`
-- `PROPOSAL_COMPLETENESS_REVIEW.md`
-- `RUNBOOK.md`
-- `EXPERIMENT_LOG.md`
+## What Still Needs to Be Done
+
+1. Re-run Matryoshka frontier post-fix.
+2. Re-run known-circuit closure post-fix.
+3. Re-run assignment-v3 with external-compatible dimensions.
+4. Add RouteSAE family under matched-budget protocol.
+5. Re-run strict gate and update canonical status from fresh artifacts.
+
+## Final Takeaway
+
+HUSAI is now strong where many research repos are weak: reliability, reproducibility, and claim discipline.
+
+The remaining challenge is a real research challenge: finding a method that wins internally and externally at the same time.

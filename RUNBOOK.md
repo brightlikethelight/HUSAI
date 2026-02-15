@@ -2,7 +2,7 @@
 
 Updated: 2026-02-15
 
-Canonical map: `START_HERE.md` and `REPO_NAVIGATION.md`.
+Canonical map: `START_HERE.md`, `REPO_NAVIGATION.md`, `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`.
 
 ## 1) Environment
 
@@ -13,7 +13,7 @@ pip install -r requirements-dev.txt
 pre-commit install
 ```
 
-Common local env flags used in this repo:
+Recommended env flags:
 
 ```bash
 export KMP_DUPLICATE_LIB_OK=TRUE
@@ -36,7 +36,6 @@ python scripts/analysis/verify_experiment_consistency.py
 ```bash
 python scripts/experiments/run_phase4a_reproduction.py
 python scripts/experiments/run_core_ablations.py
-python scripts/experiments/run_adaptive_l0_calibration.py
 python scripts/experiments/run_assignment_consistency_v2.py --device cpu
 python scripts/experiments/run_assignment_consistency_v3.py --device cpu
 ```
@@ -83,32 +82,21 @@ python scripts/experiments/run_external_metric_scaling_study.py \
   --cebench-matched-baseline-map docs/evidence/phase4e_cebench_matched200/cebench_baseline_map.json
 ```
 
-### Candidate Selection + Stress and Strict Release Gate
+### Candidate selection + stress + strict release gate
 
 ```bash
-# default mode is now grouped + uncertainty-aware LCB over conditions
 python scripts/experiments/select_release_candidate.py \
   --frontier-results <frontier_results.json> \
   --scaling-results <scaling_results.json> \
   --require-both-external
 
-# optional: force old seed-level point-estimate selection
-python scripts/experiments/select_release_candidate.py \
-  --frontier-results <frontier_results.json> \
-  --scaling-results <scaling_results.json> \
-  --require-both-external \
-  --seed-level-selection \
-  --uncertainty-mode point
-
-# stress runners
-python scripts/experiments/run_transcoder_stress_eval.py --output-dir <out_dir>
 python scripts/experiments/run_transcoder_stress_sweep.py \
   --min-delta-lcb 0.0 \
   --fail-on-gate-fail \
   --output-dir <out_dir>
+
 python scripts/experiments/run_ood_stress_eval.py --output-dir <out_dir>
 
-# strict joint external gate (LCB mode)
 python scripts/experiments/run_stress_gated_release_policy.py \
   --phase4a-results results/experiments/phase4a_trained_vs_random/results.json \
   --transcoder-results <transcoder_summary.json> \
@@ -122,7 +110,7 @@ python scripts/experiments/run_stress_gated_release_policy.py \
   --fail-on-gate-fail
 ```
 
-### Proposal Closure (Known-Circuit)
+### Proposal closure (known-circuit)
 
 ```bash
 python scripts/experiments/run_known_circuit_recovery_closure.py \
@@ -130,9 +118,9 @@ python scripts/experiments/run_known_circuit_recovery_closure.py \
   --sae-checkpoint-glob 'results/experiments/phase4d_assignment_consistency_v3/run_*/checkpoints/lambda_*/sae_seed*.pt'
 ```
 
-## 4) B200 Queue Execution
+## 4) Queue Execution (B200)
 
-End-to-end queue script:
+Main high-impact queue:
 
 ```bash
 MIN_SAEBENCH_DELTA=0.0 MIN_CEBENCH_DELTA=0.0 \
@@ -143,25 +131,14 @@ CEBENCH_BASELINE_MAP=docs/evidence/phase4e_cebench_matched200/cebench_baseline_m
 bash scripts/experiments/run_b200_high_impact_queue.sh
 ```
 
-Queue behavior includes:
-1. scaling run,
-2. multi-objective candidate selection,
-3. stress runs,
-4. joint external gate evaluation.
+Cycle4 followup queue:
 
-Cycle-3 queue evidence mirror:
-- `docs/evidence/cycle3_queue_final/`
+```bash
+bash scripts/experiments/run_cycle4_followups_after_queue.sh
+```
 
-## 5) Artifact Expectations
-
-For every major run:
-- `summary.md` or `summary.json`
-- run config + command manifest
-- logs with return codes
-- explicit link in `EXPERIMENT_LOG.md`
-
-## 6) Claim Policy
+## 5) Current Claim Policy
 
 Do not promote external claims unless strict gate passes (`pass_all=true`).
 
-Current known status (cycle-3): `pass_all=false`.
+Latest known status (cycle4): `pass_all=false`.

@@ -35,6 +35,8 @@ from scripts.experiments.train_husai_sae_on_cached_activations import (  # noqa:
     set_seed,
 )
 
+from src.models.simple_sae import TopKSAE as HUSAITopKSAE  # noqa: E402
+
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
@@ -126,19 +128,10 @@ def build_topk_model(
     device: str,
     dtype: torch.dtype,
 ):
-    from sae_bench.custom_saes.topk_sae import TopKSAE
-
-    model = TopKSAE(
-        d_in=d_model,
-        d_sae=d_sae,
-        k=k,
-        model_name=model_name,
-        hook_layer=hook_layer,
-        hook_name=hook_name,
-        device=torch.device(device),
-        dtype=dtype,
-    )
-    return model
+    # Use HUSAI TopK implementation to preserve auxiliary dead-feature recovery.
+    del model_name, hook_layer, hook_name  # kept in signature for interface stability
+    model = HUSAITopKSAE(d_model=d_model, d_sae=d_sae, k=k)
+    return model.to(device=torch.device(device), dtype=dtype)
 
 
 def train_matryoshka_topk(
@@ -184,65 +177,64 @@ def train_matryoshka_topk(
         levels = [min(k, d_sae)]
 
     for _ in range(epochs):
+        model.reset_feature_counts()
         for (batch_cpu,) in loader:
             batch = batch_cpu.to(device)
-            recon = model(batch)
-            feats = model.encode(batch)
+            recon, feats, aux_loss = model(batch)
             mse = F.mse_loss(recon, batch)
 
             prefix_losses: list[torch.Tensor] = []
             for lvl in levels:
                 feats_prefix = feats.clone()
                 feats_prefix[:, lvl:] = 0.0
-                recon_prefix = feats_prefix @ model.W_dec + model.b_dec
+                recon_prefix = model.decode(feats_prefix)
                 prefix_losses.append(F.mse_loss(recon_prefix, batch))
 
             prefix_loss = torch.stack(prefix_losses).mean() if prefix_losses else torch.tensor(0.0, device=batch.device)
-            loss = mse + matryoshka_coef * prefix_loss
+            loss = mse + aux_loss + matryoshka_coef * prefix_loss
 
             optimizer.zero_grad(set_to_none=True)
             loss.backward()
             optimizer.step()
-
-            with torch.no_grad():
-                model.W_dec.data = F.normalize(model.W_dec.data, dim=1)
+            model.normalize_decoder()
 
     model.eval()
     with torch.no_grad():
         full = activations.to(device)
-        recon = model(full)
-        feats = model.encode(full)
+        recon, feats, _ = model(full, compute_aux_loss=False)
         mse = float(F.mse_loss(recon, full).item())
 
         prefix_eval: list[float] = []
         for lvl in levels:
             feats_prefix = feats.clone()
             feats_prefix[:, lvl:] = 0.0
-            recon_prefix = feats_prefix @ model.W_dec + model.b_dec
+            recon_prefix = model.decode(feats_prefix)
             prefix_eval.append(float(F.mse_loss(recon_prefix, full).item()))
 
         total_var = float(full.var().item())
         residual_var = float((full - recon).var().item())
         ev = 1.0 - (residual_var / total_var) if total_var > 0 else 0.0
-        l0 = float((feats > 0).float().sum(dim=-1).mean().item())
+        l0 = float(model.get_l0(feats))
 
     return model.cpu(), TrainMetrics(mse=mse, explained_variance=ev, l0=l0, prefix_mse=float(np.mean(prefix_eval)))
 
 
 def write_checkpoint(path: Path, model: torch.nn.Module, d_model: int, d_sae: int, k: int, seed: int) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    torch.save(
-        {
-            "model_state_dict": model.state_dict(),
-            "d_model": d_model,
-            "d_sae": d_sae,
-            "k": k,
-            "seed": seed,
-            "architecture": "matryoshka",
-            "consistency_objective": "matryoshka_prefix_reconstruction",
-        },
-        path,
-    )
+    payload = {
+        "model_state_dict": model.state_dict(),
+        "d_model": d_model,
+        "d_sae": d_sae,
+        "k": k,
+        "seed": seed,
+        "architecture": "matryoshka",
+        "consistency_objective": "matryoshka_prefix_reconstruction",
+    }
+    if hasattr(model, "aux_loss_coef"):
+        payload["aux_loss_coef"] = float(getattr(model, "aux_loss_coef"))
+    if hasattr(model, "dead_threshold"):
+        payload["dead_threshold"] = int(getattr(model, "dead_threshold"))
+    torch.save(payload, path)
 
 
 def main() -> None:

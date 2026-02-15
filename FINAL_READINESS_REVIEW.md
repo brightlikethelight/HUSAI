@@ -2,72 +2,57 @@
 
 Date: 2026-02-15
 
-## 1) Original Goal vs Current Reality
+## 1) Goal vs Reality
 
-Original goal:
-- Determine whether SAE consistency can be made stable and trustworthy, and whether those gains transfer to external interpretability benchmarks.
+Goal:
+- Find robust SAE consistency gains that transfer to externally validated interpretability improvements.
 
-Current reality:
-- Reproducible infrastructure: strong.
-- Internal consistency improvements: strong evidence.
-- External benchmark competitiveness: not achieved.
-- Strict release gate: failing correctly (`pass_all=false`).
+Reality:
+- Reliability, reproducibility, and gate infrastructure are strong.
+- Internal consistency gains are strong.
+- External gate remains failing in latest cycle4 artifacts.
 
 Primary evidence:
-- `docs/evidence/cycle3_queue_final/cycle3_final_synthesis_run_20260214T210734Z.md`
-- `docs/evidence/cycle3_queue_final/release_policy_run_20260214T225029Z.json`
+- `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.json`
+- `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
 
 ## 2) Readiness by Area
 
-1. Engineering readiness: high
-- CI, runbook, manifests, command traceability, evidence sync all operational.
+1. Engineering readiness: high.
+2. Reproducibility readiness: high.
+3. Scientific readiness for strong external claim: low-to-moderate.
+4. Documentation readiness: high after this cycle4 sync.
 
-2. Scientific readiness for strong external claim: low-to-moderate
-- External deltas remain negative for tested candidates.
+## 3) Blocking Issues (Ranked)
 
-3. Reproducibility readiness: high
-- Deterministic-style run scaffolding and consistent artifact structure are present.
+1. `P0` External gate failure (SAEBench and CE-Bench negative LCB deltas).
+2. `P1` Matryoshka run quality failure in cycle4 artifacts (dead-feature collapse).
+3. `P1` Assignment-v3 external stage skipped due `d_model` mismatch.
+4. `P1` Known-circuit closure not complete in published cycle4 artifact run.
 
-4. Documentation readiness: high after cycle-3 cleanup
-- Canonical path is now `START_HERE.md` -> `REPO_NAVIGATION.md` -> `RUNBOOK.md`.
-
-## 3) Current Blocking Issues (Ranked)
-
-1. `P0` External gate failure
-- `external_delta = -0.017257680751151527` in current strict gate run.
-
-2. `P0` Transcoder gate failure
-- `transcoder_delta = -0.002227966984113039`.
-
-3. `P1` Known-circuit recovery gap
-- Original proposal promised ground-truth circuit recovery; still incomplete.
-
-4. `P1` Single-candidate gate wiring risk
-- Release gate currently uses one external summary input; candidate-selection policy should be explicit.
-
-## 4) What Is Complete Now
+## 4) What Is Complete
 
 - Direct CE-Bench adapter path with matched-baseline comparisons.
-- Multiseed architecture frontier on external benchmarks.
-- Multiseed external scaling study.
-- Assignment-aware consistency objective v2.
-- Stress-gated release policy with actual transcoder/OOD artifacts.
+- Multiseed architecture frontier and scaling studies.
+- Grouped LCB candidate selection.
+- Transcoder/OOD stress evaluation integrated into release gate.
 
 ## 5) Finish Criteria (Strict)
 
-Project can be considered fully claim-ready when all are true:
-1. Strict gate passes (`pass_all=true`) for a promoted candidate.
-2. Candidate is selected by explicit policy across internal + external metrics.
-3. Known-circuit recovery track has evidence-backed closure.
-4. Documentation remains synchronized with artifact-backed claim audit.
+Project is fully claim-ready only if all are true:
 
-## 6) Next High-Impact Actions
+1. `pass_all=True` on strict release gate.
+2. Candidate selected by explicit grouped-LCB policy.
+3. Known-circuit closure passes with confidence bounds.
+4. Canonical docs point to latest gate artifacts.
 
-1. Add multi-objective selection policy (internal + external Pareto).
-2. Add one new architecture family under matched protocol.
-3. Execute known-circuit recovery experiments with confidence intervals.
-4. Add CI check to fail when summary docs drift from gate/consistency reports.
+## 6) Immediate Next Actions
+
+1. Re-run Matryoshka frontier after training+adapter fixes.
+2. Re-run known-circuit closure after basis-space fix.
+3. Re-run assignment-v3 with external-compatible dimensional setup.
+4. Add RouteSAE family under matched-budget protocol.
 
 ## 7) Bottom Line
 
-The repo is now polished as a reliability-first research system and supports honest publication-quality reporting of current results. It is not finished in the sense of proving external benchmark improvements; that remains the key scientific frontier.
+The repository is polished and dependable as a research system. The remaining work is scientific, not organizational: finding a candidate that passes strict external gates.

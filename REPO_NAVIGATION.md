@@ -2,22 +2,21 @@
 
 Updated: 2026-02-15
 
-Use this file as the canonical map of the repository.
+## 1) Primary Entry Points
 
-## 1) Entry Points
+1. `START_HERE.md`
+2. `EXECUTIVE_SUMMARY.md`
+3. `PROJECT_STUDY_GUIDE.md`
+4. `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
+5. `RUNBOOK.md`
+6. `EXPERIMENT_LOG.md`
 
-1. `START_HERE.md` (recommended first)
-2. `README.md` (project snapshot)
-3. `RUNBOOK.md` (execution and reproduction)
-4. `EXECUTIVE_SUMMARY.md` (cycle-level conclusions)
-5. `EXPERIMENT_LOG.md` (run-by-run provenance)
+## 2) Canonical Status Files
 
-## 2) Canonical Status and Gate Truth
-
-- `docs/evidence/cycle3_queue_final/cycle3_final_synthesis_run_20260214T210734Z.md`
-- `results/analysis/experiment_consistency_report.md`
+- `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.md`
+- `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.json`
+- `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
 - `PROPOSAL_COMPLETENESS_REVIEW.md`
-- `FINAL_READINESS_REVIEW.md`
 
 ## 3) Core Code Path
 
@@ -25,7 +24,8 @@ Main training/eval flow:
 1. Baseline model training: `scripts/training/train_baseline.py`
 2. Activation extraction: `scripts/analysis/extract_activations.py`
 3. SAE training: `scripts/training/train_sae.py`
-4. Analyses and experiments: `scripts/analysis/`, `scripts/experiments/`
+4. Experiment programs: `scripts/experiments/`
+5. Analysis/consistency checks: `scripts/analysis/`
 
 Core package:
 - `src/data/`
@@ -38,29 +38,29 @@ Core package:
 
 - Phase 4a trained-vs-random: `results/experiments/phase4a_trained_vs_random/`
 - Core ablations: `results/experiments/phase4c_core_ablations/`
-- Assignment consistency v2: `results/experiments/phase4d_assignment_consistency_v2/`
-- External official/custom benchmark runs: `results/experiments/phase4e_external_benchmark_official/`
+- Assignment objective: `results/experiments/phase4d_assignment_consistency_v2/`, `results/experiments/phase4d_assignment_consistency_v3/`
+- External official/custom: `results/experiments/phase4e_external_benchmark_official/`
 - Architecture frontier multiseed: `results/experiments/phase4b_architecture_frontier_external_multiseed/`
+- Matryoshka frontier: `results/experiments/phase4b_matryoshka_frontier_external/`
 - External scaling multiseed: `results/experiments/phase4e_external_scaling_study_multiseed/`
-- Transcoder stress: `results/experiments/phase4e_transcoder_stress_b200/`
+- Transcoder sweep: `results/experiments/phase4e_transcoder_stress_sweep_b200/`
 - OOD stress: `results/experiments/phase4e_ood_stress_b200/`
 - Release gates: `results/experiments/release_stress_gates/`
+- Known-circuit closure: `results/experiments/known_circuit_recovery_closure/`
 
-## 5) Evidence Mirrors (Pulled Local)
+## 5) Evidence Mirrors (Local)
 
 - `docs/evidence/cycle3_queue_final/`
-- `docs/evidence/phase4b_architecture_frontier_external/`
-- `docs/evidence/phase4e_external_scaling_study/`
+- `docs/evidence/cycle4_followups_run_20260215T190004Z/`
 - `docs/evidence/phase4e_cebench_matched200/`
 
-## 6) Reliability and Audit Docs
+## 6) Reliability / Audit Docs
 
 - `ARCHITECTURE.md`
 - `AUDIT.md`
 - `BUGS.md`
 - `LIT_REVIEW.md`
 - `NOVEL_CONTRIBUTIONS.md`
-- `PHASE0_SUBAGENT_REPORTS.md`
 
 ## 7) CI and Dev
 
@@ -85,8 +85,6 @@ Useful targets:
 
 ## 9) Legacy Material
 
-Historical/superseded artifacts are intentionally preserved for provenance:
+Historical artifacts are kept for provenance and should not override canonical status:
 - `archive/`
 - `archive/session_notes/dec_2025/root_legacy/`
-
-Do not treat legacy content as current source-of-truth unless explicitly referenced.

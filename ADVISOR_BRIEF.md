@@ -4,53 +4,49 @@ Date: 2026-02-15
 
 ## 1) Problem and Objective
 
-HUSAI asks whether SAE consistency gains are real across seeds and whether those gains transfer to external interpretability benchmarks.
+HUSAI tests whether SAE consistency gains are reproducible across seeds and whether those gains transfer to external benchmarks under strict release controls.
 
 Current bottom line:
 - Internal consistency progress: yes.
 - External competitiveness: no (yet).
-- Engineering reliability and claim gating: strong.
+- Reliability and claim-gating: strong.
 
 ## 2) Strongest Artifact-Backed Evidence
 
-Primary synthesis files:
-- `docs/evidence/cycle3_queue_final/cycle3_final_synthesis_run_20260214T210734Z.md`
-- `docs/evidence/cycle3_queue_final/release_policy_run_20260214T225029Z.json`
+- `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.json`
+- `docs/evidence/cycle4_followups_run_20260215T190004Z/transcoder_sweep/summary.md`
+- `docs/evidence/cycle4_followups_run_20260215T190004Z/ood/ood_stress_summary.md`
 
-Cycle-3 outcomes:
-- Frontier multiseed completed (`4 architectures x 5 seeds`, 20 records).
-- Scaling multiseed completed (24 records).
-- Strict release gate: `pass_all=false`.
-- Stress gate details:
-  - random model: pass
-  - OOD: pass
-  - transcoder: fail
-  - external: fail
+Latest gate:
+- random pass, transcoder pass, OOD pass, external fail, `pass_all=false`.
 
 ## 3) Scientifically Clear Conclusions
 
-1. Internal metrics can improve, but that alone does not transfer externally.
-2. SAEBench and CE-Bench preferences currently conflict in the explored region.
-3. Strict gate framework prevents overclaiming and is now integrated into workflow.
+1. Internal consistency gains are real but not sufficient for external success.
+2. SAEBench and CE-Bench pressures differ and create a nontrivial frontier.
+3. Strict gate enforcement prevents unsupported external claims.
 
 ## 4) Current High-Risk Gaps
 
-1. External deltas remain negative under matched baselines.
-2. Transcoder gate remains below threshold.
-3. Known-circuit closure track is not yet fully green.
+1. External deltas remain negative at LCB level.
+2. Matryoshka frontier evidence run failed and needs post-fix rerun.
+3. Known-circuit closure requires rerun after corrected basis mapping.
+4. Assignment-v3 must be rerun with external-compatible dimensional setup.
 
 ## 5) Highest-Impact Next Work
 
-1. Transcoder stress hyper-sweep with CI-based acceptance.
-2. Condition-grouped uncertainty-aware selector as default release criterion.
-3. New architecture family trial (RouteSAE or Matryoshka-style) under matched budgets.
-4. Assignment-aware objective v3 with external-aware Pareto checkpointing.
-5. Known-circuit closure completion with trained-vs-random confidence bounds.
+1. Matryoshka rerun under matched budget with fixed training+adapter path.
+2. Known-circuit closure rerun with confidence bounds.
+3. Assignment-v3 external-compatible rerun.
+4. Add RouteSAE family under matched protocol.
+5. Re-run strict release gate and update canonical status from new artifacts.
 
-## 6) Verified Literature Anchors
+## 6) Literature Anchors (Primary Sources)
 
 - SAEBench: https://arxiv.org/abs/2503.09532
-- CE-Bench: https://aclanthology.org/2025.findings-acl.854/
+- CE-Bench (paper page): https://aclanthology.org/2025.blackboxnlp-1.1/
+- CE-Bench (arXiv): https://arxiv.org/abs/2509.00691
 - Route Sparse Autoencoders: https://arxiv.org/abs/2503.08200
-- Transcoders Beat Sparse Autoencoders?: https://arxiv.org/abs/2501.18823
-- Can Sparse Autoencoders Reason?: https://arxiv.org/abs/2507.18006
+- Transcoders vs SAEs: https://arxiv.org/abs/2501.18823
+- Can Sparse Autoencoders Reason?: https://arxiv.org/abs/2503.18878
+- Matryoshka SAEs: https://arxiv.org/abs/2505.24473

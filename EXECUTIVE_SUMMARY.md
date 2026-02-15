@@ -1,97 +1,90 @@
-# Executive Summary (Cycle 3 Final)
+# Executive Summary (Cycle 4 Reflective Update)
 
 Date: 2026-02-15
 
 ## Repo Purpose
 
-HUSAI investigates whether sparse autoencoder (SAE) features are stable and trustworthy across random seeds, and whether internal consistency gains transfer to external interpretability benchmarks.
+HUSAI tests a central mechanistic-interpretability question: whether SAE feature consistency gains are real across seeds, and whether those gains transfer to external benchmark validity (SAEBench, CE-Bench) under strict release gates.
 
-This repository now has a reproducible internal + external evaluation stack, strict release gates, and artifact-backed documentation.
+## Current Scientific Bottom Line
 
-## Current Status (Plain Truth)
+- Internal consistency progress: **real and replicated**.
+- External competitiveness: **not yet achieved**.
+- Reliability and reproducibility hygiene: **strong**.
+- Strict release decision: **fail** (`pass_all=False`).
 
-- Internal consistency improvements: supported.
-- External superiority claims: not supported.
-- Strict release gate: failing (`pass_all=False`).
+Canonical current-status artifacts:
+- `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.md`
+- `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.json`
+- `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
 
-Canonical status files:
-- `docs/evidence/cycle3_queue_final/cycle3_final_synthesis_run_20260214T210734Z.md`
-- `results/analysis/experiment_consistency_report.md`
-- `PROPOSAL_COMPLETENESS_REVIEW.md`
+## Cycle 4 Key Metrics (Latest)
 
-## Top Issues (Current)
+Run IDs:
+- Followups orchestrator: `run_20260215T190004Z`
+- Release gate: `run_20260215T191137Z`
+- Transcoder sweep: `run_20260215T184609Z`
+- OOD stress: `run_20260215T190404Z`
 
-1. `P0` External benchmark gap remains large.
-- CE-Bench matched-baseline deltas are strongly negative for tested HUSAI checkpoints.
+Gate outcomes:
+- random_model: `True`
+- transcoder: `True`
+- ood: `True`
+- external_saebench: `False`
+- external_cebench: `False`
+- pass_all: `False`
 
-2. `P0` Release-gate failure persists.
-- Current gate state: random pass, OOD pass, transcoder fail, external fail.
+Numerical highlights:
+- `trained_random_delta_lcb = 6.18e-05`
+- `transcoder_delta = +0.0049161`
+- `ood_drop = 0.0209946`
+- `saebench_delta_ci95_low = -0.0447896`
+- `cebench_interp_delta_vs_baseline_ci95_low = -40.4670`
 
-3. `P1` Internal-to-external transfer remains unresolved.
-- Assignment-aware objective improves internal metrics but does not clear external gate.
+## Top 10 Issues (Severity-Ranked)
 
-4. `P1` Proposal closure gap on known-circuit recovery.
-- Tracr-style / known-ground-truth circuit recovery is not fully closed.
+1. `P0` External gate fails with large negative CE-Bench delta.
+2. `P0` No candidate currently satisfies both external gates jointly.
+3. `P0` Matryoshka frontier run collapsed (`l0=0`) and external eval crashed in cycle4 artifacts.
+4. `P1` Assignment-v3 external stage skipped (`d_model` mismatch), so external claims are unresolved there.
+5. `P1` Known-circuit closure artifacts are not trustworthy yet (pre-fix basis mismatch path).
+6. `P1` Canonical docs were cycle3-pinned and drifted from latest evidence.
+7. `P1` W&B coverage is inconsistent across experiment scripts (some runs are file-artifact only).
+8. `P2` Determinism warnings around CuBLAS were present in queue logs.
+9. `P2` Historical docs can still be mistaken as canonical if entrypoint is ignored.
+10. `P2` External benchmark protocol variants can drift unless baseline-map strictness is enforced.
 
-5. `P2` Documentation drift risk.
-- Multiple historical docs exist; canonical path should be followed (`START_HERE.md`).
+## What Changed in This Update
 
-## Best Evidence from Final Queue Cycle
+Code fixes:
+- `scripts/experiments/husai_custom_sae_adapter.py`
+  - Added dead-decoder-row repair + encoder masking before SAEBench/CE-Bench adapter checks.
+- `scripts/experiments/run_known_circuit_recovery_closure.py`
+  - Fixed SAE Fourier overlap geometry to use **model-space projected Fourier basis**.
+  - Added skip-reason accounting for checkpoint decode/dimension failures.
+- `scripts/experiments/run_matryoshka_frontier_external.py`
+  - Switched Matryoshka training to HUSAI `TopKSAE` (with auxiliary dead-feature revival) to prevent all-dead collapse.
 
-Queue run: `run_20260214T210734Z`
+Tests added:
+- `tests/unit/test_husai_custom_sae_adapter.py`
+- `tests/unit/test_known_circuit_recovery_closure.py`
 
-- Frontier multiseed (`4 architectures x 5 seeds`) completed.
-- Scaling multiseed (`24` conditions) completed.
-- Transcoder stress completed.
-- OOD stress completed.
-- Strict release gate evaluated.
+Documentation sync:
+- `START_HERE.md`, `README.md`, `PROJECT_STUDY_GUIDE.md`, `REPO_NAVIGATION.md`, `HIGH_IMPACT_FOLLOWUPS_REPORT.md`, `PROPOSAL_COMPLETENESS_REVIEW.md`, `FINAL_READINESS_REVIEW.md`, `ADVISOR_BRIEF.md`
+- New canonical reflective synthesis: `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
 
-Selected final metrics:
-- Frontier SAEBench best-minus-LLM mean deltas:
-  - `relu`: `-0.024691`
-  - `jumprelu`: `-0.030577`
-  - `topk`: `-0.040593`
-  - `batchtopk`: `-0.043356`
-- Frontier CE-Bench interpretability means:
-  - `topk`: `7.726768`
-  - `batchtopk`: `6.537639`
-  - `jumprelu`: `4.379002`
-  - `relu`: `4.257686`
-- Transcoder stress:
-  - `transcoder_delta`: `-0.002227966984113039`
-- OOD stress:
-  - `ood_drop`: `0.01445406161520213`
-- Release gates:
-  - `pass_all=False`
+## Highest-Leverage Next 5 (Ranked)
 
-## What Is Organized and Reliable Now
+1. Re-run Matryoshka frontier with fixed training+adapter and compare against topk grouped-LCB candidate.
+2. Re-run known-circuit closure with fixed model-space basis and report trained-vs-random CIs.
+3. Run assignment-v3 on external-compatible activations (`d_model` matched) so external gates are actually evaluated.
+4. Add RouteSAE family under matched budget protocol and grouped-LCB selection.
+5. Make grouped-LCB + strict joint external gate the only release-eligible path in all queue scripts.
 
-- Canonical navigation and runbook are present.
-- Every major run has artifact-backed summaries.
-- Strict fail-fast release gate exists and is executable.
-- Consistency audit now includes modern gate artifacts (no false-green legacy status).
+## Read Next
 
-## Highest-Leverage Next 5
-
-1. Improve external deltas while preserving internal consistency.
-- Focus on multi-objective training/selection, not single-metric optimization.
-
-2. Add one newer architecture family under matched protocol.
-- Matryoshka/RouteSAE/HierarchicalTopK candidate.
-
-3. Close known-circuit recovery objective from original proposal.
-- Add explicit Tracr-style ground-truth recovery experiments.
-
-4. Tighten deterministic reproducibility on CUDA.
-- Set CuBLAS workspace config in run scripts/environments.
-
-5. Keep claim language synced to gate status.
-- Treat release-gate pass as a hard prerequisite for strong external claims.
-
-## Read This Repo in Order
-
-1. `START_HERE.md`
-2. `REPO_NAVIGATION.md`
-3. `RUNBOOK.md`
-4. `HIGH_IMPACT_FOLLOWUPS_REPORT.md`
+1. `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
+2. `START_HERE.md`
+3. `PROJECT_STUDY_GUIDE.md`
+4. `RUNBOOK.md`
 5. `EXPERIMENT_LOG.md`

@@ -1,116 +1,54 @@
-# High-Impact Follow-Ups: Cycle 3 Final Closure Report
+# High-Impact Follow-Ups Report (Cycle 4 Reflective Update)
 
 Date: 2026-02-15
 
-This report closes the ranked follow-ups and records what is complete, what failed, and what remains.
+## Requested Follow-Ups and Current Status
 
-## Requested Follow-Ups and Final Status
-
-| Follow-up | Status | Primary evidence |
+| Follow-up | Status | Evidence |
 |---|---|---|
 | 1) Direct HUSAI-checkpoint CE-Bench adapter/eval with matched baseline | complete | `docs/evidence/high_impact_adapter_check/run_20260214T202232Z_husai_custom_cebench_summary.json` |
 | 2) Matched-budget architecture frontier sweep on external benchmarks | complete (multiseed) | `docs/evidence/cycle3_queue_final/frontier_multiseed_results_run_20260214T202538Z.json` |
 | 3) External-metric scaling study (`token budget`, `hook layer`, `d_sae`) | complete (multiseed) | `docs/evidence/cycle3_queue_final/scaling_multiseed_results_run_20260214T212435Z.json` |
-| 4) Assignment-aware consistency objective v2 with external acceptance criteria | complete | `results/experiments/phase4d_assignment_consistency_v2/run_20260213T203957Z/results.json` |
-| 5) Stress-gated release policy (`random-model`, `transcoder`, `OOD`, `external`) | complete and enforced | `docs/evidence/cycle3_queue_final/release_policy_run_20260214T225029Z.json` |
+| 4) Assignment-aware objective with external-aware selection | partial (internal complete, external skipped in latest v3 run) | `docs/evidence/cycle4_followups_run_20260215T190004Z/assignment_v3/results.json` |
+| 5) Stress-gated release policy | complete and enforced | `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.json` |
 
-## Final Outcomes
+## Cycle 4 Additions
 
-### 1) Direct HUSAI CE-Bench Adapter Path
+1. Transcoder stress hyper-sweep executed.
+- Best condition had positive delta and positive LCB.
+- Evidence: `docs/evidence/cycle4_followups_run_20260215T190004Z/transcoder_sweep/summary.md`
 
-- Adapter/eval path works end-to-end under matched settings.
-- Matched baseline reference is operational: `docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json`.
-- Result: custom checkpoints remain far below matched baseline in current tested regimes.
+2. Grouped uncertainty-aware LCB selection used for candidate promotion.
+- Evidence: `docs/evidence/cycle4_followups_run_20260215T190004Z/selector/selection_summary.json`
 
-### 2) Architecture Frontier (Multiseed)
+3. Matryoshka family added under matched budget.
+- Initial cycle4 artifact run failed due dead-feature collapse + adapter norm failure.
+- Evidence: `docs/evidence/cycle4_followups_run_20260215T190004Z/matryoshka/summary.md`
 
-Source: `docs/evidence/cycle3_queue_final/frontier_multiseed_results_run_20260214T202538Z.json`
+4. Known-circuit closure track executed.
+- Initial cycle4 artifact run is not closure-grade and requires rerun after basis-space fix.
+- Evidence: `docs/evidence/cycle4_followups_run_20260215T190004Z/known_circuit/closure_summary.json`
 
-- `4 architectures x 5 seeds`, 20 complete records.
-- SAEBench best-minus-LLM mean deltas:
-  - `relu = -0.024691`
-  - `jumprelu = -0.030577`
-  - `topk = -0.040593`
-  - `batchtopk = -0.043356`
-- CE-Bench interpretability means:
-  - `topk = 7.726768`
-  - `batchtopk = 6.537639`
-  - `jumprelu = 4.379002`
-  - `relu = 4.257686`
+## Current Gate Truth
 
-Conclusion:
-- SAEBench and CE-Bench prefer different architectures.
-- No tested architecture closes external gaps.
+From `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.md`:
 
-### 3) External Scaling Study (Multiseed)
+- random gate: pass
+- transcoder gate: pass
+- OOD gate: pass
+- external gate: fail
+- overall `pass_all=False`
 
-Source: `docs/evidence/cycle3_queue_final/scaling_multiseed_results_run_20260214T212435Z.json`
+## Reflective Interpretation
 
-- 24 completed conditions.
-- By token budget:
-  - `10000`: SAEBench mean `-0.086291`, CE-Bench mean `7.862273`
-  - `30000`: SAEBench mean `-0.085132`, CE-Bench mean `8.026933`
-- By hook layer:
-  - `0`: SAEBench mean `-0.077427`, CE-Bench mean `6.749414`
-  - `1`: SAEBench mean `-0.093996`, CE-Bench mean `9.139791`
-- By `d_sae`:
-  - `1024`: SAEBench mean `-0.082122`, CE-Bench mean `7.167310`
-  - `2048`: SAEBench mean `-0.089301`, CE-Bench mean `8.721896`
+- Engineering closure for follow-up execution: strong.
+- Scientific closure for original objective: incomplete.
+- The main unresolved problem is now precise: produce a candidate that improves internal consistency and external benchmarks simultaneously under strict LCB gates.
 
-Conclusion:
-- Larger width and layer 1 help CE-Bench but worsen SAEBench deltas.
+## Updated Highest-Leverage Next 5
 
-### 4) Assignment-Aware Objective v2
-
-Source: `results/experiments/phase4d_assignment_consistency_v2/run_20260213T203957Z/results.json`
-
-Best tested condition:
-- `lambda = 0.2`
-- internal delta PWMCC `+0.070804`
-- conservative LCB `+0.054419`
-- EV drop `0.000878`
-
-Conclusion:
-- Internal consistency improved strongly.
-- External acceptance remained unsatisfied.
-
-### 5) Stress-Gated Release Policy
-
-Source: `docs/evidence/cycle3_queue_final/release_policy_run_20260214T225029Z.json`
-
-Gate results:
-- `random_model = true`
-- `transcoder = false`
-- `ood = true`
-- `external = false`
-- `pass_all = false`
-
-Key metric inputs:
-- `transcoder_delta = -0.002227966984113039`
-- `ood_drop = 0.01445406161520213`
-- `external_delta = -0.017257680751151527`
-
-Conclusion:
-- Policy is working correctly and blocks unsupported release claims.
-
-## What Was Fixed/Upgraded to Enable This Cycle
-
-- CE-Bench adapter path and matched-baseline comparison flow.
-- Multiseed external frontier/scaling orchestration.
-- Stress evaluation runners for transcoder and OOD.
-- Strict release gate enforcement with fail-fast behavior.
-- Artifact-backed consistency audit and evidence syncing.
-
-## Final Interpretation
-
-1. The ranked follow-ups are executed and closed from an engineering standpoint.
-2. Scientific outcome is mixed: internal gains are real; external gains are not yet competitive.
-3. The repository now supports honest, reproducible claim-gating at release time.
-
-## New Highest-Leverage Next 5 (Post-Closure)
-
-1. Add explicit multi-objective optimization/selection (internal consistency + external metrics).
-2. Add one newer SAE family (Matryoshka/RouteSAE/HierarchicalTopK) in the same matched protocol.
-3. Close known-ground-truth circuit recovery from the original proposal.
-4. Tighten deterministic CUDA settings in production run scripts.
-5. Add CI check that blocks summary docs when gate status and narrative diverge.
+1. Re-run Matryoshka frontier with dead-feature fixes and report seed CIs.
+2. Re-run known-circuit closure with corrected model-space basis metric.
+3. Re-run assignment-v3 in an external-compatible setting (`d_model` matched).
+4. Add RouteSAE matched-budget family and compare on same grouped-LCB protocol.
+5. Re-run strict release gate and update canonical docs only from new gate artifacts.

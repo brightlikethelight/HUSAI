@@ -114,6 +114,68 @@ def _extract_k(state: dict[str, Any], metadata: dict[str, Any]) -> int | None:
     return int(candidate)
 
 
+def repair_decoder_rows_and_mask_encoder(
+    *,
+    mapped_state: dict[str, torch.Tensor],
+    d_model: int,
+    d_sae: int,
+    dead_norm_epsilon: float = 1e-12,
+    dead_bias_value: float = -1e6,
+) -> dict[str, Any]:
+    """Repair zero-norm decoder rows and safely normalize decoder rows.
+
+    Some checkpoints can include dead features with exactly-zero decoder rows.
+    SAEBench expects unit-norm decoder rows, so we repair dead rows
+    deterministically and mask corresponding encoder features to keep them
+    effectively inactive during top-k selection.
+    """
+    if "W_dec" not in mapped_state:
+        raise KeyError("mapped_state missing W_dec")
+
+    w_dec = torch.as_tensor(mapped_state["W_dec"]).detach().cpu().clone()
+    if w_dec.ndim != 2:
+        raise ValueError(f"W_dec must be 2D, got shape={tuple(w_dec.shape)}")
+    if w_dec.shape[0] != d_sae or w_dec.shape[1] != d_model:
+        raise ValueError(
+            "W_dec shape mismatch: "
+            f"expected ({d_sae}, {d_model}), got {tuple(w_dec.shape)}"
+        )
+
+    row_norms = torch.linalg.vector_norm(w_dec, dim=1)
+    dead_idx = (row_norms <= dead_norm_epsilon).nonzero(as_tuple=True)[0]
+
+    if dead_idx.numel() > 0:
+        # Deterministic one-hot rows avoid NaN normalization and keep traceability.
+        for idx in dead_idx.tolist():
+            basis_col = int(idx % d_model)
+            w_dec[idx].zero_()
+            w_dec[idx, basis_col] = 1.0
+
+        if "W_enc" in mapped_state:
+            w_enc = torch.as_tensor(mapped_state["W_enc"]).detach().cpu().clone()
+            if w_enc.ndim == 2 and w_enc.shape[0] == d_model and w_enc.shape[1] == d_sae:
+                w_enc[:, dead_idx] = 0.0
+                mapped_state["W_enc"] = w_enc.contiguous()
+
+        if "b_enc" in mapped_state:
+            b_enc = torch.as_tensor(mapped_state["b_enc"]).detach().cpu().clone()
+            if b_enc.ndim == 1 and b_enc.shape[0] == d_sae:
+                b_enc[dead_idx] = float(dead_bias_value)
+                mapped_state["b_enc"] = b_enc.contiguous()
+
+    w_dec = F.normalize(w_dec, dim=1)
+    mapped_state["W_dec"] = w_dec.contiguous()
+
+    post_norms = torch.linalg.vector_norm(mapped_state["W_dec"], dim=1)
+    max_norm_deviation = float(torch.max(torch.abs(post_norms - 1.0)).item())
+
+    return {
+        "dead_features_repaired": int(dead_idx.numel()),
+        "dead_feature_indices": [int(i) for i in dead_idx.tolist()],
+        "decoder_norm_max_deviation": max_norm_deviation,
+    }
+
+
 def _map_state_to_custom(
     *,
     state: dict[str, Any],
@@ -202,6 +264,11 @@ def build_custom_sae_from_checkpoint(
         d_model=d_model,
         d_sae=d_sae,
     )
+    repair_info = repair_decoder_rows_and_mask_encoder(
+        mapped_state=mapped_state,
+        d_model=d_model,
+        d_sae=d_sae,
+    )
 
     ctor_kwargs = {
         "d_in": d_model,
@@ -236,7 +303,11 @@ def build_custom_sae_from_checkpoint(
             sae.W_dec.data = F.normalize(sae.W_dec.data, dim=1)
 
     if hasattr(sae, "check_decoder_norms") and not sae.check_decoder_norms():
-        raise ValueError("Failed to normalize decoder rows for custom SAE")
+        raise ValueError(
+            "Failed to normalize decoder rows for custom SAE "
+            f"(repaired_dead={repair_info['dead_features_repaired']}, "
+            f"max_deviation={repair_info['decoder_norm_max_deviation']})"
+        )
 
     metadata_out = {
         "architecture": architecture,
@@ -244,5 +315,7 @@ def build_custom_sae_from_checkpoint(
         "d_model": d_model,
         "d_sae": d_sae,
         "k": k_value,
+        "dead_features_repaired": repair_info["dead_features_repaired"],
+        "decoder_norm_max_deviation": repair_info["decoder_norm_max_deviation"],
     }
     return sae, metadata_out

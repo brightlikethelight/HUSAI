@@ -117,6 +117,44 @@ def build_fourier_basis(modulus: int, freqs: list[int]) -> torch.Tensor:
     return F.normalize(basis, dim=0)
 
 
+def project_token_fourier_to_model_space(
+    embedding: torch.Tensor,
+    token_fourier_basis: torch.Tensor,
+    eps: float = 1e-12,
+) -> tuple[torch.Tensor, dict[str, Any]]:
+    """Project token-space Fourier basis into residual/model space.
+
+    embedding: [modulus, d_model]
+    token_fourier_basis: [modulus, n_basis]
+
+    Returns model-space basis [d_model, n_valid_basis].
+    """
+    if embedding.ndim != 2 or token_fourier_basis.ndim != 2:
+        raise ValueError("Expected 2D embedding and token_fourier_basis")
+    if embedding.shape[0] != token_fourier_basis.shape[0]:
+        raise ValueError(
+            "Embedding and token basis row mismatch: "
+            f"{tuple(embedding.shape)} vs {tuple(token_fourier_basis.shape)}"
+        )
+
+    projected = embedding.T @ token_fourier_basis
+    norms = torch.linalg.vector_norm(projected, dim=0)
+    keep = norms > eps
+    kept = int(keep.sum().item())
+    dropped = int((~keep).sum().item())
+    if kept == 0:
+        raise RuntimeError("Projected Fourier basis has no non-degenerate components")
+
+    projected = projected[:, keep]
+    projected = F.normalize(projected, dim=0)
+    meta = {
+        "token_basis_dim": int(token_fourier_basis.shape[1]),
+        "model_basis_dim": int(projected.shape[1]),
+        "dropped_components": dropped,
+    }
+    return projected, meta
+
+
 def variance_explained_r2(embedding: torch.Tensor, basis: torch.Tensor) -> float:
     centered = embedding - embedding.mean(dim=0, keepdim=True)
     proj = basis @ (basis.T @ centered)
@@ -125,8 +163,17 @@ def variance_explained_r2(embedding: torch.Tensor, basis: torch.Tensor) -> float
     return float((1.0 - ss_res / ss_total).item())
 
 
-def transformer_fourier_r2(model: ModularArithmeticTransformer, modulus: int, top_k_freq: int, r2_freq_count: int) -> dict[str, Any]:
-    w_e = model.model.embed.W_E.detach().float().cpu()[:modulus, :]
+def embedding_matrix(model: ModularArithmeticTransformer, modulus: int) -> torch.Tensor:
+    return model.model.embed.W_E.detach().float().cpu()[:modulus, :]
+
+
+def transformer_fourier_r2(
+    model: ModularArithmeticTransformer,
+    modulus: int,
+    top_k_freq: int,
+    r2_freq_count: int,
+) -> dict[str, Any]:
+    w_e = embedding_matrix(model, modulus)
     top_freqs = top_frequencies_from_embedding(w_e, top_k=top_k_freq)
     selected = top_freqs[: max(1, min(r2_freq_count, len(top_freqs)))]
     basis = build_fourier_basis(modulus, selected)
@@ -238,29 +285,47 @@ def main() -> None:
     transformer_r2_delta_lcb = float(trained_fourier["r2"]) - float(random_transformer_stats["ci95_high"])
 
     freqs_for_basis = [int(k) for k in trained_fourier["frequencies_used_for_r2"]]
-    basis_full = build_fourier_basis(args.modulus, freqs_for_basis)
+    token_basis = build_fourier_basis(args.modulus, freqs_for_basis)
+    model_basis, basis_meta = project_token_fourier_to_model_space(
+        embedding=embedding_matrix(trained_model, args.modulus),
+        token_fourier_basis=token_basis,
+    )
 
     sae_ckpts = sorted(PROJECT_ROOT.glob(args.sae_checkpoint_glob))
     trained_sae_overlap_values: list[float] = []
     sae_records: list[dict[str, Any]] = []
+    skipped_dimension_mismatch = 0
+    skipped_decode_failure = 0
+    skipped_checkpoints: list[dict[str, Any]] = []
     d_model = None
     d_sae = None
 
     for ckpt in sae_ckpts:
         try:
             dec = load_decoder_matrix(ckpt)
-        except Exception:
+        except Exception as exc:
+            skipped_decode_failure += 1
+            skipped_checkpoints.append({"checkpoint": repo_rel(ckpt), "reason": f"decode_error: {exc}"})
             continue
 
         if d_model is None:
             d_model = int(dec.shape[0])
             d_sae = int(dec.shape[1])
 
-        if dec.shape[0] != basis_full.shape[0]:
-            # Skip incompatible decoder widths.
+        if dec.shape[0] != model_basis.shape[0]:
+            skipped_dimension_mismatch += 1
+            skipped_checkpoints.append(
+                {
+                    "checkpoint": repo_rel(ckpt),
+                    "reason": (
+                        f"d_model_mismatch checkpoint={int(dec.shape[0])} "
+                        f"model_basis={int(model_basis.shape[0])}"
+                    ),
+                }
+            )
             continue
 
-        overlap = sae_fourier_overlap(dec, basis_full)
+        overlap = sae_fourier_overlap(dec, model_basis)
         trained_sae_overlap_values.append(overlap)
         sae_records.append(
             {
@@ -279,7 +344,7 @@ def main() -> None:
             gen = torch.Generator(device="cpu")
             gen.manual_seed(seed)
             rand_dec = torch.randn((d_model, d_sae), generator=gen)
-            random_sae_overlap_values.append(sae_fourier_overlap(rand_dec, basis_full))
+            random_sae_overlap_values.append(sae_fourier_overlap(rand_dec, model_basis))
 
     random_sae_stats = summary_stats(random_sae_overlap_values)
     sae_overlap_delta = None
@@ -302,6 +367,7 @@ def main() -> None:
         "random_sae_seeds": random_sae_seeds,
         "min_transformer_r2_delta": args.min_transformer_r2_delta,
         "min_sae_overlap_delta": args.min_sae_overlap_delta,
+        "sae_basis_space": "model_space_projection_from_token_fourier",
     }
 
     payload = {
@@ -321,7 +387,12 @@ def main() -> None:
             "delta_vs_random_lcb": transformer_r2_delta_lcb,
         },
         "sae": {
+            "fourier_basis": basis_meta,
+            "checkpoints_discovered": len(sae_ckpts),
             "checkpoints_evaluated": len(sae_records),
+            "checkpoints_skipped_decode_failure": skipped_decode_failure,
+            "checkpoints_skipped_dimension_mismatch": skipped_dimension_mismatch,
+            "skipped_checkpoints": skipped_checkpoints,
             "records": sae_records,
             "trained_stats": trained_sae_stats,
             "random_stats": random_sae_stats,
@@ -356,7 +427,11 @@ def main() -> None:
         "",
         "## SAE Fourier Overlap",
         "",
+        f"- basis_space: `{config_payload['sae_basis_space']}`",
+        f"- checkpoints_discovered: `{len(sae_ckpts)}`",
         f"- checkpoints_evaluated: `{len(sae_records)}`",
+        f"- checkpoints_skipped_decode_failure: `{skipped_decode_failure}`",
+        f"- checkpoints_skipped_dimension_mismatch: `{skipped_dimension_mismatch}`",
         f"- trained_overlap_mean: `{trained_sae_stats['mean']}`",
         f"- random_overlap_mean: `{random_sae_stats['mean']}`",
         f"- delta_vs_random_mean: `{sae_overlap_delta}`",
