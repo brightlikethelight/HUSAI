@@ -196,6 +196,9 @@ if [[ "$RESUME_FROM_STEP" -le 5 ]]; then
     --require-both-external
     --output-dir results/experiments/release_candidate_selection
   )
+  if [[ -n "$ASSIGN_V3_EXTERNAL_RUN" && -f "$ASSIGN_V3_EXTERNAL_RUN/results.json" ]]; then
+    SELECTOR_CMD+=(--assignment-results "$ASSIGN_V3_EXTERNAL_RUN/results.json")
+  fi
   if [[ -n "$FRONTIER_MATRY" && -f "$FRONTIER_MATRY/results.json" ]]; then
     SELECTOR_CMD+=(--frontier-results "$FRONTIER_MATRY/results.json")
   fi

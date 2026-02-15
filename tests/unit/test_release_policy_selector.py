@@ -410,3 +410,86 @@ def test_release_gate_lcb_mode_uses_ci_fields(tmp_path: Path) -> None:
         check=False,
     )
     assert proc_pass.returncode == 0, proc_pass.stdout + "\n" + proc_pass.stderr
+
+
+def test_selector_accepts_assignment_results(tmp_path: Path) -> None:
+    run_root = tmp_path / "runs"
+    assign_run = run_root / "assignment" / "run_assign"
+
+    ckpt_1 = assign_run / "checkpoints" / "lambda_0.1" / "sae_seed123.pt"
+    ckpt_2 = assign_run / "checkpoints" / "lambda_0.3" / "sae_seed456.pt"
+    ckpt_1.parent.mkdir(parents=True, exist_ok=True)
+    ckpt_2.parent.mkdir(parents=True, exist_ok=True)
+    ckpt_1.write_text("x")
+    ckpt_2.write_text("x")
+
+    assignment_payload = {
+        "config": {"hook_layer": 0, "hook_name": "blocks.0.hook_resid_pre"},
+        "records": [
+            {
+                "lambda_consistency": 0.1,
+                "selected_checkpoint": str(ckpt_1),
+                "explained_variance": {"mean": 0.61},
+                "selection_metrics": {
+                    "internal_lcb": 0.72,
+                    "ev_drop": 0.02,
+                    "saebench_delta": -0.03,
+                    "cebench_delta": -12.0,
+                    "cebench_interpretability_max": 14.0,
+                },
+                "external_eval": {
+                    "saebench_returncode": 0,
+                    "cebench_returncode": 0,
+                    "saebench_summary_path": "saebench_a.json",
+                    "cebench_summary_path": "cebench_a.json",
+                },
+            },
+            {
+                "lambda_consistency": 0.3,
+                "selected_checkpoint": str(ckpt_2),
+                "explained_variance": {"mean": 0.58},
+                "selection_metrics": {
+                    "internal_lcb": 0.80,
+                    "ev_drop": 0.03,
+                    "saebench_delta": -0.01,
+                    "cebench_delta": -4.0,
+                    "cebench_interpretability_max": 18.0,
+                },
+                "external_eval": {
+                    "saebench_returncode": 0,
+                    "cebench_returncode": 0,
+                    "saebench_summary_path": "saebench_b.json",
+                    "cebench_summary_path": "cebench_b.json",
+                },
+            },
+        ],
+    }
+
+    assignment_json = tmp_path / "assignment_results.json"
+    _write_json(assignment_json, assignment_payload)
+
+    out_dir = tmp_path / "selector_out"
+    proc = subprocess.run(
+        [
+            sys.executable,
+            str(SELECTOR),
+            "--assignment-results",
+            str(assignment_json),
+            "--require-both-external",
+            "--seed-level-selection",
+            "--output-dir",
+            str(out_dir),
+        ],
+        cwd=str(ROOT),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert proc.returncode == 0, proc.stdout + "\n" + proc.stderr
+
+    run_dirs = sorted(out_dir.glob("run_*"))
+    assert run_dirs
+    selected = json.loads((run_dirs[-1] / "selected_candidate.json").read_text())
+
+    assert selected["source"] == "assignment"
+    assert selected["condition_id"] == "assignv3_lambda0.3_seed456"

@@ -140,6 +140,40 @@ def build_router_mask(expert_ids: torch.Tensor, d_sae: int, slices: list[tuple[i
     return mask
 
 
+def routed_topk_features(
+    *,
+    pre: torch.Tensor,
+    batch: torch.Tensor,
+    router: nn.Linear,
+    d_sae: int,
+    expert_slices: list[tuple[int, int]],
+    k: int,
+    mode: str,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    probs = torch.softmax(router(batch), dim=-1)
+    expert_ids = probs.argmax(dim=-1)
+    route_mask = build_router_mask(expert_ids=expert_ids, d_sae=d_sae, slices=expert_slices).to(pre.dtype)
+
+    if mode == "global_mask":
+        topk_vals, topk_idx = torch.topk(pre, k=min(k, d_sae), dim=-1, sorted=False)
+        feats = torch.zeros_like(pre)
+        feats.scatter_(dim=-1, index=topk_idx, src=topk_vals)
+        feats_routed = feats * route_mask
+        return feats_routed, probs
+
+    if mode == "expert_topk":
+        min_group_size = min(e - s for s, e in expert_slices)
+        k_eff = min(k, min_group_size)
+        masked_pre = pre.masked_fill(route_mask == 0, float("-inf"))
+        topk_vals, topk_idx = torch.topk(masked_pre, k=k_eff, dim=-1, sorted=False)
+        topk_vals = torch.where(torch.isfinite(topk_vals), topk_vals, torch.zeros_like(topk_vals))
+        feats_routed = torch.zeros_like(pre)
+        feats_routed.scatter_(dim=-1, index=topk_idx, src=topk_vals)
+        return feats_routed, probs
+
+    raise ValueError(f"Unsupported route top-k mode: {mode}")
+
+
 @dataclass
 class TrainMetrics:
     mse: float
@@ -170,6 +204,7 @@ def train_routed_topk(
     num_experts: int,
     route_balance_coef: float,
     route_entropy_coef: float,
+    route_topk_mode: str,
 ) -> tuple[torch.nn.Module, nn.Linear, TrainMetrics, RouteDiagnostics]:
     set_seed(seed)
 
@@ -193,14 +228,15 @@ def train_routed_topk(
             batch = batch_cpu.to(device=torch.device(device), dtype=dtype)
 
             pre = model.encode(batch)
-            topk_vals, topk_idx = torch.topk(pre, k=min(k, d_sae), dim=-1, sorted=False)
-            feats = torch.zeros_like(pre)
-            feats.scatter_(dim=-1, index=topk_idx, src=topk_vals)
-
-            probs = torch.softmax(router(batch), dim=-1)
-            expert_ids = probs.argmax(dim=-1)
-            route_mask = build_router_mask(expert_ids=expert_ids, d_sae=d_sae, slices=expert_slices).to(feats.dtype)
-            feats_routed = feats * route_mask
+            feats_routed, probs = routed_topk_features(
+                pre=pre,
+                batch=batch,
+                router=router,
+                d_sae=d_sae,
+                expert_slices=expert_slices,
+                k=k,
+                mode=route_topk_mode,
+            )
 
             recon = model.decode(feats_routed)
             _, _, aux_loss = model(batch)
@@ -224,14 +260,15 @@ def train_routed_topk(
         full = activations.to(device=torch.device(device), dtype=dtype)
 
         pre = model.encode(full)
-        topk_vals, topk_idx = torch.topk(pre, k=min(k, d_sae), dim=-1, sorted=False)
-        feats = torch.zeros_like(pre)
-        feats.scatter_(dim=-1, index=topk_idx, src=topk_vals)
-
-        probs = torch.softmax(router(full), dim=-1)
-        expert_ids = probs.argmax(dim=-1)
-        route_mask = build_router_mask(expert_ids=expert_ids, d_sae=d_sae, slices=expert_slices).to(feats.dtype)
-        feats_routed = feats * route_mask
+        feats_routed, probs = routed_topk_features(
+            pre=pre,
+            batch=full,
+            router=router,
+            d_sae=d_sae,
+            expert_slices=expert_slices,
+            k=k,
+            mode=route_topk_mode,
+        )
 
         recon = model.decode(feats_routed)
         mse = float(F.mse_loss(recon, full).item())
@@ -313,6 +350,13 @@ def main() -> None:
     parser.add_argument("--num-experts", type=int, default=8)
     parser.add_argument("--route-balance-coef", type=float, default=0.2)
     parser.add_argument("--route-entropy-coef", type=float, default=0.01)
+    parser.add_argument(
+        "--route-topk-mode",
+        type=str,
+        choices=["expert_topk", "global_mask"],
+        default="expert_topk",
+        help="expert_topk keeps k features within routed expert; global_mask applies global top-k then expert mask.",
+    )
 
     parser.add_argument("--model-name", type=str, default="pythia-70m-deduped")
     parser.add_argument("--hook-layer", type=int, default=0)
@@ -411,6 +455,7 @@ def main() -> None:
             num_experts=args.num_experts,
             route_balance_coef=args.route_balance_coef,
             route_entropy_coef=args.route_entropy_coef,
+            route_topk_mode=args.route_topk_mode,
         )
 
         write_checkpoint(
@@ -562,6 +607,7 @@ def main() -> None:
             "num_experts": args.num_experts,
             "route_balance_coef": args.route_balance_coef,
             "route_entropy_coef": args.route_entropy_coef,
+            "route_topk_mode": args.route_topk_mode,
             "run_saebench": args.run_saebench,
             "run_cebench": args.run_cebench,
             "cebench_repo": str(args.cebench_repo) if args.cebench_repo else None,
@@ -595,6 +641,7 @@ def main() -> None:
         f"- d_sae / k: `{args.d_sae}` / `{args.k}`",
         f"- Experts: `{args.num_experts}`",
         f"- Route balance / entropy coef: `{args.route_balance_coef}` / `{args.route_entropy_coef}`",
+        f"- Route top-k mode: `{args.route_topk_mode}`",
         f"- Rows used: `{data_meta['total_rows']}`",
         "",
         "| metric | mean | std |",

@@ -196,6 +196,78 @@ def extract_candidates(results_path: Path, source: str) -> list[dict[str, Any]]:
     return out
 
 
+def extract_assignment_candidates(results_path: Path) -> list[dict[str, Any]]:
+    payload = load_json(results_path)
+    records = payload.get("records") or []
+    cfg = payload.get("config") or {}
+    out: list[dict[str, Any]] = []
+
+    for idx, rec in enumerate(records):
+        checkpoint_raw = rec.get("selected_checkpoint")
+        if not isinstance(checkpoint_raw, str):
+            continue
+
+        checkpoint = to_abs(Path(checkpoint_raw))
+        seed_match = re.search(r"sae_seed(\d+)", checkpoint_raw)
+        seed = int(seed_match.group(1)) if seed_match else None
+        lambda_id = rec.get("lambda_consistency")
+        condition_id = f"assignv3_lambda{lambda_id}" + (f"_seed{seed}" if seed is not None else "")
+
+        external = rec.get("external_eval") or {}
+        saebench = external.get("saebench") or {}
+        cebench = external.get("cebench") or {}
+        selection_metrics = rec.get("selection_metrics") or {}
+
+        ev_stats = rec.get("explained_variance") or {}
+        train_ev = maybe_float(ev_stats.get("mean"))
+
+        candidate = {
+            "source": "assignment",
+            "source_results": repo_rel(results_path),
+            "row_index": idx,
+            "condition_id": condition_id,
+            "architecture": "topk",
+            "seed": seed,
+            "hook_layer": cfg.get("hook_layer"),
+            "hook_name": cfg.get("hook_name"),
+            "checkpoint": repo_rel(checkpoint),
+            "saebench_summary_path": external.get("saebench_summary_path"),
+            "cebench_summary_path": external.get("cebench_summary_path"),
+            "metrics": {
+                "saebench_delta": (
+                    maybe_float(selection_metrics.get("saebench_delta"))
+                    if selection_metrics.get("saebench_delta") is not None
+                    else maybe_float((saebench.get("summary") or {}).get("best_minus_llm_auc"))
+                ),
+                "cebench_interp_delta_vs_baseline": (
+                    maybe_float(selection_metrics.get("cebench_delta"))
+                    if selection_metrics.get("cebench_delta") is not None
+                    else maybe_float(
+                        (cebench.get("delta_vs_matched_baseline") or {}).get("interpretability_score_mean_max")
+                    )
+                ),
+                "cebench_interpretability_max": (
+                    maybe_float(selection_metrics.get("cebench_interpretability_max"))
+                    if selection_metrics.get("cebench_interpretability_max") is not None
+                    else maybe_float((cebench.get("custom_metrics") or {}).get("interpretability_score_mean_max"))
+                ),
+                "train_explained_variance": train_ev,
+            },
+            "returncodes": {
+                "saebench": external.get("saebench_returncode"),
+                "cebench": external.get("cebench_returncode"),
+            },
+            "assignment": {
+                "lambda_consistency": lambda_id,
+                "internal_lcb": maybe_float(selection_metrics.get("internal_lcb")),
+                "ev_drop": maybe_float(selection_metrics.get("ev_drop")),
+            },
+        }
+        out.append(candidate)
+
+    return out
+
+
 def normalize_metric(values: list[float | None]) -> dict[int, float]:
     valid = [(i, v) for i, v in enumerate(values) if v is not None and not math.isnan(float(v))]
     if not valid:
@@ -421,6 +493,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Select best release candidate from external benchmark runs")
     parser.add_argument("--frontier-results", type=Path, action="append", default=[])
     parser.add_argument("--scaling-results", type=Path, action="append", default=[])
+    parser.add_argument("--assignment-results", type=Path, action="append", default=[])
 
     parser.add_argument("--min-saebench-delta", type=float, default=-1e9)
     parser.add_argument("--min-cebench-delta", type=float, default=-1e9)
@@ -461,9 +534,10 @@ def main() -> None:
 
     frontier_paths = [to_abs(p) for p in args.frontier_results]
     scaling_paths = [to_abs(p) for p in args.scaling_results]
+    assignment_paths = [to_abs(p) for p in args.assignment_results]
 
-    if not frontier_paths and not scaling_paths:
-        raise ValueError("Pass at least one --frontier-results or --scaling-results file")
+    if not frontier_paths and not scaling_paths and not assignment_paths:
+        raise ValueError("Pass at least one --frontier-results, --scaling-results, or --assignment-results file")
 
     output_dir = to_abs(args.output_dir)
     run_id = datetime.now(timezone.utc).strftime("run_%Y%m%dT%H%M%SZ")
@@ -475,6 +549,8 @@ def main() -> None:
         all_candidates.extend(extract_candidates(path, source="frontier"))
     for path in scaling_paths:
         all_candidates.extend(extract_candidates(path, source="scaling"))
+    for path in assignment_paths:
+        all_candidates.extend(extract_assignment_candidates(path))
 
     filtered = filter_candidates(
         all_candidates,
@@ -537,6 +613,7 @@ def main() -> None:
         "config": {
             "frontier_results": [repo_rel(p) for p in frontier_paths],
             "scaling_results": [repo_rel(p) for p in scaling_paths],
+            "assignment_results": [repo_rel(p) for p in assignment_paths],
             "min_saebench_delta": args.min_saebench_delta,
             "min_cebench_delta": args.min_cebench_delta,
             "require_both_external": args.require_both_external,
