@@ -580,3 +580,10 @@ def test_selector_accepts_assignment_results(tmp_path: Path) -> None:
 
     assert selected["source"] == "assignment"
     assert selected["condition_id"] == "assignv3_lambda0.3_seed456"
+
+
+def test_selector_finite_or_default_preserves_zero() -> None:
+    from scripts.experiments import select_release_candidate as selector
+
+    assert selector.finite_or_default(0.0, float("-inf")) == 0.0
+    assert selector.finite_or_default(float("nan"), -5.0) == -5.0

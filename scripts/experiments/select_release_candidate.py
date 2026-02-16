@@ -48,6 +48,13 @@ def maybe_float(value: Any) -> float | None:
     return None
 
 
+def finite_or_default(value: Any, default: float) -> float:
+    parsed = maybe_float(value)
+    if parsed is None or not math.isfinite(parsed):
+        return float(default)
+    return float(parsed)
+
+
 def repo_rel(path: Path | None) -> str | None:
     if path is None:
         return None
@@ -631,8 +638,8 @@ def main() -> None:
         key=lambda c: (
             bool((c.get("selection") or {}).get("is_pareto", False)),
             float((c.get("selection") or {}).get("joint_score", float("-inf"))),
-            maybe_float((c.get("metrics") or {}).get("saebench_delta")) or float("-inf"),
-            maybe_float((c.get("metrics") or {}).get("cebench_interp_delta_vs_baseline")) or float("-inf"),
+            finite_or_default((c.get("metrics") or {}).get("saebench_delta"), float("-inf")),
+            finite_or_default((c.get("metrics") or {}).get("cebench_interp_delta_vs_baseline"), float("-inf")),
         ),
         reverse=True,
     )

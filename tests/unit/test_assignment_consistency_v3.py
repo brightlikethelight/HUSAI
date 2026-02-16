@@ -133,3 +133,16 @@ def test_select_external_candidate_external_score_prefers_floor_passing() -> Non
     assert selected["checkpoint"] == "ckpt_good_external.pt"
     assert ranked[0]["selection"]["passes_external_floor"] is True
     assert ranked[1]["selection"]["passes_external_floor"] is False
+
+
+def test_finite_or_default_preserves_zero_and_filters_non_finite() -> None:
+    assert assign_v3.finite_or_default(0.0, float("-inf")) == 0.0
+    assert assign_v3.finite_or_default(float("nan"), -7.0) == -7.0
+    assert assign_v3.finite_or_default(float("inf"), -3.0) == -3.0
+
+
+def test_normalize_ignores_non_finite_values() -> None:
+    norm = assign_v3.normalize([0.0, float("nan"), float("inf"), -1.0])
+    assert set(norm.keys()) == {0, 3}
+    assert norm[0] == 1.0
+    assert norm[3] == 0.0

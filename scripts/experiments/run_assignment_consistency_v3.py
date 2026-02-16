@@ -92,6 +92,13 @@ def maybe_float(v: Any) -> float | None:
     return None
 
 
+def finite_or_default(v: Any, default: float) -> float:
+    fv = maybe_float(v)
+    if fv is None or not math.isfinite(fv):
+        return float(default)
+    return float(fv)
+
+
 def run_subprocess(command: list[str], cwd: Path) -> tuple[int, str]:
     proc = subprocess.run(command, cwd=str(cwd), text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     return int(proc.returncode), proc.stdout
@@ -138,15 +145,22 @@ def infer_external_d_model_from_cache(model_cache_path: Path, model_name: str, h
 
 
 def normalize(values: list[float | None]) -> dict[int, float]:
-    clean = [(i, v) for i, v in enumerate(values) if v is not None]
+    clean: list[tuple[int, float]] = []
+    for i, v in enumerate(values):
+        if v is None:
+            continue
+        fv = float(v)
+        if not math.isfinite(fv):
+            continue
+        clean.append((i, fv))
     if not clean:
         return {}
-    only_vals = [float(v) for _, v in clean]
+    only_vals = [v for _, v in clean]
     lo = min(only_vals)
     hi = max(only_vals)
     if hi <= lo:
         return {i: 0.5 for i, _ in clean}
-    return {i: (float(v) - lo) / (hi - lo) for i, v in clean}
+    return {i: (v - lo) / (hi - lo) for i, v in clean}
 
 
 def dominates(a: dict[str, Any], b: dict[str, Any]) -> bool:
@@ -241,8 +255,8 @@ def pick_external_checkpoint(rec: dict[str, Any]) -> str | None:
     best = max(
         pool,
         key=lambda m: (
-            maybe_float(m.get("alignment_to_ref")) or float("-inf"),
-            maybe_float(m.get("explained_variance")) or float("-inf"),
+            finite_or_default(m.get("alignment_to_ref"), float("-inf")),
+            finite_or_default(m.get("explained_variance"), float("-inf")),
         ),
     )
     checkpoint = best.get("checkpoint")
@@ -283,8 +297,8 @@ def build_external_checkpoint_pool(
     rows = sorted(
         rows,
         key=lambda r: (
-            maybe_float(r.get("alignment_to_ref")) or float("-inf"),
-            maybe_float(r.get("explained_variance")) or float("-inf"),
+            finite_or_default(r.get("alignment_to_ref"), float("-inf")),
+            finite_or_default(r.get("explained_variance"), float("-inf")),
         ),
         reverse=True,
     )
@@ -306,8 +320,8 @@ def select_external_candidate(
         ranked = sorted(
             candidate_evals,
             key=lambda c: (
-                maybe_float(c.get("alignment_to_ref")) or float("-inf"),
-                maybe_float(c.get("explained_variance")) or float("-inf"),
+                finite_or_default(c.get("alignment_to_ref"), float("-inf")),
+                finite_or_default(c.get("explained_variance"), float("-inf")),
             ),
             reverse=True,
         )
@@ -376,11 +390,11 @@ def select_external_candidate(
         candidate_evals,
         key=lambda c: (
             bool((c.get("selection") or {}).get("passes_external_floor", False)),
-            float((c.get("selection") or {}).get("checkpoint_score") or float("-inf")),
-            maybe_float(c.get("saebench_delta")) or float("-inf"),
-            maybe_float(c.get("cebench_delta")) or float("-inf"),
-            maybe_float(c.get("alignment_to_ref")) or float("-inf"),
-            maybe_float(c.get("explained_variance")) or float("-inf"),
+            finite_or_default((c.get("selection") or {}).get("checkpoint_score"), float("-inf")),
+            finite_or_default(c.get("saebench_delta"), float("-inf")),
+            finite_or_default(c.get("cebench_delta"), float("-inf")),
+            finite_or_default(c.get("alignment_to_ref"), float("-inf")),
+            finite_or_default(c.get("explained_variance"), float("-inf")),
         ),
         reverse=True,
     )
@@ -826,9 +840,9 @@ def main() -> None:
         key=lambda r: (
             bool((r.get("selection") or {}).get("is_pareto", False)),
             float((r.get("selection") or {}).get("joint_score", float("-inf"))),
-            maybe_float((r.get("selection_metrics") or {}).get("internal_lcb")) or float("-inf"),
-            maybe_float((r.get("selection_metrics") or {}).get("saebench_delta")) or float("-inf"),
-            maybe_float((r.get("selection_metrics") or {}).get("cebench_delta")) or float("-inf"),
+            finite_or_default((r.get("selection_metrics") or {}).get("internal_lcb"), float("-inf")),
+            finite_or_default((r.get("selection_metrics") or {}).get("saebench_delta"), float("-inf")),
+            finite_or_default((r.get("selection_metrics") or {}).get("cebench_delta"), float("-inf")),
         ),
         reverse=True,
     )
@@ -836,8 +850,8 @@ def main() -> None:
     best = ranked[0]
     best_metrics = best.get("selection_metrics") or {}
 
-    gate_internal = bool((maybe_float(best_metrics.get("internal_lcb")) or float("-inf")) >= args.min_internal_lcb)
-    gate_ev = bool((maybe_float(best_metrics.get("ev_drop")) or float("inf")) <= args.max_ev_drop)
+    gate_internal = bool(finite_or_default(best_metrics.get("internal_lcb"), float("-inf")) >= args.min_internal_lcb)
+    gate_ev = bool(finite_or_default(best_metrics.get("ev_drop"), float("inf")) <= args.max_ev_drop)
 
     sae_delta = maybe_float(best_metrics.get("saebench_delta"))
     ce_delta = maybe_float(best_metrics.get("cebench_delta"))
