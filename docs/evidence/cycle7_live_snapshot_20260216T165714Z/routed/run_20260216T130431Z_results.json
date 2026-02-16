@@ -1,0 +1,1185 @@
+{
+  "timestamp_utc": "2026-02-16T13:20:46+00:00",
+  "command": "python scripts/experiments/run_routed_frontier_external.py --activation-cache-dir /tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped --activation-glob *_blocks.0.hook_resid_pre.pt --max-files 80 --max-rows-per-file 2048 --max-total-rows 150000 --seeds 42,123,456,789,1011 --d-sae 1024 --k 32 --epochs 10 --batch-size 4096 --learning-rate 0.0010 --num-experts 4 --route-balance-coef 0.02 --route-entropy-coef 0.02 --route-topk-mode expert_topk --device cuda --dtype float32 --run-saebench --run-cebench --cebench-repo /workspace/CE-Bench --cebench-max-rows 200 --cebench-matched-baseline-summary docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json --saebench-datasets 100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom --saebench-results-path /tmp/husai_saebench_probe_results_cycle7_routed --saebench-model-cache-path /tmp/sae_bench_model_cache --cebench-artifacts-path /tmp/ce_bench_artifacts_cycle7_routed --output-dir results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto",
+  "config": {
+    "activation_cache_dir": "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped",
+    "activation_glob": "*_blocks.0.hook_resid_pre.pt",
+    "max_files": 80,
+    "max_rows_per_file": 2048,
+    "max_total_rows": 150000,
+    "architecture": "routed_topk",
+    "seeds": [
+      42,
+      123,
+      456,
+      789,
+      1011
+    ],
+    "d_sae": 1024,
+    "k": 32,
+    "epochs": 10,
+    "batch_size": 4096,
+    "learning_rate": 0.001,
+    "device": "cuda",
+    "dtype": "float32",
+    "model_name": "pythia-70m-deduped",
+    "hook_layer": 0,
+    "hook_name": "blocks.0.hook_resid_pre",
+    "num_experts": 4,
+    "route_balance_coef": 0.02,
+    "route_entropy_coef": 0.02,
+    "route_topk_mode": "expert_topk",
+    "run_saebench": true,
+    "run_cebench": true,
+    "cebench_repo": "/workspace/CE-Bench",
+    "cebench_max_rows": 200,
+    "cebench_matched_baseline_summary": "/workspace/HUSAI/docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json",
+    "saebench_datasets": [
+      "100_news_fake",
+      "105_click_bait",
+      "106_hate_hate",
+      "107_hate_offensive",
+      "110_aimade_humangpt3",
+      "113_movie_sent",
+      "114_nyc_borough_Manhattan",
+      "115_nyc_borough_Brooklyn",
+      "116_nyc_borough_Bronx",
+      "117_us_state_FL",
+      "118_us_state_CA",
+      "119_us_state_TX",
+      "120_us_timezone_Chicago",
+      "121_us_timezone_New_York",
+      "122_us_timezone_Los_Angeles",
+      "123_world_country_United_Kingdom"
+    ],
+    "saebench_dataset_limit": 0,
+    "saebench_results_path": "/tmp/husai_saebench_probe_results_cycle7_routed",
+    "saebench_model_cache_path": "/tmp/sae_bench_model_cache",
+    "cebench_artifacts_path": "/tmp/ce_bench_artifacts_cycle7_routed",
+    "data_meta": {
+      "num_files_discovered": 113,
+      "num_files_used": 80,
+      "total_rows": 144042,
+      "d_model": 512
+    },
+    "source_files": [
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/100_news_fake_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/105_click_bait_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/106_hate_hate_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/107_hate_offensive_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/110_aimade_humangpt3_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/113_movie_sent_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/114_nyc_borough_Manhattan_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/115_nyc_borough_Brooklyn_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/116_nyc_borough_Bronx_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/117_us_state_FL_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/118_us_state_CA_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/119_us_state_TX_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/120_us_timezone_Chicago_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/121_us_timezone_New_York_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/122_us_timezone_Los_Angeles_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/123_world_country_United_Kingdom_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/124_world_country_United_States_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/125_world_country_Italy_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/126_art_type_book_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/127_art_type_song_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/128_art_type_movie_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/129_arith_mc_A_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/130_temp_cat_Frequency_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/131_temp_cat_Typical Time_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/132_temp_cat_Event Ordering_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/133_context_type_Causality_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/134_context_type_Belief_states_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/135_context_type_Event_duration_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/136_glue_mnli_entailment_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/137_glue_mnli_neutral_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/138_glue_mnli_contradiction_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/139_news_class_Politics_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/140_news_class_Technology_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/141_news_class_Entertainment_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/142_cancer_cat_Thyroid_Cancer_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/143_cancer_cat_Lung_Cancer_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/144_cancer_cat_Colon_Cancer_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/145_disease_class_digestive system diseases_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/146_disease_class_cardiovascular diseases_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/147_disease_class_nervous system diseases_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/148_twt_emotion_worry_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/149_twt_emotion_happiness_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/150_twt_emotion_sadness_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/151_it_tick_HR Support_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/152_it_tick_Hardware_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/153_it_tick_Administrative rights_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/154_athlete_sport_football_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/155_athlete_sport_basketball_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/156_athlete_sport_baseball_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/157_amazon_5star_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/158_code_C_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/159_code_Python_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/160_code_HTML_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/161_agnews_0_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/162_agnews_1_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/163_agnews_2_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/21_headline_istrump_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/22_headline_isobama_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/23_headline_ischina_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/24_headline_isiran_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/26_headline_isfrontpage_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/36_sciq_tf_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/41_truthqa_tf_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/42_temp_sense_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/44_phys_tf_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/47_reasoning_tf_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/48_cm_correct_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/49_cm_isshort_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/50_deon_isvalid_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/51_just_is_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/52_virtue_is_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/54_cs_tf_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/56_wikidatasex_or_gender_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/57_wikidatais_alive_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/58_wikidatapolitical_party_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/59_wikidata_occupation_isjournalist_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/5_hist_fig_ismale_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/60_wikidata_occupation_isathlete_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/61_wikidata_occupation_isactor_blocks.0.hook_resid_pre.pt",
+      "/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped/62_wikidata_occupation_ispolitician_blocks.0.hook_resid_pre.pt"
+    ],
+    "dataset_names_count": 16,
+    "run_id": "run_20260216T130431Z"
+  },
+  "records": [
+    {
+      "architecture": "routed_topk",
+      "seed": 42,
+      "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed42/sae_final.pt",
+      "train_metrics": {
+        "mse": 0.0005207599606364965,
+        "explained_variance": 0.37225362191880706,
+        "l0": 32.0,
+        "routing_entropy": 1.3862944841384888,
+        "routing_balance_l2": 6.796710295020603e-06
+      },
+      "route_diagnostics": {
+        "expert_usage": [
+          0.24999947845935822,
+          0.2500050663948059,
+          0.24999994039535522,
+          0.24999549984931946
+        ],
+        "num_experts": 4,
+        "group_size_mean": 256.0
+      },
+      "saebench": {
+        "timestamp_utc": "2026-02-16T13:06:08+00:00",
+        "command": "python scripts/experiments/run_husai_saebench_custom_eval.py --checkpoint /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed42/sae_final.pt --architecture routed_topk --sae-release husai_run_20260216T130431Z_routed_topk_seed42 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --dtype float32 --results-path /tmp/husai_saebench_probe_results_cycle7_routed --model-cache-path /tmp/sae_bench_model_cache --output-dir /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed42/saebench --force-rerun --dataset-names 100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom",
+        "config": {
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed42/sae_final.pt",
+          "architecture_override": "routed_topk",
+          "sae_release": "husai_run_20260216T130431Z_routed_topk_seed42",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "reg_type": "l1",
+          "setting": "normal",
+          "ks": [
+            1,
+            2,
+            5
+          ],
+          "dataset_names": [
+            "100_news_fake",
+            "105_click_bait",
+            "106_hate_hate",
+            "107_hate_offensive",
+            "110_aimade_humangpt3",
+            "113_movie_sent",
+            "114_nyc_borough_Manhattan",
+            "115_nyc_borough_Brooklyn",
+            "116_nyc_borough_Bronx",
+            "117_us_state_FL",
+            "118_us_state_CA",
+            "119_us_state_TX",
+            "120_us_timezone_Chicago",
+            "121_us_timezone_New_York",
+            "122_us_timezone_Los_Angeles",
+            "123_world_country_United_Kingdom"
+          ],
+          "dataset_names_inferred_from_cache": false,
+          "dataset_count": 16,
+          "binarize": false,
+          "device": "cuda",
+          "dtype": "float32",
+          "results_path": "/tmp/husai_saebench_probe_results_cycle7_routed",
+          "model_cache_path": "/tmp/sae_bench_model_cache",
+          "force_rerun": true
+        },
+        "config_hash": "a902653b1e147358ec1b568f45c84ae4f051eba2a4839d09603e886a607b2cd4",
+        "sae_meta": {
+          "architecture": "routed_topk",
+          "eval_architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32,
+          "dead_features_repaired": 0,
+          "decoder_norm_max_deviation": 1.1920928955078125e-07
+        },
+        "summary": {
+          "result_key": "husai_run_20260216T130431Z_routed_topk_seed42_custom_sae",
+          "llm_metrics": {
+            "llm_test_accuracy": 0.6605360072070458,
+            "llm_test_auc": 0.6928164663947145,
+            "llm_test_f1": 0.6491238078533221
+          },
+          "sae_metrics_by_k": [
+            {
+              "k": 1,
+              "test_accuracy": 0.5823197390341481,
+              "test_auc": 0.5930243235828712,
+              "test_f1": 0.5136575720393558
+            },
+            {
+              "k": 2,
+              "test_accuracy": 0.5990149064505828,
+              "test_auc": 0.6100739280090967,
+              "test_f1": 0.5403337574657531
+            },
+            {
+              "k": 5,
+              "test_accuracy": 0.6064179710444473,
+              "test_auc": 0.6290829484987162,
+              "test_f1": 0.5750290620373854
+            }
+          ],
+          "best_by_auc": {
+            "k": 5,
+            "test_accuracy": 0.6064179710444473,
+            "test_auc": 0.6290829484987162,
+            "test_f1": 0.5750290620373854
+          },
+          "best_minus_llm_auc": -0.06373351789599835
+        }
+      },
+      "cebench": {
+        "timestamp_utc": "2026-02-16T13:08:26+00:00",
+        "command": "python scripts/experiments/run_husai_cebench_custom_eval.py --cebench-repo /workspace/CE-Bench --checkpoint /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed42/sae_final.pt --architecture routed_topk --sae-release husai_run_20260216T130431Z_routed_topk_seed42 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --sae-dtype float32 --output-folder /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed42/cebench --artifacts-path /tmp/ce_bench_artifacts_cycle7_routed --max-rows 200 --matched-baseline-summary /workspace/HUSAI/docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json",
+        "config_hash": "5d3371f3bd46da2192a3bb450c43f732b6f3ddb9b84afd3143f204cbdcc4edf5",
+        "config": {
+          "cebench_repo": "/workspace/CE-Bench",
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed42/sae_final.pt",
+          "architecture_override": "routed_topk",
+          "checkpoint_sha256": "ab75695251327e2874fc8639f7bcf79c49c98b5e421ad595210c60b54aa64182",
+          "sae_release": "husai_run_20260216T130431Z_routed_topk_seed42",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "device": "cuda",
+          "sae_dtype": "float32",
+          "llm_batch_size": 512,
+          "llm_dtype": "float32",
+          "random_seed": 42,
+          "dataset_name": "GulkoA/contrastive-stories-v4",
+          "dataset_rows_total": 5000,
+          "dataset_rows_used": 200,
+          "max_rows": 200,
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed42/cebench",
+          "artifacts_path": "/tmp/ce_bench_artifacts_cycle7_routed",
+          "matched_baseline_summary": "/workspace/HUSAI/docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json"
+        },
+        "sae_meta": {
+          "architecture": "routed_topk",
+          "eval_architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32,
+          "dead_features_repaired": 0,
+          "decoder_norm_max_deviation": 1.1920928955078125e-07
+        },
+        "cebench_summary": {
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed42/cebench",
+          "results_json": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed42/cebench/interpretability_eval/husai_run_20260216T130431Z_routed_topk_seed42/custom_sae/results.json",
+          "scores_dump": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed42/cebench/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 16.17661632299423,
+          "independent_score_mean_max": 14.022950603961945,
+          "interpretability_score_mean_max": 15.98781436920166,
+          "sae_release": "husai_run_20260216T130431Z_routed_topk_seed42",
+          "sae_id": "custom_sae",
+          "date": "2026-02-16 13:08:26",
+          "scores_dump_line_count": 200
+        },
+        "custom_metrics": {
+          "contrastive_score_mean_max": 16.17661632299423,
+          "independent_score_mean_max": 14.022950603961945,
+          "interpretability_score_mean_max": 15.98781436920166
+        },
+        "matched_baseline_metrics": {
+          "contrastive_score_mean_max": 50.51130743026734,
+          "independent_score_mean_max": 50.99926634788513,
+          "interpretability_score_mean_max": 47.951611585617066
+        },
+        "delta_vs_matched_baseline": {
+          "contrastive_score_mean_max": -34.3346911072731,
+          "independent_score_mean_max": -36.97631574392319,
+          "interpretability_score_mean_max": -31.963797216415408
+        },
+        "matched_baseline_payload": {
+          "output_folder": "results/experiments/phase4e_external_benchmark_official/cebench_matched200",
+          "results_json": "results/experiments/phase4e_external_benchmark_official/cebench_matched200/interpretability_eval/pythia-70m-deduped-res-sm/blocks.0.hook_resid_pre/results.json",
+          "scores_dump": "results/experiments/phase4e_external_benchmark_official/cebench_matched200/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 50.51130743026734,
+          "independent_score_mean_max": 50.99926634788513,
+          "interpretability_score_mean_max": 47.951611585617066,
+          "sae_release": "pythia-70m-deduped-res-sm",
+          "sae_id": "blocks.0.hook_resid_pre",
+          "date": "2026-02-13 18:59:31",
+          "scores_dump_line_count": 200
+        },
+        "artifacts": {
+          "cebench_metrics_summary_json": "results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed42/cebench/cebench_metrics_summary.json",
+          "cebench_metrics_summary_md": "results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed42/cebench/cebench_metrics_summary.md"
+        }
+      },
+      "saebench_returncode": 0,
+      "cebench_returncode": 0
+    },
+    {
+      "architecture": "routed_topk",
+      "seed": 123,
+      "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed123/sae_final.pt",
+      "train_metrics": {
+        "mse": 0.0005342112272046506,
+        "explained_variance": 0.35603880940283994,
+        "l0": 32.0,
+        "routing_entropy": 1.3862944841384888,
+        "routing_balance_l2": 1.5103192936294363e-06
+      },
+      "route_diagnostics": {
+        "expert_usage": [
+          0.25000104308128357,
+          0.2499990016222,
+          0.2500002980232239,
+          0.24999967217445374
+        ],
+        "num_experts": 4,
+        "group_size_mean": 256.0
+      },
+      "saebench": {
+        "timestamp_utc": "2026-02-16T13:09:18+00:00",
+        "command": "python scripts/experiments/run_husai_saebench_custom_eval.py --checkpoint /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed123/sae_final.pt --architecture routed_topk --sae-release husai_run_20260216T130431Z_routed_topk_seed123 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --dtype float32 --results-path /tmp/husai_saebench_probe_results_cycle7_routed --model-cache-path /tmp/sae_bench_model_cache --output-dir /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed123/saebench --force-rerun --dataset-names 100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom",
+        "config": {
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed123/sae_final.pt",
+          "architecture_override": "routed_topk",
+          "sae_release": "husai_run_20260216T130431Z_routed_topk_seed123",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "reg_type": "l1",
+          "setting": "normal",
+          "ks": [
+            1,
+            2,
+            5
+          ],
+          "dataset_names": [
+            "100_news_fake",
+            "105_click_bait",
+            "106_hate_hate",
+            "107_hate_offensive",
+            "110_aimade_humangpt3",
+            "113_movie_sent",
+            "114_nyc_borough_Manhattan",
+            "115_nyc_borough_Brooklyn",
+            "116_nyc_borough_Bronx",
+            "117_us_state_FL",
+            "118_us_state_CA",
+            "119_us_state_TX",
+            "120_us_timezone_Chicago",
+            "121_us_timezone_New_York",
+            "122_us_timezone_Los_Angeles",
+            "123_world_country_United_Kingdom"
+          ],
+          "dataset_names_inferred_from_cache": false,
+          "dataset_count": 16,
+          "binarize": false,
+          "device": "cuda",
+          "dtype": "float32",
+          "results_path": "/tmp/husai_saebench_probe_results_cycle7_routed",
+          "model_cache_path": "/tmp/sae_bench_model_cache",
+          "force_rerun": true
+        },
+        "config_hash": "5777dc04be4a39da86dbab401a3146bd64981dbfe6b6348bfcbfab1ff8a2b4f6",
+        "sae_meta": {
+          "architecture": "routed_topk",
+          "eval_architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32,
+          "dead_features_repaired": 0,
+          "decoder_norm_max_deviation": 1.1920928955078125e-07
+        },
+        "summary": {
+          "result_key": "husai_run_20260216T130431Z_routed_topk_seed123_custom_sae",
+          "llm_metrics": {
+            "llm_test_accuracy": 0.6605360072070458,
+            "llm_test_auc": 0.6928164663947145,
+            "llm_test_f1": 0.6491238078533221
+          },
+          "sae_metrics_by_k": [
+            {
+              "k": 1,
+              "test_accuracy": 0.5872237770302717,
+              "test_auc": 0.5956238544995112,
+              "test_f1": 0.523214997299161
+            },
+            {
+              "k": 2,
+              "test_accuracy": 0.5992635132556061,
+              "test_auc": 0.6113589151425345,
+              "test_f1": 0.5507508249783094
+            },
+            {
+              "k": 5,
+              "test_accuracy": 0.6043284494464335,
+              "test_auc": 0.6252515808368087,
+              "test_f1": 0.5690860089360578
+            }
+          ],
+          "best_by_auc": {
+            "k": 5,
+            "test_accuracy": 0.6043284494464335,
+            "test_auc": 0.6252515808368087,
+            "test_f1": 0.5690860089360578
+          },
+          "best_minus_llm_auc": -0.06756488555790585
+        }
+      },
+      "cebench": {
+        "timestamp_utc": "2026-02-16T13:11:29+00:00",
+        "command": "python scripts/experiments/run_husai_cebench_custom_eval.py --cebench-repo /workspace/CE-Bench --checkpoint /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed123/sae_final.pt --architecture routed_topk --sae-release husai_run_20260216T130431Z_routed_topk_seed123 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --sae-dtype float32 --output-folder /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed123/cebench --artifacts-path /tmp/ce_bench_artifacts_cycle7_routed --max-rows 200 --matched-baseline-summary /workspace/HUSAI/docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json",
+        "config_hash": "189455924b95153cff6a76d9ffbbcf1819150b9a6119c63bd9de4e43c4278e10",
+        "config": {
+          "cebench_repo": "/workspace/CE-Bench",
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed123/sae_final.pt",
+          "architecture_override": "routed_topk",
+          "checkpoint_sha256": "64bf68eb8aca17fdab99a271f13678c6f7030fd4e605753b5c799c50c35495c2",
+          "sae_release": "husai_run_20260216T130431Z_routed_topk_seed123",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "device": "cuda",
+          "sae_dtype": "float32",
+          "llm_batch_size": 512,
+          "llm_dtype": "float32",
+          "random_seed": 42,
+          "dataset_name": "GulkoA/contrastive-stories-v4",
+          "dataset_rows_total": 5000,
+          "dataset_rows_used": 200,
+          "max_rows": 200,
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed123/cebench",
+          "artifacts_path": "/tmp/ce_bench_artifacts_cycle7_routed",
+          "matched_baseline_summary": "/workspace/HUSAI/docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json"
+        },
+        "sae_meta": {
+          "architecture": "routed_topk",
+          "eval_architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32,
+          "dead_features_repaired": 0,
+          "decoder_norm_max_deviation": 1.1920928955078125e-07
+        },
+        "cebench_summary": {
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed123/cebench",
+          "results_json": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed123/cebench/interpretability_eval/husai_run_20260216T130431Z_routed_topk_seed123/custom_sae/results.json",
+          "scores_dump": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed123/cebench/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 10.504995856285095,
+          "independent_score_mean_max": 10.490533123016357,
+          "interpretability_score_mean_max": 10.242383453845978,
+          "sae_release": "husai_run_20260216T130431Z_routed_topk_seed123",
+          "sae_id": "custom_sae",
+          "date": "2026-02-16 13:11:29",
+          "scores_dump_line_count": 200
+        },
+        "custom_metrics": {
+          "contrastive_score_mean_max": 10.504995856285095,
+          "independent_score_mean_max": 10.490533123016357,
+          "interpretability_score_mean_max": 10.242383453845978
+        },
+        "matched_baseline_metrics": {
+          "contrastive_score_mean_max": 50.51130743026734,
+          "independent_score_mean_max": 50.99926634788513,
+          "interpretability_score_mean_max": 47.951611585617066
+        },
+        "delta_vs_matched_baseline": {
+          "contrastive_score_mean_max": -40.006311573982245,
+          "independent_score_mean_max": -40.50873322486878,
+          "interpretability_score_mean_max": -37.709228131771084
+        },
+        "matched_baseline_payload": {
+          "output_folder": "results/experiments/phase4e_external_benchmark_official/cebench_matched200",
+          "results_json": "results/experiments/phase4e_external_benchmark_official/cebench_matched200/interpretability_eval/pythia-70m-deduped-res-sm/blocks.0.hook_resid_pre/results.json",
+          "scores_dump": "results/experiments/phase4e_external_benchmark_official/cebench_matched200/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 50.51130743026734,
+          "independent_score_mean_max": 50.99926634788513,
+          "interpretability_score_mean_max": 47.951611585617066,
+          "sae_release": "pythia-70m-deduped-res-sm",
+          "sae_id": "blocks.0.hook_resid_pre",
+          "date": "2026-02-13 18:59:31",
+          "scores_dump_line_count": 200
+        },
+        "artifacts": {
+          "cebench_metrics_summary_json": "results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed123/cebench/cebench_metrics_summary.json",
+          "cebench_metrics_summary_md": "results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed123/cebench/cebench_metrics_summary.md"
+        }
+      },
+      "saebench_returncode": 0,
+      "cebench_returncode": 0
+    },
+    {
+      "architecture": "routed_topk",
+      "seed": 456,
+      "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed456/sae_final.pt",
+      "train_metrics": {
+        "mse": 0.0005647260695695877,
+        "explained_variance": 0.31925629321044546,
+        "l0": 32.0,
+        "routing_entropy": 1.386293888092041,
+        "routing_balance_l2": 1.8495822587283328e-05
+      },
+      "route_diagnostics": {
+        "expert_usage": [
+          0.2499997317790985,
+          0.2500130832195282,
+          0.249986931681633,
+          0.2500002682209015
+        ],
+        "num_experts": 4,
+        "group_size_mean": 256.0
+      },
+      "saebench": {
+        "timestamp_utc": "2026-02-16T13:12:21+00:00",
+        "command": "python scripts/experiments/run_husai_saebench_custom_eval.py --checkpoint /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed456/sae_final.pt --architecture routed_topk --sae-release husai_run_20260216T130431Z_routed_topk_seed456 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --dtype float32 --results-path /tmp/husai_saebench_probe_results_cycle7_routed --model-cache-path /tmp/sae_bench_model_cache --output-dir /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed456/saebench --force-rerun --dataset-names 100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom",
+        "config": {
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed456/sae_final.pt",
+          "architecture_override": "routed_topk",
+          "sae_release": "husai_run_20260216T130431Z_routed_topk_seed456",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "reg_type": "l1",
+          "setting": "normal",
+          "ks": [
+            1,
+            2,
+            5
+          ],
+          "dataset_names": [
+            "100_news_fake",
+            "105_click_bait",
+            "106_hate_hate",
+            "107_hate_offensive",
+            "110_aimade_humangpt3",
+            "113_movie_sent",
+            "114_nyc_borough_Manhattan",
+            "115_nyc_borough_Brooklyn",
+            "116_nyc_borough_Bronx",
+            "117_us_state_FL",
+            "118_us_state_CA",
+            "119_us_state_TX",
+            "120_us_timezone_Chicago",
+            "121_us_timezone_New_York",
+            "122_us_timezone_Los_Angeles",
+            "123_world_country_United_Kingdom"
+          ],
+          "dataset_names_inferred_from_cache": false,
+          "dataset_count": 16,
+          "binarize": false,
+          "device": "cuda",
+          "dtype": "float32",
+          "results_path": "/tmp/husai_saebench_probe_results_cycle7_routed",
+          "model_cache_path": "/tmp/sae_bench_model_cache",
+          "force_rerun": true
+        },
+        "config_hash": "fc0133a6b81b3469946944e06e45763d5e34e391751954d4b231c8b391fc4b19",
+        "sae_meta": {
+          "architecture": "routed_topk",
+          "eval_architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32,
+          "dead_features_repaired": 0,
+          "decoder_norm_max_deviation": 1.1920928955078125e-07
+        },
+        "summary": {
+          "result_key": "husai_run_20260216T130431Z_routed_topk_seed456_custom_sae",
+          "llm_metrics": {
+            "llm_test_accuracy": 0.6605360072070458,
+            "llm_test_auc": 0.6928164663947145,
+            "llm_test_f1": 0.6491238078533221
+          },
+          "sae_metrics_by_k": [
+            {
+              "k": 1,
+              "test_accuracy": 0.593051930296508,
+              "test_auc": 0.5972225122849546,
+              "test_f1": 0.5412239136770953
+            },
+            {
+              "k": 2,
+              "test_accuracy": 0.5929659297398829,
+              "test_auc": 0.6002579096243387,
+              "test_f1": 0.5471595777612073
+            },
+            {
+              "k": 5,
+              "test_accuracy": 0.6010958497226184,
+              "test_auc": 0.6191033773754934,
+              "test_f1": 0.5685549161778279
+            }
+          ],
+          "best_by_auc": {
+            "k": 5,
+            "test_accuracy": 0.6010958497226184,
+            "test_auc": 0.6191033773754934,
+            "test_f1": 0.5685549161778279
+          },
+          "best_minus_llm_auc": -0.07371308901922113
+        }
+      },
+      "cebench": {
+        "timestamp_utc": "2026-02-16T13:14:34+00:00",
+        "command": "python scripts/experiments/run_husai_cebench_custom_eval.py --cebench-repo /workspace/CE-Bench --checkpoint /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed456/sae_final.pt --architecture routed_topk --sae-release husai_run_20260216T130431Z_routed_topk_seed456 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --sae-dtype float32 --output-folder /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed456/cebench --artifacts-path /tmp/ce_bench_artifacts_cycle7_routed --max-rows 200 --matched-baseline-summary /workspace/HUSAI/docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json",
+        "config_hash": "4a260adfef96485e2e74136bc72f15f2b85bfa76dab5b10020811829b5255670",
+        "config": {
+          "cebench_repo": "/workspace/CE-Bench",
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed456/sae_final.pt",
+          "architecture_override": "routed_topk",
+          "checkpoint_sha256": "eed4cf6dc133c0f73da2b71774f338439322be28a5cfbcacda48d941819fd192",
+          "sae_release": "husai_run_20260216T130431Z_routed_topk_seed456",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "device": "cuda",
+          "sae_dtype": "float32",
+          "llm_batch_size": 512,
+          "llm_dtype": "float32",
+          "random_seed": 42,
+          "dataset_name": "GulkoA/contrastive-stories-v4",
+          "dataset_rows_total": 5000,
+          "dataset_rows_used": 200,
+          "max_rows": 200,
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed456/cebench",
+          "artifacts_path": "/tmp/ce_bench_artifacts_cycle7_routed",
+          "matched_baseline_summary": "/workspace/HUSAI/docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json"
+        },
+        "sae_meta": {
+          "architecture": "routed_topk",
+          "eval_architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32,
+          "dead_features_repaired": 0,
+          "decoder_norm_max_deviation": 1.1920928955078125e-07
+        },
+        "cebench_summary": {
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed456/cebench",
+          "results_json": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed456/cebench/interpretability_eval/husai_run_20260216T130431Z_routed_topk_seed456/custom_sae/results.json",
+          "scores_dump": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed456/cebench/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 8.726437971591949,
+          "independent_score_mean_max": 10.210555708408355,
+          "interpretability_score_mean_max": 9.206698696613312,
+          "sae_release": "husai_run_20260216T130431Z_routed_topk_seed456",
+          "sae_id": "custom_sae",
+          "date": "2026-02-16 13:14:34",
+          "scores_dump_line_count": 200
+        },
+        "custom_metrics": {
+          "contrastive_score_mean_max": 8.726437971591949,
+          "independent_score_mean_max": 10.210555708408355,
+          "interpretability_score_mean_max": 9.206698696613312
+        },
+        "matched_baseline_metrics": {
+          "contrastive_score_mean_max": 50.51130743026734,
+          "independent_score_mean_max": 50.99926634788513,
+          "interpretability_score_mean_max": 47.951611585617066
+        },
+        "delta_vs_matched_baseline": {
+          "contrastive_score_mean_max": -41.78486945867539,
+          "independent_score_mean_max": -40.788710639476776,
+          "interpretability_score_mean_max": -38.74491288900376
+        },
+        "matched_baseline_payload": {
+          "output_folder": "results/experiments/phase4e_external_benchmark_official/cebench_matched200",
+          "results_json": "results/experiments/phase4e_external_benchmark_official/cebench_matched200/interpretability_eval/pythia-70m-deduped-res-sm/blocks.0.hook_resid_pre/results.json",
+          "scores_dump": "results/experiments/phase4e_external_benchmark_official/cebench_matched200/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 50.51130743026734,
+          "independent_score_mean_max": 50.99926634788513,
+          "interpretability_score_mean_max": 47.951611585617066,
+          "sae_release": "pythia-70m-deduped-res-sm",
+          "sae_id": "blocks.0.hook_resid_pre",
+          "date": "2026-02-13 18:59:31",
+          "scores_dump_line_count": 200
+        },
+        "artifacts": {
+          "cebench_metrics_summary_json": "results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed456/cebench/cebench_metrics_summary.json",
+          "cebench_metrics_summary_md": "results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed456/cebench/cebench_metrics_summary.md"
+        }
+      },
+      "saebench_returncode": 0,
+      "cebench_returncode": 0
+    },
+    {
+      "architecture": "routed_topk",
+      "seed": 789,
+      "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed789/sae_final.pt",
+      "train_metrics": {
+        "mse": 0.0005625368212349713,
+        "explained_variance": 0.32189916759911497,
+        "l0": 32.0,
+        "routing_entropy": 1.3862940073013306,
+        "routing_balance_l2": 1.6056297681643628e-05
+      },
+      "route_diagnostics": {
+        "expert_usage": [
+          0.2500007450580597,
+          0.2500098645687103,
+          0.24998749792575836,
+          0.2500019073486328
+        ],
+        "num_experts": 4,
+        "group_size_mean": 256.0
+      },
+      "saebench": {
+        "timestamp_utc": "2026-02-16T13:15:27+00:00",
+        "command": "python scripts/experiments/run_husai_saebench_custom_eval.py --checkpoint /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed789/sae_final.pt --architecture routed_topk --sae-release husai_run_20260216T130431Z_routed_topk_seed789 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --dtype float32 --results-path /tmp/husai_saebench_probe_results_cycle7_routed --model-cache-path /tmp/sae_bench_model_cache --output-dir /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed789/saebench --force-rerun --dataset-names 100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom",
+        "config": {
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed789/sae_final.pt",
+          "architecture_override": "routed_topk",
+          "sae_release": "husai_run_20260216T130431Z_routed_topk_seed789",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "reg_type": "l1",
+          "setting": "normal",
+          "ks": [
+            1,
+            2,
+            5
+          ],
+          "dataset_names": [
+            "100_news_fake",
+            "105_click_bait",
+            "106_hate_hate",
+            "107_hate_offensive",
+            "110_aimade_humangpt3",
+            "113_movie_sent",
+            "114_nyc_borough_Manhattan",
+            "115_nyc_borough_Brooklyn",
+            "116_nyc_borough_Bronx",
+            "117_us_state_FL",
+            "118_us_state_CA",
+            "119_us_state_TX",
+            "120_us_timezone_Chicago",
+            "121_us_timezone_New_York",
+            "122_us_timezone_Los_Angeles",
+            "123_world_country_United_Kingdom"
+          ],
+          "dataset_names_inferred_from_cache": false,
+          "dataset_count": 16,
+          "binarize": false,
+          "device": "cuda",
+          "dtype": "float32",
+          "results_path": "/tmp/husai_saebench_probe_results_cycle7_routed",
+          "model_cache_path": "/tmp/sae_bench_model_cache",
+          "force_rerun": true
+        },
+        "config_hash": "2bb52902469b8e1fc44c52f9ded0694489c87f03bdee2febcae7a672a03de112",
+        "sae_meta": {
+          "architecture": "routed_topk",
+          "eval_architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32,
+          "dead_features_repaired": 0,
+          "decoder_norm_max_deviation": 1.1920928955078125e-07
+        },
+        "summary": {
+          "result_key": "husai_run_20260216T130431Z_routed_topk_seed789_custom_sae",
+          "llm_metrics": {
+            "llm_test_accuracy": 0.6605360072070458,
+            "llm_test_auc": 0.6928164663947145,
+            "llm_test_f1": 0.6491238078533221
+          },
+          "sae_metrics_by_k": [
+            {
+              "k": 1,
+              "test_accuracy": 0.5831463540911357,
+              "test_auc": 0.5931926959642331,
+              "test_f1": 0.517144630602458
+            },
+            {
+              "k": 2,
+              "test_accuracy": 0.5922454824165259,
+              "test_auc": 0.6092996357647441,
+              "test_f1": 0.523453824883267
+            },
+            {
+              "k": 5,
+              "test_accuracy": 0.5984990218750412,
+              "test_auc": 0.6222206292851679,
+              "test_f1": 0.5594334491874825
+            }
+          ],
+          "best_by_auc": {
+            "k": 5,
+            "test_accuracy": 0.5984990218750412,
+            "test_auc": 0.6222206292851679,
+            "test_f1": 0.5594334491874825
+          },
+          "best_minus_llm_auc": -0.07059583710954664
+        }
+      },
+      "cebench": {
+        "timestamp_utc": "2026-02-16T13:17:38+00:00",
+        "command": "python scripts/experiments/run_husai_cebench_custom_eval.py --cebench-repo /workspace/CE-Bench --checkpoint /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed789/sae_final.pt --architecture routed_topk --sae-release husai_run_20260216T130431Z_routed_topk_seed789 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --sae-dtype float32 --output-folder /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed789/cebench --artifacts-path /tmp/ce_bench_artifacts_cycle7_routed --max-rows 200 --matched-baseline-summary /workspace/HUSAI/docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json",
+        "config_hash": "59ef63a8f1bc6e9e4c60ad5ef8bab2c4a843556931571a8d9a1105255165844e",
+        "config": {
+          "cebench_repo": "/workspace/CE-Bench",
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed789/sae_final.pt",
+          "architecture_override": "routed_topk",
+          "checkpoint_sha256": "b36efb6d18ead3bf4e2d74537460c0bdea14ea109cf6bbd9755e555b2a444588",
+          "sae_release": "husai_run_20260216T130431Z_routed_topk_seed789",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "device": "cuda",
+          "sae_dtype": "float32",
+          "llm_batch_size": 512,
+          "llm_dtype": "float32",
+          "random_seed": 42,
+          "dataset_name": "GulkoA/contrastive-stories-v4",
+          "dataset_rows_total": 5000,
+          "dataset_rows_used": 200,
+          "max_rows": 200,
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed789/cebench",
+          "artifacts_path": "/tmp/ce_bench_artifacts_cycle7_routed",
+          "matched_baseline_summary": "/workspace/HUSAI/docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json"
+        },
+        "sae_meta": {
+          "architecture": "routed_topk",
+          "eval_architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32,
+          "dead_features_repaired": 0,
+          "decoder_norm_max_deviation": 1.1920928955078125e-07
+        },
+        "cebench_summary": {
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed789/cebench",
+          "results_json": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed789/cebench/interpretability_eval/husai_run_20260216T130431Z_routed_topk_seed789/custom_sae/results.json",
+          "scores_dump": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed789/cebench/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 10.979662129878998,
+          "independent_score_mean_max": 11.012927467823028,
+          "interpretability_score_mean_max": 11.049859845638276,
+          "sae_release": "husai_run_20260216T130431Z_routed_topk_seed789",
+          "sae_id": "custom_sae",
+          "date": "2026-02-16 13:17:38",
+          "scores_dump_line_count": 200
+        },
+        "custom_metrics": {
+          "contrastive_score_mean_max": 10.979662129878998,
+          "independent_score_mean_max": 11.012927467823028,
+          "interpretability_score_mean_max": 11.049859845638276
+        },
+        "matched_baseline_metrics": {
+          "contrastive_score_mean_max": 50.51130743026734,
+          "independent_score_mean_max": 50.99926634788513,
+          "interpretability_score_mean_max": 47.951611585617066
+        },
+        "delta_vs_matched_baseline": {
+          "contrastive_score_mean_max": -39.53164530038834,
+          "independent_score_mean_max": -39.98633888006211,
+          "interpretability_score_mean_max": -36.90175173997879
+        },
+        "matched_baseline_payload": {
+          "output_folder": "results/experiments/phase4e_external_benchmark_official/cebench_matched200",
+          "results_json": "results/experiments/phase4e_external_benchmark_official/cebench_matched200/interpretability_eval/pythia-70m-deduped-res-sm/blocks.0.hook_resid_pre/results.json",
+          "scores_dump": "results/experiments/phase4e_external_benchmark_official/cebench_matched200/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 50.51130743026734,
+          "independent_score_mean_max": 50.99926634788513,
+          "interpretability_score_mean_max": 47.951611585617066,
+          "sae_release": "pythia-70m-deduped-res-sm",
+          "sae_id": "blocks.0.hook_resid_pre",
+          "date": "2026-02-13 18:59:31",
+          "scores_dump_line_count": 200
+        },
+        "artifacts": {
+          "cebench_metrics_summary_json": "results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed789/cebench/cebench_metrics_summary.json",
+          "cebench_metrics_summary_md": "results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed789/cebench/cebench_metrics_summary.md"
+        }
+      },
+      "saebench_returncode": 0,
+      "cebench_returncode": 0
+    },
+    {
+      "architecture": "routed_topk",
+      "seed": 1011,
+      "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed1011/sae_final.pt",
+      "train_metrics": {
+        "mse": 0.0005447892472147942,
+        "explained_variance": 0.34328781404481523,
+        "l0": 32.0,
+        "routing_entropy": 1.3862944841384888,
+        "routing_balance_l2": 4.974957391823409e-06
+      },
+      "route_diagnostics": {
+        "expert_usage": [
+          0.25000378489494324,
+          0.24999679625034332,
+          0.24999970197677612,
+          0.2499997317790985
+        ],
+        "num_experts": 4,
+        "group_size_mean": 256.0
+      },
+      "saebench": {
+        "timestamp_utc": "2026-02-16T13:18:31+00:00",
+        "command": "python scripts/experiments/run_husai_saebench_custom_eval.py --checkpoint /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed1011/sae_final.pt --architecture routed_topk --sae-release husai_run_20260216T130431Z_routed_topk_seed1011 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --dtype float32 --results-path /tmp/husai_saebench_probe_results_cycle7_routed --model-cache-path /tmp/sae_bench_model_cache --output-dir /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed1011/saebench --force-rerun --dataset-names 100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom",
+        "config": {
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed1011/sae_final.pt",
+          "architecture_override": "routed_topk",
+          "sae_release": "husai_run_20260216T130431Z_routed_topk_seed1011",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "reg_type": "l1",
+          "setting": "normal",
+          "ks": [
+            1,
+            2,
+            5
+          ],
+          "dataset_names": [
+            "100_news_fake",
+            "105_click_bait",
+            "106_hate_hate",
+            "107_hate_offensive",
+            "110_aimade_humangpt3",
+            "113_movie_sent",
+            "114_nyc_borough_Manhattan",
+            "115_nyc_borough_Brooklyn",
+            "116_nyc_borough_Bronx",
+            "117_us_state_FL",
+            "118_us_state_CA",
+            "119_us_state_TX",
+            "120_us_timezone_Chicago",
+            "121_us_timezone_New_York",
+            "122_us_timezone_Los_Angeles",
+            "123_world_country_United_Kingdom"
+          ],
+          "dataset_names_inferred_from_cache": false,
+          "dataset_count": 16,
+          "binarize": false,
+          "device": "cuda",
+          "dtype": "float32",
+          "results_path": "/tmp/husai_saebench_probe_results_cycle7_routed",
+          "model_cache_path": "/tmp/sae_bench_model_cache",
+          "force_rerun": true
+        },
+        "config_hash": "5579111f0c123c68687caeac363463dcbffa96f207bd031ebe36d2c806f95b60",
+        "sae_meta": {
+          "architecture": "routed_topk",
+          "eval_architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32,
+          "dead_features_repaired": 0,
+          "decoder_norm_max_deviation": 1.1920928955078125e-07
+        },
+        "summary": {
+          "result_key": "husai_run_20260216T130431Z_routed_topk_seed1011_custom_sae",
+          "llm_metrics": {
+            "llm_test_accuracy": 0.6605360072070458,
+            "llm_test_auc": 0.6928164663947145,
+            "llm_test_f1": 0.6491238078533221
+          },
+          "sae_metrics_by_k": [
+            {
+              "k": 1,
+              "test_accuracy": 0.5834148566890279,
+              "test_auc": 0.5951338262195501,
+              "test_f1": 0.5215824274002734
+            },
+            {
+              "k": 2,
+              "test_accuracy": 0.585513902112449,
+              "test_auc": 0.6049621796786171,
+              "test_f1": 0.5348268312154375
+            },
+            {
+              "k": 5,
+              "test_accuracy": 0.5993063762915256,
+              "test_auc": 0.620940873752743,
+              "test_f1": 0.5468392392413076
+            }
+          ],
+          "best_by_auc": {
+            "k": 5,
+            "test_accuracy": 0.5993063762915256,
+            "test_auc": 0.620940873752743,
+            "test_f1": 0.5468392392413076
+          },
+          "best_minus_llm_auc": -0.07187559264197152
+        }
+      },
+      "cebench": {
+        "timestamp_utc": "2026-02-16T13:20:45+00:00",
+        "command": "python scripts/experiments/run_husai_cebench_custom_eval.py --cebench-repo /workspace/CE-Bench --checkpoint /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed1011/sae_final.pt --architecture routed_topk --sae-release husai_run_20260216T130431Z_routed_topk_seed1011 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --sae-dtype float32 --output-folder /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed1011/cebench --artifacts-path /tmp/ce_bench_artifacts_cycle7_routed --max-rows 200 --matched-baseline-summary /workspace/HUSAI/docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json",
+        "config_hash": "1b79f2629c8d096ce5f6b4361739f6b4235a01f76649bf35f63f62944ca8a5ef",
+        "config": {
+          "cebench_repo": "/workspace/CE-Bench",
+          "checkpoint": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/checkpoints/routed_topk_seed1011/sae_final.pt",
+          "architecture_override": "routed_topk",
+          "checkpoint_sha256": "52bbd3fc94c7a5b180b8598e477298f79b87c14eef00886b1f3ef2716b4998c8",
+          "sae_release": "husai_run_20260216T130431Z_routed_topk_seed1011",
+          "model_name": "pythia-70m-deduped",
+          "hook_layer": 0,
+          "hook_name": "blocks.0.hook_resid_pre",
+          "device": "cuda",
+          "sae_dtype": "float32",
+          "llm_batch_size": 512,
+          "llm_dtype": "float32",
+          "random_seed": 42,
+          "dataset_name": "GulkoA/contrastive-stories-v4",
+          "dataset_rows_total": 5000,
+          "dataset_rows_used": 200,
+          "max_rows": 200,
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed1011/cebench",
+          "artifacts_path": "/tmp/ce_bench_artifacts_cycle7_routed",
+          "matched_baseline_summary": "/workspace/HUSAI/docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json"
+        },
+        "sae_meta": {
+          "architecture": "routed_topk",
+          "eval_architecture": "topk",
+          "d_model": 512,
+          "d_sae": 1024,
+          "k": 32,
+          "dead_features_repaired": 0,
+          "decoder_norm_max_deviation": 1.1920928955078125e-07
+        },
+        "cebench_summary": {
+          "output_folder": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed1011/cebench",
+          "results_json": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed1011/cebench/interpretability_eval/husai_run_20260216T130431Z_routed_topk_seed1011/custom_sae/results.json",
+          "scores_dump": "/workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed1011/cebench/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 9.700646452903747,
+          "independent_score_mean_max": 9.887479212284088,
+          "interpretability_score_mean_max": 9.89514446258545,
+          "sae_release": "husai_run_20260216T130431Z_routed_topk_seed1011",
+          "sae_id": "custom_sae",
+          "date": "2026-02-16 13:20:45",
+          "scores_dump_line_count": 200
+        },
+        "custom_metrics": {
+          "contrastive_score_mean_max": 9.700646452903747,
+          "independent_score_mean_max": 9.887479212284088,
+          "interpretability_score_mean_max": 9.89514446258545
+        },
+        "matched_baseline_metrics": {
+          "contrastive_score_mean_max": 50.51130743026734,
+          "independent_score_mean_max": 50.99926634788513,
+          "interpretability_score_mean_max": 47.951611585617066
+        },
+        "delta_vs_matched_baseline": {
+          "contrastive_score_mean_max": -40.81066097736359,
+          "independent_score_mean_max": -41.11178713560105,
+          "interpretability_score_mean_max": -38.05646712303162
+        },
+        "matched_baseline_payload": {
+          "output_folder": "results/experiments/phase4e_external_benchmark_official/cebench_matched200",
+          "results_json": "results/experiments/phase4e_external_benchmark_official/cebench_matched200/interpretability_eval/pythia-70m-deduped-res-sm/blocks.0.hook_resid_pre/results.json",
+          "scores_dump": "results/experiments/phase4e_external_benchmark_official/cebench_matched200/scores_dump.txt",
+          "total_rows": 200,
+          "contrastive_score_mean_max": 50.51130743026734,
+          "independent_score_mean_max": 50.99926634788513,
+          "interpretability_score_mean_max": 47.951611585617066,
+          "sae_release": "pythia-70m-deduped-res-sm",
+          "sae_id": "blocks.0.hook_resid_pre",
+          "date": "2026-02-13 18:59:31",
+          "scores_dump_line_count": 200
+        },
+        "artifacts": {
+          "cebench_metrics_summary_json": "results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed1011/cebench/cebench_metrics_summary.json",
+          "cebench_metrics_summary_md": "results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/run_20260216T130431Z/external_eval/routed_topk_seed1011/cebench/cebench_metrics_summary.md"
+        }
+      },
+      "saebench_returncode": 0,
+      "cebench_returncode": 0
+    }
+  ],
+  "aggregate": {
+    "train_mse": {
+      "mean": 0.0005454046651721001,
+      "std": 1.8707356131307945e-05,
+      "min": 0.0005207599606364965,
+      "max": 0.0005647260695695877,
+      "n": 5
+    },
+    "train_ev": {
+      "mean": 0.3425471412352045,
+      "std": 0.02254911926079823,
+      "min": 0.31925629321044546,
+      "max": 0.37225362191880706,
+      "n": 5
+    },
+    "train_l0": {
+      "mean": 32.0,
+      "std": 0.0,
+      "min": 32.0,
+      "max": 32.0,
+      "n": 5
+    },
+    "routing_entropy": {
+      "mean": 1.3862942695617675,
+      "std": 2.9682873721095876e-07,
+      "min": 1.386293888092041,
+      "max": 1.3862944841384888,
+      "n": 5
+    },
+    "routing_balance_l2": {
+      "mean": 9.566821449880081e-06,
+      "std": 7.340066781133421e-06,
+      "min": 1.5103192936294363e-06,
+      "max": 1.8495822587283328e-05,
+      "n": 5
+    },
+    "saebench_best_minus_llm_auc": {
+      "mean": -0.0694965844449287,
+      "std": 0.003924007641583439,
+      "min": -0.07371308901922113,
+      "max": -0.06373351789599835,
+      "n": 5
+    },
+    "cebench_interpretability_max": {
+      "mean": 11.276380165576935,
+      "std": 2.71613081240992,
+      "min": 9.206698696613312,
+      "max": 15.98781436920166,
+      "n": 5
+    },
+    "cebench_interp_delta_vs_baseline": {
+      "mean": -36.675231420040134,
+      "std": 2.71613081240992,
+      "min": -38.74491288900376,
+      "max": -31.963797216415408,
+      "n": 5
+    }
+  }
+}

@@ -2,7 +2,7 @@
 
 Updated: 2026-02-16
 
-Canonical map: `START_HERE.md`, `REPO_NAVIGATION.md`, `CYCLE5_EXTERNAL_PUSH_REFLECTIVE_REVIEW.md`.
+Canonical map: `START_HERE.md`, `REPO_NAVIGATION.md`, `CYCLE7_PARETO_PLAN.md`, `CYCLE8_ROBUST_PLAN.md`.
 
 ## 1) Environment
 
@@ -150,9 +150,28 @@ Cycle-5 external push:
 bash scripts/experiments/run_cycle5_external_push.sh
 ```
 
+Cycle-6 SAE-aware push:
+
+```bash
+bash scripts/experiments/run_cycle6_saeaware_push.sh
+```
+
+Cycle-7 Pareto push:
+
+```bash
+bash scripts/experiments/run_cycle7_pareto_push.sh
+```
+
+Cycle-8 robust Pareto push:
+
+```bash
+bash scripts/experiments/run_cycle8_robust_pareto_push.sh
+```
+
 ## 5) Current Claim Policy
 
 Do not promote external claims unless strict gate passes (`pass_all=true`).
 
-Latest known status (cycle-5 canonical run): `pass_all=false`.
-Canonical artifact: `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.json`.
+Latest fully completed strict-gate status remains `pass_all=false` (cycle-5 canonical run).
+Live queue status is tracked in `docs/evidence/cycle7_live_snapshot_20260216T165714Z/monitoring_summary.md`.
+Canonical completed-gate artifact: `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.json`.

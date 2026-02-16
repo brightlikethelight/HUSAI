@@ -1787,3 +1787,32 @@ pytest -q tests/unit/test_release_policy_selector.py tests/unit/test_assignment_
   - cycle-7 queue active on B200:
     - `results/experiments/cycle7_pareto_push/run_20260216T062213Z/cycle7.log`
   - routed stage completed `p1..p3`, `p4` in progress at snapshot time.
+
+### Run 83: Live cycle-7 monitoring snapshot + cycle-8 launch
+- Remote status confirmed on RunPod B200:
+  - cycle-7 run: `results/experiments/cycle7_pareto_push/run_20260216T062213Z`
+  - stage-1 routed sweep complete (`p1..p5`)
+  - stage-2 assignment run active:
+    - `results/experiments/phase4d_assignment_consistency_v3_cycle7_pareto/run_20260216T142558Z`
+  - cycle-8 queue launched and waiting behind cycle-7:
+    - `results/experiments/cycle8_robust_pareto_push/run_20260216T163502Z`
+
+- Routed stage aggregate snapshot (cycle-7):
+  - best SAEBench delta among p1..p5: `-0.0638067108` (`run_20260216T133659Z`)
+  - best CE-Bench delta among p1..p5: `-36.1834613471` (`run_20260216T140951Z`)
+
+- Assignment stage progress snapshot (`run_20260216T142558Z`):
+  - checkpoints: `56`
+  - completed SAEBench summaries: `>=5` and increasing
+  - completed CE-Bench summaries: `>=4` and increasing
+
+- W&B telemetry check:
+  - no remote `WANDB_*` env vars detected
+  - no active remote `wandb/run-*` outputs for current queue
+  - telemetry remains artifact/log-file based
+
+- Evidence synced locally:
+  - `docs/evidence/cycle7_live_snapshot_20260216T165714Z/monitoring_summary.md`
+  - `docs/evidence/cycle7_live_snapshot_20260216T165714Z/assignment/progress_snapshot.json`
+  - `docs/evidence/cycle7_live_snapshot_20260216T165714Z/cycle7.log`
+  - `docs/evidence/cycle7_live_snapshot_20260216T165714Z/cycle8/cycle8.log`

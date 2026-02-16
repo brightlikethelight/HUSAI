@@ -7,15 +7,16 @@ This is the canonical entrypoint for HUSAI.
 ## 1) Current Truth
 
 - Internal consistency improvements are real and reproducible.
-- CE-Bench improved in cycle-5 routed/assignment sweeps, but SAEBench remains negative.
-- Strict release gate is still failing (`pass_all=false`).
+- Cycle-7 is actively testing Pareto tradeoffs; routed stage (`p1..p5`) is complete, assignment stage is running.
+- Cycle-8 robustness queue is launched and waiting behind cycle-7.
+- Last fully completed strict release gate is still failing (`pass_all=false`) due external LCB criteria.
 
 Canonical current-status files:
 - `EXECUTIVE_SUMMARY.md`
-- `CYCLE5_EXTERNAL_PUSH_REFLECTIVE_REVIEW.md`
-- `CYCLE4_FINAL_REFLECTIVE_REVIEW.md` (historical baseline)
+- `CYCLE7_PARETO_PLAN.md`
+- `CYCLE8_ROBUST_PLAN.md`
+- `docs/evidence/cycle7_live_snapshot_20260216T165714Z/monitoring_summary.md`
 - `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.md`
-- `docs/evidence/cycle5_external_push_run_20260215T232351Z/cycle5_synthesis.md`
 
 ## 2) Read in This Order
 
@@ -23,9 +24,10 @@ Canonical current-status files:
 2. `LEARNING_PATH.md`
 3. `PROJECT_STUDY_GUIDE.md`
 4. `EXECUTIVE_SUMMARY.md`
-5. `CYCLE5_EXTERNAL_PUSH_REFLECTIVE_REVIEW.md`
-6. `RUNBOOK.md`
-7. `EXPERIMENT_LOG.md`
+5. `CYCLE7_PARETO_PLAN.md`
+6. `CYCLE8_ROBUST_PLAN.md`
+7. `RUNBOOK.md`
+8. `EXPERIMENT_LOG.md`
 
 ## 3) Core Research Questions
 
@@ -44,6 +46,6 @@ Canonical current-status files:
 
 1. Read `LEARNING_PATH.md`.
 2. Read `PROJECT_STUDY_GUIDE.md`.
-3. Read `CYCLE5_EXTERNAL_PUSH_REFLECTIVE_REVIEW.md`.
-4. Read `docs/evidence/cycle5_external_push_run_20260215T232351Z/cycle5_synthesis.md`.
+3. Read `docs/evidence/cycle7_live_snapshot_20260216T165714Z/monitoring_summary.md`.
+4. Read `CYCLE7_PARETO_PLAN.md` and `CYCLE8_ROBUST_PLAN.md`.
 5. Use `RUNBOOK.md` for rerun commands.

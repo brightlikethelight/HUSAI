@@ -1,4 +1,4 @@
-# Executive Summary (Cycle 5 Update)
+# Executive Summary (Live Cycle-7/Cycle-8 State)
 
 Date: 2026-02-16
 
@@ -9,15 +9,15 @@ HUSAI tests whether SAE feature consistency gains are real across seeds, and whe
 ## Current Scientific Bottom Line
 
 - Internal consistency progress: **real and replicated**.
-- External competitiveness: **improved on CE-Bench in cycle-5 sweeps, still not release-positive overall**.
-- Reliability and reproducibility hygiene: **strong**.
-- Strict release decision: **fail** (`pass_all=False`).
+- External competitiveness: **still unresolved** (latest fully completed strict gate remains fail).
+- Reliability and reproducibility hygiene: **strong** (unit tests passing, queue manifests, strict gates).
+- Live execution state: **cycle-7 running (assignment stage), cycle-8 queued with robustness upgrades**.
 
 Canonical current-status artifacts:
-- `docs/evidence/cycle5_external_push_run_20260215T232351Z/cycle5_synthesis.md`
+- `docs/evidence/cycle7_live_snapshot_20260216T165714Z/monitoring_summary.md`
+- `CYCLE7_PARETO_PLAN.md`
+- `CYCLE8_ROBUST_PLAN.md`
 - `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.json`
-- `docs/evidence/cycle5_external_push_run_20260215T232351Z/selector/selection_summary.json`
-- `CYCLE5_EXTERNAL_PUSH_REFLECTIVE_REVIEW.md`
 
 ## Cycle 5 Key Outcomes
 
@@ -64,17 +64,17 @@ Numerical highlights:
 
 ## Highest-Leverage Next 5 (Ranked)
 
-1. Add SAEBench-aware objective/selection term to assignment-v3 so CE gains do not come with SAE AUC regressions.
-2. Expand assignment/routed seed support and set selector group threshold consistently with available seeds.
-3. Run joint Pareto selection with explicit SAEBench floor and CE-Bench maximize objective.
-4. Add selector warning/error when groups are dropped due seed-count filters.
-5. Enforce deterministic env (`CUBLAS_WORKSPACE_CONFIG`) across every queue stage.
+1. Finish cycle-7 and evaluate whether assignment stage can produce any external non-negative-LCB candidate.
+2. Execute cycle-8 robust routed sweep and compare robustness/diversity regularization against cycle-7 routed Pareto points.
+3. Re-run grouped-LCB selector with cycle-8 outputs and quantify sensitivity at `min_seeds_per_group=4` vs `3`.
+4. If external gate still fails, run a focused assignment-only cycle with SAEBench-heavier checkpoint policy and stricter CE floor.
+5. Close known-circuit track with trained-vs-random CI reporting in the same release packet.
 
 ## Read Next
 
-1. `CYCLE5_EXTERNAL_PUSH_REFLECTIVE_REVIEW.md`
-2. `START_HERE.md`
-3. `LEARNING_PATH.md`
-4. `PROJECT_STUDY_GUIDE.md`
+1. `docs/evidence/cycle7_live_snapshot_20260216T165714Z/monitoring_summary.md`
+2. `CYCLE7_PARETO_PLAN.md`
+3. `CYCLE8_ROBUST_PLAN.md`
+4. `START_HERE.md`
 5. `RUNBOOK.md`
 6. `EXPERIMENT_LOG.md`

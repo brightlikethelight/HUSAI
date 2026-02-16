@@ -2,19 +2,21 @@
 
 HUSAI studies whether sparse autoencoder (SAE) features are reproducible across seeds and whether internal consistency gains transfer to external interpretability benchmarks.
 
-## Current Status (Cycle 5 Update, 2026-02-16)
+## Current Status (Live Queue State, 2026-02-16)
 
-- Internal consistency improvements: supported.
-- CE-Bench deltas: improved in cycle-5 routed/assignment sweeps.
-- SAEBench deltas: still negative in release-candidate settings.
-- Strict release gate: failing (`pass_all=False`).
+- Cycle-7 Pareto push is active on B200:
+  - routed stage complete (`p1..p5`)
+  - assignment-v3 external stage in progress
+- Cycle-8 robust Pareto push is queued and waiting behind cycle-7.
+- Last fully completed strict release gate remains failing (`pass_all=False`) because external LCB criteria are not yet met.
 
-Canonical status artifacts:
+Canonical live artifacts:
 - `START_HERE.md`
 - `EXECUTIVE_SUMMARY.md`
-- `CYCLE5_EXTERNAL_PUSH_REFLECTIVE_REVIEW.md`
+- `CYCLE7_PARETO_PLAN.md`
+- `CYCLE8_ROBUST_PLAN.md`
+- `docs/evidence/cycle7_live_snapshot_20260216T165714Z/monitoring_summary.md`
 - `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.md`
-- `docs/evidence/cycle5_external_push_run_20260215T232351Z/cycle5_synthesis.md`
 
 ## Main Research Question
 
