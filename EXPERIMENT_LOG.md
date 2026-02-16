@@ -1747,3 +1747,43 @@ pytest -q tests/unit/test_husai_custom_sae_adapter.py tests/unit/test_known_circ
   - launch log: `results/experiments/cycle7_pareto_push/launch_20260216T062212Z.log`
   - run dir: `results/experiments/cycle7_pareto_push/run_20260216T062213Z`
   - status: waiting behind active cycle-6 process (expected behavior)
+
+### Run 82: Routed robustness/diversity upgrade + cycle-8 queue preparation
+- Goal:
+  - Add high-impact routed regularization controls to improve external generalization (especially SAEBench) and queue a strict grouped-LCB follow-up cycle.
+
+- Code changes:
+  - `scripts/experiments/run_routed_frontier_external.py`
+    - added decoder diversity penalty helper (`decoder_diversity_penalty`).
+    - added routed robustness controls:
+      - `--robust-noise-std`
+      - `--route-consistency-coef`
+      - `--decoder-diversity-coef`
+      - `--decoder-diversity-sample`
+    - integrated new losses into training objective and logged aggregates:
+      - `route_consistency_loss`
+      - `decoder_diversity_loss`
+  - `tests/unit/test_routed_frontier_modes.py`
+    - added tests for diversity penalty behavior (orthogonal vs duplicate columns).
+  - `scripts/experiments/run_cycle8_robust_pareto_push.sh`
+    - added new cycle-8 queue with robust routed sweep + assignment-v3 external-aware sweep + grouped-LCB selector + strict release gate.
+  - `CYCLE8_ROBUST_PLAN.md`
+    - added cycle rationale, stage design, success criteria, and literature anchors.
+
+- Validation:
+```bash
+python -m py_compile scripts/experiments/run_routed_frontier_external.py
+bash -n scripts/experiments/run_cycle8_robust_pareto_push.sh
+pytest -q tests/unit/test_routed_frontier_modes.py
+pytest -q tests/unit/test_release_policy_selector.py tests/unit/test_assignment_consistency_v3.py
+```
+- Outcome: success
+  - routed compile: pass
+  - cycle-8 shell syntax: pass
+  - routed test suite: pass (`4 passed`)
+  - selector/assignment tests: pass (`10 passed`)
+
+- Live remote monitoring snapshot during this run:
+  - cycle-7 queue active on B200:
+    - `results/experiments/cycle7_pareto_push/run_20260216T062213Z/cycle7.log`
+  - routed stage completed `p1..p3`, `p4` in progress at snapshot time.

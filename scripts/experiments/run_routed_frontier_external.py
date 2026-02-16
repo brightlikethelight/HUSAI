@@ -130,6 +130,37 @@ def build_expert_slices(d_sae: int, num_experts: int) -> list[tuple[int, int]]:
     return out
 
 
+def decoder_diversity_penalty(
+    decoder_weight: torch.Tensor,
+    *,
+    sample_size: int = 0,
+    eps: float = 1e-9,
+) -> torch.Tensor:
+    """Penalize correlated decoder feature directions.
+
+    `decoder_weight` is expected to be [d_model, d_sae], with each column a feature
+    direction. The penalty is the mean squared off-diagonal cosine similarity.
+    """
+    if decoder_weight.ndim != 2:
+        raise ValueError(f"Expected decoder_weight rank-2, got {tuple(decoder_weight.shape)}")
+
+    d_sae = int(decoder_weight.shape[1])
+    if d_sae <= 1:
+        return decoder_weight.new_zeros(())
+
+    if sample_size > 1 and sample_size < d_sae:
+        idx = torch.randperm(d_sae, device=decoder_weight.device)[:sample_size]
+        w = decoder_weight.index_select(dim=1, index=idx)
+    else:
+        w = decoder_weight
+
+    w = F.normalize(w, dim=0, eps=eps)
+    gram = torch.matmul(w.transpose(0, 1), w)
+    eye = torch.eye(gram.shape[0], device=gram.device, dtype=gram.dtype)
+    off_diag = gram - eye
+    return off_diag.square().mean()
+
+
 def build_router_mask(expert_ids: torch.Tensor, d_sae: int, slices: list[tuple[int, int]]) -> torch.Tensor:
     batch = int(expert_ids.shape[0])
     mask = torch.zeros((batch, d_sae), device=expert_ids.device, dtype=torch.float32)
@@ -181,6 +212,8 @@ class TrainMetrics:
     l0: float
     routing_entropy: float
     routing_balance_l2: float
+    route_consistency_loss: float
+    decoder_diversity_loss: float
 
 
 @dataclass
@@ -205,6 +238,10 @@ def train_routed_topk(
     route_balance_coef: float,
     route_entropy_coef: float,
     route_topk_mode: str,
+    robust_noise_std: float,
+    route_consistency_coef: float,
+    decoder_diversity_coef: float,
+    decoder_diversity_sample: int,
 ) -> tuple[torch.nn.Module, nn.Linear, TrainMetrics, RouteDiagnostics]:
     set_seed(seed)
 
@@ -222,8 +259,14 @@ def train_routed_topk(
 
     model.train()
     router.train()
+    last_consistency_loss = 0.0
+    last_diversity_loss = 0.0
     for _ in range(epochs):
         model.reset_feature_counts()
+        epoch_consistency_loss = 0.0
+        epoch_diversity_loss = 0.0
+        epoch_batches = 0
+
         for (batch_cpu,) in loader:
             batch = batch_cpu.to(device=torch.device(device), dtype=dtype)
 
@@ -247,12 +290,52 @@ def train_routed_topk(
             balance_loss = F.mse_loss(usage, target)
             entropy = -(probs * torch.log(probs.clamp_min(1e-9))).sum(dim=-1).mean()
 
-            loss = mse + aux_loss + route_balance_coef * balance_loss - route_entropy_coef * entropy
+            consistency_loss = torch.zeros((), device=batch.device, dtype=batch.dtype)
+            if robust_noise_std > 0.0 and route_consistency_coef > 0.0:
+                noise_scale = float(batch.detach().std(unbiased=False).item())
+                noisy_batch = batch + torch.randn_like(batch) * (robust_noise_std * (noise_scale + 1e-6))
+                pre_noisy = model.encode(noisy_batch)
+                feats_noisy, probs_noisy = routed_topk_features(
+                    pre=pre_noisy,
+                    batch=noisy_batch,
+                    router=router,
+                    d_sae=d_sae,
+                    expert_slices=expert_slices,
+                    k=k,
+                    mode=route_topk_mode,
+                )
+                feature_consistency = F.mse_loss(feats_noisy, feats_routed.detach())
+                route_consistency = F.mse_loss(probs_noisy, probs.detach())
+                consistency_loss = feature_consistency + route_consistency
+
+            diversity_loss = torch.zeros((), device=batch.device, dtype=batch.dtype)
+            if decoder_diversity_coef > 0.0:
+                diversity_loss = decoder_diversity_penalty(
+                    model.decoder.weight,
+                    sample_size=decoder_diversity_sample,
+                )
+
+            loss = (
+                mse
+                + aux_loss
+                + route_balance_coef * balance_loss
+                - route_entropy_coef * entropy
+                + route_consistency_coef * consistency_loss
+                + decoder_diversity_coef * diversity_loss
+            )
 
             optimizer.zero_grad(set_to_none=True)
             loss.backward()
             optimizer.step()
             model.normalize_decoder()
+
+            epoch_consistency_loss += float(consistency_loss.item())
+            epoch_diversity_loss += float(diversity_loss.item())
+            epoch_batches += 1
+
+        if epoch_batches > 0:
+            last_consistency_loss = epoch_consistency_loss / float(epoch_batches)
+            last_diversity_loss = epoch_diversity_loss / float(epoch_batches)
 
     model.eval()
     router.eval()
@@ -288,6 +371,8 @@ def train_routed_topk(
         l0=l0,
         routing_entropy=entropy,
         routing_balance_l2=balance_l2,
+        route_consistency_loss=last_consistency_loss,
+        decoder_diversity_loss=last_diversity_loss,
     )
     diagnostics = RouteDiagnostics(
         expert_usage=[float(x) for x in usage.detach().cpu().tolist()],
@@ -356,6 +441,30 @@ def main() -> None:
         choices=["expert_topk", "global_mask"],
         default="expert_topk",
         help="expert_topk keeps k features within routed expert; global_mask applies global top-k then expert mask.",
+    )
+    parser.add_argument(
+        "--robust-noise-std",
+        type=float,
+        default=0.0,
+        help="Relative Gaussian noise scale for robustness consistency regularization (0 disables).",
+    )
+    parser.add_argument(
+        "--route-consistency-coef",
+        type=float,
+        default=0.0,
+        help="Weight for clean-vs-noisy route/feature consistency loss.",
+    )
+    parser.add_argument(
+        "--decoder-diversity-coef",
+        type=float,
+        default=0.0,
+        help="Weight for decoder feature diversity penalty (off-diagonal cosine suppression).",
+    )
+    parser.add_argument(
+        "--decoder-diversity-sample",
+        type=int,
+        default=512,
+        help="Feature sample size for diversity penalty (<=1 or >=d_sae uses all features).",
     )
 
     parser.add_argument("--model-name", type=str, default="pythia-70m-deduped")
@@ -456,6 +565,10 @@ def main() -> None:
             route_balance_coef=args.route_balance_coef,
             route_entropy_coef=args.route_entropy_coef,
             route_topk_mode=args.route_topk_mode,
+            robust_noise_std=args.robust_noise_std,
+            route_consistency_coef=args.route_consistency_coef,
+            decoder_diversity_coef=args.decoder_diversity_coef,
+            decoder_diversity_sample=args.decoder_diversity_sample,
         )
 
         write_checkpoint(
@@ -564,6 +677,8 @@ def main() -> None:
         "train_l0": summary_stats([r["train_metrics"]["l0"] for r in records]),
         "routing_entropy": summary_stats([r["train_metrics"]["routing_entropy"] for r in records]),
         "routing_balance_l2": summary_stats([r["train_metrics"]["routing_balance_l2"] for r in records]),
+        "route_consistency_loss": summary_stats([r["train_metrics"]["route_consistency_loss"] for r in records]),
+        "decoder_diversity_loss": summary_stats([r["train_metrics"]["decoder_diversity_loss"] for r in records]),
         "saebench_best_minus_llm_auc": summary_stats(
             [maybe_float((r.get("saebench") or {}).get("summary", {}).get("best_minus_llm_auc")) for r in records]
         ),
@@ -608,6 +723,10 @@ def main() -> None:
             "route_balance_coef": args.route_balance_coef,
             "route_entropy_coef": args.route_entropy_coef,
             "route_topk_mode": args.route_topk_mode,
+            "robust_noise_std": args.robust_noise_std,
+            "route_consistency_coef": args.route_consistency_coef,
+            "decoder_diversity_coef": args.decoder_diversity_coef,
+            "decoder_diversity_sample": args.decoder_diversity_sample,
             "run_saebench": args.run_saebench,
             "run_cebench": args.run_cebench,
             "cebench_repo": str(args.cebench_repo) if args.cebench_repo else None,
@@ -650,6 +769,8 @@ def main() -> None:
         f"| train_l0 | {aggregate['train_l0']['mean']} | {aggregate['train_l0']['std']} |",
         f"| routing_entropy | {aggregate['routing_entropy']['mean']} | {aggregate['routing_entropy']['std']} |",
         f"| routing_balance_l2 | {aggregate['routing_balance_l2']['mean']} | {aggregate['routing_balance_l2']['std']} |",
+        f"| route_consistency_loss | {aggregate['route_consistency_loss']['mean']} | {aggregate['route_consistency_loss']['std']} |",
+        f"| decoder_diversity_loss | {aggregate['decoder_diversity_loss']['mean']} | {aggregate['decoder_diversity_loss']['std']} |",
         f"| saebench_best_minus_llm_auc | {aggregate['saebench_best_minus_llm_auc']['mean']} | {aggregate['saebench_best_minus_llm_auc']['std']} |",
         f"| cebench_interpretability_max | {aggregate['cebench_interpretability_max']['mean']} | {aggregate['cebench_interpretability_max']['std']} |",
         f"| cebench_interp_delta_vs_baseline | {aggregate['cebench_interp_delta_vs_baseline']['mean']} | {aggregate['cebench_interp_delta_vs_baseline']['std']} |",

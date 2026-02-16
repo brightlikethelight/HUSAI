@@ -5,6 +5,7 @@ from torch import nn
 
 from scripts.experiments.run_routed_frontier_external import (
     build_expert_slices,
+    decoder_diversity_penalty,
     routed_topk_features,
 )
 
@@ -73,3 +74,27 @@ def test_global_mask_can_reduce_effective_l0_after_routing() -> None:
     l0 = (feats != 0).float().sum(dim=-1).tolist()
     assert l0[0] < 2.0
     assert l0[1] < 2.0
+
+
+def test_decoder_diversity_penalty_is_zero_for_orthogonal_columns() -> None:
+    weight = torch.tensor(
+        [
+            [1.0, 0.0],
+            [0.0, 1.0],
+            [0.0, 0.0],
+        ]
+    )
+    penalty = decoder_diversity_penalty(weight)
+    assert penalty.item() < 1e-8
+
+
+def test_decoder_diversity_penalty_increases_for_duplicate_columns() -> None:
+    weight = torch.tensor(
+        [
+            [1.0, 1.0],
+            [0.0, 0.0],
+            [0.0, 0.0],
+        ]
+    )
+    penalty = decoder_diversity_penalty(weight)
+    assert penalty.item() > 0.1
