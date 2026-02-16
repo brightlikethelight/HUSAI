@@ -87,3 +87,12 @@ Implication:
 - No external-improvement claim unless SAEBench + CE-Bench gates pass on configured threshold basis (point or LCB, explicitly declared).
 - No “finished” claim unless strict release gate and known-circuit closure are both green.
 - Every claim must link to exact artifact JSON/MD path.
+
+## 6) Prepared Execution Entry Point
+
+- Queue script: `scripts/experiments/run_cycle9_novelty_push.sh`
+- Launch command (remote):
+```bash
+KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
+  bash scripts/experiments/run_cycle9_novelty_push.sh
+```
