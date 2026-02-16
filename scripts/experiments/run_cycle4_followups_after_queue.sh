@@ -18,6 +18,7 @@ MIN_SAEBENCH_DELTA_LCB="${MIN_SAEBENCH_DELTA_LCB:-0.0}"
 MIN_CEBENCH_DELTA_LCB="${MIN_CEBENCH_DELTA_LCB:-0.0}"
 
 SAEBENCH_DATASETS="${SAEBENCH_DATASETS:-100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom}"
+ASSIGN_UPDATE_INTERVAL="${ASSIGN_UPDATE_INTERVAL:-4}"
 
 RUN_ID="run_$(date -u +%Y%m%dT%H%M%SZ)"
 RUN_DIR="results/experiments/cycle4_followups/${RUN_ID}"
@@ -27,6 +28,7 @@ exec > >(tee -a "$LOG_PATH") 2>&1
 
 echo "[followups] run_id=$RUN_ID"
 echo "[followups] resume_from_step=$RESUME_FROM_STEP"
+echo "[followups] assignment_update_interval=$ASSIGN_UPDATE_INTERVAL"
 
 echo "[followups] waiting for active queue to finish..."
 while pgrep -f "^bash scripts/experiments/run_b200_high_impact_queue.sh$" >/dev/null 2>&1; do
@@ -154,6 +156,7 @@ if [[ "$RESUME_FROM_STEP" -le 3 ]]; then
     --device cuda \
     --epochs 12 \
     --batch-size 4096 \
+    --assignment-update-interval "$ASSIGN_UPDATE_INTERVAL" \
     --train-seeds 123,456 \
     --lambdas 0.0,0.05,0.1,0.2,0.3 \
     --run-saebench \

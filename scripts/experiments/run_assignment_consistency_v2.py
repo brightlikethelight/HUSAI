@@ -152,6 +152,16 @@ def assignment_alignment_penalty(
     ref_decoder: torch.Tensor,
 ) -> tuple[torch.Tensor, float]:
     """Permutation-invariant alignment penalty via Hungarian matching."""
+    penalty, mean_alignment, _ = assignment_alignment_penalty_with_indices(decoder, ref_decoder)
+    return penalty, mean_alignment
+
+
+def assignment_alignment_penalty_with_indices(
+    decoder: torch.Tensor,
+    ref_decoder: torch.Tensor,
+    assignment_indices: tuple[torch.Tensor, torch.Tensor] | None = None,
+) -> tuple[torch.Tensor, float, tuple[torch.Tensor, torch.Tensor]]:
+    """Compute alignment penalty; optionally reuse precomputed assignment indices."""
     d = F.normalize(decoder, dim=0)
     r = F.normalize(ref_decoder, dim=0)
     if d.shape != r.shape:
@@ -161,16 +171,29 @@ def assignment_alignment_penalty(
             raise ValueError(f"Decoder shape mismatch: {tuple(d.shape)} vs {tuple(r.shape)}")
     cos = d.T @ r
 
-    with torch.no_grad():
-        cost = (1.0 - cos.abs()).detach().cpu().numpy()
-        row_idx, col_idx = linear_sum_assignment(cost)
-        row_t = torch.as_tensor(row_idx, device=cos.device, dtype=torch.long)
-        col_t = torch.as_tensor(col_idx, device=cos.device, dtype=torch.long)
+    row_t: torch.Tensor
+    col_t: torch.Tensor
+    if assignment_indices is None:
+        with torch.no_grad():
+            cost = (1.0 - cos.abs()).detach().cpu().numpy()
+            row_idx, col_idx = linear_sum_assignment(cost)
+            row_t = torch.as_tensor(row_idx, device=cos.device, dtype=torch.long)
+            col_t = torch.as_tensor(col_idx, device=cos.device, dtype=torch.long)
+    else:
+        row_t, col_t = assignment_indices
+        row_t = row_t.to(device=cos.device, dtype=torch.long)
+        col_t = col_t.to(device=cos.device, dtype=torch.long)
+        if row_t.numel() != cos.shape[0] or col_t.numel() != cos.shape[1]:
+            with torch.no_grad():
+                cost = (1.0 - cos.abs()).detach().cpu().numpy()
+                row_idx, col_idx = linear_sum_assignment(cost)
+                row_t = torch.as_tensor(row_idx, device=cos.device, dtype=torch.long)
+                col_t = torch.as_tensor(col_idx, device=cos.device, dtype=torch.long)
 
     matched = cos.abs()[row_t, col_t]
     mean_alignment = matched.mean()
     penalty = 1.0 - mean_alignment
-    return penalty, float(mean_alignment.item())
+    return penalty, float(mean_alignment.item()), (row_t.detach(), col_t.detach())
 
 
 def train_topk_assignment_v2(
@@ -184,7 +207,10 @@ def train_topk_assignment_v2(
     device: str,
     lambda_consistency: float,
     ref_decoder: torch.Tensor | None,
+    assignment_update_interval: int = 1,
 ) -> tuple[TopKSAE, dict[str, float]]:
+    if assignment_update_interval < 1:
+        raise ValueError(f"assignment_update_interval must be >= 1, got {assignment_update_interval}")
     set_seed(seed)
 
     d_model = int(activations.shape[1])
@@ -205,6 +231,9 @@ def train_topk_assignment_v2(
 
     alignment_mean_running = 0.0
     alignment_batches = 0
+    global_step = 0
+    hungarian_solve_count = 0
+    cached_assignment: tuple[torch.Tensor, torch.Tensor] | None = None
 
     model.train()
     for _ in range(epochs):
@@ -214,7 +243,16 @@ def train_topk_assignment_v2(
             mse = F.mse_loss(recon, batch)
 
             if ref_decoder_device is not None and lambda_consistency > 0:
-                penalty, align = assignment_alignment_penalty(model.decoder.weight, ref_decoder_device)
+                should_refresh_assignment = (
+                    cached_assignment is None or (global_step % assignment_update_interval == 0)
+                )
+                penalty, align, cached_assignment = assignment_alignment_penalty_with_indices(
+                    model.decoder.weight,
+                    ref_decoder_device,
+                    assignment_indices=None if should_refresh_assignment else cached_assignment,
+                )
+                if should_refresh_assignment:
+                    hungarian_solve_count += 1
                 loss = mse + lambda_consistency * penalty
                 alignment_mean_running += align
                 alignment_batches += 1
@@ -225,6 +263,7 @@ def train_topk_assignment_v2(
             loss.backward()
             optimizer.step()
             model.normalize_decoder()
+            global_step += 1
 
     model.eval()
     with torch.no_grad():
@@ -243,6 +282,9 @@ def train_topk_assignment_v2(
         "assignment_alignment_mean_train": (
             alignment_mean_running / alignment_batches if alignment_batches > 0 else float("nan")
         ),
+        "assignment_update_interval": int(assignment_update_interval),
+        "assignment_hungarian_solves_train": int(hungarian_solve_count),
+        "train_steps": int(global_step),
     }
     return model.cpu(), metrics
 
@@ -265,6 +307,7 @@ def run_lambda_condition(
     device: str,
     bootstrap_samples: int,
     checkpoint_dir: Path,
+    assignment_update_interval: int = 1,
 ) -> dict[str, Any]:
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
@@ -279,6 +322,7 @@ def run_lambda_condition(
         device=device,
         lambda_consistency=0.0,
         ref_decoder=None,
+        assignment_update_interval=assignment_update_interval,
     )
 
     ref_decoder = ref_model.decoder.weight.detach().float().cpu()
@@ -321,6 +365,7 @@ def run_lambda_condition(
             device=device,
             lambda_consistency=lambda_consistency,
             ref_decoder=ref_decoder,
+            assignment_update_interval=assignment_update_interval,
         )
 
         decoder = model.decoder.weight.detach().float().cpu()
@@ -471,6 +516,7 @@ def main() -> None:
     parser.add_argument("--epochs", type=int, default=30)
     parser.add_argument("--batch-size", type=int, default=512)
     parser.add_argument("--learning-rate", type=float, default=3e-4)
+    parser.add_argument("--assignment-update-interval", type=int, default=1)
     parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--bootstrap-samples", type=int, default=10000)
 
@@ -522,6 +568,7 @@ def main() -> None:
             device=args.device,
             bootstrap_samples=args.bootstrap_samples,
             checkpoint_dir=ckpt_dir,
+            assignment_update_interval=args.assignment_update_interval,
         )
         results.append(rec)
 
@@ -571,6 +618,7 @@ def main() -> None:
         "epochs": args.epochs,
         "batch_size": args.batch_size,
         "learning_rate": args.learning_rate,
+        "assignment_update_interval": args.assignment_update_interval,
         "device": args.device,
         "bootstrap_samples": args.bootstrap_samples,
         "external_summary": str(args.external_summary) if args.external_summary else None,

@@ -9,6 +9,7 @@ ACTIVATION_CACHE_DIR="${ACTIVATION_CACHE_DIR:-/tmp/sae_bench_model_cache/model_a
 SAEBENCH_MODEL_CACHE_PATH="${SAEBENCH_MODEL_CACHE_PATH:-/tmp/sae_bench_model_cache}"
 export CUBLAS_WORKSPACE_CONFIG="${CUBLAS_WORKSPACE_CONFIG:-:4096:8}"
 SAEBENCH_DATASETS="${SAEBENCH_DATASETS:-100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom}"
+ASSIGN_UPDATE_INTERVAL="${ASSIGN_UPDATE_INTERVAL:-4}"
 
 RUN_ID="run_$(date -u +%Y%m%dT%H%M%SZ)"
 RUN_DIR="results/experiments/cycle6_saeaware_push/${RUN_ID}"
@@ -17,6 +18,7 @@ LOG_PATH="$RUN_DIR/cycle6.log"
 exec > >(tee -a "$LOG_PATH") 2>&1
 
 echo "[cycle6] run_id=$RUN_ID"
+echo "[cycle6] assignment_update_interval=$ASSIGN_UPDATE_INTERVAL"
 echo "[cycle6] waiting for conflicting experiment runners to finish"
 while pgrep -f "run_cycle5_external_push.sh|run_cycle4_followups_after_queue.sh|run_architecture_frontier_external.py|run_routed_frontier_external.py|run_assignment_consistency_v3.py|run_external_metric_scaling_study.py" >/dev/null 2>&1; do
   date -u +"[cycle6] %Y-%m-%dT%H:%M:%SZ another runner active"
@@ -112,6 +114,7 @@ run_assignment_condition() {
     --epochs "$epochs" \
     --batch-size 4096 \
     --learning-rate "$lr" \
+    --assignment-update-interval "$ASSIGN_UPDATE_INTERVAL" \
     --train-seeds 123,456,789,1011,1213,1415 \
     --lambdas 0.0,0.03,0.05,0.08,0.1,0.15,0.2 \
     --run-saebench \

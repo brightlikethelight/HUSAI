@@ -575,6 +575,7 @@ def main() -> None:
     parser.add_argument("--epochs", type=int, default=30)
     parser.add_argument("--batch-size", type=int, default=512)
     parser.add_argument("--learning-rate", type=float, default=3e-4)
+    parser.add_argument("--assignment-update-interval", type=int, default=1)
     parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--bootstrap-samples", type=int, default=10000)
 
@@ -697,6 +698,7 @@ def main() -> None:
             device=args.device,
             bootstrap_samples=args.bootstrap_samples,
             checkpoint_dir=ckpt_dir,
+            assignment_update_interval=args.assignment_update_interval,
         )
         records.append(rec)
 
@@ -890,6 +892,7 @@ def main() -> None:
         "epochs": args.epochs,
         "batch_size": args.batch_size,
         "learning_rate": args.learning_rate,
+        "assignment_update_interval": args.assignment_update_interval,
         "device": args.device,
         "bootstrap_samples": args.bootstrap_samples,
         "run_saebench": args.run_saebench,
