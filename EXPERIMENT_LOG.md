@@ -1829,3 +1829,11 @@ pytest -q tests/unit/test_release_policy_selector.py tests/unit/test_assignment_
   - `results/experiments/cycle8_robust_pareto_push/run_20260216T163502Z` waiting behind cycle-7.
 - Refreshed artifact:
   - `docs/evidence/cycle7_live_snapshot_20260216T165714Z/monitoring_summary.md`
+
+### Run 85: Cycle-7 live counters refreshed
+- Updated live counters from remote cycle-7 assignment run (`run_20260216T142558Z`):
+  - checkpoints: `56`
+  - completed SAEBench summaries: `22`
+  - completed CE-Bench summaries: `21`
+- Refreshed file:
+  - `docs/evidence/cycle7_live_snapshot_20260216T165714Z/monitoring_summary.md`

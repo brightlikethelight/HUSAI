@@ -1,6 +1,6 @@
 # Cycle-7 Live Monitoring Snapshot
 
-- Snapshot UTC: 2026-02-16T17:01:18+00:00
+- Snapshot UTC: 2026-02-16T17:05:36+00:00
 - Source run: `results/experiments/cycle7_pareto_push/run_20260216T062213Z`
 - Cycle-8 queue: waiting behind cycle-7 (`results/experiments/cycle8_robust_pareto_push/run_20260216T163502Z`)
 
@@ -20,8 +20,8 @@
 ## Assignment Stage Progress (run_20260216T142558Z)
 
 - checkpoints: `56`
-- completed SAEBench evals: `21`
-- completed CE-Bench evals: `21`
+- completed SAEBench evals: `23`
+- completed CE-Bench evals: `22`
 
 | lambda | checkpoints | saebench | cebench |
 |---|---:|---:|---:|
@@ -30,7 +30,7 @@
 | 0.05 | 7 | 4 | 4 |
 | 0.08 | 7 | 4 | 4 |
 | 0.1 | 7 | 4 | 4 |
-| 0.15 | 7 | 1 | 1 |
+| 0.15 | 7 | 3 | 2 |
 | 0.2 | 7 | 0 | 0 |
 | 0.3 | 7 | 0 | 0 |
 
