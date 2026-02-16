@@ -1,5 +1,5 @@
 {
-  "snapshot_utc": "2026-02-16T18:25:00Z",
+  "snapshot_utc": "2026-02-16T19:20:00Z",
   "a1_run": {
     "run": "results/experiments/phase4d_assignment_consistency_v3_cycle7_pareto/run_20260216T142558Z",
     "checkpoint_count": 56,
@@ -16,22 +16,11 @@
   },
   "a2_run": {
     "run": "results/experiments/phase4d_assignment_consistency_v3_cycle7_pareto/run_20260216T173317Z",
-    "checkpoint_count": 50,
+    "checkpoint_count": 56,
     "expected_checkpoint_count": 56,
-    "saebench_count": 0,
-    "cebench_count": 0,
+    "saebench_count": 13,
+    "cebench_count": 12,
     "expected_external_count": 32,
-    "latest_lambda_checkpoint_counts": {
-      "0.0": 7,
-      "0.03": 7,
-      "0.05": 7,
-      "0.08": 7,
-      "0.1": 7,
-      "0.15": 7,
-      "0.2": 7,
-      "0.3": 1
-    },
-    "most_recent_artifact": "results/experiments/phase4d_assignment_consistency_v3_cycle7_pareto/run_20260216T173317Z/checkpoints/lambda_0.3/sae_seed42.pt",
-    "most_recent_artifact_age_sec": 35.6
+    "latest_progress_note": "checkpoint phase complete; external eval in progress"
   }
 }

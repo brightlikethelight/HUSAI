@@ -1,9 +1,10 @@
 # Cycle-7 Live Monitoring Snapshot
 
-- Snapshot UTC: 2026-02-16T18:25:00Z
+- Snapshot UTC: 2026-02-16T19:20:00Z
 - Source run: `results/experiments/cycle7_pareto_push/run_20260216T062213Z`
 - Cycle-8 queue: waiting behind cycle-7 (`results/experiments/cycle8_robust_pareto_push/run_20260216T163502Z`)
-- Selection-robustness patch pushed to `main`: `14b6c59` (cycle-8 will pull this before starting)
+- Cycle-9 queue: waiting behind cycle-8/cycle-7 (`results/experiments/cycle9_novelty_push/run_20260216T184628Z`)
+- Selection-robustness patch on `main`: `14b6c59` (cycle-8 and cycle-9 will pull latest before running)
 
 ## Routed Stage (Completed p1..p5)
 
@@ -26,13 +27,13 @@
 - Internal LCB: `0.8398407121499379`
 - SAEBench delta: `-0.04354644998752344`
 - CE-Bench delta: `-34.468481616973875`
-- `pass_all=False` (external still below strict zero-LCB gates)
+- `pass_all=False`
 
 ### a2 (in progress)
 - Run: `results/experiments/phase4d_assignment_consistency_v3_cycle7_pareto/run_20260216T173317Z`
-- Checkpoints complete: `50 / 56`
-- External eval summaries: `0 / 32` SAEBench, `0 / 32` CE-Bench
-- Most recent artifact age during snapshot: ~36s (active forward progress)
+- Checkpoints complete: `56 / 56`
+- External eval summaries: `13 / 32` SAEBench, `12 / 32` CE-Bench
+- Recent artifact freshness: ~140s at snapshot (active but slower CE-Bench phase)
 
 ## Process/GPU Health
 
@@ -40,10 +41,10 @@
   - `bash scripts/experiments/run_cycle7_pareto_push.sh`
   - `python scripts/experiments/run_assignment_consistency_v3.py` (a2 condition)
   - `bash scripts/experiments/run_cycle8_robust_pareto_push.sh` (waiting)
-- GPU snapshot: `NVIDIA B200, 5% util, 4686 MiB / 183359 MiB`
+  - `bash scripts/experiments/run_cycle9_novelty_push.sh` (waiting)
 
 ## Weights & Biases
 
 - No `WANDB_*` environment variables detected on remote shell.
 - No active `wandb/run-*` directories for current queue.
-- Current telemetry remains artifact/log-file based.
+- Telemetry remains artifact/log-file based.
