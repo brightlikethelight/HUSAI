@@ -1715,3 +1715,35 @@ pytest -q tests/unit/test_husai_custom_sae_adapter.py tests/unit/test_known_circ
   - current behavior: waiting behind active cycle-6 runner (intentional).
 - Additional planning artifact:
   - `CYCLE7_PARETO_PLAN.md`
+
+### Run 81: Cycle-6 stage transition snapshot + cycle-7 queue verification (in progress)
+- Snapshot time (UTC): `2026-02-16T06:48:14Z`
+- Active cycle-6 run:
+  - `results/experiments/cycle6_saeaware_push/run_20260216T054943Z`
+- Stage transitions confirmed:
+  - stage1 routed sweep complete (`r1..r4`)
+  - stage2 assignment-v3 started (`a1` active)
+
+- Cycle-6 routed aggregate means (from `phase4b_routed_frontier_external_sweep_cycle6`):
+  - `run_20260216T054951Z` (`d_sae=2048,k=32,experts=8`):
+    - `ce_mean=-36.5004`, `sae_mean=-0.07083`
+  - `run_20260216T060326Z` (`d_sae=2048,k=32,experts=12`):
+    - `ce_mean=-36.1916`, `sae_mean=-0.07193`
+  - `run_20260216T061625Z` (`d_sae=2048,k=48,experts=8`):
+    - `ce_mean=-37.3348`, `sae_mean=-0.07448`
+  - `run_20260216T062924Z` (`d_sae=3072,k=48,experts=12`):
+    - `ce_mean=-38.4639`, `sae_mean=-0.07603`
+
+- Interim interpretation:
+  - CE improved modestly versus earlier cycle-5 routed means in some settings.
+  - SAEBench remained negative and generally worsened in this routed cycle.
+  - This validates the cycle-7 Pareto-zone redesign emphasis on recovering SAEBench without CE collapse.
+
+- Assignment-stage health check (`run_20260216T064311Z`):
+  - checkpoint count increased to `8` (`lambda_0.0` complete across seeds + `lambda_0.03` started)
+  - no external-eval summaries yet (expected at this stage of training)
+
+- Deferred cycle-7 queue verification:
+  - launch log: `results/experiments/cycle7_pareto_push/launch_20260216T062212Z.log`
+  - run dir: `results/experiments/cycle7_pareto_push/run_20260216T062213Z`
+  - status: waiting behind active cycle-6 process (expected behavior)
