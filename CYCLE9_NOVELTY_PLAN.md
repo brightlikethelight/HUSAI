@@ -94,5 +94,6 @@ Implication:
 - Launch command (remote):
 ```bash
 KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
+ASSIGN_UPDATE_INTERVAL=4 \
   bash scripts/experiments/run_cycle9_novelty_push.sh
 ```

@@ -31,8 +31,12 @@ Can we train SAEs that are both internally consistent across seeds and externall
 Commit `14b6c59`:
 - fixed selection/gating handling of valid `0.0` values in assignment and selector logic
 - filtered non-finite values from assignment normalization path
-- added unit coverage
-- full unit suite green (`102 passed`)
+
+Commit `95f567c`:
+- added interval-cached Hungarian updates for assignment training (`--assignment-update-interval`)
+- threaded the flag through assignment-v3 and cycle queue scripts (`cycle4`..`cycle9`)
+- added unit coverage for interval behavior
+- full unit suite green (`104 passed`)
 
 ## 5) What Blocks "Finished"
 

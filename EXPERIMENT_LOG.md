@@ -1837,3 +1837,50 @@ pytest -q tests/unit/test_release_policy_selector.py tests/unit/test_assignment_
   - completed CE-Bench summaries: `21`
 - Refreshed file:
   - `docs/evidence/cycle7_live_snapshot_20260216T165714Z/monitoring_summary.md`
+
+### Run 86: Assignment throughput patch + queue wiring refresh (cycle7 live)
+- Objective:
+  - Remove the highest observed compute bottleneck in assignment-v3 training (Hungarian solve every batch) while preserving reproducibility and backwards compatibility.
+
+- Code changes (commit `95f567c`):
+  - `scripts/experiments/run_assignment_consistency_v2.py`
+    - added `assignment_alignment_penalty_with_indices(...)` to support reusing assignment indices.
+    - added `--assignment-update-interval` support through training and result payloads.
+    - added runtime counters in metrics:
+      - `assignment_update_interval`
+      - `assignment_hungarian_solves_train`
+      - `train_steps`
+  - `scripts/experiments/run_assignment_consistency_v3.py`
+    - threaded `--assignment-update-interval` into `run_lambda_condition(...)` calls.
+    - persisted interval in config payload/hash context.
+  - queue scripts:
+    - `scripts/experiments/run_cycle4_followups_after_queue.sh`
+    - `scripts/experiments/run_cycle5_external_push.sh`
+    - `scripts/experiments/run_cycle6_saeaware_push.sh`
+    - `scripts/experiments/run_cycle7_pareto_push.sh`
+    - `scripts/experiments/run_cycle8_robust_pareto_push.sh`
+    - `scripts/experiments/run_cycle9_novelty_push.sh`
+    - added `ASSIGN_UPDATE_INTERVAL` env (default `4`) and passed `--assignment-update-interval`.
+
+- New tests:
+  - `tests/unit/test_assignment_consistency_v2.py`
+    - verifies reduced Hungarian call frequency when interval > 1.
+    - verifies argument validation for non-positive interval.
+
+- Validation:
+```bash
+pytest -q tests/unit/test_assignment_consistency_v2.py tests/unit/test_assignment_consistency_v3.py tests/unit/test_release_policy_selector.py
+pytest -q tests/unit
+python -m py_compile scripts/experiments/run_assignment_consistency_v2.py scripts/experiments/run_assignment_consistency_v3.py
+bash -n scripts/experiments/run_cycle4_followups_after_queue.sh scripts/experiments/run_cycle5_external_push.sh scripts/experiments/run_cycle6_saeaware_push.sh scripts/experiments/run_cycle7_pareto_push.sh scripts/experiments/run_cycle8_robust_pareto_push.sh scripts/experiments/run_cycle9_novelty_push.sh
+```
+- Outcome:
+  - all checks passed (`104` unit tests green)
+
+- Live remote state at snapshot:
+  - remote head: `95f567c`
+  - cycle7 assignment latest run: `results/experiments/phase4d_assignment_consistency_v3_cycle7_pareto/run_20260216T201509Z`
+    - checkpoints: `46/56`
+    - external summaries: `0` (training stage not yet in external eval)
+  - cycle8/cycle9: waiting; both will `git pull` before execution, so they are expected to use the new interval setting.
+  - W&B active telemetry: none (`WANDB_*` vars absent, no active run dirs)

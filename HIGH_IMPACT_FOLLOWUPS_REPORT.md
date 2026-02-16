@@ -1,15 +1,19 @@
-# High-Impact Follow-Ups Report (Cycle 7/8 Live)
+# High-Impact Follow-Ups Report (Cycle 7/8/9 Live)
 
 Date: 2026-02-16
 
 ## Current Queue Status
 
 - `cycle7` run: `results/experiments/cycle7_pareto_push/run_20260216T062213Z`
-  - routed stage p1..p5: complete
-  - assignment a1: complete
-  - assignment a2: in progress
+  - routed stage `p1..p5`: complete
+  - assignment `a1`: complete
+  - assignment `a2`: complete
+  - assignment `a3`: in progress (`run_20260216T201509Z`, checkpoints `46/56` at latest check)
 - `cycle8` run: `results/experiments/cycle8_robust_pareto_push/run_20260216T163502Z`
   - waiting for cycle7 completion
+  - will `git pull` before execution
+- `cycle9` run: `results/experiments/cycle9_novelty_push/run_20260216T184628Z`
+  - waiting behind cycle8/cycle7
   - will `git pull` before execution
 
 ## What Is Already Complete (artifact-backed)
@@ -33,25 +37,30 @@ Date: 2026-02-16
 - Evidence: `scripts/experiments/run_stress_gated_release_policy.py`
 - Prior strict-gate outputs: `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.json`
 
-## New Correctness Hardening Added Today
+## New Engineering Hardening Added Today
 
 Commit: `14b6c59`
-- `scripts/experiments/run_assignment_consistency_v3.py`
-  - preserve valid `0.0` metric values in ranking/gating
-  - ignore non-finite values during normalization
-- `scripts/experiments/select_release_candidate.py`
-  - preserve valid `0.0` deltas in ordering tie-breakers
-- Tests added:
-  - `tests/unit/test_assignment_consistency_v3.py`
-  - `tests/unit/test_release_policy_selector.py`
-- Validation:
-  - `pytest -q tests/unit` -> `102 passed`
+- selector/ranking correctness hardening:
+  - preserve valid `0.0` metrics in ranking/gating
+  - ignore non-finite values in normalization paths
+
+Commit: `95f567c`
+- assignment training throughput hardening:
+  - added interval-cached Hungarian update path in `run_assignment_consistency_v2.py`
+  - threaded `--assignment-update-interval` into `run_assignment_consistency_v3.py`
+  - wired cycle queues (`cycle4`..`cycle9`) with `ASSIGN_UPDATE_INTERVAL` env (default `4`)
+  - added targeted unit tests: `tests/unit/test_assignment_consistency_v2.py`
+
+Validation:
+- `pytest -q tests/unit` -> `104 passed`
+- `python -m py_compile scripts/experiments/run_assignment_consistency_v2.py scripts/experiments/run_assignment_consistency_v3.py`
+- `bash -n scripts/experiments/run_cycle4_followups_after_queue.sh scripts/experiments/run_cycle5_external_push.sh scripts/experiments/run_cycle6_saeaware_push.sh scripts/experiments/run_cycle7_pareto_push.sh scripts/experiments/run_cycle8_robust_pareto_push.sh scripts/experiments/run_cycle9_novelty_push.sh`
 
 ## Current Scientific Bottom Line
 
 - Internal consistency: strong and reproducible.
-- External competitiveness: still below strict gates.
-- Main open problem: jointly improve SAEBench and CE-Bench deltas under grouped-LCB selection.
+- External competitiveness: still below strict release gates.
+- Main open problem: improve SAEBench and CE-Bench deltas jointly under grouped-LCB selection.
 
 ## Updated Highest-Leverage Next 5 (post cycle7/cycle8)
 

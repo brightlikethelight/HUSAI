@@ -1,5 +1,6 @@
 {
-  "snapshot_utc": "2026-02-16T19:20:00Z",
+  "snapshot_utc": "2026-02-16T22:50:00Z",
+  "remote_head": "95f567c",
   "a1_run": {
     "run": "results/experiments/phase4d_assignment_consistency_v3_cycle7_pareto/run_20260216T142558Z",
     "checkpoint_count": 56,
@@ -17,10 +18,18 @@
   "a2_run": {
     "run": "results/experiments/phase4d_assignment_consistency_v3_cycle7_pareto/run_20260216T173317Z",
     "checkpoint_count": 56,
+    "saebench_count": 32,
+    "cebench_count": 32,
+    "summary_exists": true,
+    "latest_progress_note": "completed"
+  },
+  "a3_run": {
+    "run": "results/experiments/phase4d_assignment_consistency_v3_cycle7_pareto/run_20260216T201509Z",
+    "checkpoint_count": 46,
     "expected_checkpoint_count": 56,
-    "saebench_count": 13,
-    "cebench_count": 12,
+    "saebench_count": 0,
+    "cebench_count": 0,
     "expected_external_count": 32,
-    "latest_progress_note": "checkpoint phase complete; external eval in progress"
+    "latest_progress_note": "training/checkpointing in progress; external eval not started"
   }
 }

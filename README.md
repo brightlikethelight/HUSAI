@@ -8,7 +8,9 @@ HUSAI studies whether sparse autoencoder (SAE) features are reproducible across 
   - routed stage complete (`p1..p5`)
   - assignment-v3 external stage in progress
 - Cycle-8 robust Pareto push is queued and waiting behind cycle-7.
+- Cycle-9 novelty push is queued behind cycle-8/cycle-7.
 - Last fully completed strict release gate remains failing (`pass_all=False`) because external LCB criteria are not yet met.
+- Latest throughput patch for assignment stage (`95f567c`) is on `main` and will be pulled by queued cycles before execution.
 
 Canonical live artifacts:
 - `START_HERE.md`

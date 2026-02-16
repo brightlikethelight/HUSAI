@@ -127,6 +127,14 @@ python scripts/experiments/run_known_circuit_recovery_closure.py \
 
 ## 4) Queue Execution (B200)
 
+Queue performance note (assignment stage):
+
+```bash
+export ASSIGN_UPDATE_INTERVAL=4
+```
+
+Use `ASSIGN_UPDATE_INTERVAL=1` if you need exact per-step Hungarian updates.
+
 Cycle-3 queue:
 
 ```bash
@@ -166,6 +174,12 @@ Cycle-8 robust Pareto push:
 
 ```bash
 bash scripts/experiments/run_cycle8_robust_pareto_push.sh
+```
+
+Cycle-9 novelty push:
+
+```bash
+bash scripts/experiments/run_cycle9_novelty_push.sh
 ```
 
 ## 5) Current Claim Policy

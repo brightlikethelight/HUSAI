@@ -1,10 +1,10 @@
 # Cycle-7 Live Monitoring Snapshot
 
-- Snapshot UTC: 2026-02-16T19:20:00Z
+- Snapshot UTC: 2026-02-16T22:50:00Z
 - Source run: `results/experiments/cycle7_pareto_push/run_20260216T062213Z`
 - Cycle-8 queue: waiting behind cycle-7 (`results/experiments/cycle8_robust_pareto_push/run_20260216T163502Z`)
 - Cycle-9 queue: waiting behind cycle-8/cycle-7 (`results/experiments/cycle9_novelty_push/run_20260216T184628Z`)
-- Selection-robustness patch on `main`: `14b6c59` (cycle-8 and cycle-9 will pull latest before running)
+- Latest assignment-throughput patch on `main`: `95f567c` (cycle-8 and cycle-9 will pull latest before execution)
 
 ## Routed Stage (Completed p1..p5)
 
@@ -29,22 +29,27 @@
 - CE-Bench delta: `-34.468481616973875`
 - `pass_all=False`
 
-### a2 (in progress)
+### a2 (completed)
 - Run: `results/experiments/phase4d_assignment_consistency_v3_cycle7_pareto/run_20260216T173317Z`
-- Checkpoints complete: `56 / 56`
-- External eval summaries: `13 / 32` SAEBench, `12 / 32` CE-Bench
-- Recent artifact freshness: ~140s at snapshot (active but slower CE-Bench phase)
+- Summary artifact present at `results/experiments/phase4d_assignment_consistency_v3_cycle7_pareto/run_20260216T173317Z/summary.md`
+
+### a3 (in progress)
+- Run: `results/experiments/phase4d_assignment_consistency_v3_cycle7_pareto/run_20260216T201509Z`
+- Checkpoints complete: `46 / 56`
+- External eval summaries: `0 / 32` SAEBench, `0 / 32` CE-Bench
+- Current stage is training/checkpointing; external eval has not started yet.
 
 ## Process/GPU Health
 
 - Active processes:
   - `bash scripts/experiments/run_cycle7_pareto_push.sh`
-  - `python scripts/experiments/run_assignment_consistency_v3.py` (a2 condition)
+  - `python scripts/experiments/run_assignment_consistency_v3.py` (a3 condition)
   - `bash scripts/experiments/run_cycle8_robust_pareto_push.sh` (waiting)
   - `bash scripts/experiments/run_cycle9_novelty_push.sh` (waiting)
+- GPU snapshot (`nvidia-smi`): `NVIDIA B200, 0% util, ~6060 MiB / 183359 MiB` (captured during a low-util point in training loop)
 
 ## Weights & Biases
 
-- No `WANDB_*` environment variables detected on remote shell.
-- No active `wandb/run-*` directories for current queue.
+- Remote shell `WANDB_*`/`WB_*` environment variables: `0`
+- Remote `wandb/run-*` directories in project root: `0`
 - Telemetry remains artifact/log-file based.
