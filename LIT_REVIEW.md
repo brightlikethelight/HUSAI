@@ -1,6 +1,6 @@
 # Literature and Competitive Landscape (Phase 3)
 
-Date: 2026-02-14
+Date: 2026-02-16
 Scope: SAE consistency, benchmark practice, architecture/objective frontier, and near-term novelty opportunities for this repository.
 
 ## 1) Primary Sources (Current and High-Relevance)
@@ -10,7 +10,7 @@ Scope: SAE consistency, benchmark practice, architecture/objective frontier, and
 2. Song et al. (2025), *Mechanistic Interpretability Should Prioritize Feature Consistency in SAEs* - https://arxiv.org/abs/2505.20254
 3. Karvonen et al. (ICML 2025), *SAEBench* - https://proceedings.mlr.press/v267/karvonen25a.html
 4. SAEBench preprint - https://arxiv.org/abs/2503.09532
-5. Peng et al. (BlackboxNLP 2025), *CE-Bench* - https://arxiv.org/abs/2509.00691
+5. Peng et al. (2025), *CE-Bench* - https://arxiv.org/abs/2509.00691
 6. SAEBench repository - https://github.com/adamkarvonen/SAEBench
 7. CE-Bench repository - https://github.com/Yusen-Peng/CE-Bench
 
@@ -19,9 +19,9 @@ Scope: SAE consistency, benchmark practice, architecture/objective frontier, and
 9. Rajamanoharan et al. (2024), *JumpReLU SAEs* - https://arxiv.org/abs/2407.14435
 10. Bussmann et al. (2024), *BatchTopK SAEs* - https://arxiv.org/abs/2412.06410
 11. Gao et al. (2025), *Nested Sparse Autoencoders / Matryoshka SAEs* - https://arxiv.org/abs/2503.17547
-12. Li et al. (EMNLP 2025), *Route Sparse Autoencoders* - https://aclanthology.org/2025.emnlp-main.346/
-13. Wan et al. (EMNLP 2025), *HierarchicalTopK SAEs* - https://aclanthology.org/2025.emnlp-main.515/
-14. Cao et al. (2026), *PolySAE* - https://arxiv.org/abs/2602.01322
+12. Li et al. (2025), *Route Sparse Autoencoders* - https://arxiv.org/abs/2503.08200
+13. Wan et al. (2025), *HierarchicalTopK SAEs* - https://aclanthology.org/2025.emnlp-main.515/
+14. Lin et al. (2026), *PolySAE* - https://arxiv.org/abs/2602.01322
 
 ### Frontier controls and competing lenses
 15. Makelov et al. (2025), *Transcoders Beat SAEs for Interpretability* - https://arxiv.org/abs/2501.18823
@@ -50,60 +50,51 @@ Inference for this repo:
 4. Stress testing was not a hard release gate.
 
 ### Where we are now
-1. Official SAEBench command execution completed via harness (`run_20260212T201204Z`).
-2. HUSAI custom-checkpoint SAEBench path completed and reproduced across 3 seeds (`run_20260213T024329Z`, `run_20260213T031247Z`, `run_20260213T032116Z`).
-3. Official CE-Bench compatibility execution completed (`run_20260213T103218Z`) with tracked evidence in `docs/evidence/phase4e_cebench_official/`.
-4. Direct HUSAI custom-checkpoint CE-Bench path is implemented and exercised (frontier/scaling runs under `docs/evidence/phase4b_architecture_frontier_external/` and `docs/evidence/phase4e_external_scaling_study/`).
-5. Stress-gated release policy is implemented with fail-fast mode (`--fail-on-gate-fail`).
+1. Official SAEBench/CE-Bench harness paths are implemented and reproducible.
+2. Custom HUSAI-checkpoint SAEBench/CE-Bench adapter paths are complete.
+3. Multiseed external frontier and scaling runs are archived with manifests.
+4. Stress-gated release policy is enforced and used for decision-making.
+5. Cycle-5 added routed-family correction (`expert_topk`) and assignment-v3 selector integration.
 
 ### Remaining critical gaps
-- External deltas are still negative in tested regimes (SAEBench best-minus-LLM AUC and CE-Bench matched-baseline deltas).
-- Frontier/scaling uncertainty is underpowered (mostly single-seed external runs).
-- Transcoder and OOD stress runners are now implemented, but fresh gate artifacts are still required before any release upgrade.
+- External deltas are still negative in strict release settings.
+- SAEBench remains the principal blocking metric.
+- Known-circuit closure remains below trained-vs-random thresholds.
 
 ## 4) External Evidence Snapshot (Current)
 
-Public SAEBench target run:
-- `results/experiments/phase4e_external_benchmark_official/run_20260212T201204Z/`
-- mean delta (best SAE over k {1,2,5} minus baseline logreg):
-  - `test_f1`: `-0.0952`
-  - `test_acc`: `-0.0513`
-  - `test_auc`: `-0.0651`
+Cycle-5 canonical evidence root:
+- `docs/evidence/cycle5_external_push_run_20260215T232351Z/`
 
-HUSAI custom multi-seed SAEBench summary:
-- `docs/evidence/phase4e_husai_custom_multiseed/summary.json`
-- best AUC mean ± std: `0.622601 ± 0.000615`
-- delta AUC vs baseline mean ± std: `-0.051801 ± 0.000615`
+Strict gate status:
+- `pass_all = false`
+- `random_model = true`
+- `transcoder = true`
+- `ood = true`
+- `external = false`
 
-CE-Bench matched-200 baseline:
-- `docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json`
-- interpretability max: `47.9516`
+Selected strict-gate metrics:
+- `saebench_delta_ci95_low = -0.04478959689939781`
+- `cebench_interp_delta_vs_baseline_ci95_low = -40.467037470119465`
 
-HUSAI architecture frontier CE-Bench deltas vs matched baseline:
-- `docs/evidence/phase4b_architecture_frontier_external/run_20260213T173707Z_cebench_deltas_vs_matched200.md`
-- interpretability delta range: approximately `-43.7` to `-40.4`
+Best cycle-5 routed CE delta:
+- `-37.260996` (`run_20260215T234257Z`)
+
+Best cycle-5 assignment CE delta:
+- `-34.345572` (`run_20260216T005618Z`)
 
 Interpretation:
-- infrastructure is benchmark-capable and reproducible,
-- external performance remains the primary bottleneck,
-- nearest leverage is method improvement with matched external constraints and stronger uncertainty quantification.
+- Infrastructure is benchmark-capable and reproducible.
+- External performance remains the primary bottleneck.
+- Nearest leverage is SAEBench-aware objective design with stronger grouped-LCB selection discipline.
 
 ## 5) Novel, Feasible Contribution Opportunities (Ranked)
 
-1. Multi-seed external confidence frontier
-- run >=3 seeds for best frontier/scaling candidates and report CIs on SAEBench and CE-Bench deltas.
-
-2. Pareto checkpoint selection for release
-- promote checkpoints only if they satisfy internal consistency + external gates jointly.
-
-3. Architecture expansion under matched protocol
-- add Matryoshka/RouteSAE/HierarchicalTopK with fixed token and compute budgets.
-
-4. Assignment-aware objective + external proxy coupling
-- extend assignment-v2 with weak external proxy regularization; track EV guardrails.
-
-5. Stress-gated claim automation
-- CI gate that blocks doc claim changes when release gate artifacts fail.
+1. SAEBench-aware assignment objective with grouped-LCB selection.
+2. Seed-complete grouped external frontier (avoid dropped-group artifacts).
+3. Routed `expert_topk` expansion under matched protocol.
+4. Joint Pareto release policy with explicit SAEBench floor.
+5. Known-circuit closure with confidence-bound thresholds.
 
 ## 6) Practical Replication Protocol to Keep
 
@@ -115,4 +106,4 @@ For each major update:
 
 ## 7) Bottom Line
 
-The repo has crossed from speculative benchmark narrative to evidence-backed benchmark execution. The remaining scientific challenge is not plumbing; it is finding configurations that improve external metrics without losing reproducibility discipline.
+The repo has moved from speculative benchmark narrative to evidence-backed benchmark execution. The remaining scientific challenge is not tooling; it is finding configurations that improve external metrics without sacrificing reproducibility discipline.

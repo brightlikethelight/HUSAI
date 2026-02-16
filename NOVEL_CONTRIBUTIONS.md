@@ -1,69 +1,72 @@
 # Novel Contributions and Highest-Leverage Follow-Ups
 
-Updated: 2026-02-15
+Updated: 2026-02-16
 
 ## Scientific Baseline (Current Evidence)
 
 What is true from completed artifact-backed runs:
 - Internal consistency gains are reproducible.
-- External competitiveness is not yet achieved (SAEBench deltas remain negative vs LLM baseline; CE-Bench deltas remain strongly negative vs matched baseline in tested settings).
-- Strict release gate still fails due external + transcoder constraints.
+- External competitiveness is not yet achieved (`external=False` in strict gate).
+- CE-Bench improved in cycle-5 routed/assignment sweeps, but SAEBench remains negative in selected-candidate regimes.
 
 Key artifact anchors:
-- `docs/evidence/cycle3_queue_final/frontier_multiseed_results_run_20260214T202538Z.json`
-- `docs/evidence/cycle3_queue_final/scaling_multiseed_results_run_20260214T212435Z.json`
-- `docs/evidence/cycle3_queue_final/release_policy_run_20260214T225029Z.json`
-- `docs/evidence/known_circuit_recovery_closure/run_20260215T165907Z_closure_summary.json`
+- `docs/evidence/cycle5_external_push_run_20260215T232351Z/cycle5_synthesis.md`
+- `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.json`
+- `docs/evidence/cycle5_external_push_run_20260215T232351Z/selector/selection_summary.json`
 
 ## Updated Highest-Leverage Next 5 (Ranked)
 
-1. Transcoder stress recovery sweep (capacity/epochs/lr) with hard gate objective.
-- Goal: recover transcoder gate while preserving external metrics.
-- Success criterion: `transcoder_delta >= 0` on multiseed CI lower bound.
+1. SAEBench-aware assignment objective extension.
+- Goal: prevent CE-only improvements from degrading SAEBench.
+- Success criterion: grouped-LCB SAEBench delta >= 0 with no CE-Bench regression vs current best assignment run.
 
-2. Joint candidate selection by uncertainty-aware grouped conditions.
-- Goal: select by condition-level LCB, not point-estimate checkpoints.
-- Success criterion: pass strict external thresholds with `--group-by-condition --uncertainty-mode lcb`.
+2. Seed-complete grouped selection policy.
+- Goal: align `min_seeds_per_group` with available seeds to avoid silent candidate exclusion.
+- Success criterion: no dropped target groups in selector diagnostics for planned families.
 
-3. Add one new architecture family under matched budget (RouteSAE or Matryoshka-style variant).
-- Goal: test whether architecture family shift can move the external Pareto front.
-- Success criterion: non-negative SAEBench delta and improved CE-Bench delta vs current best family mean.
+3. Joint Pareto policy with explicit SAEBench floor.
+- Goal: require SAEBench floor + CE-Bench maximization jointly in candidate promotion.
+- Success criterion: selected candidate satisfies both external LCB thresholds.
 
-4. Assignment-aware objective v3 with external-aware Pareto checkpointing.
-- Goal: optimize internal consistency without collapsing external deltas.
-- Success criterion: frontier/scaling candidate selected by joint objective clears external gate.
+4. Routed family expansion around `expert_topk`.
+- Goal: push routed frontier after fixing effective sparsity collapse.
+- Success criterion: routed candidate beats current routed best on both SAEBench and CE-Bench deltas.
 
-5. Known-circuit closure track completion.
-- Goal: close original proposal scope with explicit trained-vs-random known-circuit evidence.
-- Success criterion: positive trained-over-random effect with confidence bounds for circuit-recovery metric.
+5. Known-circuit closure with confidence bounds.
+- Goal: close original proposal scope on trained-vs-random circuit recovery.
+- Success criterion: trained-over-random deltas positive at CI lower bound for configured closure metrics.
 
 ## Concrete Novel Contributions We Can Still Claim (If Completed)
 
 1. CI-gated interpretability workflow.
-- Novelty: strict, automated claim gating that binds narrative claims to artifact-backed thresholds.
+- Novelty: strict automated claim gating that binds narrative to external/stress thresholds.
 
 2. Tri-objective SAE selection under uncertainty.
-- Novelty: condition-grouped LCB ranking across internal consistency + SAEBench + CE-Bench.
+- Novelty: grouped-LCB selection over internal consistency + SAEBench + CE-Bench.
 
 3. External-aware consistency training.
-- Novelty: assignment-aware training objective paired with external acceptance constraints, not post-hoc filtering alone.
+- Novelty: assignment-aware training coupled to external acceptance, not post-hoc filtering only.
 
-4. Architecture frontier with matched-budget external benchmarking.
-- Novelty: apples-to-apples architecture comparisons under identical token budget, seeds, and external evaluation harness.
+4. Matched-budget architecture frontier with routed/matryoshka families.
+- Novelty: apples-to-apples external comparisons under fixed token budget and hook protocol.
 
 5. Proposal-closure discipline for known-circuit recovery.
-- Novelty: explicit closure tests for the original mechanistic claim rather than only benchmark deltas.
+- Novelty: explicit closure tests for mechanistic claims instead of benchmark-only narratives.
 
 ## Evidence-Safe Literature Links (Verified)
 
-- SAEBench (benchmarking SAEs): https://arxiv.org/abs/2503.09532
-- CE-Bench (contrastive explanations benchmark): https://aclanthology.org/2025.findings-acl.854/
-- Route Sparse Autoencoders (routing architecture): https://arxiv.org/abs/2503.08200
-- Transcoders Beat Sparse Autoencoders? (representation quality challenge): https://arxiv.org/abs/2501.18823
-- Can Sparse Autoencoders Reason? (logical-task stress for SAEs): https://arxiv.org/abs/2507.18006
+- SAEs trained on same data learn different features: https://arxiv.org/abs/2501.16615
+- Feature consistency priority: https://arxiv.org/abs/2505.20254
+- SAEBench: https://arxiv.org/abs/2503.09532
+- CE-Bench: https://arxiv.org/abs/2509.00691
+- Route Sparse Autoencoders: https://arxiv.org/abs/2503.08200
+- Nested Sparse Autoencoders (Matryoshka): https://arxiv.org/abs/2503.17547
+- PolySAE: https://arxiv.org/abs/2602.01322
+- Transcoders vs SAEs: https://arxiv.org/abs/2501.18823
+- Random-control caution: https://arxiv.org/abs/2501.17727
 
 ## Guardrails for Future Claims
 
-- No external-improvement claim unless matched-baseline deltas and CI bounds are explicitly non-negative.
+- No external-improvement claim unless matched-baseline deltas and CI bounds are non-negative.
 - No reliability claim unless strict stress gate passes (`random + transcoder + OOD + external`).
 - No proposal-complete claim until known-circuit closure track is green.

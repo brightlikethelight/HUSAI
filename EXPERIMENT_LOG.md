@@ -1572,3 +1572,90 @@ pytest -q tests/unit/test_husai_custom_sae_adapter.py tests/unit/test_known_circ
   - py_compile: pass
   - `test_assignment_consistency_v3`: `2 passed`
   - adapter/known-circuit tests: `7 passed`
+
+### Run 75: Cycle-5 external push (routed hyper-sweep + assignment sweep + reselection)
+- New code and orchestration:
+  - `scripts/experiments/run_routed_frontier_external.py`
+    - added `--route-topk-mode` with new `expert_topk` routing mode to keep top-k within routed expert groups.
+  - `scripts/experiments/select_release_candidate.py`
+    - added `--assignment-results` ingestion so assignment-v3 external outputs can compete in global selection.
+  - `scripts/experiments/run_cycle5_external_push.sh`
+    - new high-impact queue covering routed sweep, assignment sweep, selector, OOD, strict gate.
+
+- Remote cycle-5 queue run:
+  - queue id: `results/experiments/cycle5_external_push/run_20260215T232351Z`
+  - stage outputs:
+    - routed sweep runs:
+      - `run_20260215T232359Z`
+      - `run_20260215T233353Z`
+      - `run_20260215T234257Z`
+      - `run_20260215T235219Z`
+      - `run_20260216T000156Z`
+    - assignment sweep runs:
+      - `run_20260216T001059Z`
+      - `run_20260216T005618Z`
+    - selector run:
+      - `results/experiments/release_candidate_selection_cycle5/run_20260216T014101Z`
+    - OOD run:
+      - `results/experiments/phase4e_ood_stress_b200/run_20260216T014105Z`
+    - strict gate run:
+      - `results/experiments/release_stress_gates/run_20260216T014820Z`
+
+- Key numerical findings:
+  - Routed best CE-Bench delta improved to `-37.260996` (`run_20260215T234257Z`) with restored effective sparsity (`l0=32`).
+  - Assignment best CE-Bench delta improved to `-34.345572` (`run_20260216T005618Z`, `d_sae=2048`), but SAEBench delta remained negative (`-0.049864`).
+  - Default selector (`min_seeds_per_group=3`) still selected baseline topk candidate.
+  - Strict gate still failed (`pass_all=False`, external gate fail).
+
+- Evidence synced locally:
+  - `docs/evidence/cycle5_external_push_run_20260215T232351Z/`
+  - synthesis summary:
+    - `docs/evidence/cycle5_external_push_run_20260215T232351Z/cycle5_synthesis.md`
+
+### Run 76: Post-cycle5 corrective analysis (selector threshold sensitivity)
+- Ran corrected reselection with assignment integration and relaxed grouping threshold:
+  - `results/experiments/release_candidate_selection_cycle5_min2/run_20260216T040024Z`
+- Outcome:
+  - selector switched from baseline `topk` to grouped assignment candidate `assignv3_lambda0.05`.
+- Interpretation:
+  - seed-group threshold can hide promising groups; this is a selector-policy sensitivity, not a model win.
+- Additional note:
+  - Assignment candidate still has negative SAEBench/CE-Bench deltas, so strict external-positive gate would remain failing.
+
+### Run 77: Cycle-5 manifest bugfix
+- Identified and fixed queue manifest serialization bug in `run_cycle5_external_push.sh`:
+  - prior script wrote null metadata because non-exported shell vars were read from `os.environ`.
+  - fixed by passing values as explicit Python argv to manifest writer.
+- Commit:
+  - `246dc4b` `Fix cycle5 manifest serialization and argument passing`
+
+### Run 78: Post-cycle5 polish pass (selector diagnostics + determinism hardening + doc sync)
+- Code changes:
+  - `scripts/experiments/select_release_candidate.py`
+    - added grouped-selection diagnostics (`grouping_diagnostics`) to output payload.
+    - added warning when condition groups are dropped by `--min-seeds-per-group`.
+    - added grouped diagnostics to markdown summary.
+  - `scripts/experiments/run_cycle5_external_push.sh`
+    - added deterministic env export: `CUBLAS_WORKSPACE_CONFIG`.
+  - `scripts/experiments/run_b200_high_impact_queue.sh`
+    - added deterministic env export: `CUBLAS_WORKSPACE_CONFIG`.
+
+- Tests:
+  - `tests/unit/test_release_policy_selector.py`
+    - added `test_selector_grouped_reports_dropped_groups`.
+
+- Documentation and organization sync:
+  - updated cycle-5 canonical docs: `RUNBOOK.md`, `FINAL_BLOG.md`, `FINAL_PAPER.md`, `FINAL_READINESS_REVIEW.md`, `ADVISOR_BRIEF.md`, `HIGH_IMPACT_FOLLOWUPS_REPORT.md`, `PROPOSAL_COMPLETENESS_REVIEW.md`, `NOVEL_CONTRIBUTIONS.md`, `LIT_REVIEW.md`.
+  - added learning guide: `LEARNING_PATH.md`.
+  - refreshed navigation references in `README.md`, `START_HERE.md`, `EXECUTIVE_SUMMARY.md`, `PROJECT_STUDY_GUIDE.md`, `REPO_NAVIGATION.md`.
+
+- Monitoring verification:
+  - confirmed no active B200 jobs.
+  - confirmed latest cycle-5 run remains canonical:
+    - `results/experiments/cycle5_external_push/run_20260215T232351Z`
+  - confirmed strict gate status unchanged:
+    - `random=true`, `transcoder=true`, `ood=true`, `external=false`, `pass_all=false`.
+
+- W&B check:
+  - no active `WANDB_*` env in remote queue session.
+  - no remote `wandb/run-*` directories for latest queue path; telemetry currently artifact-file based.

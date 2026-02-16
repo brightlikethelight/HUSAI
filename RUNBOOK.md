@@ -1,8 +1,8 @@
 # Runbook (Current)
 
-Updated: 2026-02-15
+Updated: 2026-02-16
 
-Canonical map: `START_HERE.md`, `REPO_NAVIGATION.md`, `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`.
+Canonical map: `START_HERE.md`, `REPO_NAVIGATION.md`, `CYCLE5_EXTERNAL_PUSH_REFLECTIVE_REVIEW.md`.
 
 ## 1) Environment
 
@@ -13,7 +13,7 @@ pip install -r requirements-dev.txt
 pre-commit install
 ```
 
-Recommended env flags:
+Recommended deterministic flags:
 
 ```bash
 export KMP_DUPLICATE_LIB_OK=TRUE
@@ -73,6 +73,11 @@ python scripts/experiments/run_matryoshka_frontier_external.py \
   --seeds 42,123,456 \
   --run-saebench --run-cebench --cebench-repo <path/to/CE-Bench>
 
+python scripts/experiments/run_routed_frontier_external.py \
+  --seeds 42,123,456 \
+  --route-topk-mode expert_topk \
+  --run-saebench --run-cebench --cebench-repo <path/to/CE-Bench>
+
 python scripts/experiments/run_external_metric_scaling_study.py \
   --token-budgets 10000,30000 \
   --hook-layers 0,1 \
@@ -88,6 +93,8 @@ python scripts/experiments/run_external_metric_scaling_study.py \
 python scripts/experiments/select_release_candidate.py \
   --frontier-results <frontier_results.json> \
   --scaling-results <scaling_results.json> \
+  --assignment-results <assignment_results.json> \
+  --group-by-condition --uncertainty-mode lcb --min-seeds-per-group 3 \
   --require-both-external
 
 python scripts/experiments/run_transcoder_stress_sweep.py \
@@ -120,7 +127,7 @@ python scripts/experiments/run_known_circuit_recovery_closure.py \
 
 ## 4) Queue Execution (B200)
 
-Main high-impact queue:
+Cycle-3 queue:
 
 ```bash
 MIN_SAEBENCH_DELTA=0.0 MIN_CEBENCH_DELTA=0.0 \
@@ -131,14 +138,21 @@ CEBENCH_BASELINE_MAP=docs/evidence/phase4e_cebench_matched200/cebench_baseline_m
 bash scripts/experiments/run_b200_high_impact_queue.sh
 ```
 
-Cycle4 followup queue:
+Cycle-4 followups:
 
 ```bash
 bash scripts/experiments/run_cycle4_followups_after_queue.sh
+```
+
+Cycle-5 external push:
+
+```bash
+bash scripts/experiments/run_cycle5_external_push.sh
 ```
 
 ## 5) Current Claim Policy
 
 Do not promote external claims unless strict gate passes (`pass_all=true`).
 
-Latest known status (cycle4): `pass_all=false`.
+Latest known status (cycle-5 canonical run): `pass_all=false`.
+Canonical artifact: `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.json`.

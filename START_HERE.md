@@ -1,28 +1,29 @@
 # Start Here
 
-Updated: 2026-02-15
+Updated: 2026-02-16
 
 This is the canonical entrypoint for HUSAI.
 
 ## 1) Current Truth
 
 - Internal consistency improvements are real and reproducible.
-- External deltas vs matched baselines are still negative for selected release candidates.
-- Strict release gate is currently failing (`pass_all=false`).
+- CE-Bench improved in cycle-5 routed/assignment sweeps, but SAEBench remains negative.
+- Strict release gate is still failing (`pass_all=false`).
 
 Canonical current-status files:
 - `EXECUTIVE_SUMMARY.md`
-- `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
-- `docs/evidence/cycle4_followups_run_20260215T220728Z/release/release_policy.md`
-- `docs/evidence/cycle4_followups_run_20260215T220728Z/selector/selection_summary.json`
+- `CYCLE5_EXTERNAL_PUSH_REFLECTIVE_REVIEW.md`
+- `CYCLE4_FINAL_REFLECTIVE_REVIEW.md` (historical baseline)
+- `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.md`
+- `docs/evidence/cycle5_external_push_run_20260215T232351Z/cycle5_synthesis.md`
 
 ## 2) Read in This Order
 
 1. `START_HERE.md`
-2. `PROJECT_STUDY_GUIDE.md`
-3. `EXECUTIVE_SUMMARY.md`
-4. `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
-5. `REPO_NAVIGATION.md`
+2. `LEARNING_PATH.md`
+3. `PROJECT_STUDY_GUIDE.md`
+4. `EXECUTIVE_SUMMARY.md`
+5. `CYCLE5_EXTERNAL_PUSH_REFLECTIVE_REVIEW.md`
 6. `RUNBOOK.md`
 7. `EXPERIMENT_LOG.md`
 
@@ -35,13 +36,14 @@ Canonical current-status files:
 
 ## 4) Current Blockers
 
-1. External gate failure (SAEBench and CE-Bench are negative at LCB threshold).
+1. External gate failure (SAEBench and CE-Bench are still negative at LCB threshold for selected candidate).
 2. No candidate currently satisfies all strict release criteria simultaneously.
 3. Known-circuit closure gate is still below threshold on trained-vs-random deltas.
 
 ## 5) Fastest Way to Understand the Project
 
-1. Read `PROJECT_STUDY_GUIDE.md`.
-2. Read `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`.
-3. Read `docs/evidence/cycle4_followups_run_20260215T220728Z/followups/manifest.json`.
-4. Use `RUNBOOK.md` for rerun commands.
+1. Read `LEARNING_PATH.md`.
+2. Read `PROJECT_STUDY_GUIDE.md`.
+3. Read `CYCLE5_EXTERNAL_PUSH_REFLECTIVE_REVIEW.md`.
+4. Read `docs/evidence/cycle5_external_push_run_20260215T232351Z/cycle5_synthesis.md`.
+5. Use `RUNBOOK.md` for rerun commands.

@@ -212,6 +212,93 @@ def test_selector_grouped_lcb_prefers_stable_group(tmp_path: Path) -> None:
     assert selected["metrics"]["cebench_interp_delta_vs_baseline_ci95_low"] is not None
 
 
+def test_selector_grouped_reports_dropped_groups(tmp_path: Path) -> None:
+    run_root = tmp_path / "runs"
+    run_a = run_root / "frontier" / "run_aaa"
+
+    ckpts = {}
+    for arch, seeds in (("topk", (42, 123, 456)), ("relu", (42, 123))):
+        for seed in seeds:
+            ckpt = run_a / "checkpoints" / f"{arch}_seed{seed}" / "sae_final.pt"
+            ckpt.parent.mkdir(parents=True, exist_ok=True)
+            ckpt.write_text("x")
+            ckpts[(arch, seed)] = ckpt
+
+    records = []
+    for seed, sae_delta, ce_delta in ((42, -0.02, 0.10), (123, -0.025, 0.12), (456, -0.03, 0.08)):
+        records.append(
+            {
+                "architecture": "topk",
+                "seed": seed,
+                "checkpoint": str(ckpts[("topk", seed)]),
+                "train_metrics": {"explained_variance": 0.82},
+                "saebench": {"summary": {"best_minus_llm_auc": sae_delta}},
+                "cebench": {
+                    "delta_vs_matched_baseline": {"interpretability_score_mean_max": ce_delta},
+                    "custom_metrics": {"interpretability_score_mean_max": 7.5},
+                    "sae_meta": {"architecture": "topk"},
+                },
+                "saebench_returncode": 0,
+                "cebench_returncode": 0,
+            }
+        )
+
+    for seed, sae_delta, ce_delta in ((42, -0.01, 0.15), (123, -0.011, 0.16)):
+        records.append(
+            {
+                "architecture": "relu",
+                "seed": seed,
+                "checkpoint": str(ckpts[("relu", seed)]),
+                "train_metrics": {"explained_variance": 0.80},
+                "saebench": {"summary": {"best_minus_llm_auc": sae_delta}},
+                "cebench": {
+                    "delta_vs_matched_baseline": {"interpretability_score_mean_max": ce_delta},
+                    "custom_metrics": {"interpretability_score_mean_max": 7.8},
+                    "sae_meta": {"architecture": "relu"},
+                },
+                "saebench_returncode": 0,
+                "cebench_returncode": 0,
+            }
+        )
+
+    frontier_json = tmp_path / "frontier_results.json"
+    _write_json(frontier_json, {"records": records})
+
+    out_dir = tmp_path / "selector_out"
+    proc = subprocess.run(
+        [
+            sys.executable,
+            str(SELECTOR),
+            "--frontier-results",
+            str(frontier_json),
+            "--require-both-external",
+            "--group-by-condition",
+            "--uncertainty-mode",
+            "lcb",
+            "--min-seeds-per-group",
+            "3",
+            "--output-dir",
+            str(out_dir),
+        ],
+        cwd=str(ROOT),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert proc.returncode == 0, proc.stdout + "\n" + proc.stderr
+
+    run_dirs = sorted(out_dir.glob("run_*"))
+    assert run_dirs
+    summary = json.loads((run_dirs[-1] / "selection_summary.json").read_text())
+    diagnostics = summary["grouping_diagnostics"]
+
+    assert diagnostics["total_groups"] == 2
+    assert diagnostics["kept_group_count"] == 1
+    assert diagnostics["dropped_group_count"] == 1
+    assert diagnostics["dropped_groups"][0]["group_id"] == "relu"
+
+
+
 def test_release_gate_joint_mode_with_candidate_json(tmp_path: Path) -> None:
     phase4a = {
         "comparison": {"difference": 0.01},

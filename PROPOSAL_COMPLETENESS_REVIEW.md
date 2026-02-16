@@ -1,10 +1,10 @@
 # Proposal Completeness Review
 
-Date: 2026-02-15
+Date: 2026-02-16
 
 ## Executive Verdict
 
-The repository is engineering-complete and reproducibility-strong. The original scientific ambition is partially complete: internal consistency gains are clear, but external benchmark superiority is not yet achieved.
+The repository is engineering-complete and reproducibility-strong. The original scientific ambition is still partially complete: internal consistency gains are clear, but external benchmark superiority is not yet achieved under strict release gates.
 
 ## Original Proposal vs Current Status
 
@@ -13,9 +13,9 @@ The repository is engineering-complete and reproducibility-strong. The original 
 | Phase 1 controlled sweeps (seeds/architecture/sparsity/width) | Broad controlled map | strong | `results/experiments/phase4c_core_ablations/`, `results/experiments/phase4b_architecture_frontier_external_multiseed/`, `results/experiments/phase4e_external_scaling_study_multiseed/` |
 | Phase 2 deep analysis (matching, geometry, known-circuit recovery) | Recover known structure above random controls | partial | `docs/evidence/cycle4_followups_run_20260215T220728Z/known_circuit/closure_summary.json` |
 | Phase 3 reproducibility tooling | Clean, repeatable OSS-grade stack | strong | `RUNBOOK.md`, `.github/workflows/ci.yml`, `EXPERIMENT_LOG.md` |
-| External benchmark alignment (SAEBench + CE-Bench) | Externally grounded claims | strong infra, weak performance | `docs/evidence/cycle4_followups_run_20260215T220728Z/release/release_policy.json` |
-| Stress-gated release rigor | Claims blocked unless controls pass | strong and enforced | `docs/evidence/cycle4_followups_run_20260215T220728Z/release/release_policy.json` |
-| New-family exploration | Add architectural diversity under matched budget | complete for first new family | `docs/evidence/cycle4_followups_run_20260215T220728Z/routed/results.json` |
+| External benchmark alignment (SAEBench + CE-Bench) | Externally grounded claims | strong infra, weak performance | `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.json` |
+| Stress-gated release rigor | Claims blocked unless controls pass | strong and enforced | `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.json` |
+| New-family exploration | Add architectural diversity under matched budget | complete for routed + matryoshka families | `docs/evidence/cycle5_external_push_run_20260215T232351Z/routed/`, `docs/evidence/cycle4_followups_run_20260215T220728Z/matryoshka/` |
 
 ## What We Learned
 
@@ -28,7 +28,7 @@ The repository is engineering-complete and reproducibility-strong. The original 
 
 1. Produce a release-eligible candidate with external-positive LCB metrics.
 2. Improve known-circuit closure performance above random controls.
-3. Tune new-family runs so they are fairly competitive under matched budget.
+3. Show that best selected candidate remains robust to grouping/seed-threshold policy changes.
 
 ## Claim-Risk Checks
 
@@ -38,4 +38,4 @@ The repository is engineering-complete and reproducibility-strong. The original 
 
 ## Final Assessment
 
-This project is in a strong "honest publishable" state for a nuanced result (internal progress with unresolved external transfer). Full proposal closure requires external-positive gate pass.
+This project is in a strong "honest publishable" state for a nuanced result (internal progress with unresolved external transfer). Full proposal closure requires external-positive strict-gate pass and known-circuit closure improvement.

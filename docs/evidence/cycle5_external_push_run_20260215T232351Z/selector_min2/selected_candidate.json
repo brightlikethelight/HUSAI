@@ -1,0 +1,97 @@
+{
+  "source": "grouped",
+  "source_results": "results/experiments/phase4d_assignment_consistency_v3_external_sweep/run_20260216T005618Z/results.json",
+  "row_index": 1,
+  "condition_id": "assignv3_lambda0.05",
+  "architecture": "topk",
+  "seed": 456,
+  "hook_layer": 0,
+  "hook_name": "blocks.0.hook_resid_pre",
+  "checkpoint": "results/experiments/phase4d_assignment_consistency_v3_external_sweep/run_20260216T005618Z/checkpoints/lambda_0.05/sae_seed456.pt",
+  "saebench_summary_path": "results/experiments/phase4d_assignment_consistency_v3_external_sweep/run_20260216T005618Z/external_eval/0.05/saebench/husai_custom_sae_summary.json",
+  "cebench_summary_path": "results/experiments/phase4d_assignment_consistency_v3_external_sweep/run_20260216T005618Z/external_eval/0.05/cebench/husai_custom_cebench_summary.json",
+  "metrics": {
+    "saebench_delta": -0.05807325783156092,
+    "cebench_interp_delta_vs_baseline": -39.15336721134186,
+    "cebench_interpretability_max": 8.798244374275207,
+    "train_explained_variance": 0.5618366785049438,
+    "saebench_delta_mean": -0.052637711705693424,
+    "saebench_delta_std": 0.0039219505357685445,
+    "saebench_delta_ci95_low": -0.05807325783156092,
+    "saebench_delta_ci95_high": -0.04720216557982593,
+    "saebench_delta_n": 2,
+    "cebench_interp_delta_vs_baseline_mean": -35.96982697606087,
+    "cebench_interp_delta_vs_baseline_std": 2.2970437638238823,
+    "cebench_interp_delta_vs_baseline_ci95_low": -39.15336721134186,
+    "cebench_interp_delta_vs_baseline_ci95_high": -32.786286740779886,
+    "cebench_interp_delta_vs_baseline_n": 2,
+    "train_explained_variance_mean": 0.5667214632034301,
+    "train_explained_variance_std": 0.003524555494832604,
+    "train_explained_variance_ci95_low": 0.5618366785049438,
+    "train_explained_variance_ci95_high": 0.5716062479019164,
+    "train_explained_variance_n": 2,
+    "cebench_interpretability_max_mean": 11.981784609556197,
+    "cebench_interpretability_max_std": 2.297043763823883,
+    "cebench_interpretability_max_ci95_low": 8.798244374275207,
+    "cebench_interpretability_max_ci95_high": 15.165324844837187,
+    "cebench_interpretability_max_n": 2
+  },
+  "returncodes": {
+    "saebench": 0,
+    "cebench": 0
+  },
+  "assignment": {
+    "lambda_consistency": 0.05,
+    "internal_lcb": 0.8387931399233639,
+    "ev_drop": 0.25778840780258183
+  },
+  "selection": {
+    "grouped_from_seed_candidates": 2,
+    "uncertainty_mode": "lcb",
+    "representative_seed": 456,
+    "joint_score": 0.8185657201298082,
+    "normalized_components": {
+      "saebench_norm": 0.5553336279174211,
+      "cebench_delta_norm": 1.0,
+      "train_ev_norm": 0.40898906171097604
+    },
+    "weights": {
+      "saebench": 0.5,
+      "cebench_delta": 0.5,
+      "train_ev": 0.1
+    },
+    "is_pareto": true
+  },
+  "sources": [
+    "assignment"
+  ],
+  "group_id": "assignv3_lambda0.05",
+  "representative_condition_id": "assignv3_lambda0.05_seed456",
+  "seed_count": 2,
+  "seed_candidates": [
+    {
+      "seed": 123,
+      "condition_id": "assignv3_lambda0.05_seed123",
+      "checkpoint": "results/experiments/phase4d_assignment_consistency_v3_external_sweep/run_20260216T001059Z/checkpoints/lambda_0.05/sae_seed123.pt",
+      "joint_score": 0.6062923065289972,
+      "metrics": {
+        "saebench_delta": -0.055410949525013575,
+        "cebench_interp_delta_vs_baseline": -37.594082198143006,
+        "cebench_interpretability_max": 10.35752938747406,
+        "train_explained_variance": 0.5642292261123657
+      }
+    },
+    {
+      "seed": 456,
+      "condition_id": "assignv3_lambda0.05_seed456",
+      "checkpoint": "results/experiments/phase4d_assignment_consistency_v3_external_sweep/run_20260216T005618Z/checkpoints/lambda_0.05/sae_seed456.pt",
+      "joint_score": 0.8076181024141105,
+      "metrics": {
+        "saebench_delta": -0.04986447388637327,
+        "cebench_interp_delta_vs_baseline": -34.34557175397873,
+        "cebench_interpretability_max": 13.606039831638336,
+        "train_explained_variance": 0.5692137002944946
+      }
+    }
+  ]
+}

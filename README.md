@@ -2,17 +2,19 @@
 
 HUSAI studies whether sparse autoencoder (SAE) features are reproducible across seeds and whether internal consistency gains transfer to external interpretability benchmarks.
 
-## Current Status (Cycle 4 Reflective Update, 2026-02-15)
+## Current Status (Cycle 5 Update, 2026-02-16)
 
 - Internal consistency improvements: supported.
-- External superiority claims: not supported.
+- CE-Bench deltas: improved in cycle-5 routed/assignment sweeps.
+- SAEBench deltas: still negative in release-candidate settings.
 - Strict release gate: failing (`pass_all=False`).
 
 Canonical status artifacts:
 - `START_HERE.md`
 - `EXECUTIVE_SUMMARY.md`
-- `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
-- `docs/evidence/cycle4_followups_run_20260215T220728Z/release/release_policy.md`
+- `CYCLE5_EXTERNAL_PUSH_REFLECTIVE_REVIEW.md`
+- `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.md`
+- `docs/evidence/cycle5_external_push_run_20260215T232351Z/cycle5_synthesis.md`
 
 ## Main Research Question
 
@@ -43,10 +45,11 @@ Can we improve SAE feature consistency in ways that also improve external benchm
 4. Queue orchestration
 - `scripts/experiments/run_b200_high_impact_queue.sh`
 - `scripts/experiments/run_cycle4_followups_after_queue.sh`
+- `scripts/experiments/run_cycle5_external_push.sh`
 
-## Latest Gate Metrics (Cycle 4)
+## Latest Gate Metrics (Cycle 5)
 
-From `docs/evidence/cycle4_followups_run_20260215T220728Z/release/release_policy.json`:
+From `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.json`:
 
 - `random_model=True`
 - `transcoder=True`
@@ -57,44 +60,37 @@ From `docs/evidence/cycle4_followups_run_20260215T220728Z/release/release_policy
 Selected metrics:
 - `trained_random_delta_lcb = 0.00006183199584486321`
 - `transcoder_delta = +0.004916101694107056`
-- `ood_drop = 0.015173514260201082`
+- `ood_drop = 0.020994556554025268`
 - `saebench_delta_ci95_low = -0.04478959689939781`
 - `cebench_interp_delta_vs_baseline_ci95_low = -40.467037470119465`
 
 ## Why This Matters
 
 - Internal consistency gains alone are not enough for external validity.
-- SAEBench and CE-Bench reward different regions of the design space.
+- CE-Bench and SAEBench respond differently to candidate improvements.
 - Strict gate policy prevents unsupported release claims.
 
 ## Start Here (Reading Order)
 
 1. `START_HERE.md`
-2. `PROJECT_STUDY_GUIDE.md`
-3. `EXECUTIVE_SUMMARY.md`
-4. `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
-5. `RUNBOOK.md`
-6. `EXPERIMENT_LOG.md`
+2. `LEARNING_PATH.md`
+3. `PROJECT_STUDY_GUIDE.md`
+4. `EXECUTIVE_SUMMARY.md`
+5. `CYCLE5_EXTERNAL_PUSH_REFLECTIVE_REVIEW.md`
+6. `RUNBOOK.md`
+7. `EXPERIMENT_LOG.md`
 
 ## Quick Commands
 
 ```bash
-# quality and smoke
 pytest tests -q
 make smoke
 
-# strict release gate
 make release-gate-strict \
   TRANSCODER_RESULTS=<path/to/transcoder_stress_summary.json> \
   OOD_RESULTS=<path/to/ood_stress_summary.json> \
   EXTERNAL_SUMMARY=<path/to/external_summary.json>
 ```
-
-## Reproducibility Notes
-
-- Keep run manifests and config hashes with artifacts.
-- Always compare against random controls and matched external baselines.
-- Treat `pass_all=True` as a prerequisite for strong external claims.
 
 ## License
 

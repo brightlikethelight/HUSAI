@@ -428,15 +428,25 @@ def aggregate_condition_groups(
     *,
     uncertainty_mode: str,
     min_seeds_per_group: int,
-) -> list[dict[str, Any]]:
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     grouped: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for cand in candidates:
         condition_id = str(cand.get("condition_id", "unknown"))
         grouped[infer_group_id(condition_id)].append(cand)
 
     out: list[dict[str, Any]] = []
+    dropped_groups: list[dict[str, Any]] = []
+    kept_groups: list[dict[str, Any]] = []
     for group_id, rows in grouped.items():
         if len(rows) < min_seeds_per_group:
+            dropped_groups.append(
+                {
+                    "group_id": group_id,
+                    "seed_count": len(rows),
+                    "condition_ids": sorted({str(r.get("condition_id")) for r in rows}),
+                    "sources": sorted({str(r.get("source", "unknown")) for r in rows}),
+                }
+            )
             continue
 
         rep = max(
@@ -485,8 +495,23 @@ def aggregate_condition_groups(
             "representative_seed": rep.get("seed"),
         }
         out.append(agg)
+        kept_groups.append(
+            {
+                "group_id": group_id,
+                "seed_count": len(rows),
+                "condition_ids": sorted({str(r.get("condition_id")) for r in rows}),
+            }
+        )
 
-    return out
+    diagnostics = {
+        "total_groups": len(grouped),
+        "min_seeds_per_group": int(min_seeds_per_group),
+        "kept_group_count": len(kept_groups),
+        "dropped_group_count": len(dropped_groups),
+        "kept_groups": kept_groups,
+        "dropped_groups": dropped_groups,
+    }
+    return out, diagnostics
 
 
 def main() -> None:
@@ -571,12 +596,23 @@ def main() -> None:
     )
 
     selected_population = filtered
+    grouping_diagnostics: dict[str, Any] | None = None
     if args.group_by_condition:
-        selected_population = aggregate_condition_groups(
+        selected_population, grouping_diagnostics = aggregate_condition_groups(
             filtered,
             uncertainty_mode=args.uncertainty_mode,
             min_seeds_per_group=max(1, args.min_seeds_per_group),
         )
+        dropped_group_count = int((grouping_diagnostics or {}).get("dropped_group_count") or 0)
+        if dropped_group_count > 0:
+            print(
+                (
+                    "WARNING: grouped selection dropped "
+                    f"{dropped_group_count} condition group(s) below min seed count "
+                    f"({args.min_seeds_per_group})."
+                ),
+                file=sys.stderr,
+            )
         if not selected_population:
             raise RuntimeError(
                 "No grouped candidates after applying --group-by-condition and --min-seeds-per-group"
@@ -630,6 +666,7 @@ def main() -> None:
             "eligible_candidates": len(selected_population),
             "pareto_count": len(pareto),
         },
+        "grouping_diagnostics": grouping_diagnostics,
         "selected_candidate": to_serializable(selected),
         "pareto_front": [to_serializable(c) for c in pareto],
         "ranked_candidates": [to_serializable(c) for c in ordered],
@@ -657,35 +694,51 @@ def main() -> None:
         f"- Eligible seed candidates: `{len(filtered)}`",
         f"- Eligible candidates: `{len(selected_population)}`",
         f"- Pareto candidates: `{len(pareto)}`",
-        "",
-        "## Selected Candidate",
-        "",
-        f"- source: `{selected.get('source')}`",
-        f"- condition_id: `{selected.get('condition_id')}`",
-        f"- group_id: `{selected.get('group_id')}`",
-        f"- architecture: `{selected.get('architecture')}`",
-        f"- seed: `{selected.get('seed')}`",
-        f"- seed_count: `{selected.get('seed_count')}`",
-        f"- checkpoint: `{selected.get('checkpoint')}`",
-        f"- saebench_summary_path: `{selected.get('saebench_summary_path')}`",
-        f"- cebench_summary_path: `{selected.get('cebench_summary_path')}`",
-        f"- saebench_delta: `{sel_metrics.get('saebench_delta')}`",
-        f"- saebench_delta_ci95_low: `{sel_metrics.get('saebench_delta_ci95_low')}`",
-        f"- saebench_delta_ci95_high: `{sel_metrics.get('saebench_delta_ci95_high')}`",
-        f"- cebench_interp_delta_vs_baseline: `{sel_metrics.get('cebench_interp_delta_vs_baseline')}`",
-        f"- cebench_interp_delta_vs_baseline_ci95_low: `{sel_metrics.get('cebench_interp_delta_vs_baseline_ci95_low')}`",
-        f"- cebench_interp_delta_vs_baseline_ci95_high: `{sel_metrics.get('cebench_interp_delta_vs_baseline_ci95_high')}`",
-        f"- cebench_interpretability_max: `{sel_metrics.get('cebench_interpretability_max')}`",
-        f"- train_explained_variance: `{sel_metrics.get('train_explained_variance')}`",
-        f"- joint_score: `{sel_score}`",
-        "",
-        "## Artifacts",
-        "",
-        f"- selection_summary.json: `{repo_rel(summary_json)}`",
-        f"- selected_candidate.json: `{repo_rel(selected_json)}`",
-        f"- pareto_front.json: `{repo_rel(pareto_json)}`",
-        f"- candidate_table.json: `{repo_rel(table_json)}`",
     ]
+    if args.group_by_condition and grouping_diagnostics is not None:
+        lines.extend(
+            [
+                f"- Grouped total groups: `{grouping_diagnostics.get('total_groups')}`",
+                f"- Grouped kept groups: `{grouping_diagnostics.get('kept_group_count')}`",
+                f"- Grouped dropped groups: `{grouping_diagnostics.get('dropped_group_count')}`",
+            ]
+        )
+        dropped = grouping_diagnostics.get("dropped_groups") or []
+        if dropped:
+            dropped_ids = ", ".join(str(item.get("group_id")) for item in dropped)
+            lines.append(f"- Dropped group ids: `{dropped_ids}`")
+    lines.extend(
+        [
+            "",
+            "## Selected Candidate",
+            "",
+            f"- source: `{selected.get('source')}`",
+            f"- condition_id: `{selected.get('condition_id')}`",
+            f"- group_id: `{selected.get('group_id')}`",
+            f"- architecture: `{selected.get('architecture')}`",
+            f"- seed: `{selected.get('seed')}`",
+            f"- seed_count: `{selected.get('seed_count')}`",
+            f"- checkpoint: `{selected.get('checkpoint')}`",
+            f"- saebench_summary_path: `{selected.get('saebench_summary_path')}`",
+            f"- cebench_summary_path: `{selected.get('cebench_summary_path')}`",
+            f"- saebench_delta: `{sel_metrics.get('saebench_delta')}`",
+            f"- saebench_delta_ci95_low: `{sel_metrics.get('saebench_delta_ci95_low')}`",
+            f"- saebench_delta_ci95_high: `{sel_metrics.get('saebench_delta_ci95_high')}`",
+            f"- cebench_interp_delta_vs_baseline: `{sel_metrics.get('cebench_interp_delta_vs_baseline')}`",
+            f"- cebench_interp_delta_vs_baseline_ci95_low: `{sel_metrics.get('cebench_interp_delta_vs_baseline_ci95_low')}`",
+            f"- cebench_interp_delta_vs_baseline_ci95_high: `{sel_metrics.get('cebench_interp_delta_vs_baseline_ci95_high')}`",
+            f"- cebench_interpretability_max: `{sel_metrics.get('cebench_interpretability_max')}`",
+            f"- train_explained_variance: `{sel_metrics.get('train_explained_variance')}`",
+            f"- joint_score: `{sel_score}`",
+            "",
+            "## Artifacts",
+            "",
+            f"- selection_summary.json: `{repo_rel(summary_json)}`",
+            f"- selected_candidate.json: `{repo_rel(selected_json)}`",
+            f"- pareto_front.json: `{repo_rel(pareto_json)}`",
+            f"- candidate_table.json: `{repo_rel(table_json)}`",
+        ]
+    )
     summary_md.write_text("\n".join(lines) + "\n")
 
     print("Release candidate selection complete")

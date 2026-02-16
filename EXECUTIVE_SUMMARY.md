@@ -1,81 +1,80 @@
-# Executive Summary (Cycle 4 Reflective Update)
+# Executive Summary (Cycle 5 Update)
 
-Date: 2026-02-15
+Date: 2026-02-16
 
 ## Repo Purpose
 
-HUSAI tests a central mechanistic-interpretability question: whether SAE feature consistency gains are real across seeds, and whether those gains transfer to external benchmark validity (SAEBench, CE-Bench) under strict release gates.
+HUSAI tests whether SAE feature consistency gains are real across seeds, and whether those gains transfer to external benchmark validity (SAEBench, CE-Bench) under strict release gates.
 
 ## Current Scientific Bottom Line
 
 - Internal consistency progress: **real and replicated**.
-- External competitiveness: **not yet achieved**.
+- External competitiveness: **improved on CE-Bench in cycle-5 sweeps, still not release-positive overall**.
 - Reliability and reproducibility hygiene: **strong**.
 - Strict release decision: **fail** (`pass_all=False`).
 
 Canonical current-status artifacts:
-- `docs/evidence/cycle4_followups_run_20260215T220728Z/release/release_policy.json`
-- `docs/evidence/cycle4_followups_run_20260215T220728Z/selector/selection_summary.json`
-- `docs/evidence/cycle4_followups_run_20260215T220728Z/assignment_external/results.json`
-- `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
+- `docs/evidence/cycle5_external_push_run_20260215T232351Z/cycle5_synthesis.md`
+- `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.json`
+- `docs/evidence/cycle5_external_push_run_20260215T232351Z/selector/selection_summary.json`
+- `CYCLE5_EXTERNAL_PUSH_REFLECTIVE_REVIEW.md`
 
-## Cycle 4 Key Metrics (Latest Gate)
+## Cycle 5 Key Outcomes
 
-Run IDs:
-- Followups orchestrator (step 3-5): `run_20260215T220728Z`
-- Release gate: `run_20260215T223154Z`
-- Assignment-v3 external: `run_20260215T220737Z`
-- Routed frontier: `run_20260215T213621Z`
-- Matryoshka frontier: `run_20260215T212623Z`
+1. Routed family sweep (`expert_topk` mode) fixed effective sparsity collapse.
+- Prior routed baseline had low effective `l0` due global-topk masking.
+- New mode restored `l0=32/48` in routed runs.
 
-Gate outcomes:
-- random_model: `True`
-- transcoder: `True`
-- ood: `True`
-- external_saebench: `False`
-- external_cebench: `False`
-- pass_all: `False`
+2. Best routed CE-Bench delta improved to:
+- `-37.260996` (`run_20260215T234257Z`)
+
+3. Assignment-v3 high-capacity sweep (`d_sae=2048`) improved CE-Bench delta further:
+- `cebench_delta = -34.345572`
+- but `saebench_delta = -0.049864` remained negative.
+
+4. Default grouped selector (`min_seeds_per_group=3`) still selected baseline topk.
+- Assignment groups were undercounted at that threshold.
+
+5. Corrected selector check (`min_seeds_per_group=2`) selected assignment candidate.
+- Still fails strict external-positive gate because both external deltas remain < 0.
+
+## Latest Strict Gate Metrics (Cycle 5 canonical run)
+
+From `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.json`:
+
+- `random_model=True`
+- `transcoder=True`
+- `ood=True`
+- `external=False`
+- `pass_all=False`
 
 Numerical highlights:
 - `trained_random_delta_lcb = 0.00006183199584486321`
 - `transcoder_delta = +0.004916101694107056`
-- `ood_drop = 0.015173514260201082`
+- `ood_drop = 0.020994556554025268`
 - `saebench_delta_ci95_low = -0.04478959689939781`
 - `cebench_interp_delta_vs_baseline_ci95_low = -40.467037470119465`
 
-## New High-Impact Coverage in Latest Pass
-
-1. Assignment-v3 external path is now complete (no external `d_model` mismatch blocker).
-- Best lambda selected: `0.3`.
-- Internal LCB remains strong (`0.823699951171875`) but external deltas still fail acceptance.
-
-2. New family added and benchmarked: routed frontier.
-- `scripts/experiments/run_routed_frontier_external.py`
-- External deltas remain negative despite routing regularization and matched budget.
-
-3. Grouped LCB selection and strict gate were rerun on updated pool.
-- Selected candidate remains `topk_seed123` from frontier multiseed.
-
 ## Top Issues (Current)
 
-1. `P0` External benchmark gap remains large (especially CE-Bench delta vs matched baseline).
-2. `P0` No candidate currently satisfies both external gates jointly.
-3. `P1` Known-circuit closure gate still fails trained-vs-random thresholds.
-4. `P2` W&B instrumentation is still not enabled in current remote runs.
-5. `P2` Some historical docs referenced stale cycle4 run IDs (updated in this pass).
+1. `P0` External benchmark gate still fails.
+2. `P0` No candidate is jointly external-positive on SAEBench and CE-Bench under strict thresholds.
+3. `P1` Selector thresholding can exclude promising groups when seed-count requirements are mismatched.
+4. `P1` Determinism env warnings still appear in assignment stages (cuBLAS config consistency).
 
 ## Highest-Leverage Next 5 (Ranked)
 
-1. Improve external transfer while preserving internal consistency (multi-objective training/selection track).
-2. Run routed-family hyper-sweep to fix under-utilized sparsity (`train_l0` too low) before further comparison.
-3. Expand external-aware assignment objective with Pareto checkpointing over larger seed pool.
-4. Close known-circuit gap with targeted architecture/feature-space changes plus confidence bounds.
-5. Enable uniform W&B logging + run dashboard for all queue scripts.
+1. Add SAEBench-aware objective/selection term to assignment-v3 so CE gains do not come with SAE AUC regressions.
+2. Expand assignment/routed seed support and set selector group threshold consistently with available seeds.
+3. Run joint Pareto selection with explicit SAEBench floor and CE-Bench maximize objective.
+4. Add selector warning/error when groups are dropped due seed-count filters.
+5. Enforce deterministic env (`CUBLAS_WORKSPACE_CONFIG`) across every queue stage.
 
 ## Read Next
 
-1. `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
+1. `CYCLE5_EXTERNAL_PUSH_REFLECTIVE_REVIEW.md`
 2. `START_HERE.md`
-3. `PROJECT_STUDY_GUIDE.md`
-4. `RUNBOOK.md`
-5. `EXPERIMENT_LOG.md`
+3. `LEARNING_PATH.md`
+4. `PROJECT_STUDY_GUIDE.md`
+5. `RUNBOOK.md`
+6. `EXPERIMENT_LOG.md`

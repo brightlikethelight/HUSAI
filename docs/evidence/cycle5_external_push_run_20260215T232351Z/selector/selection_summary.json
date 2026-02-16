@@ -1,0 +1,1980 @@
+{
+  "run_metadata": {
+    "timestamp_utc": "2026-02-16T01:41:03+00:00",
+    "git_commit": "10c2789b0c296d7eb2660979759614a5e5225b32",
+    "command": "python scripts/experiments/select_release_candidate.py --frontier-results results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/results.json --scaling-results results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/results.json --require-both-external --group-by-condition --uncertainty-mode lcb --min-seeds-per-group 3 --output-dir results/experiments/release_candidate_selection_cycle5 --frontier-results results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T232359Z/results.json --frontier-results results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T233353Z/results.json --frontier-results results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T234257Z/results.json --frontier-results results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T235219Z/results.json --frontier-results results/experiments/phase4b_routed_frontier_external_sweep/run_20260216T000156Z/results.json --assignment-results results/experiments/phase4d_assignment_consistency_v3_external_sweep/run_20260216T001059Z/results.json --assignment-results results/experiments/phase4d_assignment_consistency_v3_external_sweep/run_20260216T005618Z/results.json",
+    "run_id": "run_20260216T014101Z"
+  },
+  "config": {
+    "frontier_results": [
+      "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/results.json",
+      "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T232359Z/results.json",
+      "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T233353Z/results.json",
+      "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T234257Z/results.json",
+      "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T235219Z/results.json",
+      "results/experiments/phase4b_routed_frontier_external_sweep/run_20260216T000156Z/results.json"
+    ],
+    "scaling_results": [
+      "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/results.json"
+    ],
+    "assignment_results": [
+      "results/experiments/phase4d_assignment_consistency_v3_external_sweep/run_20260216T001059Z/results.json",
+      "results/experiments/phase4d_assignment_consistency_v3_external_sweep/run_20260216T005618Z/results.json"
+    ],
+    "min_saebench_delta": -1000000000.0,
+    "min_cebench_delta": -1000000000.0,
+    "require_both_external": true,
+    "group_by_condition": true,
+    "uncertainty_mode": "lcb",
+    "min_seeds_per_group": 3,
+    "weight_saebench": 0.5,
+    "weight_cebench": 0.5,
+    "weight_train_ev": 0.1
+  },
+  "counts": {
+    "total_candidates": 71,
+    "eligible_seed_candidates": 59,
+    "eligible_candidates": 9,
+    "pareto_count": 4
+  },
+  "selected_candidate": {
+    "source": "grouped",
+    "source_results": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/results.json",
+    "row_index": 1,
+    "condition_id": "topk",
+    "architecture": "topk",
+    "seed": 123,
+    "hook_layer": 0,
+    "hook_name": "blocks.0.hook_resid_pre",
+    "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed123/sae_final.pt",
+    "saebench_summary_path": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/topk_seed123/saebench/husai_custom_sae_summary.json",
+    "cebench_summary_path": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/topk_seed123/cebench/husai_custom_cebench_summary.json",
+    "metrics": {
+      "saebench_delta": -0.04478959689939781,
+      "cebench_interp_delta_vs_baseline": -40.467037470119465,
+      "cebench_interpretability_max": 7.4845741154976055,
+      "train_explained_variance": 0.7437727245610648,
+      "saebench_delta_mean": -0.04059280026569467,
+      "saebench_delta_std": 0.004787919673827799,
+      "saebench_delta_ci95_low": -0.04478959689939781,
+      "saebench_delta_ci95_high": -0.03639600363199154,
+      "saebench_delta_n": 5,
+      "cebench_interp_delta_vs_baseline_mean": -40.2248433790207,
+      "cebench_interp_delta_vs_baseline_std": 0.2763073731865414,
+      "cebench_interp_delta_vs_baseline_ci95_low": -40.467037470119465,
+      "cebench_interp_delta_vs_baseline_ci95_high": -39.98264928792193,
+      "cebench_interp_delta_vs_baseline_n": 5,
+      "train_explained_variance_mean": 0.7450903693098756,
+      "train_explained_variance_std": 0.001503236341090101,
+      "train_explained_variance_ci95_low": 0.7437727245610648,
+      "train_explained_variance_ci95_high": 0.7464080140586864,
+      "train_explained_variance_n": 5,
+      "cebench_interpretability_max_mean": 7.726768206596374,
+      "cebench_interpretability_max_std": 0.2763073731865415,
+      "cebench_interpretability_max_ci95_low": 7.4845741154976055,
+      "cebench_interpretability_max_ci95_high": 7.968962297695142,
+      "cebench_interpretability_max_n": 5
+    },
+    "returncodes": {
+      "saebench": 0,
+      "cebench": 0
+    },
+    "selection": {
+      "grouped_from_seed_candidates": 5,
+      "uncertainty_mode": "lcb",
+      "representative_seed": 123,
+      "joint_score": 0.8280978109737276,
+      "normalized_components": {
+        "saebench_norm": 0.7595825082181958,
+        "cebench_delta_norm": 0.765615361662855,
+        "train_ev_norm": 0.6549887603320212
+      },
+      "weights": {
+        "saebench": 0.5,
+        "cebench_delta": 0.5,
+        "train_ev": 0.1
+      },
+      "is_pareto": true
+    },
+    "sources": [
+      "frontier"
+    ],
+    "group_id": "topk",
+    "representative_condition_id": "topk_seed123",
+    "seed_count": 5,
+    "seed_candidates": [
+      {
+        "seed": 1011,
+        "condition_id": "topk_seed1011",
+        "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed1011/sae_final.pt",
+        "joint_score": 0.5424472947430221,
+        "metrics": {
+          "saebench_delta": -0.04525995743561939,
+          "cebench_interp_delta_vs_baseline": -40.61637846231461,
+          "cebench_interpretability_max": 7.3352331233024595,
+          "train_explained_variance": 0.7458855330728723
+        }
+      },
+      {
+        "seed": 123,
+        "condition_id": "topk_seed123",
+        "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed123/sae_final.pt",
+        "joint_score": 0.660635144764209,
+        "metrics": {
+          "saebench_delta": -0.03260442057084412,
+          "cebench_interp_delta_vs_baseline": -39.910494198799135,
+          "cebench_interpretability_max": 8.041117386817932,
+          "train_explained_variance": 0.7434116009878537
+        }
+      },
+      {
+        "seed": 42,
+        "condition_id": "topk_seed42",
+        "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed42/sae_final.pt",
+        "joint_score": 0.5774209345807422,
+        "metrics": {
+          "saebench_delta": -0.041807613913057096,
+          "cebench_interp_delta_vs_baseline": -40.36621643304825,
+          "cebench_interpretability_max": 7.585395152568817,
+          "train_explained_variance": 0.7437508538331046
+        }
+      },
+      {
+        "seed": 456,
+        "condition_id": "topk_seed456",
+        "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed456/sae_final.pt",
+        "joint_score": 0.5807272924015768,
+        "metrics": {
+          "saebench_delta": -0.04274279129189251,
+          "cebench_interp_delta_vs_baseline": -40.184111621379856,
+          "cebench_interpretability_max": 7.767499964237214,
+          "train_explained_variance": 0.745388634657804
+        }
+      },
+      {
+        "seed": 789,
+        "condition_id": "topk_seed789",
+        "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed789/sae_final.pt",
+        "joint_score": 0.6022163711942943,
+        "metrics": {
+          "saebench_delta": -0.04054921811706025,
+          "cebench_interp_delta_vs_baseline": -40.047016179561616,
+          "cebench_interpretability_max": 7.90459540605545,
+          "train_explained_variance": 0.7470152239977429
+        }
+      }
+    ]
+  },
+  "pareto_front": [
+    {
+      "source": "grouped",
+      "source_results": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/results.json",
+      "row_index": 1,
+      "condition_id": "topk",
+      "architecture": "topk",
+      "seed": 123,
+      "hook_layer": 0,
+      "hook_name": "blocks.0.hook_resid_pre",
+      "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed123/sae_final.pt",
+      "saebench_summary_path": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/topk_seed123/saebench/husai_custom_sae_summary.json",
+      "cebench_summary_path": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/topk_seed123/cebench/husai_custom_cebench_summary.json",
+      "metrics": {
+        "saebench_delta": -0.04478959689939781,
+        "cebench_interp_delta_vs_baseline": -40.467037470119465,
+        "cebench_interpretability_max": 7.4845741154976055,
+        "train_explained_variance": 0.7437727245610648,
+        "saebench_delta_mean": -0.04059280026569467,
+        "saebench_delta_std": 0.004787919673827799,
+        "saebench_delta_ci95_low": -0.04478959689939781,
+        "saebench_delta_ci95_high": -0.03639600363199154,
+        "saebench_delta_n": 5,
+        "cebench_interp_delta_vs_baseline_mean": -40.2248433790207,
+        "cebench_interp_delta_vs_baseline_std": 0.2763073731865414,
+        "cebench_interp_delta_vs_baseline_ci95_low": -40.467037470119465,
+        "cebench_interp_delta_vs_baseline_ci95_high": -39.98264928792193,
+        "cebench_interp_delta_vs_baseline_n": 5,
+        "train_explained_variance_mean": 0.7450903693098756,
+        "train_explained_variance_std": 0.001503236341090101,
+        "train_explained_variance_ci95_low": 0.7437727245610648,
+        "train_explained_variance_ci95_high": 0.7464080140586864,
+        "train_explained_variance_n": 5,
+        "cebench_interpretability_max_mean": 7.726768206596374,
+        "cebench_interpretability_max_std": 0.2763073731865415,
+        "cebench_interpretability_max_ci95_low": 7.4845741154976055,
+        "cebench_interpretability_max_ci95_high": 7.968962297695142,
+        "cebench_interpretability_max_n": 5
+      },
+      "returncodes": {
+        "saebench": 0,
+        "cebench": 0
+      },
+      "selection": {
+        "grouped_from_seed_candidates": 5,
+        "uncertainty_mode": "lcb",
+        "representative_seed": 123,
+        "joint_score": 0.8280978109737276,
+        "normalized_components": {
+          "saebench_norm": 0.7595825082181958,
+          "cebench_delta_norm": 0.765615361662855,
+          "train_ev_norm": 0.6549887603320212
+        },
+        "weights": {
+          "saebench": 0.5,
+          "cebench_delta": 0.5,
+          "train_ev": 0.1
+        },
+        "is_pareto": true
+      },
+      "sources": [
+        "frontier"
+      ],
+      "group_id": "topk",
+      "representative_condition_id": "topk_seed123",
+      "seed_count": 5,
+      "seed_candidates": [
+        {
+          "seed": 1011,
+          "condition_id": "topk_seed1011",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed1011/sae_final.pt",
+          "joint_score": 0.5424472947430221,
+          "metrics": {
+            "saebench_delta": -0.04525995743561939,
+            "cebench_interp_delta_vs_baseline": -40.61637846231461,
+            "cebench_interpretability_max": 7.3352331233024595,
+            "train_explained_variance": 0.7458855330728723
+          }
+        },
+        {
+          "seed": 123,
+          "condition_id": "topk_seed123",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed123/sae_final.pt",
+          "joint_score": 0.660635144764209,
+          "metrics": {
+            "saebench_delta": -0.03260442057084412,
+            "cebench_interp_delta_vs_baseline": -39.910494198799135,
+            "cebench_interpretability_max": 8.041117386817932,
+            "train_explained_variance": 0.7434116009878537
+          }
+        },
+        {
+          "seed": 42,
+          "condition_id": "topk_seed42",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed42/sae_final.pt",
+          "joint_score": 0.5774209345807422,
+          "metrics": {
+            "saebench_delta": -0.041807613913057096,
+            "cebench_interp_delta_vs_baseline": -40.36621643304825,
+            "cebench_interpretability_max": 7.585395152568817,
+            "train_explained_variance": 0.7437508538331046
+          }
+        },
+        {
+          "seed": 456,
+          "condition_id": "topk_seed456",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed456/sae_final.pt",
+          "joint_score": 0.5807272924015768,
+          "metrics": {
+            "saebench_delta": -0.04274279129189251,
+            "cebench_interp_delta_vs_baseline": -40.184111621379856,
+            "cebench_interpretability_max": 7.767499964237214,
+            "train_explained_variance": 0.745388634657804
+          }
+        },
+        {
+          "seed": 789,
+          "condition_id": "topk_seed789",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed789/sae_final.pt",
+          "joint_score": 0.6022163711942943,
+          "metrics": {
+            "saebench_delta": -0.04054921811706025,
+            "cebench_interp_delta_vs_baseline": -40.047016179561616,
+            "cebench_interpretability_max": 7.90459540605545,
+            "train_explained_variance": 0.7470152239977429
+          }
+        }
+      ]
+    },
+    {
+      "source": "grouped",
+      "source_results": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/results.json",
+      "row_index": 5,
+      "condition_id": "relu",
+      "architecture": "relu",
+      "seed": 42,
+      "hook_layer": 0,
+      "hook_name": "blocks.0.hook_resid_pre",
+      "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/relu_seed42/sae_final.pt",
+      "saebench_summary_path": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/relu_seed42/saebench/husai_custom_sae_summary.json",
+      "cebench_summary_path": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/relu_seed42/cebench/husai_custom_cebench_summary.json",
+      "metrics": {
+        "saebench_delta": -0.029153650997086358,
+        "cebench_interp_delta_vs_baseline": -43.71286609575971,
+        "cebench_interpretability_max": 4.23874548985736,
+        "train_explained_variance": 0.9954239597221697,
+        "saebench_delta_mean": -0.024691224025891967,
+        "saebench_delta_std": 0.005090964312356712,
+        "saebench_delta_ci95_low": -0.029153650997086358,
+        "saebench_delta_ci95_high": -0.020228797054697576,
+        "saebench_delta_n": 5,
+        "cebench_interp_delta_vs_baseline_mean": -43.69392519998551,
+        "cebench_interp_delta_vs_baseline_std": 0.021608740054005763,
+        "cebench_interp_delta_vs_baseline_ci95_low": -43.71286609575971,
+        "cebench_interp_delta_vs_baseline_ci95_high": -43.67498430421131,
+        "cebench_interp_delta_vs_baseline_n": 5,
+        "train_explained_variance_mean": 0.9955460129388298,
+        "train_explained_variance_std": 0.00013924453536972025,
+        "train_explained_variance_ci95_low": 0.9954239597221697,
+        "train_explained_variance_ci95_high": 0.99566806615549,
+        "train_explained_variance_n": 5,
+        "cebench_interpretability_max_mean": 4.257686385631561,
+        "cebench_interpretability_max_std": 0.021608740054005857,
+        "cebench_interpretability_max_ci95_low": 4.23874548985736,
+        "cebench_interpretability_max_ci95_high": 4.276627281405762,
+        "cebench_interpretability_max_n": 5
+      },
+      "returncodes": {
+        "saebench": 0,
+        "cebench": 0
+      },
+      "selection": {
+        "grouped_from_seed_candidates": 5,
+        "uncertainty_mode": "lcb",
+        "representative_seed": 42,
+        "joint_score": 0.5995251887673756,
+        "normalized_components": {
+          "saebench_norm": 1.0,
+          "cebench_delta_norm": 0.0,
+          "train_ev_norm": 0.9952518876737557
+        },
+        "weights": {
+          "saebench": 0.5,
+          "cebench_delta": 0.5,
+          "train_ev": 0.1
+        },
+        "is_pareto": true
+      },
+      "sources": [
+        "frontier"
+      ],
+      "group_id": "relu",
+      "representative_condition_id": "relu_seed42",
+      "seed_count": 5,
+      "seed_candidates": [
+        {
+          "seed": 1011,
+          "condition_id": "relu_seed1011",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/relu_seed1011/sae_final.pt",
+          "joint_score": 0.5521712347634465,
+          "metrics": {
+            "saebench_delta": -0.0247555305575059,
+            "cebench_interp_delta_vs_baseline": -43.69106490969658,
+            "cebench_interpretability_max": 4.260546675920486,
+            "train_explained_variance": 0.9954985385354921
+          }
+        },
+        {
+          "seed": 123,
+          "condition_id": "relu_seed123",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/relu_seed123/sae_final.pt",
+          "joint_score": 0.5645745093409333,
+          "metrics": {
+            "saebench_delta": -0.02276613558450924,
+            "cebench_interp_delta_vs_baseline": -43.703621726036076,
+            "cebench_interpretability_max": 4.2479898595809935,
+            "train_explained_variance": 0.9957223457556417
+          }
+        },
+        {
+          "seed": 42,
+          "condition_id": "relu_seed42",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/relu_seed42/sae_final.pt",
+          "joint_score": 0.599548293282047,
+          "metrics": {
+            "saebench_delta": -0.017257680751151527,
+            "cebench_interp_delta_vs_baseline": -43.72346672296524,
+            "cebench_interpretability_max": 4.228144862651825,
+            "train_explained_variance": 0.9953425196668417
+          }
+        },
+        {
+          "seed": 456,
+          "condition_id": "relu_seed456",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/relu_seed456/sae_final.pt",
+          "joint_score": 0.5167555114022736,
+          "metrics": {
+            "saebench_delta": -0.030207801290919267,
+            "cebench_interp_delta_vs_baseline": -43.68648747086525,
+            "cebench_interpretability_max": 4.265124114751816,
+            "train_explained_variance": 0.9955860125749312
+          }
+        },
+        {
+          "seed": 789,
+          "condition_id": "relu_seed789",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/relu_seed789/sae_final.pt",
+          "joint_score": 0.5292153133824767,
+          "metrics": {
+            "saebench_delta": -0.0284689719453739,
+            "cebench_interp_delta_vs_baseline": -43.66498517036438,
+            "cebench_interpretability_max": 4.286626415252686,
+            "train_explained_variance": 0.9955806481612426
+          }
+        }
+      ]
+    },
+    {
+      "source": "grouped",
+      "source_results": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/results.json",
+      "row_index": 16,
+      "condition_id": "jumprelu",
+      "architecture": "jumprelu",
+      "seed": 123,
+      "hook_layer": 0,
+      "hook_name": "blocks.0.hook_resid_pre",
+      "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/jumprelu_seed123/sae_final.pt",
+      "saebench_summary_path": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/jumprelu_seed123/saebench/husai_custom_sae_summary.json",
+      "cebench_summary_path": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/jumprelu_seed123/cebench/husai_custom_cebench_summary.json",
+      "metrics": {
+        "saebench_delta": -0.03781194436324303,
+        "cebench_interp_delta_vs_baseline": -43.62322589217722,
+        "cebench_interpretability_max": 4.328385693439852,
+        "train_explained_variance": 0.9953181584600186,
+        "saebench_delta_mean": -0.03057683519457275,
+        "saebench_delta_std": 0.008254181594785073,
+        "saebench_delta_ci95_low": -0.03781194436324303,
+        "saebench_delta_ci95_high": -0.023341726025902468,
+        "saebench_delta_n": 5,
+        "cebench_interp_delta_vs_baseline_mean": -43.57260908985138,
+        "cebench_interp_delta_vs_baseline_std": 0.05774623000215929,
+        "cebench_interp_delta_vs_baseline_ci95_low": -43.62322589217722,
+        "cebench_interp_delta_vs_baseline_ci95_high": -43.52199228752555,
+        "cebench_interp_delta_vs_baseline_n": 5,
+        "train_explained_variance_mean": 0.9959328156159207,
+        "train_explained_variance_std": 0.0007012322364560377,
+        "train_explained_variance_ci95_low": 0.9953181584600186,
+        "train_explained_variance_ci95_high": 0.9965474727718229,
+        "train_explained_variance_n": 5,
+        "cebench_interpretability_max_mean": 4.379002495765686,
+        "cebench_interpretability_max_std": 0.05774623000216079,
+        "cebench_interpretability_max_ci95_low": 4.328385693439852,
+        "cebench_interpretability_max_ci95_high": 4.42961929809152,
+        "cebench_interpretability_max_n": 5
+      },
+      "returncodes": {
+        "saebench": 0,
+        "cebench": 0
+      },
+      "selection": {
+        "grouped_from_seed_candidates": 5,
+        "uncertainty_mode": "lcb",
+        "representative_seed": 123,
+        "joint_score": 0.543518166617033,
+        "normalized_components": {
+          "saebench_norm": 0.8668705310693932,
+          "cebench_delta_norm": 0.02114403586905429,
+          "train_ev_norm": 0.9951088314780919
+        },
+        "weights": {
+          "saebench": 0.5,
+          "cebench_delta": 0.5,
+          "train_ev": 0.1
+        },
+        "is_pareto": true
+      },
+      "sources": [
+        "frontier"
+      ],
+      "group_id": "jumprelu",
+      "representative_condition_id": "jumprelu_seed123",
+      "seed_count": 5,
+      "seed_candidates": [
+        {
+          "seed": 1011,
+          "condition_id": "jumprelu_seed1011",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/jumprelu_seed1011/sae_final.pt",
+          "joint_score": 0.43734171674296274,
+          "metrics": {
+            "saebench_delta": -0.043279727936038515,
+            "cebench_interp_delta_vs_baseline": -43.56824979066849,
+            "cebench_interpretability_max": 4.383361794948578,
+            "train_explained_variance": 0.9963296411293415
+          }
+        },
+        {
+          "seed": 123,
+          "condition_id": "jumprelu_seed123",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/jumprelu_seed123/sae_final.pt",
+          "joint_score": 0.5769984517050507,
+          "metrics": {
+            "saebench_delta": -0.021414812502289937,
+            "cebench_interp_delta_vs_baseline": -43.63273448705673,
+            "cebench_interpretability_max": 4.318877098560333,
+            "train_explained_variance": 0.9957073184355258
+          }
+        },
+        {
+          "seed": 42,
+          "condition_id": "jumprelu_seed42",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/jumprelu_seed42/sae_final.pt",
+          "joint_score": 0.5128709330049107,
+          "metrics": {
+            "saebench_delta": -0.0314611726937194,
+            "cebench_interp_delta_vs_baseline": -43.600624817609784,
+            "cebench_interpretability_max": 4.350986768007278,
+            "train_explained_variance": 0.9953188298546644
+          }
+        },
+        {
+          "seed": 456,
+          "condition_id": "jumprelu_seed456",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/jumprelu_seed456/sae_final.pt",
+          "joint_score": 0.5153677474787762,
+          "metrics": {
+            "saebench_delta": -0.03124924681450658,
+            "cebench_interp_delta_vs_baseline": -43.58272713422775,
+            "cebench_interpretability_max": 4.368884451389313,
+            "train_explained_variance": 0.9969552797171284
+          }
+        },
+        {
+          "seed": 789,
+          "condition_id": "jumprelu_seed789",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/jumprelu_seed789/sae_final.pt",
+          "joint_score": 0.558168680645962,
+          "metrics": {
+            "saebench_delta": -0.025479216026309315,
+            "cebench_interp_delta_vs_baseline": -43.47870921969414,
+            "cebench_interpretability_max": 4.472902365922928,
+            "train_explained_variance": 0.9953530089429435
+          }
+        }
+      ]
+    },
+    {
+      "source": "grouped",
+      "source_results": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T233353Z/results.json",
+      "row_index": 0,
+      "condition_id": "routed_topk",
+      "architecture": "routed_topk",
+      "seed": 42,
+      "hook_layer": 0,
+      "hook_name": "blocks.0.hook_resid_pre",
+      "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T233353Z/checkpoints/routed_topk_seed42/sae_final.pt",
+      "saebench_summary_path": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T233353Z/external_eval/routed_topk_seed42/saebench/husai_custom_sae_summary.json",
+      "cebench_summary_path": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T233353Z/external_eval/routed_topk_seed42/cebench/husai_custom_cebench_summary.json",
+      "metrics": {
+        "saebench_delta": -0.07217561971969713,
+        "cebench_interp_delta_vs_baseline": -39.47336309180931,
+        "cebench_interpretability_max": 8.47824849380776,
+        "train_explained_variance": 0.25935723163975105,
+        "saebench_delta_mean": -0.06916171858395498,
+        "saebench_delta_std": 0.005955504543798462,
+        "saebench_delta_ci95_low": -0.07217561971969713,
+        "saebench_delta_ci95_high": -0.06614781744821283,
+        "saebench_delta_n": 15,
+        "cebench_interp_delta_vs_baseline_mean": -38.52651922734579,
+        "cebench_interp_delta_vs_baseline_std": 1.8709747543499453,
+        "cebench_interp_delta_vs_baseline_ci95_low": -39.47336309180931,
+        "cebench_interp_delta_vs_baseline_ci95_high": -37.57967536288226,
+        "cebench_interp_delta_vs_baseline_n": 15,
+        "train_explained_variance_mean": 0.2889662508556457,
+        "train_explained_variance_std": 0.058507774653416056,
+        "train_explained_variance_ci95_low": 0.25935723163975105,
+        "train_explained_variance_ci95_high": 0.31857527007154035,
+        "train_explained_variance_n": 15,
+        "cebench_interpretability_max_mean": 9.425092358271282,
+        "cebench_interpretability_max_std": 1.870974754349945,
+        "cebench_interpretability_max_ci95_low": 8.47824849380776,
+        "cebench_interpretability_max_ci95_high": 10.371936222734805,
+        "cebench_interpretability_max_n": 15
+      },
+      "returncodes": {
+        "saebench": 0,
+        "cebench": 0
+      },
+      "selection": {
+        "grouped_from_seed_candidates": 15,
+        "uncertainty_mode": "lcb",
+        "representative_seed": 42,
+        "joint_score": 0.6692482221278253,
+        "normalized_components": {
+          "saebench_norm": 0.33849644425565056,
+          "cebench_delta_norm": 1.0,
+          "train_ev_norm": 0.0
+        },
+        "weights": {
+          "saebench": 0.5,
+          "cebench_delta": 0.5,
+          "train_ev": 0.1
+        },
+        "is_pareto": true
+      },
+      "sources": [
+        "frontier"
+      ],
+      "group_id": "routed_topk",
+      "representative_condition_id": "routed_topk_seed42",
+      "seed_count": 15,
+      "seed_candidates": [
+        {
+          "seed": 123,
+          "condition_id": "routed_topk_seed123",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T232359Z/checkpoints/routed_topk_seed123/sae_final.pt",
+          "joint_score": 0.3598922456897499,
+          "metrics": {
+            "saebench_delta": -0.06796522127756599,
+            "cebench_interp_delta_vs_baseline": -40.01423630237579,
+            "cebench_interpretability_max": 7.937375283241272,
+            "train_explained_variance": 0.23040860426608167
+          }
+        },
+        {
+          "seed": 123,
+          "condition_id": "routed_topk_seed123",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T233353Z/checkpoints/routed_topk_seed123/sae_final.pt",
+          "joint_score": 0.40365159514266796,
+          "metrics": {
+            "saebench_delta": -0.07038989751459879,
+            "cebench_interp_delta_vs_baseline": -39.08847326278686,
+            "cebench_interpretability_max": 8.863138322830201,
+            "train_explained_variance": 0.33231096722705245
+          }
+        },
+        {
+          "seed": 123,
+          "condition_id": "routed_topk_seed123",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T234257Z/checkpoints/routed_topk_seed123/sae_final.pt",
+          "joint_score": 0.5147847179340244,
+          "metrics": {
+            "saebench_delta": -0.07683966881225845,
+            "cebench_interp_delta_vs_baseline": -35.87278733253479,
+            "cebench_interpretability_max": 12.078824253082276,
+            "train_explained_variance": 0.2568282967325004
+          }
+        },
+        {
+          "seed": 123,
+          "condition_id": "routed_topk_seed123",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T235219Z/checkpoints/routed_topk_seed123/sae_final.pt",
+          "joint_score": 0.3791768970352837,
+          "metrics": {
+            "saebench_delta": -0.07522805068171257,
+            "cebench_interp_delta_vs_baseline": -38.8891482591629,
+            "cebench_interpretability_max": 9.062463326454163,
+            "train_explained_variance": 0.3089743007725212
+          }
+        },
+        {
+          "seed": 123,
+          "condition_id": "routed_topk_seed123",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260216T000156Z/checkpoints/routed_topk_seed123/sae_final.pt",
+          "joint_score": 0.32605772421653667,
+          "metrics": {
+            "saebench_delta": -0.06627967464389728,
+            "cebench_interp_delta_vs_baseline": -40.82585262060165,
+            "cebench_interpretability_max": 7.125758965015411,
+            "train_explained_variance": 0.2002395188236915
+          }
+        },
+        {
+          "seed": 42,
+          "condition_id": "routed_topk_seed42",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T232359Z/checkpoints/routed_topk_seed42/sae_final.pt",
+          "joint_score": 0.5577315303156983,
+          "metrics": {
+            "saebench_delta": -0.06230150467613782,
+            "cebench_interp_delta_vs_baseline": -36.78858082294464,
+            "cebench_interpretability_max": 11.163030762672424,
+            "train_explained_variance": 0.2106614223626354
+          }
+        },
+        {
+          "seed": 42,
+          "condition_id": "routed_topk_seed42",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T233353Z/checkpoints/routed_topk_seed42/sae_final.pt",
+          "joint_score": 0.6979693016634051,
+          "metrics": {
+            "saebench_delta": -0.06345449530158731,
+            "cebench_interp_delta_vs_baseline": -34.29337139844894,
+            "cebench_interpretability_max": 13.658240187168122,
+            "train_explained_variance": 0.38222786606732695
+          }
+        },
+        {
+          "seed": 42,
+          "condition_id": "routed_topk_seed42",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T234257Z/checkpoints/routed_topk_seed42/sae_final.pt",
+          "joint_score": 0.4556761233119083,
+          "metrics": {
+            "saebench_delta": -0.06833752688179306,
+            "cebench_interp_delta_vs_baseline": -38.27281409263611,
+            "cebench_interpretability_max": 9.678797492980957,
+            "train_explained_variance": 0.31087566035899616
+          }
+        },
+        {
+          "seed": 42,
+          "condition_id": "routed_topk_seed42",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T235219Z/checkpoints/routed_topk_seed42/sae_final.pt",
+          "joint_score": 0.5736912510680405,
+          "metrics": {
+            "saebench_delta": -0.05597488858576849,
+            "cebench_interp_delta_vs_baseline": -37.56633861541748,
+            "cebench_interpretability_max": 10.385272970199585,
+            "train_explained_variance": 0.32208314297869045
+          }
+        },
+        {
+          "seed": 42,
+          "condition_id": "routed_topk_seed42",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260216T000156Z/checkpoints/routed_topk_seed42/sae_final.pt",
+          "joint_score": 0.3974851642404668,
+          "metrics": {
+            "saebench_delta": -0.07731785798158608,
+            "cebench_interp_delta_vs_baseline": -38.01369277954102,
+            "cebench_interpretability_max": 9.93791880607605,
+            "train_explained_variance": 0.21044194296244
+          }
+        },
+        {
+          "seed": 456,
+          "condition_id": "routed_topk_seed456",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T232359Z/checkpoints/routed_topk_seed456/sae_final.pt",
+          "joint_score": 0.33769179155133505,
+          "metrics": {
+            "saebench_delta": -0.07080921131741702,
+            "cebench_interp_delta_vs_baseline": -40.259953622817996,
+            "cebench_interpretability_max": 7.691657962799073,
+            "train_explained_variance": 0.30098898343919867
+          }
+        },
+        {
+          "seed": 456,
+          "condition_id": "routed_topk_seed456",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T233353Z/checkpoints/routed_topk_seed456/sae_final.pt",
+          "joint_score": 0.36291077831127166,
+          "metrics": {
+            "saebench_delta": -0.06921582985998687,
+            "cebench_interp_delta_vs_baseline": -40.178406319618226,
+            "cebench_interpretability_max": 7.773205265998841,
+            "train_explained_variance": 0.386215472778485
+          }
+        },
+        {
+          "seed": 456,
+          "condition_id": "routed_topk_seed456",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T234257Z/checkpoints/routed_topk_seed456/sae_final.pt",
+          "joint_score": 0.4436705145970604,
+          "metrics": {
+            "saebench_delta": -0.07494744230867534,
+            "cebench_interp_delta_vs_baseline": -37.63738653182983,
+            "cebench_interpretability_max": 10.314225053787231,
+            "train_explained_variance": 0.30337526058793396
+          }
+        },
+        {
+          "seed": 456,
+          "condition_id": "routed_topk_seed456",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T235219Z/checkpoints/routed_topk_seed456/sae_final.pt",
+          "joint_score": 0.35290840423003816,
+          "metrics": {
+            "saebench_delta": -0.07322162614901073,
+            "cebench_interp_delta_vs_baseline": -39.67233158111572,
+            "cebench_interpretability_max": 8.279280004501343,
+            "train_explained_variance": 0.3109795762770554
+          }
+        },
+        {
+          "seed": 456,
+          "condition_id": "routed_topk_seed456",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260216T000156Z/checkpoints/routed_topk_seed456/sae_final.pt",
+          "joint_score": 0.35721913555589035,
+          "metrics": {
+            "saebench_delta": -0.06514288276732882,
+            "cebench_interp_delta_vs_baseline": -40.524414868354796,
+            "cebench_interpretability_max": 7.427196717262268,
+            "train_explained_variance": 0.26788274720007643
+          }
+        }
+      ]
+    }
+  ],
+  "ranked_candidates": [
+    {
+      "source": "grouped",
+      "source_results": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/results.json",
+      "row_index": 1,
+      "condition_id": "topk",
+      "architecture": "topk",
+      "seed": 123,
+      "hook_layer": 0,
+      "hook_name": "blocks.0.hook_resid_pre",
+      "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed123/sae_final.pt",
+      "saebench_summary_path": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/topk_seed123/saebench/husai_custom_sae_summary.json",
+      "cebench_summary_path": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/topk_seed123/cebench/husai_custom_cebench_summary.json",
+      "metrics": {
+        "saebench_delta": -0.04478959689939781,
+        "cebench_interp_delta_vs_baseline": -40.467037470119465,
+        "cebench_interpretability_max": 7.4845741154976055,
+        "train_explained_variance": 0.7437727245610648,
+        "saebench_delta_mean": -0.04059280026569467,
+        "saebench_delta_std": 0.004787919673827799,
+        "saebench_delta_ci95_low": -0.04478959689939781,
+        "saebench_delta_ci95_high": -0.03639600363199154,
+        "saebench_delta_n": 5,
+        "cebench_interp_delta_vs_baseline_mean": -40.2248433790207,
+        "cebench_interp_delta_vs_baseline_std": 0.2763073731865414,
+        "cebench_interp_delta_vs_baseline_ci95_low": -40.467037470119465,
+        "cebench_interp_delta_vs_baseline_ci95_high": -39.98264928792193,
+        "cebench_interp_delta_vs_baseline_n": 5,
+        "train_explained_variance_mean": 0.7450903693098756,
+        "train_explained_variance_std": 0.001503236341090101,
+        "train_explained_variance_ci95_low": 0.7437727245610648,
+        "train_explained_variance_ci95_high": 0.7464080140586864,
+        "train_explained_variance_n": 5,
+        "cebench_interpretability_max_mean": 7.726768206596374,
+        "cebench_interpretability_max_std": 0.2763073731865415,
+        "cebench_interpretability_max_ci95_low": 7.4845741154976055,
+        "cebench_interpretability_max_ci95_high": 7.968962297695142,
+        "cebench_interpretability_max_n": 5
+      },
+      "returncodes": {
+        "saebench": 0,
+        "cebench": 0
+      },
+      "selection": {
+        "grouped_from_seed_candidates": 5,
+        "uncertainty_mode": "lcb",
+        "representative_seed": 123,
+        "joint_score": 0.8280978109737276,
+        "normalized_components": {
+          "saebench_norm": 0.7595825082181958,
+          "cebench_delta_norm": 0.765615361662855,
+          "train_ev_norm": 0.6549887603320212
+        },
+        "weights": {
+          "saebench": 0.5,
+          "cebench_delta": 0.5,
+          "train_ev": 0.1
+        },
+        "is_pareto": true
+      },
+      "sources": [
+        "frontier"
+      ],
+      "group_id": "topk",
+      "representative_condition_id": "topk_seed123",
+      "seed_count": 5,
+      "seed_candidates": [
+        {
+          "seed": 1011,
+          "condition_id": "topk_seed1011",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed1011/sae_final.pt",
+          "joint_score": 0.5424472947430221,
+          "metrics": {
+            "saebench_delta": -0.04525995743561939,
+            "cebench_interp_delta_vs_baseline": -40.61637846231461,
+            "cebench_interpretability_max": 7.3352331233024595,
+            "train_explained_variance": 0.7458855330728723
+          }
+        },
+        {
+          "seed": 123,
+          "condition_id": "topk_seed123",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed123/sae_final.pt",
+          "joint_score": 0.660635144764209,
+          "metrics": {
+            "saebench_delta": -0.03260442057084412,
+            "cebench_interp_delta_vs_baseline": -39.910494198799135,
+            "cebench_interpretability_max": 8.041117386817932,
+            "train_explained_variance": 0.7434116009878537
+          }
+        },
+        {
+          "seed": 42,
+          "condition_id": "topk_seed42",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed42/sae_final.pt",
+          "joint_score": 0.5774209345807422,
+          "metrics": {
+            "saebench_delta": -0.041807613913057096,
+            "cebench_interp_delta_vs_baseline": -40.36621643304825,
+            "cebench_interpretability_max": 7.585395152568817,
+            "train_explained_variance": 0.7437508538331046
+          }
+        },
+        {
+          "seed": 456,
+          "condition_id": "topk_seed456",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed456/sae_final.pt",
+          "joint_score": 0.5807272924015768,
+          "metrics": {
+            "saebench_delta": -0.04274279129189251,
+            "cebench_interp_delta_vs_baseline": -40.184111621379856,
+            "cebench_interpretability_max": 7.767499964237214,
+            "train_explained_variance": 0.745388634657804
+          }
+        },
+        {
+          "seed": 789,
+          "condition_id": "topk_seed789",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/topk_seed789/sae_final.pt",
+          "joint_score": 0.6022163711942943,
+          "metrics": {
+            "saebench_delta": -0.04054921811706025,
+            "cebench_interp_delta_vs_baseline": -40.047016179561616,
+            "cebench_interpretability_max": 7.90459540605545,
+            "train_explained_variance": 0.7470152239977429
+          }
+        }
+      ]
+    },
+    {
+      "source": "grouped",
+      "source_results": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T233353Z/results.json",
+      "row_index": 0,
+      "condition_id": "routed_topk",
+      "architecture": "routed_topk",
+      "seed": 42,
+      "hook_layer": 0,
+      "hook_name": "blocks.0.hook_resid_pre",
+      "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T233353Z/checkpoints/routed_topk_seed42/sae_final.pt",
+      "saebench_summary_path": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T233353Z/external_eval/routed_topk_seed42/saebench/husai_custom_sae_summary.json",
+      "cebench_summary_path": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T233353Z/external_eval/routed_topk_seed42/cebench/husai_custom_cebench_summary.json",
+      "metrics": {
+        "saebench_delta": -0.07217561971969713,
+        "cebench_interp_delta_vs_baseline": -39.47336309180931,
+        "cebench_interpretability_max": 8.47824849380776,
+        "train_explained_variance": 0.25935723163975105,
+        "saebench_delta_mean": -0.06916171858395498,
+        "saebench_delta_std": 0.005955504543798462,
+        "saebench_delta_ci95_low": -0.07217561971969713,
+        "saebench_delta_ci95_high": -0.06614781744821283,
+        "saebench_delta_n": 15,
+        "cebench_interp_delta_vs_baseline_mean": -38.52651922734579,
+        "cebench_interp_delta_vs_baseline_std": 1.8709747543499453,
+        "cebench_interp_delta_vs_baseline_ci95_low": -39.47336309180931,
+        "cebench_interp_delta_vs_baseline_ci95_high": -37.57967536288226,
+        "cebench_interp_delta_vs_baseline_n": 15,
+        "train_explained_variance_mean": 0.2889662508556457,
+        "train_explained_variance_std": 0.058507774653416056,
+        "train_explained_variance_ci95_low": 0.25935723163975105,
+        "train_explained_variance_ci95_high": 0.31857527007154035,
+        "train_explained_variance_n": 15,
+        "cebench_interpretability_max_mean": 9.425092358271282,
+        "cebench_interpretability_max_std": 1.870974754349945,
+        "cebench_interpretability_max_ci95_low": 8.47824849380776,
+        "cebench_interpretability_max_ci95_high": 10.371936222734805,
+        "cebench_interpretability_max_n": 15
+      },
+      "returncodes": {
+        "saebench": 0,
+        "cebench": 0
+      },
+      "selection": {
+        "grouped_from_seed_candidates": 15,
+        "uncertainty_mode": "lcb",
+        "representative_seed": 42,
+        "joint_score": 0.6692482221278253,
+        "normalized_components": {
+          "saebench_norm": 0.33849644425565056,
+          "cebench_delta_norm": 1.0,
+          "train_ev_norm": 0.0
+        },
+        "weights": {
+          "saebench": 0.5,
+          "cebench_delta": 0.5,
+          "train_ev": 0.1
+        },
+        "is_pareto": true
+      },
+      "sources": [
+        "frontier"
+      ],
+      "group_id": "routed_topk",
+      "representative_condition_id": "routed_topk_seed42",
+      "seed_count": 15,
+      "seed_candidates": [
+        {
+          "seed": 123,
+          "condition_id": "routed_topk_seed123",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T232359Z/checkpoints/routed_topk_seed123/sae_final.pt",
+          "joint_score": 0.3598922456897499,
+          "metrics": {
+            "saebench_delta": -0.06796522127756599,
+            "cebench_interp_delta_vs_baseline": -40.01423630237579,
+            "cebench_interpretability_max": 7.937375283241272,
+            "train_explained_variance": 0.23040860426608167
+          }
+        },
+        {
+          "seed": 123,
+          "condition_id": "routed_topk_seed123",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T233353Z/checkpoints/routed_topk_seed123/sae_final.pt",
+          "joint_score": 0.40365159514266796,
+          "metrics": {
+            "saebench_delta": -0.07038989751459879,
+            "cebench_interp_delta_vs_baseline": -39.08847326278686,
+            "cebench_interpretability_max": 8.863138322830201,
+            "train_explained_variance": 0.33231096722705245
+          }
+        },
+        {
+          "seed": 123,
+          "condition_id": "routed_topk_seed123",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T234257Z/checkpoints/routed_topk_seed123/sae_final.pt",
+          "joint_score": 0.5147847179340244,
+          "metrics": {
+            "saebench_delta": -0.07683966881225845,
+            "cebench_interp_delta_vs_baseline": -35.87278733253479,
+            "cebench_interpretability_max": 12.078824253082276,
+            "train_explained_variance": 0.2568282967325004
+          }
+        },
+        {
+          "seed": 123,
+          "condition_id": "routed_topk_seed123",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T235219Z/checkpoints/routed_topk_seed123/sae_final.pt",
+          "joint_score": 0.3791768970352837,
+          "metrics": {
+            "saebench_delta": -0.07522805068171257,
+            "cebench_interp_delta_vs_baseline": -38.8891482591629,
+            "cebench_interpretability_max": 9.062463326454163,
+            "train_explained_variance": 0.3089743007725212
+          }
+        },
+        {
+          "seed": 123,
+          "condition_id": "routed_topk_seed123",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260216T000156Z/checkpoints/routed_topk_seed123/sae_final.pt",
+          "joint_score": 0.32605772421653667,
+          "metrics": {
+            "saebench_delta": -0.06627967464389728,
+            "cebench_interp_delta_vs_baseline": -40.82585262060165,
+            "cebench_interpretability_max": 7.125758965015411,
+            "train_explained_variance": 0.2002395188236915
+          }
+        },
+        {
+          "seed": 42,
+          "condition_id": "routed_topk_seed42",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T232359Z/checkpoints/routed_topk_seed42/sae_final.pt",
+          "joint_score": 0.5577315303156983,
+          "metrics": {
+            "saebench_delta": -0.06230150467613782,
+            "cebench_interp_delta_vs_baseline": -36.78858082294464,
+            "cebench_interpretability_max": 11.163030762672424,
+            "train_explained_variance": 0.2106614223626354
+          }
+        },
+        {
+          "seed": 42,
+          "condition_id": "routed_topk_seed42",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T233353Z/checkpoints/routed_topk_seed42/sae_final.pt",
+          "joint_score": 0.6979693016634051,
+          "metrics": {
+            "saebench_delta": -0.06345449530158731,
+            "cebench_interp_delta_vs_baseline": -34.29337139844894,
+            "cebench_interpretability_max": 13.658240187168122,
+            "train_explained_variance": 0.38222786606732695
+          }
+        },
+        {
+          "seed": 42,
+          "condition_id": "routed_topk_seed42",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T234257Z/checkpoints/routed_topk_seed42/sae_final.pt",
+          "joint_score": 0.4556761233119083,
+          "metrics": {
+            "saebench_delta": -0.06833752688179306,
+            "cebench_interp_delta_vs_baseline": -38.27281409263611,
+            "cebench_interpretability_max": 9.678797492980957,
+            "train_explained_variance": 0.31087566035899616
+          }
+        },
+        {
+          "seed": 42,
+          "condition_id": "routed_topk_seed42",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T235219Z/checkpoints/routed_topk_seed42/sae_final.pt",
+          "joint_score": 0.5736912510680405,
+          "metrics": {
+            "saebench_delta": -0.05597488858576849,
+            "cebench_interp_delta_vs_baseline": -37.56633861541748,
+            "cebench_interpretability_max": 10.385272970199585,
+            "train_explained_variance": 0.32208314297869045
+          }
+        },
+        {
+          "seed": 42,
+          "condition_id": "routed_topk_seed42",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260216T000156Z/checkpoints/routed_topk_seed42/sae_final.pt",
+          "joint_score": 0.3974851642404668,
+          "metrics": {
+            "saebench_delta": -0.07731785798158608,
+            "cebench_interp_delta_vs_baseline": -38.01369277954102,
+            "cebench_interpretability_max": 9.93791880607605,
+            "train_explained_variance": 0.21044194296244
+          }
+        },
+        {
+          "seed": 456,
+          "condition_id": "routed_topk_seed456",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T232359Z/checkpoints/routed_topk_seed456/sae_final.pt",
+          "joint_score": 0.33769179155133505,
+          "metrics": {
+            "saebench_delta": -0.07080921131741702,
+            "cebench_interp_delta_vs_baseline": -40.259953622817996,
+            "cebench_interpretability_max": 7.691657962799073,
+            "train_explained_variance": 0.30098898343919867
+          }
+        },
+        {
+          "seed": 456,
+          "condition_id": "routed_topk_seed456",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T233353Z/checkpoints/routed_topk_seed456/sae_final.pt",
+          "joint_score": 0.36291077831127166,
+          "metrics": {
+            "saebench_delta": -0.06921582985998687,
+            "cebench_interp_delta_vs_baseline": -40.178406319618226,
+            "cebench_interpretability_max": 7.773205265998841,
+            "train_explained_variance": 0.386215472778485
+          }
+        },
+        {
+          "seed": 456,
+          "condition_id": "routed_topk_seed456",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T234257Z/checkpoints/routed_topk_seed456/sae_final.pt",
+          "joint_score": 0.4436705145970604,
+          "metrics": {
+            "saebench_delta": -0.07494744230867534,
+            "cebench_interp_delta_vs_baseline": -37.63738653182983,
+            "cebench_interpretability_max": 10.314225053787231,
+            "train_explained_variance": 0.30337526058793396
+          }
+        },
+        {
+          "seed": 456,
+          "condition_id": "routed_topk_seed456",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T235219Z/checkpoints/routed_topk_seed456/sae_final.pt",
+          "joint_score": 0.35290840423003816,
+          "metrics": {
+            "saebench_delta": -0.07322162614901073,
+            "cebench_interp_delta_vs_baseline": -39.67233158111572,
+            "cebench_interpretability_max": 8.279280004501343,
+            "train_explained_variance": 0.3109795762770554
+          }
+        },
+        {
+          "seed": 456,
+          "condition_id": "routed_topk_seed456",
+          "checkpoint": "results/experiments/phase4b_routed_frontier_external_sweep/run_20260216T000156Z/checkpoints/routed_topk_seed456/sae_final.pt",
+          "joint_score": 0.35721913555589035,
+          "metrics": {
+            "saebench_delta": -0.06514288276732882,
+            "cebench_interp_delta_vs_baseline": -40.524414868354796,
+            "cebench_interpretability_max": 7.427196717262268,
+            "train_explained_variance": 0.26788274720007643
+          }
+        }
+      ]
+    },
+    {
+      "source": "grouped",
+      "source_results": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/results.json",
+      "row_index": 5,
+      "condition_id": "relu",
+      "architecture": "relu",
+      "seed": 42,
+      "hook_layer": 0,
+      "hook_name": "blocks.0.hook_resid_pre",
+      "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/relu_seed42/sae_final.pt",
+      "saebench_summary_path": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/relu_seed42/saebench/husai_custom_sae_summary.json",
+      "cebench_summary_path": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/relu_seed42/cebench/husai_custom_cebench_summary.json",
+      "metrics": {
+        "saebench_delta": -0.029153650997086358,
+        "cebench_interp_delta_vs_baseline": -43.71286609575971,
+        "cebench_interpretability_max": 4.23874548985736,
+        "train_explained_variance": 0.9954239597221697,
+        "saebench_delta_mean": -0.024691224025891967,
+        "saebench_delta_std": 0.005090964312356712,
+        "saebench_delta_ci95_low": -0.029153650997086358,
+        "saebench_delta_ci95_high": -0.020228797054697576,
+        "saebench_delta_n": 5,
+        "cebench_interp_delta_vs_baseline_mean": -43.69392519998551,
+        "cebench_interp_delta_vs_baseline_std": 0.021608740054005763,
+        "cebench_interp_delta_vs_baseline_ci95_low": -43.71286609575971,
+        "cebench_interp_delta_vs_baseline_ci95_high": -43.67498430421131,
+        "cebench_interp_delta_vs_baseline_n": 5,
+        "train_explained_variance_mean": 0.9955460129388298,
+        "train_explained_variance_std": 0.00013924453536972025,
+        "train_explained_variance_ci95_low": 0.9954239597221697,
+        "train_explained_variance_ci95_high": 0.99566806615549,
+        "train_explained_variance_n": 5,
+        "cebench_interpretability_max_mean": 4.257686385631561,
+        "cebench_interpretability_max_std": 0.021608740054005857,
+        "cebench_interpretability_max_ci95_low": 4.23874548985736,
+        "cebench_interpretability_max_ci95_high": 4.276627281405762,
+        "cebench_interpretability_max_n": 5
+      },
+      "returncodes": {
+        "saebench": 0,
+        "cebench": 0
+      },
+      "selection": {
+        "grouped_from_seed_candidates": 5,
+        "uncertainty_mode": "lcb",
+        "representative_seed": 42,
+        "joint_score": 0.5995251887673756,
+        "normalized_components": {
+          "saebench_norm": 1.0,
+          "cebench_delta_norm": 0.0,
+          "train_ev_norm": 0.9952518876737557
+        },
+        "weights": {
+          "saebench": 0.5,
+          "cebench_delta": 0.5,
+          "train_ev": 0.1
+        },
+        "is_pareto": true
+      },
+      "sources": [
+        "frontier"
+      ],
+      "group_id": "relu",
+      "representative_condition_id": "relu_seed42",
+      "seed_count": 5,
+      "seed_candidates": [
+        {
+          "seed": 1011,
+          "condition_id": "relu_seed1011",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/relu_seed1011/sae_final.pt",
+          "joint_score": 0.5521712347634465,
+          "metrics": {
+            "saebench_delta": -0.0247555305575059,
+            "cebench_interp_delta_vs_baseline": -43.69106490969658,
+            "cebench_interpretability_max": 4.260546675920486,
+            "train_explained_variance": 0.9954985385354921
+          }
+        },
+        {
+          "seed": 123,
+          "condition_id": "relu_seed123",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/relu_seed123/sae_final.pt",
+          "joint_score": 0.5645745093409333,
+          "metrics": {
+            "saebench_delta": -0.02276613558450924,
+            "cebench_interp_delta_vs_baseline": -43.703621726036076,
+            "cebench_interpretability_max": 4.2479898595809935,
+            "train_explained_variance": 0.9957223457556417
+          }
+        },
+        {
+          "seed": 42,
+          "condition_id": "relu_seed42",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/relu_seed42/sae_final.pt",
+          "joint_score": 0.599548293282047,
+          "metrics": {
+            "saebench_delta": -0.017257680751151527,
+            "cebench_interp_delta_vs_baseline": -43.72346672296524,
+            "cebench_interpretability_max": 4.228144862651825,
+            "train_explained_variance": 0.9953425196668417
+          }
+        },
+        {
+          "seed": 456,
+          "condition_id": "relu_seed456",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/relu_seed456/sae_final.pt",
+          "joint_score": 0.5167555114022736,
+          "metrics": {
+            "saebench_delta": -0.030207801290919267,
+            "cebench_interp_delta_vs_baseline": -43.68648747086525,
+            "cebench_interpretability_max": 4.265124114751816,
+            "train_explained_variance": 0.9955860125749312
+          }
+        },
+        {
+          "seed": 789,
+          "condition_id": "relu_seed789",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/relu_seed789/sae_final.pt",
+          "joint_score": 0.5292153133824767,
+          "metrics": {
+            "saebench_delta": -0.0284689719453739,
+            "cebench_interp_delta_vs_baseline": -43.66498517036438,
+            "cebench_interpretability_max": 4.286626415252686,
+            "train_explained_variance": 0.9955806481612426
+          }
+        }
+      ]
+    },
+    {
+      "source": "grouped",
+      "source_results": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/results.json",
+      "row_index": 16,
+      "condition_id": "jumprelu",
+      "architecture": "jumprelu",
+      "seed": 123,
+      "hook_layer": 0,
+      "hook_name": "blocks.0.hook_resid_pre",
+      "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/jumprelu_seed123/sae_final.pt",
+      "saebench_summary_path": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/jumprelu_seed123/saebench/husai_custom_sae_summary.json",
+      "cebench_summary_path": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/jumprelu_seed123/cebench/husai_custom_cebench_summary.json",
+      "metrics": {
+        "saebench_delta": -0.03781194436324303,
+        "cebench_interp_delta_vs_baseline": -43.62322589217722,
+        "cebench_interpretability_max": 4.328385693439852,
+        "train_explained_variance": 0.9953181584600186,
+        "saebench_delta_mean": -0.03057683519457275,
+        "saebench_delta_std": 0.008254181594785073,
+        "saebench_delta_ci95_low": -0.03781194436324303,
+        "saebench_delta_ci95_high": -0.023341726025902468,
+        "saebench_delta_n": 5,
+        "cebench_interp_delta_vs_baseline_mean": -43.57260908985138,
+        "cebench_interp_delta_vs_baseline_std": 0.05774623000215929,
+        "cebench_interp_delta_vs_baseline_ci95_low": -43.62322589217722,
+        "cebench_interp_delta_vs_baseline_ci95_high": -43.52199228752555,
+        "cebench_interp_delta_vs_baseline_n": 5,
+        "train_explained_variance_mean": 0.9959328156159207,
+        "train_explained_variance_std": 0.0007012322364560377,
+        "train_explained_variance_ci95_low": 0.9953181584600186,
+        "train_explained_variance_ci95_high": 0.9965474727718229,
+        "train_explained_variance_n": 5,
+        "cebench_interpretability_max_mean": 4.379002495765686,
+        "cebench_interpretability_max_std": 0.05774623000216079,
+        "cebench_interpretability_max_ci95_low": 4.328385693439852,
+        "cebench_interpretability_max_ci95_high": 4.42961929809152,
+        "cebench_interpretability_max_n": 5
+      },
+      "returncodes": {
+        "saebench": 0,
+        "cebench": 0
+      },
+      "selection": {
+        "grouped_from_seed_candidates": 5,
+        "uncertainty_mode": "lcb",
+        "representative_seed": 123,
+        "joint_score": 0.543518166617033,
+        "normalized_components": {
+          "saebench_norm": 0.8668705310693932,
+          "cebench_delta_norm": 0.02114403586905429,
+          "train_ev_norm": 0.9951088314780919
+        },
+        "weights": {
+          "saebench": 0.5,
+          "cebench_delta": 0.5,
+          "train_ev": 0.1
+        },
+        "is_pareto": true
+      },
+      "sources": [
+        "frontier"
+      ],
+      "group_id": "jumprelu",
+      "representative_condition_id": "jumprelu_seed123",
+      "seed_count": 5,
+      "seed_candidates": [
+        {
+          "seed": 1011,
+          "condition_id": "jumprelu_seed1011",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/jumprelu_seed1011/sae_final.pt",
+          "joint_score": 0.43734171674296274,
+          "metrics": {
+            "saebench_delta": -0.043279727936038515,
+            "cebench_interp_delta_vs_baseline": -43.56824979066849,
+            "cebench_interpretability_max": 4.383361794948578,
+            "train_explained_variance": 0.9963296411293415
+          }
+        },
+        {
+          "seed": 123,
+          "condition_id": "jumprelu_seed123",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/jumprelu_seed123/sae_final.pt",
+          "joint_score": 0.5769984517050507,
+          "metrics": {
+            "saebench_delta": -0.021414812502289937,
+            "cebench_interp_delta_vs_baseline": -43.63273448705673,
+            "cebench_interpretability_max": 4.318877098560333,
+            "train_explained_variance": 0.9957073184355258
+          }
+        },
+        {
+          "seed": 42,
+          "condition_id": "jumprelu_seed42",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/jumprelu_seed42/sae_final.pt",
+          "joint_score": 0.5128709330049107,
+          "metrics": {
+            "saebench_delta": -0.0314611726937194,
+            "cebench_interp_delta_vs_baseline": -43.600624817609784,
+            "cebench_interpretability_max": 4.350986768007278,
+            "train_explained_variance": 0.9953188298546644
+          }
+        },
+        {
+          "seed": 456,
+          "condition_id": "jumprelu_seed456",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/jumprelu_seed456/sae_final.pt",
+          "joint_score": 0.5153677474787762,
+          "metrics": {
+            "saebench_delta": -0.03124924681450658,
+            "cebench_interp_delta_vs_baseline": -43.58272713422775,
+            "cebench_interpretability_max": 4.368884451389313,
+            "train_explained_variance": 0.9969552797171284
+          }
+        },
+        {
+          "seed": 789,
+          "condition_id": "jumprelu_seed789",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/jumprelu_seed789/sae_final.pt",
+          "joint_score": 0.558168680645962,
+          "metrics": {
+            "saebench_delta": -0.025479216026309315,
+            "cebench_interp_delta_vs_baseline": -43.47870921969414,
+            "cebench_interpretability_max": 4.472902365922928,
+            "train_explained_variance": 0.9953530089429435
+          }
+        }
+      ]
+    },
+    {
+      "source": "grouped",
+      "source_results": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/results.json",
+      "row_index": 11,
+      "condition_id": "batchtopk",
+      "architecture": "batchtopk",
+      "seed": 123,
+      "hook_layer": 0,
+      "hook_name": "blocks.0.hook_resid_pre",
+      "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/batchtopk_seed123/sae_final.pt",
+      "saebench_summary_path": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/batchtopk_seed123/saebench/husai_custom_sae_summary.json",
+      "cebench_summary_path": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/external_eval/batchtopk_seed123/cebench/husai_custom_cebench_summary.json",
+      "metrics": {
+        "saebench_delta": -0.04684621056430792,
+        "cebench_interp_delta_vs_baseline": -41.55402596696566,
+        "cebench_interpretability_max": 6.3975856186514015,
+        "train_explained_variance": 0.6736716024835087,
+        "saebench_delta_mean": -0.043356197451623536,
+        "saebench_delta_std": 0.003981584980779549,
+        "saebench_delta_ci95_low": -0.04684621056430792,
+        "saebench_delta_ci95_high": -0.039866184338939153,
+        "saebench_delta_n": 5,
+        "cebench_interp_delta_vs_baseline_mean": -41.41397255563736,
+        "cebench_interp_delta_vs_baseline_std": 0.15978007561776653,
+        "cebench_interp_delta_vs_baseline_ci95_low": -41.55402596696566,
+        "cebench_interp_delta_vs_baseline_ci95_high": -41.273919144309055,
+        "cebench_interp_delta_vs_baseline_n": 5,
+        "train_explained_variance_mean": 0.677542921098208,
+        "train_explained_variance_std": 0.0044165977474633095,
+        "train_explained_variance_ci95_low": 0.6736716024835087,
+        "train_explained_variance_ci95_high": 0.6814142397129074,
+        "train_explained_variance_n": 5,
+        "cebench_interpretability_max_mean": 6.537639029979705,
+        "cebench_interpretability_max_std": 0.15978007561776875,
+        "cebench_interpretability_max_ci95_low": 6.3975856186514015,
+        "cebench_interpretability_max_ci95_high": 6.677692441308009,
+        "cebench_interpretability_max_n": 5
+      },
+      "returncodes": {
+        "saebench": 0,
+        "cebench": 0
+      },
+      "selection": {
+        "grouped_from_seed_candidates": 5,
+        "uncertainty_mode": "lcb",
+        "representative_seed": 123,
+        "joint_score": 0.6746104602548522,
+        "normalized_components": {
+          "saebench_norm": 0.7279601233640259,
+          "cebench_delta_norm": 0.5092200965024499,
+          "train_ev_norm": 0.5602035032161418
+        },
+        "weights": {
+          "saebench": 0.5,
+          "cebench_delta": 0.5,
+          "train_ev": 0.1
+        },
+        "is_pareto": false
+      },
+      "sources": [
+        "frontier"
+      ],
+      "group_id": "batchtopk",
+      "representative_condition_id": "batchtopk_seed123",
+      "seed_count": 5,
+      "seed_candidates": [
+        {
+          "seed": 1011,
+          "condition_id": "batchtopk_seed1011",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/batchtopk_seed1011/sae_final.pt",
+          "joint_score": 0.5194289609743739,
+          "metrics": {
+            "saebench_delta": -0.039692327018186035,
+            "cebench_interp_delta_vs_baseline": -41.61599978208542,
+            "cebench_interpretability_max": 6.335611803531647,
+            "train_explained_variance": 0.6753263615879616
+          }
+        },
+        {
+          "seed": 123,
+          "condition_id": "batchtopk_seed123",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/batchtopk_seed123/sae_final.pt",
+          "joint_score": 0.5463674458825222,
+          "metrics": {
+            "saebench_delta": -0.03863428504439104,
+            "cebench_interp_delta_vs_baseline": -41.2099785399437,
+            "cebench_interpretability_max": 6.74163304567337,
+            "train_explained_variance": 0.6710735272128845
+          }
+        },
+        {
+          "seed": 42,
+          "condition_id": "batchtopk_seed42",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/batchtopk_seed42/sae_final.pt",
+          "joint_score": 0.48786409237638845,
+          "metrics": {
+            "saebench_delta": -0.04559594184051896,
+            "cebench_interp_delta_vs_baseline": -41.48478340387344,
+            "cebench_interpretability_max": 6.4668281817436215,
+            "train_explained_variance": 0.6785504213576471
+          }
+        },
+        {
+          "seed": 456,
+          "condition_id": "batchtopk_seed456",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/batchtopk_seed456/sae_final.pt",
+          "joint_score": 0.493203459006781,
+          "metrics": {
+            "saebench_delta": -0.04505293123307186,
+            "cebench_interp_delta_vs_baseline": -41.45799223423004,
+            "cebench_interpretability_max": 6.493619351387024,
+            "train_explained_variance": 0.6820005210530773
+          }
+        },
+        {
+          "seed": 789,
+          "condition_id": "batchtopk_seed789",
+          "checkpoint": "results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/batchtopk_seed789/sae_final.pt",
+          "joint_score": 0.48298738376101585,
+          "metrics": {
+            "saebench_delta": -0.04780550212194978,
+            "cebench_interp_delta_vs_baseline": -41.3011088180542,
+            "cebench_interpretability_max": 6.650502767562866,
+            "train_explained_variance": 0.6807637742794701
+          }
+        }
+      ]
+    },
+    {
+      "source": "grouped",
+      "source_results": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/results.json",
+      "row_index": 15,
+      "condition_id": "tok30000_layer0_dsae2048",
+      "architecture": "topk",
+      "seed": 42,
+      "hook_layer": 0,
+      "hook_name": "blocks.0.hook_resid_pre",
+      "checkpoint": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/checkpoints/tok30000_layer0_dsae2048_seed42/sae_final.pt",
+      "saebench_summary_path": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/external_eval/tok30000_layer0_dsae2048_seed42/saebench/husai_custom_sae_summary.json",
+      "cebench_summary_path": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/external_eval/tok30000_layer0_dsae2048_seed42/cebench/husai_custom_cebench_summary.json",
+      "metrics": {
+        "saebench_delta": -0.0923802118882097,
+        "cebench_interp_delta_vs_baseline": -40.72796142117788,
+        "cebench_interpretability_max": 7.223650164439184,
+        "train_explained_variance": 0.9989355607026164,
+        "saebench_delta_mean": -0.07999420904639916,
+        "saebench_delta_std": 0.010945503175871615,
+        "saebench_delta_ci95_low": -0.0923802118882097,
+        "saebench_delta_ci95_high": -0.06760820620458861,
+        "saebench_delta_n": 3,
+        "cebench_interp_delta_vs_baseline_mean": -40.58690021197001,
+        "cebench_interp_delta_vs_baseline_std": 0.12465570475772164,
+        "cebench_interp_delta_vs_baseline_ci95_low": -40.72796142117788,
+        "cebench_interp_delta_vs_baseline_ci95_high": -40.44583900276214,
+        "cebench_interp_delta_vs_baseline_n": 3,
+        "train_explained_variance_mean": 0.9989428894514928,
+        "train_explained_variance_std": 6.476410923420672e-06,
+        "train_explained_variance_ci95_low": 0.9989355607026164,
+        "train_explained_variance_ci95_high": 0.9989502182003692,
+        "train_explained_variance_n": 3,
+        "cebench_interpretability_max_mean": 7.364711373647054,
+        "cebench_interpretability_max_std": 0.12465570475772154,
+        "cebench_interpretability_max_ci95_low": 7.223650164439184,
+        "cebench_interpretability_max_ci95_high": 7.505772582854925,
+        "cebench_interpretability_max_n": 3
+      },
+      "returncodes": {
+        "saebench": 0,
+        "cebench": 0
+      },
+      "selection": {
+        "grouped_from_seed_candidates": 3,
+        "uncertainty_mode": "lcb",
+        "representative_seed": 42,
+        "joint_score": 0.46595058232881403,
+        "normalized_components": {
+          "saebench_norm": 0.027831684862361053,
+          "cebench_delta_norm": 0.7040694797952669,
+          "train_ev_norm": 1.0
+        },
+        "weights": {
+          "saebench": 0.5,
+          "cebench_delta": 0.5,
+          "train_ev": 0.1
+        },
+        "is_pareto": false
+      },
+      "sources": [
+        "scaling"
+      ],
+      "group_id": "tok30000_layer0_dsae2048",
+      "representative_condition_id": "tok30000_layer0_dsae2048_seed42",
+      "seed_count": 3,
+      "seed_candidates": [
+        {
+          "seed": 123,
+          "condition_id": "tok30000_layer0_dsae2048_seed123",
+          "checkpoint": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/checkpoints/tok30000_layer0_dsae2048_seed123/sae_final.pt",
+          "joint_score": 0.35033543589854593,
+          "metrics": {
+            "saebench_delta": -0.08061365743369031,
+            "cebench_interp_delta_vs_baseline": -40.46974796533585,
+            "cebench_interpretability_max": 7.48186362028122,
+            "train_explained_variance": 0.9989396033926008
+          }
+        },
+        {
+          "seed": 42,
+          "condition_id": "tok30000_layer0_dsae2048_seed42",
+          "checkpoint": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/checkpoints/tok30000_layer0_dsae2048_seed42/sae_final.pt",
+          "joint_score": 0.422682038367222,
+          "metrics": {
+            "saebench_delta": -0.06875213594940133,
+            "cebench_interp_delta_vs_baseline": -40.57305011034012,
+            "cebench_interpretability_max": 7.378561475276947,
+            "train_explained_variance": 0.9989387148129208
+          }
+        },
+        {
+          "seed": 456,
+          "condition_id": "tok30000_layer0_dsae2048_seed456",
+          "checkpoint": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/checkpoints/tok30000_layer0_dsae2048_seed456/sae_final.pt",
+          "joint_score": 0.2723544167270969,
+          "metrics": {
+            "saebench_delta": -0.09061683375610585,
+            "cebench_interp_delta_vs_baseline": -40.71790256023407,
+            "cebench_interpretability_max": 7.233709025382995,
+            "train_explained_variance": 0.9989503501489568
+          }
+        }
+      ]
+    },
+    {
+      "source": "grouped",
+      "source_results": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/results.json",
+      "row_index": 0,
+      "condition_id": "tok10000_layer0_dsae1024",
+      "architecture": "topk",
+      "seed": 42,
+      "hook_layer": 0,
+      "hook_name": "blocks.0.hook_resid_pre",
+      "checkpoint": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/checkpoints/tok10000_layer0_dsae1024_seed42/sae_final.pt",
+      "saebench_summary_path": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/external_eval/tok10000_layer0_dsae1024_seed42/saebench/husai_custom_sae_summary.json",
+      "cebench_summary_path": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/external_eval/tok10000_layer0_dsae1024_seed42/cebench/husai_custom_cebench_summary.json",
+      "metrics": {
+        "saebench_delta": -0.07508898498640408,
+        "cebench_interp_delta_vs_baseline": -41.98654858528671,
+        "cebench_interpretability_max": 5.96506300033035,
+        "train_explained_variance": 0.9981629699374791,
+        "saebench_delta_mean": -0.0701084592454857,
+        "saebench_delta_std": 0.004401287567181259,
+        "saebench_delta_ci95_low": -0.07508898498640408,
+        "saebench_delta_ci95_high": -0.06512793350456732,
+        "saebench_delta_n": 3,
+        "cebench_interp_delta_vs_baseline_mean": -41.87834905028343,
+        "cebench_interp_delta_vs_baseline_std": 0.09561586325561752,
+        "cebench_interp_delta_vs_baseline_ci95_low": -41.98654858528671,
+        "cebench_interp_delta_vs_baseline_ci95_high": -41.77014951528015,
+        "cebench_interp_delta_vs_baseline_n": 3,
+        "train_explained_variance_mean": 0.9981910233832574,
+        "train_explained_variance_std": 2.479081296706356e-05,
+        "train_explained_variance_ci95_low": 0.9981629699374791,
+        "train_explained_variance_ci95_high": 0.9982190768290357,
+        "train_explained_variance_n": 3,
+        "cebench_interpretability_max_mean": 6.073262535333633,
+        "cebench_interpretability_max_std": 0.09561586325561958,
+        "cebench_interpretability_max_ci95_low": 5.96506300033035,
+        "cebench_interpretability_max_ci95_high": 6.1814620703369165,
+        "cebench_interpretability_max_n": 3
+      },
+      "returncodes": {
+        "saebench": 0,
+        "cebench": 0
+      },
+      "selection": {
+        "grouped_from_seed_candidates": 3,
+        "uncertainty_mode": "lcb",
+        "representative_seed": 42,
+        "joint_score": 0.45034492515746344,
+        "normalized_components": {
+          "saebench_norm": 0.2937006912873336,
+          "cebench_delta_norm": 0.40719808639465555,
+          "train_ev_norm": 0.9989553631646885
+        },
+        "weights": {
+          "saebench": 0.5,
+          "cebench_delta": 0.5,
+          "train_ev": 0.1
+        },
+        "is_pareto": false
+      },
+      "sources": [
+        "scaling"
+      ],
+      "group_id": "tok10000_layer0_dsae1024",
+      "representative_condition_id": "tok10000_layer0_dsae1024_seed42",
+      "seed_count": 3,
+      "seed_candidates": [
+        {
+          "seed": 123,
+          "condition_id": "tok10000_layer0_dsae1024_seed123",
+          "checkpoint": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/checkpoints/tok10000_layer0_dsae1024_seed123/sae_final.pt",
+          "joint_score": 0.333138009008825,
+          "metrics": {
+            "saebench_delta": -0.07190316398204688,
+            "cebench_interp_delta_vs_baseline": -41.9331793653965,
+            "cebench_interpretability_max": 6.018432220220566,
+            "train_explained_variance": 0.9982084311369147
+          }
+        },
+        {
+          "seed": 42,
+          "condition_id": "tok10000_layer0_dsae1024_seed42",
+          "checkpoint": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/checkpoints/tok10000_layer0_dsae1024_seed42/sae_final.pt",
+          "joint_score": 0.3860374617553619,
+          "metrics": {
+            "saebench_delta": -0.06509338803900744,
+            "cebench_interp_delta_vs_baseline": -41.76794220209122,
+            "cebench_interpretability_max": 6.1836693835258485,
+            "train_explained_variance": 0.9982019997501268
+          }
+        },
+        {
+          "seed": 456,
+          "condition_id": "tok10000_layer0_dsae1024_seed456",
+          "checkpoint": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/checkpoints/tok10000_layer0_dsae1024_seed456/sae_final.pt",
+          "joint_score": 0.3237705420870224,
+          "metrics": {
+            "saebench_delta": -0.07332882571540278,
+            "cebench_interp_delta_vs_baseline": -41.93392558336258,
+            "cebench_interpretability_max": 6.017686002254486,
+            "train_explained_variance": 0.9981626392627304
+          }
+        }
+      ]
+    },
+    {
+      "source": "grouped",
+      "source_results": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/results.json",
+      "row_index": 3,
+      "condition_id": "tok10000_layer0_dsae2048",
+      "architecture": "topk",
+      "seed": 42,
+      "hook_layer": 0,
+      "hook_name": "blocks.0.hook_resid_pre",
+      "checkpoint": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/checkpoints/tok10000_layer0_dsae2048_seed42/sae_final.pt",
+      "saebench_summary_path": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/external_eval/tok10000_layer0_dsae2048_seed42/saebench/husai_custom_sae_summary.json",
+      "cebench_summary_path": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/external_eval/tok10000_layer0_dsae2048_seed42/cebench/husai_custom_cebench_summary.json",
+      "metrics": {
+        "saebench_delta": -0.09419029116178024,
+        "cebench_interp_delta_vs_baseline": -40.778329369128166,
+        "cebench_interpretability_max": 7.173282216488905,
+        "train_explained_variance": 0.9980893286422015,
+        "saebench_delta_mean": -0.08253306021701878,
+        "saebench_delta_std": 0.010301487893821935,
+        "saebench_delta_ci95_low": -0.09419029116178024,
+        "saebench_delta_ci95_high": -0.07087582927225733,
+        "saebench_delta_n": 3,
+        "cebench_interp_delta_vs_baseline_mean": -40.61198206424714,
+        "cebench_interp_delta_vs_baseline_std": 0.147001012120454,
+        "cebench_interp_delta_vs_baseline_ci95_low": -40.778329369128166,
+        "cebench_interp_delta_vs_baseline_ci95_high": -40.44563475936611,
+        "cebench_interp_delta_vs_baseline_n": 3,
+        "train_explained_variance_mean": 0.9981145535008391,
+        "train_explained_variance_std": 2.2291192231698442e-05,
+        "train_explained_variance_ci95_low": 0.9980893286422015,
+        "train_explained_variance_ci95_high": 0.9981397783594768,
+        "train_explained_variance_n": 3,
+        "cebench_interpretability_max_mean": 7.339629521369933,
+        "cebench_interpretability_max_std": 0.14700101212045424,
+        "cebench_interpretability_max_ci95_low": 7.173282216488905,
+        "cebench_interpretability_max_ci95_high": 7.505976826250961,
+        "cebench_interpretability_max_n": 3
+      },
+      "returncodes": {
+        "saebench": 0,
+        "cebench": 0
+      },
+      "selection": {
+        "grouped_from_seed_candidates": 3,
+        "uncertainty_mode": "lcb",
+        "representative_seed": 42,
+        "joint_score": 0.44598000621027534,
+        "normalized_components": {
+          "saebench_norm": 0.0,
+          "cebench_delta_norm": 0.6921888541881257,
+          "train_ev_norm": 0.9988557911621246
+        },
+        "weights": {
+          "saebench": 0.5,
+          "cebench_delta": 0.5,
+          "train_ev": 0.1
+        },
+        "is_pareto": false
+      },
+      "sources": [
+        "scaling"
+      ],
+      "group_id": "tok10000_layer0_dsae2048",
+      "representative_condition_id": "tok10000_layer0_dsae2048_seed42",
+      "seed_count": 3,
+      "seed_candidates": [
+        {
+          "seed": 123,
+          "condition_id": "tok10000_layer0_dsae2048_seed123",
+          "checkpoint": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/checkpoints/tok10000_layer0_dsae2048_seed123/sae_final.pt",
+          "joint_score": 0.25154495590296855,
+          "metrics": {
+            "saebench_delta": -0.09370917118906608,
+            "cebench_interp_delta_vs_baseline": -40.72737082958221,
+            "cebench_interpretability_max": 7.224240756034851,
+            "train_explained_variance": 0.9981034543306702
+          }
+        },
+        {
+          "seed": 42,
+          "condition_id": "tok10000_layer0_dsae2048_seed42",
+          "checkpoint": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/checkpoints/tok10000_layer0_dsae2048_seed42/sae_final.pt",
+          "joint_score": 0.3984702058265128,
+          "metrics": {
+            "saebench_delta": -0.07341774510319299,
+            "cebench_interp_delta_vs_baseline": -40.446475937366486,
+            "cebench_interpretability_max": 7.5051356482505795,
+            "train_explained_variance": 0.998099990811878
+          }
+        },
+        {
+          "seed": 456,
+          "condition_id": "tok10000_layer0_dsae2048_seed456",
+          "checkpoint": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/checkpoints/tok10000_layer0_dsae2048_seed456/sae_final.pt",
+          "joint_score": 0.34142397525548857,
+          "metrics": {
+            "saebench_delta": -0.08047226435879729,
+            "cebench_interp_delta_vs_baseline": -40.6620994257927,
+            "cebench_interpretability_max": 7.289512159824372,
+            "train_explained_variance": 0.998140215359969
+          }
+        }
+      ]
+    },
+    {
+      "source": "grouped",
+      "source_results": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/results.json",
+      "row_index": 13,
+      "condition_id": "tok30000_layer0_dsae1024",
+      "architecture": "topk",
+      "seed": 123,
+      "hook_layer": 0,
+      "hook_name": "blocks.0.hook_resid_pre",
+      "checkpoint": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/checkpoints/tok30000_layer0_dsae1024_seed123/sae_final.pt",
+      "saebench_summary_path": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/external_eval/tok30000_layer0_dsae1024_seed123/saebench/husai_custom_sae_summary.json",
+      "cebench_summary_path": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/external_eval/tok30000_layer0_dsae1024_seed123/cebench/husai_custom_cebench_summary.json",
+      "metrics": {
+        "saebench_delta": -0.08373264546552686,
+        "cebench_interp_delta_vs_baseline": -41.95113203319594,
+        "cebench_interpretability_max": 6.000479552421123,
+        "train_explained_variance": 0.9988523030290185,
+        "saebench_delta_mean": -0.0770728203919268,
+        "saebench_delta_std": 0.005885283365814513,
+        "saebench_delta_ci95_low": -0.08373264546552686,
+        "saebench_delta_ci95_high": -0.07041299531832673,
+        "saebench_delta_n": 3,
+        "cebench_interp_delta_vs_baseline_mean": -41.73155810515086,
+        "cebench_interp_delta_vs_baseline_std": 0.19403734662834368,
+        "cebench_interp_delta_vs_baseline_ci95_low": -41.95113203319594,
+        "cebench_interp_delta_vs_baseline_ci95_high": -41.51198417710578,
+        "cebench_interp_delta_vs_baseline_n": 3,
+        "train_explained_variance_mean": 0.998862259185738,
+        "train_explained_variance_std": 8.798249635824317e-06,
+        "train_explained_variance_ci95_low": 0.9988523030290185,
+        "train_explained_variance_ci95_high": 0.9988722153424575,
+        "train_explained_variance_n": 3,
+        "cebench_interpretability_max_mean": 6.220053480466206,
+        "cebench_interpretability_max_std": 0.19403734662834485,
+        "cebench_interpretability_max_ci95_low": 6.000479552421123,
+        "cebench_interpretability_max_ci95_high": 6.4396274085112895,
+        "cebench_interpretability_max_n": 3
+      },
+      "returncodes": {
+        "saebench": 0,
+        "cebench": 0
+      },
+      "selection": {
+        "grouped_from_seed_candidates": 3,
+        "uncertainty_mode": "lcb",
+        "representative_seed": 123,
+        "joint_score": 0.38816286398658634,
+        "normalized_components": {
+          "saebench_norm": 0.16079621686746462,
+          "cebench_delta_norm": 0.41555202600922153,
+          "train_ev_norm": 0.9998874254824323
+        },
+        "weights": {
+          "saebench": 0.5,
+          "cebench_delta": 0.5,
+          "train_ev": 0.1
+        },
+        "is_pareto": false
+      },
+      "sources": [
+        "scaling"
+      ],
+      "group_id": "tok30000_layer0_dsae1024",
+      "representative_condition_id": "tok30000_layer0_dsae1024_seed123",
+      "seed_count": 3,
+      "seed_candidates": [
+        {
+          "seed": 123,
+          "condition_id": "tok30000_layer0_dsae1024_seed123",
+          "checkpoint": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/checkpoints/tok30000_layer0_dsae1024_seed123/sae_final.pt",
+          "joint_score": 0.3361640356389599,
+          "metrics": {
+            "saebench_delta": -0.07244175668528485,
+            "cebench_interp_delta_vs_baseline": -41.805400989055634,
+            "cebench_interpretability_max": 6.146210596561432,
+            "train_explained_variance": 0.9988539345273441
+          }
+        },
+        {
+          "seed": 42,
+          "condition_id": "tok30000_layer0_dsae1024_seed42",
+          "checkpoint": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/checkpoints/tok30000_layer0_dsae1024_seed42/sae_final.pt",
+          "joint_score": 0.27744361136659657,
+          "metrics": {
+            "saebench_delta": -0.08369549712378399,
+            "cebench_interp_delta_vs_baseline": -41.51144028425217,
+            "cebench_interpretability_max": 6.440171301364899,
+            "train_explained_variance": 0.9988613782775199
+          }
+        },
+        {
+          "seed": 456,
+          "condition_id": "tok30000_layer0_dsae1024_seed456",
+          "checkpoint": "results/experiments/phase4e_external_scaling_study_multiseed/run_20260215T165725Z/checkpoints/tok30000_layer0_dsae1024_seed456/sae_final.pt",
+          "joint_score": 0.31523773732664073,
+          "metrics": {
+            "saebench_delta": -0.07508120736671153,
+            "cebench_interp_delta_vs_baseline": -41.87783304214477,
+            "cebench_interpretability_max": 6.07377854347229,
+            "train_explained_variance": 0.9988714647523498
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "run_id": null,
+  "routed_runs": [
+    "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T232359Z",
+    "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T233353Z",
+    "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T234257Z",
+    "results/experiments/phase4b_routed_frontier_external_sweep/run_20260215T235219Z",
+    "results/experiments/phase4b_routed_frontier_external_sweep/run_20260216T000156Z"
+  ],
+  "assignment_runs": [
+    "results/experiments/phase4d_assignment_consistency_v3_external_sweep/run_20260216T001059Z",
+    "results/experiments/phase4d_assignment_consistency_v3_external_sweep/run_20260216T005618Z"
+  ],
+  "frontier_base": null,
+  "scaling_run": null,
+  "selector_run": null,
+  "selected_candidate_json": null,
+  "best_checkpoint": null,
+  "best_architecture": null,
+  "best_hook_layer": null,
+  "best_hook_name": null,
+  "ood_summary": null,
+  "transcoder_summary": null,
+  "release_run": null,
+  "release_rc": 1
+}
