@@ -1699,3 +1699,19 @@ pytest -q tests/unit/test_husai_custom_sae_adapter.py tests/unit/test_known_circ
 - Notes:
   - cycle-6 launcher was hardened before launch to avoid self-wait deadlock and to fail fast on missing selector/inputs.
   - full synthesis pending completion of stage1-4 artifacts and strict release gate output.
+
+### Run 80: Cycle-7 Pareto push design + deferred launch (queued)
+- New queue script:
+  - `scripts/experiments/run_cycle7_pareto_push.sh`
+- Goal:
+  - Target the routed SAEBench/CE-Bench trade-off directly using a Pareto-zone condition set, then run SAEBench-prioritized assignment-v3 + grouped LCB selection + strict gate.
+- Key design choices:
+  - Routed stage includes both cycle-5 anchors and interpolation settings (`d_sae`, `k`, `num_experts`).
+  - Assignment stage uses external checkpoint policy `external_score` with SAEBench-heavy candidate weights.
+  - Selector enforces grouped uncertainty-aware policy (`min_seeds_per_group=4`, plus min3 sensitivity run).
+- Remote launch:
+  - launch log: `results/experiments/cycle7_pareto_push/launch_20260216T062212Z.log`
+  - run dir: `results/experiments/cycle7_pareto_push/run_20260216T062213Z`
+  - current behavior: waiting behind active cycle-6 runner (intentional).
+- Additional planning artifact:
+  - `CYCLE7_PARETO_PLAN.md`
