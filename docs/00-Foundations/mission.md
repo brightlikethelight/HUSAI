@@ -6,7 +6,7 @@
 
 ## The Problem Statement
 
-### The Janeiro 2025 Bombshell
+### The January 2025 Bombshell
 
 In January 2025, Paulo and Belrose dropped a bombshell on the mechanistic interpretability community: **SAE features are unstable**. When you train the same sparse autoencoder (SAE) architecture twice with different random seeds, only ~30% of features overlap between runs.
 

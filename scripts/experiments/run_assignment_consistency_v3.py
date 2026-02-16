@@ -249,20 +249,163 @@ def pick_external_checkpoint(rec: dict[str, Any]) -> str | None:
     return str(checkpoint) if isinstance(checkpoint, str) else None
 
 
+def build_external_checkpoint_pool(
+    rec: dict[str, Any],
+    *,
+    include_ref: bool,
+    max_candidates: int,
+) -> list[dict[str, Any]]:
+    per_seed = rec.get("per_seed_metrics") or []
+    if not per_seed:
+        return []
+
+    seed_ref = rec.get("seed_ref")
+    rows: list[dict[str, Any]] = []
+    for m in per_seed:
+        checkpoint = m.get("checkpoint")
+        if not isinstance(checkpoint, str):
+            continue
+        seed = m.get("seed")
+        if not include_ref and seed == seed_ref:
+            continue
+        rows.append(
+            {
+                "seed": seed,
+                "checkpoint": checkpoint,
+                "alignment_to_ref": maybe_float(m.get("alignment_to_ref")),
+                "explained_variance": maybe_float(m.get("explained_variance")),
+            }
+        )
+
+    if not rows:
+        return []
+
+    rows = sorted(
+        rows,
+        key=lambda r: (
+            maybe_float(r.get("alignment_to_ref")) or float("-inf"),
+            maybe_float(r.get("explained_variance")) or float("-inf"),
+        ),
+        reverse=True,
+    )
+
+    if max_candidates > 0:
+        rows = rows[:max_candidates]
+    return rows
+
+
+def select_external_candidate(
+    candidate_evals: list[dict[str, Any]],
+    *,
+    args: argparse.Namespace,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    if not candidate_evals:
+        raise ValueError("candidate_evals must be non-empty")
+
+    if args.external_checkpoint_policy == "internal_best":
+        ranked = sorted(
+            candidate_evals,
+            key=lambda c: (
+                maybe_float(c.get("alignment_to_ref")) or float("-inf"),
+                maybe_float(c.get("explained_variance")) or float("-inf"),
+            ),
+            reverse=True,
+        )
+        for cand in ranked:
+            cand["selection"] = {
+                "policy": "internal_best",
+                "checkpoint_score": None,
+                "passes_external_floor": None,
+            }
+        return ranked[0], ranked
+
+    sae_vals = [maybe_float(c.get("saebench_delta")) for c in candidate_evals]
+    ce_vals = [maybe_float(c.get("cebench_delta")) for c in candidate_evals]
+    align_vals = [maybe_float(c.get("alignment_to_ref")) for c in candidate_evals]
+    ev_vals = [maybe_float(c.get("explained_variance")) for c in candidate_evals]
+
+    sae_norm = normalize(sae_vals)
+    ce_norm = normalize(ce_vals)
+    align_norm = normalize(align_vals)
+    ev_norm = normalize(ev_vals)
+
+    for i, cand in enumerate(candidate_evals):
+        sae = maybe_float(cand.get("saebench_delta"))
+        ce = maybe_float(cand.get("cebench_delta"))
+        rc_sae = maybe_float((cand.get("external_eval") or {}).get("saebench_returncode"))
+        rc_ce = maybe_float((cand.get("external_eval") or {}).get("cebench_returncode"))
+
+        score = 0.0
+        if i in sae_norm:
+            score += args.external_candidate_weight_saebench * sae_norm[i]
+        if i in ce_norm:
+            score += args.external_candidate_weight_cebench * ce_norm[i]
+        if i in align_norm:
+            score += args.external_candidate_weight_alignment * align_norm[i]
+        if i in ev_norm:
+            score += args.external_candidate_weight_ev * ev_norm[i]
+
+        sae_required = args.run_saebench or args.external_candidate_require_both
+        ce_required = args.run_cebench or args.external_candidate_require_both
+
+        gate_sae = (sae is not None and sae >= args.external_candidate_min_saebench_delta) if sae_required else True
+        gate_ce = (ce is not None and ce >= args.external_candidate_min_cebench_delta) if ce_required else True
+        gate_rc_sae = (rc_sae in (None, 0.0))
+        gate_rc_ce = (rc_ce in (None, 0.0))
+        passes_external_floor = bool(gate_sae and gate_ce and gate_rc_sae and gate_rc_ce)
+
+        cand["selection"] = {
+            "policy": "external_score",
+            "checkpoint_score": score,
+            "passes_external_floor": passes_external_floor,
+            "weights": {
+                "saebench": args.external_candidate_weight_saebench,
+                "cebench": args.external_candidate_weight_cebench,
+                "alignment": args.external_candidate_weight_alignment,
+                "explained_variance": args.external_candidate_weight_ev,
+            },
+            "normalized": {
+                "saebench": sae_norm.get(i),
+                "cebench": ce_norm.get(i),
+                "alignment": align_norm.get(i),
+                "explained_variance": ev_norm.get(i),
+            },
+        }
+
+    ranked = sorted(
+        candidate_evals,
+        key=lambda c: (
+            bool((c.get("selection") or {}).get("passes_external_floor", False)),
+            float((c.get("selection") or {}).get("checkpoint_score") or float("-inf")),
+            maybe_float(c.get("saebench_delta")) or float("-inf"),
+            maybe_float(c.get("cebench_delta")) or float("-inf"),
+            maybe_float(c.get("alignment_to_ref")) or float("-inf"),
+            maybe_float(c.get("explained_variance")) or float("-inf"),
+        ),
+        reverse=True,
+    )
+    return ranked[0], ranked
+
+
 def evaluate_external_for_checkpoint(
     *,
     checkpoint: Path,
     lambda_id: str,
     args: argparse.Namespace,
     run_dir: Path,
+    candidate_tag: str | None = None,
 ) -> dict[str, Any]:
-    ext_dir = run_dir / "external_eval" / lambda_id
+    lambda_slug = str(lambda_id).replace("/", "_")
+    tag = (candidate_tag or "selected").replace("/", "_")
+
+    ext_dir = run_dir / "external_eval" / lambda_slug / tag
     ext_dir.mkdir(parents=True, exist_ok=True)
     logs_dir = run_dir / "logs"
     logs_dir.mkdir(parents=True, exist_ok=True)
 
     out: dict[str, Any] = {
         "checkpoint": repo_rel(checkpoint),
+        "candidate_tag": tag,
         "saebench": None,
         "cebench": None,
         "saebench_returncode": None,
@@ -299,7 +442,7 @@ def evaluate_external_for_checkpoint(
             "--architecture",
             "topk",
             "--sae-release",
-            f"husai_assignv3_{run_dir.name}_lambda{lambda_id}",
+            f"husai_assignv3_{run_dir.name}_lambda{lambda_slug}_{tag}",
             "--model-name",
             args.model_name,
             "--hook-layer",
@@ -323,7 +466,7 @@ def evaluate_external_for_checkpoint(
             command.append("--force-rerun")
 
         rc, text = run_subprocess(command, PROJECT_ROOT)
-        (logs_dir / f"lambda_{lambda_id}_saebench.log").write_text(text)
+        (logs_dir / f"lambda_{lambda_slug}_{tag}_saebench.log").write_text(text)
         out["saebench_returncode"] = rc
         summary_path = saebench_out / "husai_custom_sae_summary.json"
         out["saebench_summary_path"] = repo_rel(summary_path) if summary_path.exists() else None
@@ -341,7 +484,7 @@ def evaluate_external_for_checkpoint(
             "--architecture",
             "topk",
             "--sae-release",
-            f"husai_assignv3_{run_dir.name}_lambda{lambda_id}",
+            f"husai_assignv3_{run_dir.name}_lambda{lambda_slug}_{tag}",
             "--model-name",
             args.model_name,
             "--hook-layer",
@@ -363,7 +506,7 @@ def evaluate_external_for_checkpoint(
             command.extend(["--matched-baseline-summary", str(args.cebench_matched_baseline_summary)])
 
         rc, text = run_subprocess(command, PROJECT_ROOT)
-        (logs_dir / f"lambda_{lambda_id}_cebench.log").write_text(text)
+        (logs_dir / f"lambda_{lambda_slug}_{tag}_cebench.log").write_text(text)
         out["cebench_returncode"] = rc
         summary_path = cebench_out / "husai_custom_cebench_summary.json"
         out["cebench_summary_path"] = repo_rel(summary_path) if summary_path.exists() else None
@@ -432,6 +575,36 @@ def main() -> None:
     parser.add_argument("--hook-name", type=str, default="blocks.0.hook_resid_pre")
     parser.add_argument("--dtype", type=str, default="float32")
     parser.add_argument("--force-rerun-external", action="store_true")
+
+    parser.add_argument(
+        "--external-checkpoint-policy",
+        type=str,
+        choices=["internal_best", "external_score"],
+        default="internal_best",
+        help="How to choose per-lambda checkpoint for external summaries.",
+    )
+    parser.add_argument(
+        "--external-checkpoint-candidates-per-lambda",
+        type=int,
+        default=3,
+        help="Max per-lambda seed checkpoints to evaluate externally (0 means all).",
+    )
+    parser.add_argument(
+        "--external-checkpoint-include-ref",
+        action="store_true",
+        help="Include reference-seed checkpoint in per-lambda external candidate pool.",
+    )
+    parser.add_argument("--external-candidate-weight-saebench", type=float, default=0.45)
+    parser.add_argument("--external-candidate-weight-cebench", type=float, default=0.45)
+    parser.add_argument("--external-candidate-weight-alignment", type=float, default=0.05)
+    parser.add_argument("--external-candidate-weight-ev", type=float, default=0.05)
+    parser.add_argument("--external-candidate-min-saebench-delta", type=float, default=-1e9)
+    parser.add_argument("--external-candidate-min-cebench-delta", type=float, default=-1e9)
+    parser.add_argument(
+        "--external-candidate-require-both",
+        action="store_true",
+        help="Require both SAEBench and CE-Bench floors when choosing per-lambda checkpoint.",
+    )
 
     parser.add_argument(
         "--saebench-results-path",
@@ -519,23 +692,89 @@ def main() -> None:
     baseline_ev = baseline["explained_variance"]["mean"] if baseline else max(r["explained_variance"]["mean"] for r in records)
 
     for rec in records:
-        checkpoint_rel = pick_external_checkpoint(rec)
-        external_payload = None
-        if checkpoint_rel is not None and (args.run_saebench or args.run_cebench):
-            external_payload = evaluate_external_for_checkpoint(
-                checkpoint=to_abs(Path(checkpoint_rel)),
-                lambda_id=str(rec["lambda_consistency"]),
-                args=args,
-                run_dir=run_dir,
-            )
+        lambda_id = str(rec["lambda_consistency"])
+
+        checkpoint_pool = build_external_checkpoint_pool(
+            rec,
+            include_ref=bool(args.external_checkpoint_include_ref),
+            max_candidates=max(0, int(args.external_checkpoint_candidates_per_lambda)),
+        )
+        if not checkpoint_pool:
+            fallback = pick_external_checkpoint(rec)
+            if fallback is not None:
+                checkpoint_pool = [
+                    {
+                        "seed": None,
+                        "checkpoint": fallback,
+                        "alignment_to_ref": None,
+                        "explained_variance": None,
+                    }
+                ]
+
+        candidate_evals: list[dict[str, Any]] = []
+        if checkpoint_pool and (args.run_saebench or args.run_cebench):
+            for idx, cand in enumerate(checkpoint_pool):
+                checkpoint_rel = str(cand["checkpoint"])
+                checkpoint_abs = to_abs(Path(checkpoint_rel))
+                seed = cand.get("seed")
+                tag = f"seed{seed}" if seed is not None else f"cand{idx}"
+                external_payload = evaluate_external_for_checkpoint(
+                    checkpoint=checkpoint_abs,
+                    lambda_id=lambda_id,
+                    args=args,
+                    run_dir=run_dir,
+                    candidate_tag=tag,
+                )
+                metrics = summarize_external(
+                    (external_payload or {}).get("saebench"),
+                    (external_payload or {}).get("cebench"),
+                )
+                candidate_evals.append(
+                    {
+                        "seed": seed,
+                        "candidate_tag": tag,
+                        "checkpoint": checkpoint_rel,
+                        "alignment_to_ref": maybe_float(cand.get("alignment_to_ref")),
+                        "explained_variance": maybe_float(cand.get("explained_variance")),
+                        "external_eval": external_payload,
+                        "saebench_delta": metrics["saebench_delta"],
+                        "cebench_delta": metrics["cebench_delta"],
+                        "cebench_interpretability_max": metrics["cebench_interpretability_max"],
+                    }
+                )
+        else:
+            for idx, cand in enumerate(checkpoint_pool):
+                seed = cand.get("seed")
+                candidate_evals.append(
+                    {
+                        "seed": seed,
+                        "candidate_tag": f"seed{seed}" if seed is not None else f"cand{idx}",
+                        "checkpoint": str(cand["checkpoint"]),
+                        "alignment_to_ref": maybe_float(cand.get("alignment_to_ref")),
+                        "explained_variance": maybe_float(cand.get("explained_variance")),
+                        "external_eval": None,
+                        "saebench_delta": None,
+                        "cebench_delta": None,
+                        "cebench_interpretability_max": None,
+                    }
+                )
+
+        selected_candidate: dict[str, Any] | None = None
+        ranked_candidates: list[dict[str, Any]] = []
+        if candidate_evals:
+            selected_candidate, ranked_candidates = select_external_candidate(candidate_evals, args=args)
 
         ev_drop = baseline_ev - rec["explained_variance"]["mean"]
+        external_payload = (selected_candidate or {}).get("external_eval")
         metrics = summarize_external(
             (external_payload or {}).get("saebench"),
             (external_payload or {}).get("cebench"),
         )
 
-        rec["selected_checkpoint"] = checkpoint_rel
+        rec["selected_checkpoint"] = (selected_candidate or {}).get("checkpoint")
+        rec["selected_checkpoint_seed"] = (selected_candidate or {}).get("seed")
+        rec["selected_checkpoint_policy"] = args.external_checkpoint_policy
+        rec["external_candidate_evals"] = ranked_candidates
         rec["external_eval"] = external_payload
         rec["selection_metrics"] = {
             "internal_lcb": rec["delta_pwmcc_ci_low_conservative"],
@@ -651,11 +890,25 @@ def main() -> None:
         "hook_layer": args.hook_layer,
         "hook_name": args.hook_name,
         "dtype": args.dtype,
+        "external_checkpoint_policy": args.external_checkpoint_policy,
+        "external_checkpoint_candidates_per_lambda": args.external_checkpoint_candidates_per_lambda,
+        "external_checkpoint_include_ref": args.external_checkpoint_include_ref,
+        "external_candidate_require_both": args.external_candidate_require_both,
+        "external_candidate_thresholds": {
+            "min_saebench_delta": args.external_candidate_min_saebench_delta,
+            "min_cebench_delta": args.external_candidate_min_cebench_delta,
+        },
         "weights": {
             "internal_lcb": args.weight_internal_lcb,
             "ev_neg_drop": args.weight_ev,
             "saebench_delta": args.weight_saebench,
             "cebench_delta": args.weight_cebench,
+        },
+        "external_checkpoint_weights": {
+            "saebench": args.external_candidate_weight_saebench,
+            "cebench": args.external_candidate_weight_cebench,
+            "alignment": args.external_candidate_weight_alignment,
+            "explained_variance": args.external_candidate_weight_ev,
         },
     }
 
@@ -687,6 +940,8 @@ def main() -> None:
         f"- Run ID: `{run_id}`",
         f"- Best lambda: `{best['lambda_consistency']}`",
         f"- Best checkpoint: `{best.get('selected_checkpoint')}`",
+        f"- Best checkpoint seed: `{best.get('selected_checkpoint_seed')}`",
+        f"- Checkpoint policy: `{best.get('selected_checkpoint_policy')}`",
         f"- pass_all: `{acceptance['pass_all']}`",
         "",
         "## Acceptance",

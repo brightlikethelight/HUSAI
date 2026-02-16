@@ -333,7 +333,7 @@ We analyze:
 
 ## Implementation Plan (Option A)
 
-### Script: `scripts/fourier_validation_literature.py`
+### Script: `scripts/analysis/fourier_validation_literature.py`
 
 ```python
 #!/usr/bin/env python3
@@ -488,7 +488,7 @@ if __name__ == "__main__":
 
 **Usage:**
 ```bash
-python scripts/fourier_validation_literature.py \
+python scripts/analysis/fourier_validation_literature.py \
     --transformer results/transformer_5000ep/transformer_final.pt \
     --modulus 113
 ```

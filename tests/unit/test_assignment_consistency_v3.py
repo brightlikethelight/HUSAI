@@ -72,3 +72,64 @@ def test_load_training_activations_modular_path(monkeypatch, tmp_path: Path) -> 
     assert source["source"] == "modular_assignment"
     assert source["layer"] == 1
     assert source["modulus"] == 113
+
+
+
+def test_build_external_checkpoint_pool_excludes_ref_and_sorts() -> None:
+    rec = {
+        "seed_ref": 42,
+        "per_seed_metrics": [
+            {"seed": 42, "checkpoint": "ckpt_ref.pt", "alignment_to_ref": 1.0, "explained_variance": 0.8},
+            {"seed": 123, "checkpoint": "ckpt_a.pt", "alignment_to_ref": 0.7, "explained_variance": 0.6},
+            {"seed": 456, "checkpoint": "ckpt_b.pt", "alignment_to_ref": 0.9, "explained_variance": 0.5},
+            {"seed": 789, "checkpoint": "ckpt_c.pt", "alignment_to_ref": 0.9, "explained_variance": 0.7},
+        ],
+    }
+
+    pool = assign_v3.build_external_checkpoint_pool(rec, include_ref=False, max_candidates=2)
+
+    assert len(pool) == 2
+    assert [row["seed"] for row in pool] == [789, 456]
+    assert all(row["seed"] != 42 for row in pool)
+
+
+def test_select_external_candidate_external_score_prefers_floor_passing() -> None:
+    args = Namespace(
+        external_checkpoint_policy="external_score",
+        external_candidate_weight_saebench=0.45,
+        external_candidate_weight_cebench=0.45,
+        external_candidate_weight_alignment=0.05,
+        external_candidate_weight_ev=0.05,
+        external_candidate_min_saebench_delta=-0.02,
+        external_candidate_min_cebench_delta=-10.0,
+        external_candidate_require_both=True,
+        run_saebench=True,
+        run_cebench=True,
+    )
+
+    candidate_evals = [
+        {
+            "seed": 123,
+            "checkpoint": "ckpt_bad_external.pt",
+            "alignment_to_ref": 0.95,
+            "explained_variance": 0.80,
+            "saebench_delta": -0.08,
+            "cebench_delta": -20.0,
+            "external_eval": {"saebench_returncode": 0, "cebench_returncode": 0},
+        },
+        {
+            "seed": 456,
+            "checkpoint": "ckpt_good_external.pt",
+            "alignment_to_ref": 0.75,
+            "explained_variance": 0.60,
+            "saebench_delta": -0.01,
+            "cebench_delta": -5.0,
+            "external_eval": {"saebench_returncode": 0, "cebench_returncode": 0},
+        },
+    ]
+
+    selected, ranked = assign_v3.select_external_candidate(candidate_evals, args=args)
+
+    assert selected["checkpoint"] == "ckpt_good_external.pt"
+    assert ranked[0]["selection"]["passes_external_floor"] is True
+    assert ranked[1]["selection"]["passes_external_floor"] is False
