@@ -2,8 +2,8 @@
   "run": "results/experiments/phase4d_assignment_consistency_v3_cycle7_pareto/run_20260216T142558Z",
   "exists": true,
   "checkpoint_count": 56,
-  "saebench_count": 20,
-  "cebench_count": 19,
+  "saebench_count": 21,
+  "cebench_count": 21,
   "lambdas": {
     "0.0": {
       "checkpoints": 7,
@@ -28,12 +28,12 @@
     "0.1": {
       "checkpoints": 7,
       "saebench": 4,
-      "cebench": 3
+      "cebench": 4
     },
     "0.15": {
       "checkpoints": 7,
-      "saebench": 0,
-      "cebench": 0
+      "saebench": 1,
+      "cebench": 1
     },
     "0.2": {
       "checkpoints": 7,
