@@ -1,8 +1,9 @@
 # Cycle-7 Live Monitoring Snapshot
 
-- Snapshot UTC: 2026-02-16T17:05:36+00:00
+- Snapshot UTC: 2026-02-16T18:25:00Z
 - Source run: `results/experiments/cycle7_pareto_push/run_20260216T062213Z`
 - Cycle-8 queue: waiting behind cycle-7 (`results/experiments/cycle8_robust_pareto_push/run_20260216T163502Z`)
+- Selection-robustness patch pushed to `main`: `14b6c59` (cycle-8 will pull this before starting)
 
 ## Routed Stage (Completed p1..p5)
 
@@ -14,27 +15,35 @@
 | run_20260216T135316Z | 2048 | 40 | 6 | 0.0007 | 12 | 0.366857 | -0.065077 | -37.028728 | 10.922884 |
 | run_20260216T140951Z | 1024 | 48 | 4 | 0.0008 | 12 | 0.343716 | -0.065715 | -36.183461 | 11.768150 |
 
-- Best SAEBench delta: `-0.063807` at `run_20260216T133659Z`
-- Best CE-Bench delta: `-36.183461` at `run_20260216T140951Z`
+- Best SAEBench delta (routed): `-0.063807` at `run_20260216T133659Z`
+- Best CE-Bench delta (routed): `-36.183461` at `run_20260216T140951Z`
 
-## Assignment Stage Progress (run_20260216T142558Z)
+## Assignment Stage
 
-- checkpoints: `56`
-- completed SAEBench evals: `23`
-- completed CE-Bench evals: `22`
+### a1 (completed)
+- Run: `results/experiments/phase4d_assignment_consistency_v3_cycle7_pareto/run_20260216T142558Z`
+- Best lambda: `0.15`
+- Internal LCB: `0.8398407121499379`
+- SAEBench delta: `-0.04354644998752344`
+- CE-Bench delta: `-34.468481616973875`
+- `pass_all=False` (external still below strict zero-LCB gates)
 
-| lambda | checkpoints | saebench | cebench |
-|---|---:|---:|---:|
-| 0.0 | 7 | 4 | 4 |
-| 0.03 | 7 | 4 | 4 |
-| 0.05 | 7 | 4 | 4 |
-| 0.08 | 7 | 4 | 4 |
-| 0.1 | 7 | 4 | 4 |
-| 0.15 | 7 | 3 | 2 |
-| 0.2 | 7 | 0 | 0 |
-| 0.3 | 7 | 0 | 0 |
+### a2 (in progress)
+- Run: `results/experiments/phase4d_assignment_consistency_v3_cycle7_pareto/run_20260216T173317Z`
+- Checkpoints complete: `50 / 56`
+- External eval summaries: `0 / 32` SAEBench, `0 / 32` CE-Bench
+- Most recent artifact age during snapshot: ~36s (active forward progress)
+
+## Process/GPU Health
+
+- Active processes:
+  - `bash scripts/experiments/run_cycle7_pareto_push.sh`
+  - `python scripts/experiments/run_assignment_consistency_v3.py` (a2 condition)
+  - `bash scripts/experiments/run_cycle8_robust_pareto_push.sh` (waiting)
+- GPU snapshot: `NVIDIA B200, 5% util, 4686 MiB / 183359 MiB`
 
 ## Weights & Biases
 
-- No `WANDB_*` env vars detected in remote run shell.
-- Current telemetry is artifact/log-file based.
+- No `WANDB_*` environment variables detected on remote shell.
+- No active `wandb/run-*` directories for current queue.
+- Current telemetry remains artifact/log-file based.

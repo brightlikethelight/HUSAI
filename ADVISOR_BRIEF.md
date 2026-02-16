@@ -1,56 +1,51 @@
-# Advisor Brief: HUSAI Current State
+# Advisor Brief: HUSAI Live State
 
 Date: 2026-02-16
 
-## 1) Problem and Objective
+## 1) Core Question
 
-HUSAI tests whether SAE consistency gains are reproducible across seeds and whether those gains transfer to external benchmarks under strict release controls.
+Can we train SAEs that are both internally consistent across seeds and externally competitive under modern interpretability benchmarks (SAEBench + CE-Bench), with strict uncertainty-aware release gates?
 
-Current bottom line:
-- Internal consistency progress: yes.
-- External competitiveness under strict gates: no (yet).
-- Reliability and claim-gating: strong.
+## 2) Where We Are Now
 
-## 2) Strongest Artifact-Backed Evidence
+- Queue status:
+  - `cycle7`: running (`a2` assignment condition in progress)
+  - `cycle8`: queued and waiting; will pull latest `main` automatically
+- Engineering/reliability status: strong.
+- Scientific status:
+  - internal consistency improvements are real
+  - external metrics still negative under strict gates
 
-- `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.json`
-- `docs/evidence/cycle5_external_push_run_20260215T232351Z/selector/selection_summary.json`
-- `docs/evidence/cycle5_external_push_run_20260215T232351Z/assignment/run_20260216T005618Z_results.json`
-- `docs/evidence/cycle5_external_push_run_20260215T232351Z/routed/run_20260215T234257Z_results.json`
+## 3) Strongest Current Evidence
 
-Latest gate:
-- random pass, transcoder pass, OOD pass, external fail, `pass_all=false`.
+- Cycle7 routed complete:
+  - `results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/`
+- Cycle7 assignment a1 complete:
+  - `results/experiments/phase4d_assignment_consistency_v3_cycle7_pareto/run_20260216T142558Z/results.json`
+  - best lambda `0.15`, internal LCB `0.83984`, SAEBench delta `-0.04355`, CE-Bench delta `-34.46848`
+- Live monitoring snapshot:
+  - `docs/evidence/cycle7_live_snapshot_20260216T165714Z/monitoring_summary.md`
 
-## 3) Scientifically Clear Conclusions
+## 4) Critical Fixes Applied Today
 
-1. Internal consistency gains are real but not sufficient for external success.
-2. CE-Bench improved in assignment/routed sweeps, but SAEBench remained negative.
-3. Selector policy (group-size threshold) changes which family is selected.
-4. Strict gate enforcement prevents unsupported external claims.
+Commit `14b6c59`:
+- fixed selection/gating handling of valid `0.0` values in assignment and selector logic
+- filtered non-finite values from assignment normalization path
+- added unit coverage
+- full unit suite green (`102 passed`)
 
-## 4) Current High-Risk Gaps
+## 5) What Blocks "Finished"
 
-1. External deltas remain negative at LCB level for selected candidate.
-2. Known-circuit closure gate still fails trained-vs-random thresholds.
-3. SAEBench improvement remains the principal blocker.
+1. External gates remain red under strict criteria.
+2. Need one candidate with credible SAEBench + CE-Bench joint improvement under grouped-LCB selection.
+3. Need closure on known-circuit confidence-bound criteria before final claim set.
 
-## 5) Highest-Impact Next Work
+## 6) Immediate Next Program (after cycle7/cycle8)
 
-1. Assignment-v3 objective extension with explicit SAEBench-aware regularization.
-2. Assignment/routed seed expansion so grouped-LCB selection is not threshold-constrained.
-3. Joint Pareto selection requiring SAEBench floor + CE-Bench maximization.
-4. Known-circuit closure upgrade with confidence-bound pass criteria.
-5. Promote deterministic env and selector diagnostics as default queue behavior.
+1. Assignment-v4 supervised external proxy objective.
+2. Robust-routed expansion around cycle8 best condition.
+3. PolySAE-inspired matched-budget run.
+4. CI-LCB-first candidate selection and strict release gate rerun.
+5. Known-circuit closure rerun with explicit trained-vs-random lower-bound thresholds.
 
-## 6) Literature Anchors (Primary Sources)
-
-- SAEs trained on same data learn different features: https://arxiv.org/abs/2501.16615
-- Feature consistency priority paper: https://arxiv.org/abs/2505.20254
-- SAEBench (ICML 2025): https://proceedings.mlr.press/v267/karvonen25a.html
-- SAEBench preprint: https://arxiv.org/abs/2503.09532
-- CE-Bench preprint: https://arxiv.org/abs/2509.00691
-- CE-Bench repository: https://github.com/Yusen-Peng/CE-Bench
-- Route Sparse Autoencoders: https://arxiv.org/abs/2503.08200
-- Nested/Matryoshka SAEs: https://arxiv.org/abs/2503.17547
-- Transcoders vs SAEs: https://arxiv.org/abs/2501.18823
-- Random-control caution for metrics: https://arxiv.org/abs/2501.17727
+Full plan: `CYCLE9_NOVELTY_PLAN.md`

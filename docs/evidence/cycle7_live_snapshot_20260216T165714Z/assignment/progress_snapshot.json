@@ -1,49 +1,37 @@
 {
-  "run": "results/experiments/phase4d_assignment_consistency_v3_cycle7_pareto/run_20260216T142558Z",
-  "exists": true,
-  "checkpoint_count": 56,
-  "saebench_count": 23,
-  "cebench_count": 22,
-  "lambdas": {
-    "0.0": {
-      "checkpoints": 7,
-      "saebench": 4,
-      "cebench": 4
-    },
-    "0.03": {
-      "checkpoints": 7,
-      "saebench": 4,
-      "cebench": 4
-    },
-    "0.05": {
-      "checkpoints": 7,
-      "saebench": 4,
-      "cebench": 4
-    },
-    "0.08": {
-      "checkpoints": 7,
-      "saebench": 4,
-      "cebench": 4
-    },
-    "0.1": {
-      "checkpoints": 7,
-      "saebench": 4,
-      "cebench": 4
-    },
-    "0.15": {
-      "checkpoints": 7,
-      "saebench": 3,
-      "cebench": 2
-    },
-    "0.2": {
-      "checkpoints": 7,
-      "saebench": 0,
-      "cebench": 0
-    },
-    "0.3": {
-      "checkpoints": 7,
-      "saebench": 0,
-      "cebench": 0
+  "snapshot_utc": "2026-02-16T18:25:00Z",
+  "a1_run": {
+    "run": "results/experiments/phase4d_assignment_consistency_v3_cycle7_pareto/run_20260216T142558Z",
+    "checkpoint_count": 56,
+    "saebench_count": 32,
+    "cebench_count": 32,
+    "summary_exists": true,
+    "pass_all": false,
+    "best_lambda": 0.15,
+    "best_metrics": {
+      "internal_lcb": 0.8398407121499379,
+      "saebench_delta": -0.04354644998752344,
+      "cebench_delta": -34.468481616973875
     }
+  },
+  "a2_run": {
+    "run": "results/experiments/phase4d_assignment_consistency_v3_cycle7_pareto/run_20260216T173317Z",
+    "checkpoint_count": 50,
+    "expected_checkpoint_count": 56,
+    "saebench_count": 0,
+    "cebench_count": 0,
+    "expected_external_count": 32,
+    "latest_lambda_checkpoint_counts": {
+      "0.0": 7,
+      "0.03": 7,
+      "0.05": 7,
+      "0.08": 7,
+      "0.1": 7,
+      "0.15": 7,
+      "0.2": 7,
+      "0.3": 1
+    },
+    "most_recent_artifact": "results/experiments/phase4d_assignment_consistency_v3_cycle7_pareto/run_20260216T173317Z/checkpoints/lambda_0.3/sae_seed42.pt",
+    "most_recent_artifact_age_sec": 35.6
   }
 }
