@@ -1659,3 +1659,43 @@ pytest -q tests/unit/test_husai_custom_sae_adapter.py tests/unit/test_known_circ
 - W&B check:
   - no active `WANDB_*` env in remote queue session.
   - no remote `wandb/run-*` directories for latest queue path; telemetry currently artifact-file based.
+
+### Run 79: Cycle-6 SAE-aware push launch and live monitoring (in progress)
+- Commit launched:
+  - `fa7d0fc` `Add cycle6 SAE-aware queue and external checkpoint policy`
+- Queue launch:
+  - command: `bash scripts/experiments/run_cycle6_saeaware_push.sh`
+  - queue run id: `results/experiments/cycle6_saeaware_push/run_20260216T054943Z`
+  - launch log: `results/experiments/cycle6_saeaware_push/launch_20260216T054940Z.log`
+
+- Stage status at `2026-02-16T05:59:11Z` (UTC):
+  - active stage: cycle-6 stage1 routed sweep (`r1`) still running.
+  - active process:
+    - `scripts/experiments/run_routed_frontier_external.py`
+    - seed-level external eval subprocesses (`run_husai_saebench_custom_eval.py` / `run_husai_cebench_custom_eval.py`).
+
+- Partial metrics snapshot (`r1`, run `run_20260216T054951Z`):
+  - completed seeds (SAEBench): 3
+  - completed seeds (CE-Bench): 2
+  - seeded checkpoints produced: 3
+  - seed `42`:
+    - SAEBench `best_minus_llm_auc = -0.066756772`
+    - CE-Bench `interpretability_score_mean_max = 10.307504203`
+    - CE-Bench delta vs matched baseline `interpretability_score_mean_max = -37.644107382`
+  - seed `123`:
+    - SAEBench `best_minus_llm_auc = -0.071979987`
+    - CE-Bench delta vs matched baseline `interpretability_score_mean_max = -34.298578978`
+  - seed `456`:
+    - SAEBench complete (`-0.068519380`), CE-Bench pending at snapshot time.
+
+- Monitoring checks:
+  - GPU state: B200 memory allocated (python processes present), utilization fluctuating near external-eval boundaries.
+  - queue logs: no hard runtime errors; only non-fatal pydantic warnings observed.
+  - W&B telemetry:
+    - remote environment has no `WANDB_*` variables.
+    - no remote `wandb/run-*` directories present for this run.
+    - telemetry remains artifact-file based (JSON/MD/log files under run directories).
+
+- Notes:
+  - cycle-6 launcher was hardened before launch to avoid self-wait deadlock and to fail fast on missing selector/inputs.
+  - full synthesis pending completion of stage1-4 artifacts and strict release gate output.
