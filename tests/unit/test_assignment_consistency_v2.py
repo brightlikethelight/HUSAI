@@ -62,3 +62,31 @@ def test_assignment_update_interval_must_be_positive() -> None:
             ref_decoder=None,
             assignment_update_interval=0,
         )
+
+
+def test_supervised_proxy_metrics_present() -> None:
+    torch.manual_seed(1)
+    activations = torch.randn(12, 5)
+    labels = torch.tensor([0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1], dtype=torch.long)
+
+    _model, metrics = assign_v2.train_topk_assignment_v2(
+        activations=activations,
+        d_sae=6,
+        k=2,
+        seed=7,
+        epochs=2,
+        batch_size=4,
+        learning_rate=1e-3,
+        device="cpu",
+        lambda_consistency=0.0,
+        ref_decoder=None,
+        assignment_update_interval=1,
+        supervised_labels=labels,
+        supervised_weight=0.2,
+        supervised_num_classes=2,
+    )
+
+    assert metrics["supervised_proxy_num_classes"] == 2
+    assert metrics["supervised_proxy_weight"] == 0.2
+    assert metrics["supervised_proxy_loss_train"] == metrics["supervised_proxy_loss_train"]
+    assert 0.0 <= metrics["supervised_proxy_accuracy_eval"] <= 1.0

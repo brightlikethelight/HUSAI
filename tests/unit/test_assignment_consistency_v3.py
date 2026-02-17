@@ -23,6 +23,9 @@ def _base_args(tmp_path: Path) -> Namespace:
         batch_size=8,
         device="cpu",
         modulus=113,
+        supervised_proxy_mode="none",
+        supervised_proxy_weight=0.0,
+        supervised_proxy_num_classes=0,
     )
 
 
@@ -38,13 +41,40 @@ def test_load_training_activations_external_cache(tmp_path: Path) -> None:
     args.max_rows_per_file = 13
     args.max_total_rows = 13
 
-    acts, source = assign_v3.load_training_activations(args)
+    acts, source, labels, supervised_meta = assign_v3.load_training_activations(args)
 
     assert isinstance(acts, torch.Tensor)
     assert tuple(acts.shape) == (13, 6)
     assert source["source"] == "external_cache"
     assert source["data_meta"]["d_model"] == 6
     assert source["data_meta"]["num_files_used"] == 1
+    assert labels is None
+    assert supervised_meta is None
+
+
+def test_load_training_activations_external_cache_file_id_labels(tmp_path: Path) -> None:
+    cache_dir = tmp_path / "cache"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    torch.save(torch.randn(7, 4), cache_dir / "datasetA_blocks.0.hook_resid_pre.pt")
+    torch.save(torch.randn(9, 4), cache_dir / "datasetB_blocks.0.hook_resid_pre.pt")
+
+    args = _base_args(tmp_path)
+    args.activation_cache_dir = cache_dir
+    args.max_files = 2
+    args.max_rows_per_file = 5
+    args.max_total_rows = 20
+    args.supervised_proxy_mode = "file_id"
+
+    acts, source, labels, supervised_meta = assign_v3.load_training_activations(args)
+
+    assert isinstance(acts, torch.Tensor)
+    assert labels is not None
+    assert supervised_meta is not None
+    assert acts.shape[0] == labels.shape[0]
+    assert set(labels.tolist()) == {0, 1}
+    assert supervised_meta["mode"] == "file_id"
+    assert supervised_meta["num_classes"] == 2
+    assert source["source"] == "external_cache"
 
 
 def test_load_training_activations_modular_path(monkeypatch, tmp_path: Path) -> None:
@@ -65,14 +95,15 @@ def test_load_training_activations_modular_path(monkeypatch, tmp_path: Path) -> 
     monkeypatch.setattr(assign_v3, "load_or_extract_activations", fake_loader)
 
     args = _base_args(tmp_path)
-    acts, source = assign_v3.load_training_activations(args)
+    acts, source, labels, supervised_meta = assign_v3.load_training_activations(args)
 
     assert called["value"]
     assert torch.equal(acts, expected.float())
     assert source["source"] == "modular_assignment"
     assert source["layer"] == 1
     assert source["modulus"] == 113
-
+    assert labels is None
+    assert supervised_meta is None
 
 
 def test_build_external_checkpoint_pool_excludes_ref_and_sorts() -> None:

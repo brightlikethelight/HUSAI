@@ -13,10 +13,8 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import itertools
 import json
 import math
-import shlex
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -202,9 +200,121 @@ def summarize_external(saebench_summary: dict[str, Any] | None, cebench_summary:
     }
 
 
-def load_training_activations(args: argparse.Namespace) -> tuple[torch.Tensor, dict[str, Any]]:
+def _sample_rows_with_indices(tensor: torch.Tensor, max_rows: int, generator: torch.Generator) -> tuple[torch.Tensor, torch.Tensor]:
+    if max_rows <= 0 or tensor.shape[0] <= max_rows:
+        idx = torch.arange(tensor.shape[0], dtype=torch.long)
+        return tensor, idx
+    idx = torch.randperm(tensor.shape[0], generator=generator)[:max_rows]
+    return tensor.index_select(0, idx), idx
+
+
+def load_activation_bank_with_file_labels(
+    *,
+    cache_dir: Path,
+    activation_glob: str,
+    max_files: int,
+    max_rows_per_file: int,
+    max_total_rows: int,
+    seed: int,
+) -> tuple[torch.Tensor, torch.Tensor, list[str], dict[str, Any]]:
+    files = sorted(cache_dir.glob(activation_glob))
+    if max_files > 0:
+        files = files[:max_files]
+    if not files:
+        raise FileNotFoundError(f"No activation files matched {activation_glob} under {cache_dir}")
+
+    generator = torch.Generator(device="cpu")
+    generator.manual_seed(seed)
+
+    chunks: list[torch.Tensor] = []
+    label_chunks: list[torch.Tensor] = []
+    files_used: list[str] = []
+    total_rows = 0
+    d_model: int | None = None
+
+    for path in files:
+        acts = torch.load(path, map_location="cpu")
+        if not isinstance(acts, torch.Tensor):
+            raise TypeError(f"Activation file is not a tensor: {path}")
+        if acts.ndim != 2:
+            raise ValueError(f"Expected 2D tensor [N, d_model], got {tuple(acts.shape)} in {path}")
+
+        acts = acts.float()
+        if d_model is None:
+            d_model = int(acts.shape[1])
+        elif acts.shape[1] != d_model:
+            raise ValueError(
+                f"Inconsistent activation width: expected {d_model}, got {acts.shape[1]} in {path}"
+            )
+
+        sampled, _ = _sample_rows_with_indices(acts, max_rows_per_file, generator)
+
+        if max_total_rows > 0:
+            remaining = max_total_rows - total_rows
+            if remaining <= 0:
+                break
+            if sampled.shape[0] > remaining:
+                sampled = sampled[:remaining]
+
+        if sampled.shape[0] == 0:
+            continue
+
+        label_id = len(files_used)
+        chunks.append(sampled)
+        label_chunks.append(torch.full((sampled.shape[0],), label_id, dtype=torch.long))
+        files_used.append(str(path))
+        total_rows += int(sampled.shape[0])
+
+    if not chunks:
+        raise RuntimeError("No activations selected after sampling constraints.")
+
+    bank = torch.cat(chunks, dim=0)
+    labels = torch.cat(label_chunks, dim=0)
+    meta = {
+        "num_files_discovered": len(sorted(cache_dir.glob(activation_glob))),
+        "num_files_used": len(files_used),
+        "total_rows": int(bank.shape[0]),
+        "d_model": int(bank.shape[1]),
+    }
+    return bank, labels, files_used, meta
+
+
+def load_training_activations(
+    args: argparse.Namespace,
+) -> tuple[torch.Tensor, dict[str, Any], torch.Tensor | None, dict[str, Any] | None]:
     """Load activations from either modular cache or external activation cache."""
     if args.activation_cache_dir is not None:
+        base_source = {
+            "source": "external_cache",
+            "activation_cache_dir": repo_rel(args.activation_cache_dir),
+            "activation_glob": args.activation_glob,
+            "max_files": args.max_files,
+            "max_rows_per_file": args.max_rows_per_file,
+            "max_total_rows": args.max_total_rows,
+            "source_cache_seed": args.source_cache_seed if args.source_cache_seed is not None else args.seed_ref,
+        }
+
+        if args.supervised_proxy_mode == "file_id":
+            bank, labels, files_used, data_meta = load_activation_bank_with_file_labels(
+                cache_dir=args.activation_cache_dir,
+                activation_glob=args.activation_glob,
+                max_files=args.max_files,
+                max_rows_per_file=args.max_rows_per_file,
+                max_total_rows=args.max_total_rows,
+                seed=args.source_cache_seed if args.source_cache_seed is not None else args.seed_ref,
+            )
+            source = {
+                **base_source,
+                "data_meta": data_meta,
+                "source_files": [repo_rel(Path(p)) for p in files_used],
+            }
+            supervised_meta = {
+                "mode": "file_id",
+                "num_classes": int(len(files_used)),
+                "class_files": [repo_rel(Path(p)) for p in files_used],
+            }
+            return bank.float(), source, labels.long(), supervised_meta
+
         bank, files_used, data_meta = load_activation_bank(
             cache_dir=args.activation_cache_dir,
             activation_glob=args.activation_glob,
@@ -213,17 +323,12 @@ def load_training_activations(args: argparse.Namespace) -> tuple[torch.Tensor, d
             max_total_rows=args.max_total_rows,
             seed=args.source_cache_seed if args.source_cache_seed is not None else args.seed_ref,
         )
-        return bank.float(), {
-            "source": "external_cache",
-            "activation_cache_dir": repo_rel(args.activation_cache_dir),
-            "activation_glob": args.activation_glob,
-            "max_files": args.max_files,
-            "max_rows_per_file": args.max_rows_per_file,
-            "max_total_rows": args.max_total_rows,
-            "source_cache_seed": args.source_cache_seed if args.source_cache_seed is not None else args.seed_ref,
+        source = {
+            **base_source,
             "data_meta": data_meta,
             "source_files": [repo_rel(Path(p)) for p in files_used],
         }
+        return bank.float(), source, None, None
 
     acts = load_or_extract_activations(
         cache_path=args.activation_cache,
@@ -240,7 +345,7 @@ def load_training_activations(args: argparse.Namespace) -> tuple[torch.Tensor, d
         "transformer_checkpoint": repo_rel(args.transformer_checkpoint),
         "layer": args.layer,
         "modulus": args.modulus,
-    }
+    }, None, None
 
 
 def pick_external_checkpoint(rec: dict[str, Any]) -> str | None:
@@ -579,6 +684,16 @@ def main() -> None:
     parser.add_argument("--device", type=str, default="cpu")
     parser.add_argument("--bootstrap-samples", type=int, default=10000)
 
+    parser.add_argument(
+        "--supervised-proxy-mode",
+        type=str,
+        choices=["none", "file_id"],
+        default="none",
+        help="Optional supervised proxy objective over external-cache file IDs.",
+    )
+    parser.add_argument("--supervised-proxy-weight", type=float, default=0.0)
+    parser.add_argument("--supervised-proxy-num-classes", type=int, default=0)
+
     parser.add_argument("--run-saebench", action="store_true")
     parser.add_argument("--run-cebench", action="store_true")
     parser.add_argument("--cebench-repo", type=Path, default=None)
@@ -671,6 +786,12 @@ def main() -> None:
 
     if args.run_cebench and args.cebench_repo is None:
         raise ValueError("--cebench-repo is required when --run-cebench is set")
+    if args.supervised_proxy_weight < 0:
+        raise ValueError("--supervised-proxy-weight must be >= 0")
+    if args.supervised_proxy_mode != "none" and args.activation_cache_dir is None:
+        raise ValueError("--supervised-proxy-mode requires --activation-cache-dir")
+    if args.supervised_proxy_weight > 0 and args.supervised_proxy_mode == "none":
+        raise ValueError("Set --supervised-proxy-mode when --supervised-proxy-weight > 0")
 
     train_seeds = parse_int_list(args.train_seeds)
     lambdas = parse_float_list(args.lambdas)
@@ -680,7 +801,7 @@ def main() -> None:
     checkpoints_root = run_dir / "checkpoints"
     run_dir.mkdir(parents=True, exist_ok=True)
 
-    acts, activation_source = load_training_activations(args)
+    acts, activation_source, supervised_labels, supervised_meta = load_training_activations(args)
 
     records: list[dict[str, Any]] = []
     for lam in lambdas:
@@ -699,6 +820,11 @@ def main() -> None:
             bootstrap_samples=args.bootstrap_samples,
             checkpoint_dir=ckpt_dir,
             assignment_update_interval=args.assignment_update_interval,
+            supervised_labels=supervised_labels,
+            supervised_weight=args.supervised_proxy_weight,
+            supervised_num_classes=(
+                args.supervised_proxy_num_classes if args.supervised_proxy_num_classes > 0 else None
+            ),
         )
         records.append(rec)
 
@@ -893,6 +1019,10 @@ def main() -> None:
         "batch_size": args.batch_size,
         "learning_rate": args.learning_rate,
         "assignment_update_interval": args.assignment_update_interval,
+        "supervised_proxy_mode": args.supervised_proxy_mode,
+        "supervised_proxy_weight": args.supervised_proxy_weight,
+        "supervised_proxy_num_classes": args.supervised_proxy_num_classes,
+        "supervised_proxy_meta": supervised_meta,
         "device": args.device,
         "bootstrap_samples": args.bootstrap_samples,
         "run_saebench": args.run_saebench,

@@ -10,6 +10,9 @@ SAEBENCH_MODEL_CACHE_PATH="${SAEBENCH_MODEL_CACHE_PATH:-/tmp/sae_bench_model_cac
 export CUBLAS_WORKSPACE_CONFIG="${CUBLAS_WORKSPACE_CONFIG:-:4096:8}"
 SAEBENCH_DATASETS="${SAEBENCH_DATASETS:-100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom}"
 ASSIGN_UPDATE_INTERVAL="${ASSIGN_UPDATE_INTERVAL:-4}"
+SUPERVISED_PROXY_MODE="${SUPERVISED_PROXY_MODE:-file_id}"
+SUPERVISED_PROXY_WEIGHT="${SUPERVISED_PROXY_WEIGHT:-0.10}"
+SUPERVISED_PROXY_NUM_CLASSES="${SUPERVISED_PROXY_NUM_CLASSES:-0}"
 
 RUN_ID="run_$(date -u +%Y%m%dT%H%M%SZ)"
 RUN_DIR="results/experiments/cycle9_novelty_push/${RUN_ID}"
@@ -19,6 +22,7 @@ exec > >(tee -a "$LOG_PATH") 2>&1
 
 echo "[cycle9] run_id=$RUN_ID"
 echo "[cycle9] assignment_update_interval=$ASSIGN_UPDATE_INTERVAL"
+echo "[cycle9] supervised_proxy_mode=$SUPERVISED_PROXY_MODE supervised_proxy_weight=$SUPERVISED_PROXY_WEIGHT supervised_proxy_num_classes=$SUPERVISED_PROXY_NUM_CLASSES"
 echo "[cycle9] waiting for conflicting experiment runners to finish"
 while pgrep -f "run_cycle8_robust_pareto_push.sh|run_cycle7_pareto_push.sh|run_cycle6_saeaware_push.sh|run_cycle5_external_push.sh|run_cycle4_followups_after_queue.sh|run_architecture_frontier_external.py|run_routed_frontier_external.py|run_assignment_consistency_v3.py|run_external_metric_scaling_study.py" >/dev/null 2>&1; do
   date -u +"[cycle9] %Y-%m-%dT%H:%M:%SZ another runner active"
@@ -124,6 +128,9 @@ run_assignment_condition() {
     --batch-size 4096 \
     --learning-rate "$lr" \
     --assignment-update-interval "$ASSIGN_UPDATE_INTERVAL" \
+    --supervised-proxy-mode "$SUPERVISED_PROXY_MODE" \
+    --supervised-proxy-weight "$SUPERVISED_PROXY_WEIGHT" \
+    --supervised-proxy-num-classes "$SUPERVISED_PROXY_NUM_CLASSES" \
     --train-seeds 123,456,789,1011 \
     --lambdas 0.0,0.02,0.04,0.06,0.08,0.1,0.15 \
     --run-saebench \

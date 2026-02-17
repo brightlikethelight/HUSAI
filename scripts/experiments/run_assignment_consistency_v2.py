@@ -24,6 +24,7 @@ from typing import Any
 
 import numpy as np
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 from scipy.optimize import linear_sum_assignment
 from torch.utils.data import DataLoader, TensorDataset
@@ -208,6 +209,9 @@ def train_topk_assignment_v2(
     lambda_consistency: float,
     ref_decoder: torch.Tensor | None,
     assignment_update_interval: int = 1,
+    supervised_labels: torch.Tensor | None = None,
+    supervised_weight: float = 0.0,
+    supervised_num_classes: int | None = None,
 ) -> tuple[TopKSAE, dict[str, float]]:
     if assignment_update_interval < 1:
         raise ValueError(f"assignment_update_interval must be >= 1, got {assignment_update_interval}")
@@ -215,10 +219,35 @@ def train_topk_assignment_v2(
 
     d_model = int(activations.shape[1])
     model = TopKSAE(d_model=d_model, d_sae=d_sae, k=min(k, d_sae)).to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+
+    supervised_enabled = (
+        supervised_labels is not None
+        and supervised_weight > 0
+    )
+    probe_head: nn.Linear | None = None
+    labels_cpu: torch.Tensor | None = None
+    num_classes = 0
+    if supervised_enabled:
+        labels_cpu = supervised_labels.long().view(-1).cpu()
+        if labels_cpu.shape[0] != activations.shape[0]:
+            raise ValueError(
+                f"supervised_labels length mismatch: {labels_cpu.shape[0]} vs {activations.shape[0]}"
+            )
+        inferred_num_classes = int(labels_cpu.max().item()) + 1
+        num_classes = int(supervised_num_classes) if supervised_num_classes is not None else inferred_num_classes
+        if num_classes < inferred_num_classes:
+            raise ValueError(
+                f"supervised_num_classes={num_classes} < inferred required classes={inferred_num_classes}"
+            )
+        probe_head = nn.Linear(model.d_sae, num_classes).to(device)
+        optimizer = torch.optim.Adam(list(model.parameters()) + list(probe_head.parameters()), lr=learning_rate)
+        dataset = TensorDataset(activations, labels_cpu)
+    else:
+        optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+        dataset = TensorDataset(activations)
 
     loader = DataLoader(
-        TensorDataset(activations),
+        dataset,
         batch_size=batch_size,
         shuffle=True,
         num_workers=0,
@@ -231,13 +260,21 @@ def train_topk_assignment_v2(
 
     alignment_mean_running = 0.0
     alignment_batches = 0
+    supervised_loss_running = 0.0
+    supervised_batches = 0
     global_step = 0
     hungarian_solve_count = 0
     cached_assignment: tuple[torch.Tensor, torch.Tensor] | None = None
 
     model.train()
     for _ in range(epochs):
-        for (batch,) in loader:
+        for batch_data in loader:
+            if supervised_enabled:
+                batch, batch_labels = batch_data
+                batch_labels = batch_labels.to(device)
+            else:
+                (batch,) = batch_data
+                batch_labels = None
             batch = batch.to(device)
             recon, latents, _ = model(batch, compute_aux_loss=False)
             mse = F.mse_loss(recon, batch)
@@ -259,6 +296,13 @@ def train_topk_assignment_v2(
             else:
                 loss = mse
 
+            if supervised_enabled and probe_head is not None and batch_labels is not None:
+                logits = probe_head(latents)
+                supervised_loss = F.cross_entropy(logits, batch_labels)
+                loss = loss + supervised_weight * supervised_loss
+                supervised_loss_running += float(supervised_loss.item())
+                supervised_batches += 1
+
             optimizer.zero_grad(set_to_none=True)
             loss.backward()
             optimizer.step()
@@ -266,6 +310,8 @@ def train_topk_assignment_v2(
             global_step += 1
 
     model.eval()
+    if probe_head is not None:
+        probe_head.eval()
     with torch.no_grad():
         full = activations.to(device)
         recon, latents, _ = model(full, compute_aux_loss=False)
@@ -274,6 +320,13 @@ def train_topk_assignment_v2(
         residual_var = torch.var(full - recon)
         explained_var = float((1 - residual_var / total_var).item())
         l0 = float((latents != 0).float().sum(dim=-1).mean().item())
+
+        supervised_accuracy_eval = float("nan")
+        if supervised_enabled and probe_head is not None and labels_cpu is not None:
+            labels_device = labels_cpu.to(device)
+            logits = probe_head(latents)
+            preds = logits.argmax(dim=-1)
+            supervised_accuracy_eval = float((preds == labels_device).float().mean().item())
 
     metrics = {
         "mse": mse,
@@ -285,6 +338,12 @@ def train_topk_assignment_v2(
         "assignment_update_interval": int(assignment_update_interval),
         "assignment_hungarian_solves_train": int(hungarian_solve_count),
         "train_steps": int(global_step),
+        "supervised_proxy_weight": float(supervised_weight),
+        "supervised_proxy_loss_train": (
+            supervised_loss_running / supervised_batches if supervised_batches > 0 else float("nan")
+        ),
+        "supervised_proxy_accuracy_eval": supervised_accuracy_eval,
+        "supervised_proxy_num_classes": int(num_classes) if supervised_enabled else 0,
     }
     return model.cpu(), metrics
 
@@ -308,6 +367,9 @@ def run_lambda_condition(
     bootstrap_samples: int,
     checkpoint_dir: Path,
     assignment_update_interval: int = 1,
+    supervised_labels: torch.Tensor | None = None,
+    supervised_weight: float = 0.0,
+    supervised_num_classes: int | None = None,
 ) -> dict[str, Any]:
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
@@ -323,6 +385,9 @@ def run_lambda_condition(
         lambda_consistency=0.0,
         ref_decoder=None,
         assignment_update_interval=assignment_update_interval,
+        supervised_labels=supervised_labels,
+        supervised_weight=supervised_weight,
+        supervised_num_classes=supervised_num_classes,
     )
 
     ref_decoder = ref_model.decoder.weight.detach().float().cpu()
@@ -366,6 +431,9 @@ def run_lambda_condition(
             lambda_consistency=lambda_consistency,
             ref_decoder=ref_decoder,
             assignment_update_interval=assignment_update_interval,
+            supervised_labels=supervised_labels,
+            supervised_weight=supervised_weight,
+            supervised_num_classes=supervised_num_classes,
         )
 
         decoder = model.decoder.weight.detach().float().cpu()
