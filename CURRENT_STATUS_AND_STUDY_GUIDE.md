@@ -37,18 +37,20 @@ Core question:
 - Known-circuit closure remains partial.
 
 3. Current live queue
-- `cycle8`: active robust routed sweep and downstream stages.
-- `cycle9`: queued behind cycle8, now configured with supervised-proxy assignment objective.
+- `cycle8`: completed through assignment `a3` with final `pass_all=false`.
+- `cycle9`: active in routed stage1 (`run_20260217T151852Z`) with supervised-proxy assignment settings queued for stage2.
+- `cycle10`: prepared as post-cycle9 external-recovery queue (`scripts/experiments/run_cycle10_external_recovery.sh`).
 
 ## 4) Most Important Files To Read (Order)
 
 1. `START_HERE.md`
-2. `docs/evidence/cycle8_cycle9_live_snapshot_20260217T0535Z/monitoring_summary.md`
+2. `docs/evidence/cycle8_cycle9_live_snapshot_20260217T152123Z/monitoring_summary.md`
 3. `HIGH_IMPACT_FOLLOWUPS_REPORT.md`
-4. `RUNBOOK.md`
-5. `EXPERIMENT_LOG.md`
-6. `LIT_REVIEW.md`
-7. `FINAL_PAPER.md`
+4. `CYCLE10_EXTERNAL_RECOVERY_PLAN.md`
+5. `RUNBOOK.md`
+6. `EXPERIMENT_LOG.md`
+7. `LIT_REVIEW.md`
+8. `FINAL_PAPER.md`
 
 ## 5) Hypotheses and Why They Matter
 
@@ -73,10 +75,10 @@ Core question:
 
 ## 7) Immediate Next Experiments (Ranked)
 
-1. Complete current cycle8/cycle9 and run strict grouped-LCB selector + release gate on full outputs.
-2. If still failing external gate, run assignment-v4 external-aware objective sweep (beyond file-ID proxy).
-3. Run matched-budget RouteSAE vs Matryoshka vs TopK head-to-head with identical seeds and CI-lower-bound decision policy.
-4. Add relation-constrained regularization ablation in assignment path.
+1. Finish cycle9 end-to-end, then rerun strict grouped-LCB selector and release gates.
+2. Launch cycle10 routed + assignment external-recovery queue and compare against cycle8/cycle9 under identical gate policy.
+3. If cycle10 still fails external gates, run assignment-v4 (relation-constrained + supervised proxy) with external-aware Pareto checkpointing.
+4. Run matched-budget RouteSAE vs Matryoshka vs TopK head-to-head with identical seeds and CI-lower-bound decision policy.
 5. Final known-circuit closure rerun with explicit acceptance thresholds.
 
 ## 8) Guardrails for Claims

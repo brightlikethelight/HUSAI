@@ -5,12 +5,13 @@ HUSAI studies whether sparse autoencoder (SAE) features are reproducible across 
 ## Current Status (Live Queue State, 2026-02-17)
 
 - Cycle-7 Pareto push is complete.
-- Cycle-8 robust Pareto push is active on B200:
-  - routed stage complete (`b0`, `r1`, `r2`, `r3`, `r4`)
-  - assignment `a1` and `a2` complete
-  - assignment `a3` currently training
-- Cycle-9 novelty push is active-waiting behind cycle-8 with supervised-proxy assignment settings.
-- Assignment supervised-proxy extension (`eca2c32`) and queue conflict hardening (`d1ac12d`) are now on `main` and pulled on remote.
+- Cycle-8 robust Pareto push has completed assignment `a3` (`run_20260217T111709Z`).
+  - final acceptance: `pass_all=False`
+  - selected checkpoint (`lambda=0.1`): `saebench_delta=-0.0474`, `cebench_delta=-33.6772`, `ev_drop=0.2736`
+- Cycle-9 novelty push is now active on B200 in routed stage1 (`run_20260217T151852Z`).
+- Cycle-10 external-recovery queue script is prepared and validated for post-cycle9 launch:
+  - `scripts/experiments/run_cycle10_external_recovery.sh`
+- Assignment supervised-proxy extension (`eca2c32`) and queue conflict hardening (`d1ac12d`) are on `main` and used by the active queue.
 - Last fully completed strict release gate remains failing (`pass_all=False`) because external LCB criteria are not yet met.
 
 Canonical live artifacts:
@@ -18,7 +19,8 @@ Canonical live artifacts:
 - `EXECUTIVE_SUMMARY.md`
 - `CYCLE7_PARETO_PLAN.md`
 - `CYCLE8_ROBUST_PLAN.md`
-- `docs/evidence/cycle8_cycle9_live_snapshot_20260217T1334Z/monitoring_summary.md`
+- `CYCLE10_EXTERNAL_RECOVERY_PLAN.md`
+- `docs/evidence/cycle8_cycle9_live_snapshot_20260217T152123Z/monitoring_summary.md`
 - `docs/evidence/cycle7_live_snapshot_20260216T165714Z/monitoring_summary.md`
 - `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.md`
 
@@ -56,6 +58,7 @@ Can we improve SAE feature consistency in ways that also improve external benchm
 - `scripts/experiments/run_cycle7_pareto_push.sh`
 - `scripts/experiments/run_cycle8_robust_pareto_push.sh`
 - `scripts/experiments/run_cycle9_novelty_push.sh`
+- `scripts/experiments/run_cycle10_external_recovery.sh`
 
 ## Latest Gate Metrics (Cycle 5)
 

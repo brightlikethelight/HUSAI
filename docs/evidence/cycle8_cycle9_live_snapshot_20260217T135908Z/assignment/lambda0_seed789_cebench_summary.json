@@ -1,0 +1,81 @@
+{
+  "timestamp_utc": "2026-02-17T13:54:55+00:00",
+  "command": "python scripts/experiments/run_husai_cebench_custom_eval.py --cebench-repo /workspace/CE-Bench --checkpoint /workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle8_robust/run_20260217T111709Z/checkpoints/lambda_0.0/sae_seed789.pt --architecture topk --sae-release husai_assignv3_run_20260217T111709Z_lambda0.0_seed789 --model-name pythia-70m-deduped --hook-layer 0 --hook-name blocks.0.hook_resid_pre --device cuda --sae-dtype float32 --output-folder /workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle8_robust/run_20260217T111709Z/external_eval/0.0/seed789/cebench --artifacts-path /tmp/ce_bench_artifacts_cycle8_assignment --max-rows 200 --matched-baseline-summary /workspace/HUSAI/docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json",
+  "config_hash": "889c7e6e11e80271a57fe5a0a579fc83d19f9ee3d2bc7351e314f3273daf94e3",
+  "config": {
+    "cebench_repo": "/workspace/CE-Bench",
+    "checkpoint": "/workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle8_robust/run_20260217T111709Z/checkpoints/lambda_0.0/sae_seed789.pt",
+    "architecture_override": "topk",
+    "checkpoint_sha256": "f10967e9f0e131861579845b90183a4cd6658ebb5f950c479d914e580b7fd64a",
+    "sae_release": "husai_assignv3_run_20260217T111709Z_lambda0.0_seed789",
+    "model_name": "pythia-70m-deduped",
+    "hook_layer": 0,
+    "hook_name": "blocks.0.hook_resid_pre",
+    "device": "cuda",
+    "sae_dtype": "float32",
+    "llm_batch_size": 512,
+    "llm_dtype": "float32",
+    "random_seed": 42,
+    "dataset_name": "GulkoA/contrastive-stories-v4",
+    "dataset_rows_total": 5000,
+    "dataset_rows_used": 200,
+    "max_rows": 200,
+    "output_folder": "/workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle8_robust/run_20260217T111709Z/external_eval/0.0/seed789/cebench",
+    "artifacts_path": "/tmp/ce_bench_artifacts_cycle8_assignment",
+    "matched_baseline_summary": "/workspace/HUSAI/docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json"
+  },
+  "sae_meta": {
+    "architecture": "topk",
+    "eval_architecture": "topk",
+    "d_model": 512,
+    "d_sae": 3072,
+    "k": 48,
+    "dead_features_repaired": 0,
+    "decoder_norm_max_deviation": 1.1920928955078125e-07
+  },
+  "cebench_summary": {
+    "output_folder": "/workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle8_robust/run_20260217T111709Z/external_eval/0.0/seed789/cebench",
+    "results_json": "/workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle8_robust/run_20260217T111709Z/external_eval/0.0/seed789/cebench/interpretability_eval/husai_assignv3_run_20260217T111709Z_lambda0.0_seed789/custom_sae/results.json",
+    "scores_dump": "/workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle8_robust/run_20260217T111709Z/external_eval/0.0/seed789/cebench/scores_dump.txt",
+    "total_rows": 200,
+    "contrastive_score_mean_max": 10.361549708843231,
+    "independent_score_mean_max": 10.78331934928894,
+    "interpretability_score_mean_max": 10.674233231544495,
+    "sae_release": "husai_assignv3_run_20260217T111709Z_lambda0.0_seed789",
+    "sae_id": "custom_sae",
+    "date": "2026-02-17 13:54:55",
+    "scores_dump_line_count": 200
+  },
+  "custom_metrics": {
+    "contrastive_score_mean_max": 10.361549708843231,
+    "independent_score_mean_max": 10.78331934928894,
+    "interpretability_score_mean_max": 10.674233231544495
+  },
+  "matched_baseline_metrics": {
+    "contrastive_score_mean_max": 50.51130743026734,
+    "independent_score_mean_max": 50.99926634788513,
+    "interpretability_score_mean_max": 47.951611585617066
+  },
+  "delta_vs_matched_baseline": {
+    "contrastive_score_mean_max": -40.14975772142411,
+    "independent_score_mean_max": -40.215946998596195,
+    "interpretability_score_mean_max": -37.27737835407257
+  },
+  "matched_baseline_payload": {
+    "output_folder": "results/experiments/phase4e_external_benchmark_official/cebench_matched200",
+    "results_json": "results/experiments/phase4e_external_benchmark_official/cebench_matched200/interpretability_eval/pythia-70m-deduped-res-sm/blocks.0.hook_resid_pre/results.json",
+    "scores_dump": "results/experiments/phase4e_external_benchmark_official/cebench_matched200/scores_dump.txt",
+    "total_rows": 200,
+    "contrastive_score_mean_max": 50.51130743026734,
+    "independent_score_mean_max": 50.99926634788513,
+    "interpretability_score_mean_max": 47.951611585617066,
+    "sae_release": "pythia-70m-deduped-res-sm",
+    "sae_id": "blocks.0.hook_resid_pre",
+    "date": "2026-02-13 18:59:31",
+    "scores_dump_line_count": 200
+  },
+  "artifacts": {
+    "cebench_metrics_summary_json": "results/experiments/phase4d_assignment_consistency_v3_cycle8_robust/run_20260217T111709Z/external_eval/0.0/seed789/cebench/cebench_metrics_summary.json",
+    "cebench_metrics_summary_md": "results/experiments/phase4d_assignment_consistency_v3_cycle8_robust/run_20260217T111709Z/external_eval/0.0/seed789/cebench/cebench_metrics_summary.md"
+  }
+}

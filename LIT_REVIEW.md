@@ -135,3 +135,13 @@ High-impact novel contributions not yet fully executed here:
 3. Cross-layer transfer test: train at layer-0, evaluate portability to layer-1 via fixed adapter vs retrain.
 4. Relation-constrained regularization (RE-SA-inspired) ablation in assignment-v3 path.
 5. External-aware early-stopping/checkpoint policy where validation objective is weighted external proxy + internal LCB.
+
+## 9) Additional Source Addendum (2026-02-17)
+
+Primary sources reviewed for next-step design:
+1. Zhou et al. (ACL Findings 2025), *A Survey on Sparse Autoencoders for Interpretability* - https://aclanthology.org/2025.findings-acl.854/
+2. Wu et al. (2025), *Kronecker Product Is All You Need for SAE Interpretability* - https://arxiv.org/abs/2505.22255
+
+Interpretation for HUSAI:
+- Survey evidence reinforces that reproducibility + external-benchmark coupling should be treated as first-class acceptance criteria, not optional reporting.
+- Kron-style factorization is a concrete efficiency lever for larger-width sweeps under fixed compute budgets; this is a plausible cycle11 direction if cycle10 remains externally negative.

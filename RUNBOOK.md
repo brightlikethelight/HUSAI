@@ -2,7 +2,7 @@
 
 Updated: 2026-02-17
 
-Canonical map: `START_HERE.md`, `REPO_NAVIGATION.md`, `CYCLE7_PARETO_PLAN.md`, `CYCLE8_ROBUST_PLAN.md`.
+Canonical map: `START_HERE.md`, `REPO_NAVIGATION.md`, `CYCLE7_PARETO_PLAN.md`, `CYCLE8_ROBUST_PLAN.md`, `CYCLE10_EXTERNAL_RECOVERY_PLAN.md`.
 
 ## 1) Environment
 
@@ -19,6 +19,14 @@ Recommended deterministic flags:
 export KMP_DUPLICATE_LIB_OK=TRUE
 export TMPDIR=/tmp
 export CUBLAS_WORKSPACE_CONFIG=:4096:8
+```
+
+Optional W&B telemetry (disabled by default in current remote queues):
+
+```bash
+export WANDB_PROJECT=husai
+export WANDB_ENTITY=<your_entity>
+export WANDB_MODE=online
 ```
 
 ## 2) Quality Checks
@@ -192,10 +200,16 @@ Cycle-9 novelty push:
 bash scripts/experiments/run_cycle9_novelty_push.sh
 ```
 
+Cycle-10 external recovery push:
+
+```bash
+bash scripts/experiments/run_cycle10_external_recovery.sh
+```
+
 ## 5) Current Claim Policy
 
 Do not promote external claims unless strict gate passes (`pass_all=true`).
 
 Latest fully completed strict-gate status remains `pass_all=false` (cycle-5 canonical run).
-Live queue status is tracked in `docs/evidence/cycle8_cycle9_live_snapshot_20260217T1334Z/monitoring_summary.md`.
+Live queue status is tracked in `docs/evidence/cycle8_cycle9_live_snapshot_20260217T152123Z/monitoring_summary.md`.
 Canonical completed-gate artifact: `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.json`.

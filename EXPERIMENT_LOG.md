@@ -2009,3 +2009,89 @@ pytest -q tests/unit/test_assignment_consistency_v2.py tests/unit/test_assignmen
 
 - Output update:
   - appended dated refresh and novel next-step candidates to `LIT_REVIEW.md`.
+
+### Run 92: Cycle-10 external-recovery queue integration
+- Objective:
+  - prepare the next high-impact queue for immediate launch after cycle9 completion with explicit external recovery targets.
+
+- Code changes:
+  - added `scripts/experiments/run_cycle10_external_recovery.sh`
+    - stage1 routed external recovery sweep (`c1`..`c4`)
+    - stage2 assignment-v3 supervised-proxy recovery sweep (`s1`..`s3`)
+    - stage3 grouped-LCB selector on combined results
+    - stage4 OOD + strict release gate
+    - manifest emission under `results/experiments/cycle10_external_recovery/run_*/manifest.json`
+
+- Validation:
+```bash
+bash -n scripts/experiments/run_cycle10_external_recovery.sh
+```
+
+- Outcome:
+  - script syntax validated; queue is ready for post-cycle9 launch.
+
+### Run 93: Cycle8/Cycle9 live telemetry refresh (2026-02-17T13:59Z snapshot root)
+- Objective:
+  - verify cycle8 assignment-a3 progression in external eval and refresh artifact-backed monitoring summary.
+
+- Remote findings:
+  - active process: `run_assignment_consistency_v3.py` in `run_20260217T111709Z`
+  - external eval is advancing (no stall):
+    - earlier poll: `sae_done=4`, `ce_done=3`
+    - latest snapshot poll: `sae_done=16`, `ce_done=15` at `2026-02-17T14:32:43Z`
+  - current sub-stage: `lambda_0.08` seed evaluations
+  - no active `WANDB_*` env vars and no queue-linked `wandb/run-*` directories observed.
+
+- Synced evidence:
+  - `docs/evidence/cycle8_cycle9_live_snapshot_20260217T135908Z/monitoring_summary.md`
+  - `docs/evidence/cycle8_cycle9_live_snapshot_20260217T135908Z/assignment/a3_partial_state.txt`
+  - `docs/evidence/cycle8_cycle9_live_snapshot_20260217T135908Z/assignment/lambda0_seed*_saebench_summary.json`
+  - `docs/evidence/cycle8_cycle9_live_snapshot_20260217T135908Z/assignment/lambda0_seed*_cebench_summary.json`
+  - `docs/evidence/cycle8_cycle9_live_snapshot_20260217T135908Z/cycle8/cycle8.log`
+  - `docs/evidence/cycle8_cycle9_live_snapshot_20260217T135908Z/cycle9/cycle9.log`
+
+### Run 94: Repository organization and runbook refresh for cycle10
+- Objective:
+  - remove stale queue-state statements and make the next execution path explicit.
+
+- Documentation updates:
+  - `README.md`
+  - `START_HERE.md`
+  - `CURRENT_STATUS_AND_STUDY_GUIDE.md`
+  - `RUNBOOK.md`
+  - `HIGH_IMPACT_FOLLOWUPS_REPORT.md`
+  - new plan file: `CYCLE10_EXTERNAL_RECOVERY_PLAN.md`
+  - literature addendum: `LIT_REVIEW.md` section 9
+
+- Result:
+  - docs now reflect live cycle8/cycle9 state and include explicit cycle10 launch/monitoring guidance.
+
+### Run 95: Cycle8 a3 completion confirmation + cycle9 handoff snapshot
+- Objective:
+  - capture the first post-handoff state where cycle8 a3 is complete and cycle9 has begun active routed execution.
+
+- Remote findings (2026-02-17T15:21Z to 15:38Z):
+  - cycle8 a3 run `run_20260217T111709Z` completed external eval with:
+    - `sae_done=28`
+    - `ce_done=28`
+  - a3 final acceptance summary:
+    - best lambda `0.10`
+    - `gate_internal_lcb=true`
+    - `gate_ev_drop=false`
+    - `gate_saebench=false`
+    - `gate_cebench=true`
+    - `pass_all=false`
+  - cycle9 active stage transitioned to routed run:
+    - `results/experiments/phase4b_routed_frontier_external_sweep_cycle9_novelty/run_20260217T151852Z`
+
+- Synced evidence bundle:
+  - `docs/evidence/cycle8_cycle9_live_snapshot_20260217T152123Z/monitoring_summary.md`
+  - `docs/evidence/cycle8_cycle9_live_snapshot_20260217T152123Z/live_state.txt`
+  - `docs/evidence/cycle8_cycle9_live_snapshot_20260217T152123Z/assignment/a3_summary.md`
+  - `docs/evidence/cycle8_cycle9_live_snapshot_20260217T152123Z/assignment/a3_results.json`
+  - `docs/evidence/cycle8_cycle9_live_snapshot_20260217T152123Z/cycle8/cycle8.log`
+  - `docs/evidence/cycle8_cycle9_live_snapshot_20260217T152123Z/cycle9/cycle9.log`
+  - `docs/evidence/cycle8_cycle9_live_snapshot_20260217T152123Z/cycle9_stage1/routed_topk_seed42_saebench.log`
+
+- Interpretation:
+  - cycle8 did not clear strict external gates; cycle9+cycle10 remain required for external recovery.
