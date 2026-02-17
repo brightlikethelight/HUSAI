@@ -1956,3 +1956,56 @@ pytest -q tests/unit/test_assignment_consistency_v2.py tests/unit/test_assignmen
   - no active `WANDB_*` environment variables on remote runner
   - no active `wandb/run-*` directories for current queue stage
   - primary telemetry remains manifest/log/artifact JSONs.
+
+### Run 90: Cycle8/Cycle9 deep progress audit + fresh evidence sync
+- Objective:
+  - perform a full live queue audit and update evidence to current UTC state.
+
+- Remote findings (2026-02-17 13:36 UTC):
+  - `cycle8` active: `results/experiments/cycle8_robust_pareto_push/run_20260216T163502Z`
+    - routed stage complete: `b0`, `r1`, `r2`, `r3`, `r4`
+    - assignment stage:
+      - `a1` complete: `run_20260217T061919Z`
+      - `a2` complete: `run_20260217T084709Z`
+      - `a3` active: `run_20260217T111709Z` (`checkpoints=33`, external eval not started yet)
+  - `cycle9` active-waiting: `results/experiments/cycle9_novelty_push/run_20260217T052929Z`
+    - supervised-proxy config confirmed in log header.
+
+- Routed comparison highlights:
+  - best SAEBench delta among `b0/r1/r2/r3/r4`: `-0.06319` (`r4`, `run_20260217T060602Z`)
+  - best CE-Bench delta among `b0/r1/r2/r3/r4`: `-36.18278` (`r4`, `run_20260217T060602Z`)
+  - no routed condition achieved external-positive strict-gate readiness.
+
+- Assignment completed conditions:
+  - `a1` best lambda `0.10`: `saebench=-0.04060`, `cebench=-34.86151`, `ev_drop=0.27625`
+  - `a2` best lambda `0.05`: `saebench=-0.03976`, `cebench=-35.48915`, `ev_drop=0.24146`
+  - both fail `gate_saebench` and `gate_ev_drop` despite CE improvements.
+
+- W&B telemetry check:
+  - no active remote `WANDB_*` env vars
+  - no active queue-linked `wandb/run-*` activity
+  - canonical telemetry remains artifact/log based.
+
+- Synced evidence bundle:
+  - `docs/evidence/cycle8_cycle9_live_snapshot_20260217T1334Z/monitoring_summary.md`
+  - `docs/evidence/cycle8_cycle9_live_snapshot_20260217T1334Z/routed/*`
+  - `docs/evidence/cycle8_cycle9_live_snapshot_20260217T1334Z/assignment/*`
+  - `docs/evidence/cycle8_cycle9_live_snapshot_20260217T1334Z/cycle8/cycle8.log`
+  - `docs/evidence/cycle8_cycle9_live_snapshot_20260217T1334Z/cycle9/cycle9.log`
+
+### Run 91: Literature refresh for high-impact follow-ups
+- Objective:
+  - verify primary literature anchors and extract high-yield next experiment ideas.
+
+- Sources re-checked:
+  - SAE instability: `https://arxiv.org/abs/2501.16615`
+  - SAEBench: `https://arxiv.org/abs/2503.09532`
+  - CE-Bench (ACL Anthology): `https://aclanthology.org/2025.blackboxnlp-1.1/`
+  - RouteSAE: `https://arxiv.org/abs/2503.08200`
+  - Transcoders vs SAEs: `https://arxiv.org/abs/2501.18823`
+  - Matryoshka/Nested SAEs: `https://arxiv.org/abs/2503.17547`
+  - PolySAE: `https://arxiv.org/abs/2602.01322`
+  - RE-SA direction: `https://arxiv.org/abs/2506.09967`
+
+- Output update:
+  - appended dated refresh and novel next-step candidates to `LIT_REVIEW.md`.

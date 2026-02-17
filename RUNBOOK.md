@@ -197,5 +197,5 @@ bash scripts/experiments/run_cycle9_novelty_push.sh
 Do not promote external claims unless strict gate passes (`pass_all=true`).
 
 Latest fully completed strict-gate status remains `pass_all=false` (cycle-5 canonical run).
-Live queue status is tracked in `docs/evidence/cycle7_live_snapshot_20260216T165714Z/monitoring_summary.md`.
+Live queue status is tracked in `docs/evidence/cycle8_cycle9_live_snapshot_20260217T1334Z/monitoring_summary.md`.
 Canonical completed-gate artifact: `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.json`.

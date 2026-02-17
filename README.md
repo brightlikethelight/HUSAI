@@ -6,9 +6,10 @@ HUSAI studies whether sparse autoencoder (SAE) features are reproducible across 
 
 - Cycle-7 Pareto push is complete.
 - Cycle-8 robust Pareto push is active on B200:
-  - stage1 routed condition `b0` complete with external summaries
-  - stage1 robust condition `r1` in progress
-- Cycle-9 novelty push is active-waiting behind cycle-8 and has been relaunched on latest `main`.
+  - routed stage complete (`b0`, `r1`, `r2`, `r3`, `r4`)
+  - assignment `a1` and `a2` complete
+  - assignment `a3` currently training
+- Cycle-9 novelty push is active-waiting behind cycle-8 with supervised-proxy assignment settings.
 - Assignment supervised-proxy extension (`eca2c32`) and queue conflict hardening (`d1ac12d`) are now on `main` and pulled on remote.
 - Last fully completed strict release gate remains failing (`pass_all=False`) because external LCB criteria are not yet met.
 
@@ -17,7 +18,7 @@ Canonical live artifacts:
 - `EXECUTIVE_SUMMARY.md`
 - `CYCLE7_PARETO_PLAN.md`
 - `CYCLE8_ROBUST_PLAN.md`
-- `docs/evidence/cycle8_cycle9_live_snapshot_20260217T0535Z/monitoring_summary.md`
+- `docs/evidence/cycle8_cycle9_live_snapshot_20260217T1334Z/monitoring_summary.md`
 - `docs/evidence/cycle7_live_snapshot_20260216T165714Z/monitoring_summary.md`
 - `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.md`
 
@@ -82,12 +83,13 @@ Selected metrics:
 ## Start Here (Reading Order)
 
 1. `START_HERE.md`
-2. `LEARNING_PATH.md`
-3. `PROJECT_STUDY_GUIDE.md`
-4. `EXECUTIVE_SUMMARY.md`
-5. `CYCLE5_EXTERNAL_PUSH_REFLECTIVE_REVIEW.md`
-6. `RUNBOOK.md`
-7. `EXPERIMENT_LOG.md`
+2. `CURRENT_STATUS_AND_STUDY_GUIDE.md`
+3. `LEARNING_PATH.md`
+4. `PROJECT_STUDY_GUIDE.md`
+5. `EXECUTIVE_SUMMARY.md`
+6. `CYCLE5_EXTERNAL_PUSH_REFLECTIVE_REVIEW.md`
+7. `RUNBOOK.md`
+8. `EXPERIMENT_LOG.md`
 
 ## Quick Commands
 

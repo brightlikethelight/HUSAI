@@ -6,10 +6,12 @@ Date: 2026-02-17
 
 - `cycle7` run (`results/experiments/cycle7_pareto_push/run_20260216T062213Z`): complete.
 - `cycle8` run (`results/experiments/cycle8_robust_pareto_push/run_20260216T163502Z`): active.
-  - stage1 routed condition `b0` complete with external summaries written
-  - stage1 robust condition `r1` currently running
+  - routed stage complete (`b0`, `r1`, `r2`, `r3`, `r4`)
+  - assignment `a1` complete (`run_20260217T061919Z`)
+  - assignment `a2` complete (`run_20260217T084709Z`)
+  - assignment `a3` active (`run_20260217T111709Z`, checkpoints=33 at 2026-02-17T13:36:19Z)
 - `cycle9` run (`results/experiments/cycle9_novelty_push/run_20260217T052929Z`): active-waiting behind cycle8.
-  - includes supervised-proxy assignment config:
+  - supervised-proxy assignment config:
     - `SUPERVISED_PROXY_MODE=file_id`
     - `SUPERVISED_PROXY_WEIGHT=0.10`
     - `SUPERVISED_PROXY_NUM_CLASSES=0`
@@ -71,6 +73,21 @@ Validation:
 - Internal consistency: strong and reproducible.
 - External competitiveness: still below strict release gates.
 - Main open problem: improve SAEBench and CE-Bench deltas jointly under grouped-LCB selection.
+
+## Cycle8 Interim Evidence (important)
+
+Routed stage summaries (`b0`/`r1`/`r2`/`r3`/`r4`) show:
+- Best SAEBench delta so far: `-0.06319` (`r4`, `run_20260217T060602Z`)
+- Best CE-Bench delta so far: `-36.18278` (`r4`, `run_20260217T060602Z`)
+- Neither meets strict external-positive release criteria yet.
+
+Assignment stage summaries show:
+- `a1` best lambda `0.10`: `saebench=-0.04060`, `cebench=-34.86151`, `ev_drop=0.27625`
+- `a2` best lambda `0.05`: `saebench=-0.03976`, `cebench=-35.48915`, `ev_drop=0.24146`
+- Both fail `gate_saebench` and `gate_ev_drop`; both pass `gate_cebench`.
+- `a3` is now the key near-term decision point.
+
+Primary snapshot: `docs/evidence/cycle8_cycle9_live_snapshot_20260217T1334Z/monitoring_summary.md`
 
 ## Updated Highest-Leverage Next 5 (post cycle7/cycle8)
 
