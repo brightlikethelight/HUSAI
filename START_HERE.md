@@ -1,20 +1,21 @@
 # Start Here
 
-Updated: 2026-02-16
+Updated: 2026-02-17
 
 This is the canonical entrypoint for HUSAI.
 
 ## 1) Current Truth
 
 - Internal consistency improvements are real and reproducible.
-- Cycle-7 is actively testing Pareto tradeoffs; routed stage (`p1..p5`) is complete, assignment stage is running.
-- Cycle-8 robustness queue is launched and waiting behind cycle-7.
-- Last fully completed strict release gate is still failing (`pass_all=false`) due external LCB criteria.
+- Cycle-8 robust routed sweep is now active on B200 (first condition complete; robust condition `r1` running).
+- Cycle-9 novelty queue was relaunched on 2026-02-17 with supervised-proxy assignment objective enabled and is waiting behind cycle-8.
+- Last fully completed strict release gate remains failing (`pass_all=false`) due external LCB criteria.
 
 Canonical current-status files:
 - `EXECUTIVE_SUMMARY.md`
 - `CYCLE7_PARETO_PLAN.md`
 - `CYCLE8_ROBUST_PLAN.md`
+- `docs/evidence/cycle8_cycle9_live_snapshot_20260217T0535Z/monitoring_summary.md`
 - `docs/evidence/cycle7_live_snapshot_20260216T165714Z/monitoring_summary.md`
 - `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.md`
 

@@ -1884,3 +1884,75 @@ bash -n scripts/experiments/run_cycle4_followups_after_queue.sh scripts/experime
     - external summaries: `0` (training stage not yet in external eval)
   - cycle8/cycle9: waiting; both will `git pull` before execution, so they are expected to use the new interval setting.
   - W&B active telemetry: none (`WANDB_*` vars absent, no active run dirs)
+
+### Run 87: Assignment supervised-proxy objective + cycle9 wiring
+- Objective:
+  - add an external-aware supervised proxy objective for assignment-v3 sweeps and wire it into cycle9 stage2.
+
+- Code changes (commit `eca2c32`):
+  - `scripts/experiments/run_assignment_consistency_v2.py`
+    - added optional supervised-proxy probe head with metrics:
+      - `supervised_proxy_weight`
+      - `supervised_proxy_loss_train`
+      - `supervised_proxy_accuracy_eval`
+      - `supervised_proxy_num_classes`
+  - `scripts/experiments/run_assignment_consistency_v3.py`
+    - added `--supervised-proxy-mode {none,file_id}`
+    - added `--supervised-proxy-weight`
+    - added `--supervised-proxy-num-classes`
+    - added external-cache file-ID label loader for supervised mode.
+  - `scripts/experiments/run_cycle9_novelty_push.sh`
+    - added cycle9 env defaults:
+      - `SUPERVISED_PROXY_MODE=file_id`
+      - `SUPERVISED_PROXY_WEIGHT=0.10`
+      - `SUPERVISED_PROXY_NUM_CLASSES=0`
+    - threaded supervised-proxy args into assignment stage command.
+  - tests:
+    - `tests/unit/test_assignment_consistency_v2.py`
+    - `tests/unit/test_assignment_consistency_v3.py`
+
+- Validation:
+```bash
+bash -n scripts/experiments/run_cycle9_novelty_push.sh
+python3 -m py_compile scripts/experiments/run_assignment_consistency_v2.py scripts/experiments/run_assignment_consistency_v3.py
+pytest -q tests/unit/test_assignment_consistency_v2.py tests/unit/test_assignment_consistency_v3.py
+pytest -q tests/unit
+```
+- Outcome: success (`106` unit tests passing)
+
+### Run 88: Queue conflict detection hardening for cycle8/cycle9
+- Objective:
+  - prevent queue stalls caused by broad `pgrep -f` matching stale wrapper shells.
+
+- Code changes (commit `d1ac12d`):
+  - `scripts/experiments/run_cycle8_robust_pareto_push.sh`
+  - `scripts/experiments/run_cycle9_novelty_push.sh`
+  - replaced broad pipe-separated `pgrep -f` wait condition with anchored runner checks via `has_conflicting_runner()`.
+
+- Validation:
+```bash
+bash -n scripts/experiments/run_cycle8_robust_pareto_push.sh
+bash -n scripts/experiments/run_cycle9_novelty_push.sh
+pytest -q tests/unit/test_assignment_consistency_v2.py tests/unit/test_assignment_consistency_v3.py
+```
+- Outcome: success
+
+### Run 89: Live RunPod execution health check + queue relaunch
+- Remote observations (2026-02-17 UTC):
+  - cycle8 active: `results/experiments/cycle8_robust_pareto_push/run_20260216T163502Z`
+  - cycle9 relaunched on latest main: `results/experiments/cycle9_novelty_push/run_20260217T052929Z`
+  - cycle9 confirmed supervised-proxy config in log header.
+
+- cycle8 stage1 condition `b0` completed with external summaries:
+  - run: `results/experiments/phase4b_routed_frontier_external_sweep_cycle8_robust/run_20260217T051230Z`
+  - summary snapshot:
+    - `train_ev_mean = 0.3628`
+    - `train_l0_mean = 40.0`
+    - `saebench_best_minus_llm_auc_mean = -0.0662`
+    - `cebench_interp_delta_vs_baseline_mean = -36.4181`
+  - stage transitioned to robust condition `r1` and is actively running.
+
+- W&B telemetry check:
+  - no active `WANDB_*` environment variables on remote runner
+  - no active `wandb/run-*` directories for current queue stage
+  - primary telemetry remains manifest/log/artifact JSONs.

@@ -1,6 +1,6 @@
 # Runbook (Current)
 
-Updated: 2026-02-16
+Updated: 2026-02-17
 
 Canonical map: `START_HERE.md`, `REPO_NAVIGATION.md`, `CYCLE7_PARETO_PLAN.md`, `CYCLE8_ROBUST_PLAN.md`.
 
@@ -134,6 +134,16 @@ export ASSIGN_UPDATE_INTERVAL=4
 ```
 
 Use `ASSIGN_UPDATE_INTERVAL=1` if you need exact per-step Hungarian updates.
+
+Cycle-9 supervised-proxy defaults (assignment-v4 path):
+
+```bash
+export SUPERVISED_PROXY_MODE=file_id
+export SUPERVISED_PROXY_WEIGHT=0.10
+export SUPERVISED_PROXY_NUM_CLASSES=0
+```
+
+Queue conflict detection in cycle8/cycle9 uses anchored process checks to avoid stale-wrapper false positives.
 
 Cycle-3 queue:
 

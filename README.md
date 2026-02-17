@@ -2,21 +2,22 @@
 
 HUSAI studies whether sparse autoencoder (SAE) features are reproducible across seeds and whether internal consistency gains transfer to external interpretability benchmarks.
 
-## Current Status (Live Queue State, 2026-02-16)
+## Current Status (Live Queue State, 2026-02-17)
 
-- Cycle-7 Pareto push is active on B200:
-  - routed stage complete (`p1..p5`)
-  - assignment-v3 external stage in progress
-- Cycle-8 robust Pareto push is queued and waiting behind cycle-7.
-- Cycle-9 novelty push is queued behind cycle-8/cycle-7.
+- Cycle-7 Pareto push is complete.
+- Cycle-8 robust Pareto push is active on B200:
+  - stage1 routed condition `b0` complete with external summaries
+  - stage1 robust condition `r1` in progress
+- Cycle-9 novelty push is active-waiting behind cycle-8 and has been relaunched on latest `main`.
+- Assignment supervised-proxy extension (`eca2c32`) and queue conflict hardening (`d1ac12d`) are now on `main` and pulled on remote.
 - Last fully completed strict release gate remains failing (`pass_all=False`) because external LCB criteria are not yet met.
-- Latest throughput patch for assignment stage (`95f567c`) is on `main` and will be pulled by queued cycles before execution.
 
 Canonical live artifacts:
 - `START_HERE.md`
 - `EXECUTIVE_SUMMARY.md`
 - `CYCLE7_PARETO_PLAN.md`
 - `CYCLE8_ROBUST_PLAN.md`
+- `docs/evidence/cycle8_cycle9_live_snapshot_20260217T0535Z/monitoring_summary.md`
 - `docs/evidence/cycle7_live_snapshot_20260216T165714Z/monitoring_summary.md`
 - `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.md`
 
@@ -50,6 +51,10 @@ Can we improve SAE feature consistency in ways that also improve external benchm
 - `scripts/experiments/run_b200_high_impact_queue.sh`
 - `scripts/experiments/run_cycle4_followups_after_queue.sh`
 - `scripts/experiments/run_cycle5_external_push.sh`
+- `scripts/experiments/run_cycle6_saeaware_push.sh`
+- `scripts/experiments/run_cycle7_pareto_push.sh`
+- `scripts/experiments/run_cycle8_robust_pareto_push.sh`
+- `scripts/experiments/run_cycle9_novelty_push.sh`
 
 ## Latest Gate Metrics (Cycle 5)
 

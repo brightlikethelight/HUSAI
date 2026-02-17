@@ -1,20 +1,18 @@
 # High-Impact Follow-Ups Report (Cycle 7/8/9 Live)
 
-Date: 2026-02-16
+Date: 2026-02-17
 
 ## Current Queue Status
 
-- `cycle7` run: `results/experiments/cycle7_pareto_push/run_20260216T062213Z`
-  - routed stage `p1..p5`: complete
-  - assignment `a1`: complete
-  - assignment `a2`: complete
-  - assignment `a3`: in progress (`run_20260216T201509Z`, checkpoints `46/56` at latest check)
-- `cycle8` run: `results/experiments/cycle8_robust_pareto_push/run_20260216T163502Z`
-  - waiting for cycle7 completion
-  - will `git pull` before execution
-- `cycle9` run: `results/experiments/cycle9_novelty_push/run_20260216T184628Z`
-  - waiting behind cycle8/cycle7
-  - will `git pull` before execution
+- `cycle7` run (`results/experiments/cycle7_pareto_push/run_20260216T062213Z`): complete.
+- `cycle8` run (`results/experiments/cycle8_robust_pareto_push/run_20260216T163502Z`): active.
+  - stage1 routed condition `b0` complete with external summaries written
+  - stage1 robust condition `r1` currently running
+- `cycle9` run (`results/experiments/cycle9_novelty_push/run_20260217T052929Z`): active-waiting behind cycle8.
+  - includes supervised-proxy assignment config:
+    - `SUPERVISED_PROXY_MODE=file_id`
+    - `SUPERVISED_PROXY_WEIGHT=0.10`
+    - `SUPERVISED_PROXY_NUM_CLASSES=0`
 
 ## What Is Already Complete (artifact-backed)
 
@@ -51,8 +49,20 @@ Commit: `95f567c`
   - wired cycle queues (`cycle4`..`cycle9`) with `ASSIGN_UPDATE_INTERVAL` env (default `4`)
   - added targeted unit tests: `tests/unit/test_assignment_consistency_v2.py`
 
+Commit: `eca2c32`
+- assignment supervised-proxy extension:
+  - added optional file-ID supervised proxy loss/metrics in `run_assignment_consistency_v2.py`
+  - added external-cache file-label loading mode in `run_assignment_consistency_v3.py`
+  - wired `cycle9` assignment stage to pass supervised-proxy flags
+  - added unit coverage in `tests/unit/test_assignment_consistency_v2.py` and `tests/unit/test_assignment_consistency_v3.py`
+
+Commit: `d1ac12d`
+- queue reliability hardening:
+  - replaced broad queue wait `pgrep` patterns with anchored process checks in `run_cycle8_robust_pareto_push.sh` and `run_cycle9_novelty_push.sh`
+  - avoids stale wrapper false positives that can stall queue progression
+
 Validation:
-- `pytest -q tests/unit` -> `104 passed`
+- `pytest -q tests/unit` -> `106 passed`
 - `python -m py_compile scripts/experiments/run_assignment_consistency_v2.py scripts/experiments/run_assignment_consistency_v3.py`
 - `bash -n scripts/experiments/run_cycle4_followups_after_queue.sh scripts/experiments/run_cycle5_external_push.sh scripts/experiments/run_cycle6_saeaware_push.sh scripts/experiments/run_cycle7_pareto_push.sh scripts/experiments/run_cycle8_robust_pareto_push.sh scripts/experiments/run_cycle9_novelty_push.sh`
 

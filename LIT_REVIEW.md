@@ -107,3 +107,31 @@ For each major update:
 ## 7) Bottom Line
 
 The repo has moved from speculative benchmark narrative to evidence-backed benchmark execution. The remaining scientific challenge is not tooling; it is finding configurations that improve external metrics without sacrificing reproducibility discipline.
+
+## 8) 2026-02-17 Literature Refresh (Web-Verified)
+
+Primary links checked:
+1. SAE seed instability (Paulo & Belrose, 2025): https://arxiv.org/abs/2501.16615
+2. SAEBench (Karvonen et al., 2025): https://arxiv.org/abs/2503.09532
+3. CE-Bench (BlackboxNLP 2025): https://aclanthology.org/2025.blackboxnlp-1.1/
+4. RouteSAE (Li et al., 2025): https://arxiv.org/abs/2503.08200
+5. Transcoders vs SAEs (Makelov et al., 2025): https://arxiv.org/abs/2501.18823
+6. Matryoshka/Nested SAEs (Gao et al., 2025): https://arxiv.org/abs/2503.17547
+7. BatchTopK SAEs (Bussmann et al., 2024): https://arxiv.org/abs/2412.06410
+8. JumpReLU SAEs (Rajamanoharan et al., 2024): https://arxiv.org/abs/2407.14435
+9. RE-SA / relation-constrained SAE direction (2025): https://arxiv.org/abs/2506.09967
+
+Interpretation update:
+- The strongest current literature trend is that consistency claims require controls + benchmark coupling, not internal metrics alone.
+- Route-style sparse architectures and relation-constrained objectives provide plausible mechanisms to improve external transfer without abandoning sparsity.
+- Stress-gated release policies are now standard for credible external claims.
+
+Important citation hygiene note:
+- The commonly-circulated `arXiv:2507.18006` link is not a mechanistic-interpretability SAE benchmark anchor (it resolves to unrelated systems work). Treat it as non-authoritative for this project's core claims.
+
+High-impact novel contributions not yet fully executed here:
+1. CE-aware/SAEBench-aware multi-task assignment objective with explicit Pareto checkpointing (beyond current file-ID proxy).
+2. RouteSAE vs Matryoshka vs TopK matched-budget frontier with identical seed sets and CI-lower-bound release criterion.
+3. Cross-layer transfer test: train at layer-0, evaluate portability to layer-1 via fixed adapter vs retrain.
+4. Relation-constrained regularization (RE-SA-inspired) ablation in assignment-v3 path.
+5. External-aware early-stopping/checkpoint policy where validation objective is weighted external proxy + internal LCB.
