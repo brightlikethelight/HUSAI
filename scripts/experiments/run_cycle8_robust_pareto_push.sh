@@ -20,7 +20,18 @@ exec > >(tee -a "$LOG_PATH") 2>&1
 echo "[cycle8] run_id=$RUN_ID"
 echo "[cycle8] assignment_update_interval=$ASSIGN_UPDATE_INTERVAL"
 echo "[cycle8] waiting for conflicting experiment runners to finish"
-while pgrep -f "run_cycle7_pareto_push.sh|run_cycle6_saeaware_push.sh|run_cycle5_external_push.sh|run_cycle4_followups_after_queue.sh|run_architecture_frontier_external.py|run_routed_frontier_external.py|run_assignment_consistency_v3.py|run_external_metric_scaling_study.py" >/dev/null 2>&1; do
+has_conflicting_runner() {
+  pgrep -f "^bash scripts/experiments/run_cycle7_pareto_push.sh" >/dev/null 2>&1 || \
+  pgrep -f "^bash scripts/experiments/run_cycle6_saeaware_push.sh" >/dev/null 2>&1 || \
+  pgrep -f "^bash scripts/experiments/run_cycle5_external_push.sh" >/dev/null 2>&1 || \
+  pgrep -f "^bash scripts/experiments/run_cycle4_followups_after_queue.sh" >/dev/null 2>&1 || \
+  pgrep -f "^python scripts/experiments/run_architecture_frontier_external.py" >/dev/null 2>&1 || \
+  pgrep -f "^python scripts/experiments/run_routed_frontier_external.py" >/dev/null 2>&1 || \
+  pgrep -f "^python scripts/experiments/run_assignment_consistency_v3.py" >/dev/null 2>&1 || \
+  pgrep -f "^python scripts/experiments/run_external_metric_scaling_study.py" >/dev/null 2>&1
+}
+
+while has_conflicting_runner; do
   date -u +"[cycle8] %Y-%m-%dT%H:%M:%SZ another runner active"
   sleep "$WAIT_SECONDS"
 done
