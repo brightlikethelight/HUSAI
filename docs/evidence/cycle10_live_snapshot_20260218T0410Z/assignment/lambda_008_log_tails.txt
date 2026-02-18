@@ -1,0 +1,847 @@
+===== results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T024225Z/logs/lambda_0.08_seed1011_cebench.log
+88it [00:50,  1.80it/s]
+89it [00:51,  1.77it/s]
+90it [00:52,  1.80it/s]
+91it [00:52,  1.61it/s]
+92it [00:53,  1.70it/s]
+93it [00:53,  1.67it/s]
+94it [00:54,  1.67it/s]
+95it [00:55,  1.71it/s]
+96it [00:55,  1.76it/s]
+97it [00:56,  1.78it/s]
+98it [00:56,  1.82it/s]
+99it [00:57,  1.81it/s]
+100it [00:58,  1.61it/s]
+101it [00:58,  1.61it/s]
+102it [00:59,  1.69it/s]
+103it [00:59,  1.73it/s]
+104it [01:00,  1.77it/s]
+105it [01:00,  1.75it/s]
+106it [01:01,  1.79it/s]
+107it [01:01,  1.80it/s]
+108it [01:02,  1.83it/s]
+109it [01:03,  1.82it/s]
+110it [01:03,  1.58it/s]
+111it [01:04,  1.63it/s]
+112it [01:04,  1.71it/s]
+113it [01:05,  1.75it/s]
+114it [01:06,  1.78it/s]
+115it [01:06,  1.76it/s]
+116it [01:07,  1.78it/s]
+117it [01:07,  1.74it/s]
+118it [01:08,  1.52it/s]
+119it [01:09,  1.59it/s]
+120it [01:09,  1.67it/s]
+121it [01:10,  1.70it/s]
+122it [01:10,  1.74it/s]
+123it [01:11,  1.76it/s]
+124it [01:11,  1.80it/s]
+125it [01:12,  1.78it/s]
+126it [01:12,  1.81it/s]
+127it [01:13,  1.56it/s]
+128it [01:14,  1.66it/s]
+129it [01:14,  1.70it/s]
+130it [01:15,  1.77it/s]
+131it [01:15,  1.78it/s]
+132it [01:16,  1.82it/s]
+133it [01:17,  1.80it/s]
+134it [01:17,  1.84it/s]
+135it [01:18,  1.82it/s]
+136it [01:18,  1.85it/s]
+137it [01:19,  1.62it/s]
+138it [01:20,  1.64it/s]
+139it [01:20,  1.63it/s]
+140it [01:21,  1.71it/s]
+141it [01:21,  1.73it/s]
+142it [01:22,  1.78it/s]
+143it [01:22,  1.78it/s]
+144it [01:23,  1.82it/s]
+145it [01:24,  1.67it/s]
+146it [01:24,  1.74it/s]
+147it [01:25,  1.71it/s]
+148it [01:25,  1.76it/s]
+149it [01:26,  1.78it/s]
+150it [01:26,  1.83it/s]
+151it [01:27,  1.86it/s]
+152it [01:27,  1.87it/s]
+153it [01:28,  1.88it/s]
+154it [01:29,  1.70it/s]
+155it [01:29,  1.69it/s]
+156it [01:30,  1.72it/s]
+157it [01:30,  1.65it/s]
+158it [01:31,  1.72it/s]
+159it [01:31,  1.75it/s]
+160it [01:32,  1.77it/s]
+161it [01:33,  1.77it/s]
+162it [01:33,  1.80it/s]
+163it [01:34,  1.57it/s]
+164it [01:34,  1.66it/s]
+165it [01:35,  1.71it/s]
+166it [01:36,  1.76it/s]
+167it [01:36,  1.74it/s]
+168it [01:37,  1.81it/s]
+169it [01:37,  1.80it/s]
+170it [01:38,  1.85it/s]
+171it [01:38,  1.85it/s]
+172it [01:39,  1.88it/s]
+173it [01:39,  1.67it/s]
+174it [01:40,  1.73it/s]
+175it [01:41,  1.75it/s]
+176it [01:41,  1.77it/s]
+177it [01:42,  1.76it/s]
+178it [01:42,  1.80it/s]
+179it [01:43,  1.83it/s]
+180it [01:43,  1.81it/s]
+181it [01:44,  1.80it/s]
+182it [01:45,  1.64it/s]
+183it [01:45,  1.69it/s]
+184it [01:46,  1.78it/s]
+185it [01:46,  1.79it/s]
+186it [01:47,  1.83it/s]
+187it [01:47,  1.83it/s]
+188it [01:48,  1.85it/s]
+189it [01:48,  1.87it/s]
+190it [01:49,  1.88it/s]
+191it [01:50,  1.67it/s]
+192it [01:50,  1.72it/s]
+193it [01:51,  1.75it/s]
+194it [01:51,  1.81it/s]
+195it [01:52,  1.83it/s]
+196it [01:52,  1.90it/s]
+197it [01:53,  2.14it/s]
+198it [01:53,  2.29it/s]
+199it [01:53,  2.47it/s]
+200it [01:54,  2.35it/s]
+200it [01:54,  1.75it/s]
+[stw] Finished all stories: 2m 2.08s 
+[stw] stop: 0.01s | total: 2m 2.09s
+Stopwatch(stw, total_time=2m 2.09s, elapsed_until_last_lap=2m 2.09s)
+HUSAI custom CE-Bench eval complete
+Output folder: /workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T024225Z/external_eval/0.08/seed1011/cebench
+Summary JSON: /workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T024225Z/external_eval/0.08/seed1011/cebench/husai_custom_cebench_summary.json
+===== results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T024225Z/logs/lambda_0.08_seed1011_saebench.log
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  7.56it/s][A
+
+ 67%|██████▋   | 2/3 [00:00<00:00,  8.78it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  2.53it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.11it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed1011_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/113_movie_sent_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 114_nyc_borough_Manhattan, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 67%|██████▋   | 2/3 [00:00<00:00, 13.04it/s][A
+100%|██████████| 3/3 [00:00<00:00,  4.89it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed1011_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/114_nyc_borough_Manhattan_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 115_nyc_borough_Brooklyn, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.75it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  4.16it/s][A
+100%|██████████| 3/3 [00:00<00:00,  4.28it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed1011_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/115_nyc_borough_Brooklyn_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 116_nyc_borough_Bronx, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.63it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  4.07it/s][A
+100%|██████████| 3/3 [00:00<00:00,  4.18it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed1011_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/116_nyc_borough_Bronx_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 117_us_state_FL, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.94it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  4.18it/s][A
+100%|██████████| 3/3 [00:00<00:00,  4.30it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed1011_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/117_us_state_FL_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 118_us_state_CA, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  6.27it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  4.26it/s][A
+100%|██████████| 3/3 [00:00<00:00,  4.40it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed1011_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/118_us_state_CA_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 119_us_state_TX, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.99it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.67it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.82it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed1011_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/119_us_state_TX_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 120_us_timezone_Chicago, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.69it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  4.07it/s][A
+100%|██████████| 3/3 [00:00<00:00,  4.19it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed1011_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/120_us_timezone_Chicago_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 121_us_timezone_New_York, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.73it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.19it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.33it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed1011_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/121_us_timezone_New_York_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 122_us_timezone_Los_Angeles, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.79it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.54it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.34it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed1011_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/122_us_timezone_Los_Angeles_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 123_world_country_United_Kingdom, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.89it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  4.15it/s][A
+100%|██████████| 3/3 [00:00<00:00,  4.27it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed1011_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/123_world_country_United_Kingdom_blocks.0.hook_resid_pre_l1.json
+
+Methods:   0%|          | 0/1 [00:00<?, ?it/s]
+
+logreg Datasets:   0%|          | 0/16 [00:00<?, ?it/s][A
+
+                                                       [A
+Methods: 100%|██████████| 1/1 [00:00<00:00, 301.88it/s]
+
+Running sae-probes on selected SAEs: 100%|██████████| 1/1 [00:17<00:00, 17.26s/it]
+Running sae-probes on selected SAEs: 100%|██████████| 1/1 [00:17<00:00, 17.26s/it]
+HUSAI custom SAEBench eval complete
+Output dir: /workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T024225Z/external_eval/0.08/seed1011/saebench
+Summary JSON: /workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T024225Z/external_eval/0.08/seed1011/saebench/husai_custom_sae_summary.json
+===== results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T024225Z/logs/lambda_0.08_seed123_cebench.log
+88it [00:49,  1.85it/s]
+89it [00:50,  1.87it/s]
+90it [00:50,  1.87it/s]
+91it [00:51,  1.87it/s]
+92it [00:51,  1.66it/s]
+93it [00:52,  1.72it/s]
+94it [00:52,  1.79it/s]
+95it [00:53,  1.79it/s]
+96it [00:53,  1.84it/s]
+97it [00:54,  1.81it/s]
+98it [00:55,  1.84it/s]
+99it [00:55,  1.84it/s]
+100it [00:56,  1.65it/s]
+101it [00:56,  1.69it/s]
+102it [00:57,  1.74it/s]
+103it [00:58,  1.76it/s]
+104it [00:58,  1.78it/s]
+105it [00:59,  1.78it/s]
+106it [00:59,  1.84it/s]
+107it [01:00,  1.84it/s]
+108it [01:00,  1.87it/s]
+109it [01:01,  1.68it/s]
+110it [01:01,  1.74it/s]
+111it [01:02,  1.78it/s]
+112it [01:03,  1.76it/s]
+113it [01:03,  1.78it/s]
+114it [01:04,  1.82it/s]
+115it [01:04,  1.84it/s]
+116it [01:05,  1.89it/s]
+117it [01:05,  1.85it/s]
+118it [01:06,  1.90it/s]
+119it [01:06,  1.68it/s]
+120it [01:07,  1.77it/s]
+121it [01:08,  1.78it/s]
+122it [01:08,  1.80it/s]
+123it [01:09,  1.82it/s]
+124it [01:09,  1.87it/s]
+125it [01:10,  1.88it/s]
+126it [01:10,  1.90it/s]
+127it [01:11,  1.68it/s]
+128it [01:11,  1.72it/s]
+129it [01:12,  1.78it/s]
+130it [01:12,  1.84it/s]
+131it [01:13,  1.83it/s]
+132it [01:14,  1.87it/s]
+133it [01:14,  1.89it/s]
+134it [01:15,  1.90it/s]
+135it [01:15,  1.87it/s]
+136it [01:16,  1.69it/s]
+137it [01:16,  1.74it/s]
+138it [01:17,  1.81it/s]
+139it [01:17,  1.82it/s]
+140it [01:18,  1.86it/s]
+141it [01:18,  1.87it/s]
+142it [01:19,  1.89it/s]
+143it [01:20,  1.86it/s]
+144it [01:20,  1.89it/s]
+145it [01:21,  1.70it/s]
+146it [01:21,  1.78it/s]
+147it [01:22,  1.82it/s]
+148it [01:22,  1.85it/s]
+149it [01:23,  1.81it/s]
+150it [01:23,  1.84it/s]
+151it [01:24,  1.80it/s]
+152it [01:25,  1.80it/s]
+153it [01:25,  1.79it/s]
+154it [01:26,  1.84it/s]
+155it [01:26,  1.64it/s]
+156it [01:27,  1.71it/s]
+157it [01:28,  1.70it/s]
+158it [01:28,  1.77it/s]
+159it [01:29,  1.79it/s]
+160it [01:29,  1.83it/s]
+161it [01:30,  1.82it/s]
+162it [01:30,  1.84it/s]
+163it [01:31,  1.71it/s]
+164it [01:32,  1.51it/s]
+165it [01:32,  1.59it/s]
+166it [01:33,  1.66it/s]
+167it [01:33,  1.70it/s]
+168it [01:34,  1.75it/s]
+169it [01:34,  1.76it/s]
+170it [01:35,  1.80it/s]
+171it [01:35,  1.83it/s]
+172it [01:36,  1.86it/s]
+173it [01:37,  1.57it/s]
+174it [01:37,  1.66it/s]
+175it [01:38,  1.72it/s]
+176it [01:38,  1.79it/s]
+177it [01:39,  1.81it/s]
+178it [01:39,  1.85it/s]
+179it [01:40,  1.86it/s]
+180it [01:41,  1.89it/s]
+181it [01:41,  1.89it/s]
+182it [01:42,  1.69it/s]
+183it [01:42,  1.71it/s]
+184it [01:43,  1.77it/s]
+185it [01:43,  1.81it/s]
+186it [01:44,  1.86it/s]
+187it [01:44,  1.83it/s]
+188it [01:45,  1.79it/s]
+189it [01:46,  1.76it/s]
+190it [01:46,  1.75it/s]
+191it [01:47,  1.56it/s]
+192it [01:48,  1.65it/s]
+193it [01:48,  1.71it/s]
+194it [01:49,  1.77it/s]
+195it [01:49,  1.78it/s]
+196it [01:50,  1.84it/s]
+197it [01:50,  1.82it/s]
+198it [01:51,  1.85it/s]
+199it [01:51,  1.85it/s]
+200it [01:52,  1.59it/s]
+200it [01:52,  1.78it/s]
+[stw] Finished all stories: 2m 1.03s 
+[stw] stop: 0.02s | total: 2m 1.04s
+Stopwatch(stw, total_time=2m 1.04s, elapsed_until_last_lap=2m 1.04s)
+HUSAI custom CE-Bench eval complete
+Output folder: /workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T024225Z/external_eval/0.08/seed123/cebench
+Summary JSON: /workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T024225Z/external_eval/0.08/seed123/cebench/husai_custom_cebench_summary.json
+===== results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T024225Z/logs/lambda_0.08_seed123_saebench.log
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.68it/s][A
+
+100%|██████████| 3/3 [00:01<00:00,  2.58it/s][A
+100%|██████████| 3/3 [00:01<00:00,  2.73it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed123_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/113_movie_sent_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 114_nyc_borough_Manhattan, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.70it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.14it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.28it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed123_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/114_nyc_borough_Manhattan_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 115_nyc_borough_Brooklyn, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.79it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.62it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.75it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed123_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/115_nyc_borough_Brooklyn_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 116_nyc_borough_Bronx, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.54it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.58it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.70it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed123_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/116_nyc_borough_Bronx_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 117_us_state_FL, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  6.60it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  4.26it/s][A
+100%|██████████| 3/3 [00:00<00:00,  4.42it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed123_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/117_us_state_FL_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 118_us_state_CA, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.54it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  4.15it/s][A
+100%|██████████| 3/3 [00:00<00:00,  4.25it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed123_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/118_us_state_CA_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 119_us_state_TX, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  6.32it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.25it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.42it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed123_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/119_us_state_TX_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 120_us_timezone_Chicago, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.62it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.61it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.74it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed123_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/120_us_timezone_Chicago_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 121_us_timezone_New_York, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.53it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.23it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.37it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed123_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/121_us_timezone_New_York_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 122_us_timezone_Los_Angeles, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.65it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.56it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.69it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed123_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/122_us_timezone_Los_Angeles_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 123_world_country_United_Kingdom, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.73it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  4.08it/s][A
+100%|██████████| 3/3 [00:00<00:00,  4.20it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed123_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/123_world_country_United_Kingdom_blocks.0.hook_resid_pre_l1.json
+
+Methods:   0%|          | 0/1 [00:00<?, ?it/s]
+
+logreg Datasets:   0%|          | 0/16 [00:00<?, ?it/s][A
+
+                                                       [A
+Methods: 100%|██████████| 1/1 [00:00<00:00, 326.79it/s]
+
+Running sae-probes on selected SAEs: 100%|██████████| 1/1 [00:17<00:00, 17.89s/it]
+Running sae-probes on selected SAEs: 100%|██████████| 1/1 [00:17<00:00, 17.89s/it]
+HUSAI custom SAEBench eval complete
+Output dir: /workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T024225Z/external_eval/0.08/seed123/saebench
+Summary JSON: /workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T024225Z/external_eval/0.08/seed123/saebench/husai_custom_sae_summary.json
+===== results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T024225Z/logs/lambda_0.08_seed456_saebench.log
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.76it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.10it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.25it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed456_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/113_movie_sent_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 114_nyc_borough_Manhattan, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.49it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.56it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.69it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed456_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/114_nyc_borough_Manhattan_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 115_nyc_borough_Brooklyn, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.64it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.19it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.33it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed456_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/115_nyc_borough_Brooklyn_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 116_nyc_borough_Bronx, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  6.70it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.63it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.80it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed456_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/116_nyc_borough_Bronx_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 117_us_state_FL, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.77it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.58it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.72it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed456_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/117_us_state_FL_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 118_us_state_CA, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  6.65it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.25it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.43it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed456_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/118_us_state_CA_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 119_us_state_TX, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  6.34it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.66it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.82it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed456_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/119_us_state_TX_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 120_us_timezone_Chicago, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.72it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.16it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.31it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed456_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/120_us_timezone_Chicago_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 121_us_timezone_New_York, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 67%|██████▋   | 2/3 [00:00<00:00, 12.34it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.34it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed456_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/121_us_timezone_New_York_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 122_us_timezone_Los_Angeles, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.82it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.63it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.77it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed456_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/122_us_timezone_Los_Angeles_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 123_world_country_United_Kingdom, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.76it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  4.19it/s][A
+100%|██████████| 3/3 [00:00<00:00,  4.31it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed456_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/123_world_country_United_Kingdom_blocks.0.hook_resid_pre_l1.json
+
+Methods:   0%|          | 0/1 [00:00<?, ?it/s]
+
+logreg Datasets:   0%|          | 0/16 [00:00<?, ?it/s][A
+
+                                                       [A
+Methods: 100%|██████████| 1/1 [00:00<00:00, 308.52it/s]
+
+Running sae-probes on selected SAEs: 100%|██████████| 1/1 [00:17<00:00, 17.72s/it]
+Running sae-probes on selected SAEs: 100%|██████████| 1/1 [00:17<00:00, 17.72s/it]
+HUSAI custom SAEBench eval complete
+Output dir: /workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T024225Z/external_eval/0.08/seed456/saebench
+Summary JSON: /workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T024225Z/external_eval/0.08/seed456/saebench/husai_custom_sae_summary.json
+===== results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T024225Z/logs/lambda_0.08_seed789_cebench.log
+88it [00:50,  1.82it/s]
+89it [00:50,  1.80it/s]
+90it [00:51,  1.83it/s]
+91it [00:52,  1.63it/s]
+92it [00:52,  1.72it/s]
+93it [00:53,  1.77it/s]
+94it [00:53,  1.83it/s]
+95it [00:54,  1.83it/s]
+96it [00:54,  1.84it/s]
+97it [00:55,  1.85it/s]
+98it [00:55,  1.87it/s]
+99it [00:56,  1.87it/s]
+100it [00:56,  1.89it/s]
+101it [00:57,  1.66it/s]
+102it [00:58,  1.70it/s]
+103it [00:58,  1.73it/s]
+104it [00:59,  1.78it/s]
+105it [00:59,  1.80it/s]
+106it [01:00,  1.84it/s]
+107it [01:00,  1.85it/s]
+108it [01:01,  1.86it/s]
+109it [01:02,  1.63it/s]
+110it [01:02,  1.71it/s]
+111it [01:03,  1.75it/s]
+112it [01:03,  1.81it/s]
+113it [01:04,  1.81it/s]
+114it [01:04,  1.83it/s]
+115it [01:05,  1.85it/s]
+116it [01:05,  1.88it/s]
+117it [01:06,  1.86it/s]
+118it [01:07,  1.89it/s]
+119it [01:07,  1.62it/s]
+120it [01:08,  1.71it/s]
+121it [01:08,  1.75it/s]
+122it [01:09,  1.78it/s]
+123it [01:09,  1.81it/s]
+124it [01:10,  1.85it/s]
+125it [01:11,  1.84it/s]
+126it [01:11,  1.86it/s]
+127it [01:12,  1.87it/s]
+128it [01:12,  1.63it/s]
+129it [01:13,  1.67it/s]
+130it [01:13,  1.75it/s]
+131it [01:14,  1.70it/s]
+132it [01:15,  1.77it/s]
+133it [01:15,  1.78it/s]
+134it [01:16,  1.82it/s]
+135it [01:16,  1.82it/s]
+136it [01:17,  1.86it/s]
+137it [01:17,  1.66it/s]
+138it [01:18,  1.72it/s]
+139it [01:19,  1.74it/s]
+140it [01:19,  1.79it/s]
+141it [01:20,  1.81it/s]
+142it [01:20,  1.87it/s]
+143it [01:21,  1.85it/s]
+144it [01:21,  1.87it/s]
+145it [01:22,  1.86it/s]
+146it [01:23,  1.66it/s]
+147it [01:23,  1.71it/s]
+148it [01:24,  1.77it/s]
+149it [01:24,  1.79it/s]
+150it [01:25,  1.83it/s]
+151it [01:25,  1.82it/s]
+152it [01:26,  1.84it/s]
+153it [01:26,  1.82it/s]
+154it [01:27,  1.85it/s]
+155it [01:28,  1.58it/s]
+156it [01:28,  1.64it/s]
+157it [01:29,  1.68it/s]
+158it [01:29,  1.76it/s]
+159it [01:30,  1.77it/s]
+160it [01:30,  1.82it/s]
+161it [01:31,  1.82it/s]
+162it [01:31,  1.85it/s]
+163it [01:32,  1.84it/s]
+164it [01:33,  1.65it/s]
+165it [01:33,  1.72it/s]
+166it [01:34,  1.76it/s]
+167it [01:34,  1.79it/s]
+168it [01:35,  1.84it/s]
+169it [01:35,  1.82it/s]
+170it [01:36,  1.85it/s]
+171it [01:36,  1.85it/s]
+172it [01:37,  1.89it/s]
+173it [01:38,  1.86it/s]
+174it [01:38,  1.58it/s]
+175it [01:39,  1.61it/s]
+176it [01:39,  1.70it/s]
+177it [01:40,  1.76it/s]
+178it [01:41,  1.80it/s]
+179it [01:41,  1.80it/s]
+180it [01:42,  1.83it/s]
+181it [01:42,  1.81it/s]
+182it [01:43,  1.86it/s]
+183it [01:43,  1.62it/s]
+184it [01:44,  1.71it/s]
+185it [01:45,  1.73it/s]
+186it [01:45,  1.78it/s]
+187it [01:46,  1.81it/s]
+188it [01:46,  1.84it/s]
+189it [01:47,  1.82it/s]
+190it [01:47,  1.84it/s]
+191it [01:48,  1.83it/s]
+192it [01:49,  1.59it/s]
+193it [01:49,  1.65it/s]
+194it [01:50,  1.73it/s]
+195it [01:50,  1.73it/s]
+196it [01:51,  1.77it/s]
+197it [01:51,  1.76it/s]
+198it [01:52,  1.79it/s]
+199it [01:52,  1.78it/s]
+200it [01:53,  1.81it/s]
+200it [01:53,  1.76it/s]
+[stw] Finished all stories: 2m 1.20s 
+[stw] stop: 0.02s | total: 2m 1.21s
+Stopwatch(stw, total_time=2m 1.21s, elapsed_until_last_lap=2m 1.21s)
+HUSAI custom CE-Bench eval complete
+Output folder: /workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T024225Z/external_eval/0.08/seed789/cebench
+Summary JSON: /workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T024225Z/external_eval/0.08/seed789/cebench/husai_custom_cebench_summary.json
+===== results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T024225Z/logs/lambda_0.08_seed789_saebench.log
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  6.75it/s][A
+
+ 67%|██████▋   | 2/3 [00:00<00:00,  3.22it/s][A
+
+100%|██████████| 3/3 [00:01<00:00,  2.05it/s][A
+100%|██████████| 3/3 [00:01<00:00,  2.36it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed789_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/113_movie_sent_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 114_nyc_borough_Manhattan, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 67%|██████▋   | 2/3 [00:00<00:00, 13.04it/s][A
+100%|██████████| 3/3 [00:00<00:00,  4.24it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed789_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/114_nyc_borough_Manhattan_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 115_nyc_borough_Brooklyn, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  6.44it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.68it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.85it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed789_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/115_nyc_borough_Brooklyn_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 116_nyc_borough_Bronx, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.85it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.49it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.64it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed789_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/116_nyc_borough_Bronx_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 117_us_state_FL, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.82it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  4.17it/s][A
+100%|██████████| 3/3 [00:00<00:00,  4.29it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed789_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/117_us_state_FL_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 118_us_state_CA, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  6.23it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  4.23it/s][A
+100%|██████████| 3/3 [00:00<00:00,  4.37it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed789_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/118_us_state_CA_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 119_us_state_TX, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  6.67it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  4.26it/s][A
+100%|██████████| 3/3 [00:00<00:00,  4.41it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed789_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/119_us_state_TX_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 120_us_timezone_Chicago, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.93it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.16it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.32it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed789_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/120_us_timezone_Chicago_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 121_us_timezone_New_York, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 67%|██████▋   | 2/3 [00:00<00:00, 10.59it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.68it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed789_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/121_us_timezone_New_York_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 122_us_timezone_Los_Angeles, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  6.08it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  2.88it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.04it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed789_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/122_us_timezone_Los_Angeles_blocks.0.hook_resid_pre_l1.json
+Running probe for dataset 123_world_country_United_Kingdom, hook blocks.0.hook_resid_pre, reg_type l1, setting normal
+
+
+  0%|          | 0/3 [00:00<?, ?it/s][A
+
+ 33%|███▎      | 1/3 [00:00<00:00,  5.82it/s][A
+
+100%|██████████| 3/3 [00:00<00:00,  3.60it/s][A
+100%|██████████| 3/3 [00:00<00:00,  3.74it/s]
+Saving results to /tmp/husai_saebench_probe_results_cycle10_assignment/husai_assignv3_run_20260218T024225Z_lambda0.08_seed789_custom_sae/sae_probes_pythia-70m-deduped/normal_setting/123_world_country_United_Kingdom_blocks.0.hook_resid_pre_l1.json
+
+Methods:   0%|          | 0/1 [00:00<?, ?it/s]
+
+logreg Datasets:   0%|          | 0/16 [00:00<?, ?it/s][A
+
+                                                       [A
+Methods: 100%|██████████| 1/1 [00:00<00:00, 357.45it/s]
+
+Running sae-probes on selected SAEs: 100%|██████████| 1/1 [00:17<00:00, 17.38s/it]
+Running sae-probes on selected SAEs: 100%|██████████| 1/1 [00:17<00:00, 17.38s/it]
+HUSAI custom SAEBench eval complete
+Output dir: /workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T024225Z/external_eval/0.08/seed789/saebench
+Summary JSON: /workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T024225Z/external_eval/0.08/seed789/saebench/husai_custom_sae_summary.json
