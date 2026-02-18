@@ -1,0 +1,251 @@
+[cycle10] run_id=run_20260217T203407Z
+[cycle10] assignment_update_interval=4
+[cycle10] supervised_proxy_mode=file_id supervised_proxy_num_classes=0
+[cycle10] waiting for conflicting experiment runners to finish
+[cycle10] 2026-02-17T20:34:07Z another runner active
+[cycle10] 2026-02-17T20:35:07Z another runner active
+[cycle10] 2026-02-17T20:36:07Z another runner active
+[cycle10] 2026-02-17T20:37:07Z another runner active
+[cycle10] 2026-02-17T20:38:07Z another runner active
+[cycle10] 2026-02-17T20:39:07Z another runner active
+[cycle10] 2026-02-17T20:40:07Z another runner active
+[cycle10] 2026-02-17T20:41:07Z another runner active
+[cycle10] 2026-02-17T20:42:07Z another runner active
+[cycle10] 2026-02-17T20:43:07Z another runner active
+[cycle10] 2026-02-17T20:44:07Z another runner active
+[cycle10] 2026-02-17T20:45:07Z another runner active
+[cycle10] 2026-02-17T20:46:07Z another runner active
+[cycle10] 2026-02-17T20:47:07Z another runner active
+[cycle10] 2026-02-17T20:48:07Z another runner active
+[cycle10] 2026-02-17T20:49:07Z another runner active
+[cycle10] 2026-02-17T20:50:07Z another runner active
+[cycle10] 2026-02-17T20:51:07Z another runner active
+[cycle10] 2026-02-17T20:52:07Z another runner active
+[cycle10] 2026-02-17T20:53:07Z another runner active
+[cycle10] 2026-02-17T20:54:07Z another runner active
+[cycle10] 2026-02-17T20:55:07Z another runner active
+[cycle10] 2026-02-17T20:56:07Z another runner active
+[cycle10] 2026-02-17T20:57:07Z another runner active
+[cycle10] 2026-02-17T20:58:07Z another runner active
+[cycle10] 2026-02-17T20:59:07Z another runner active
+[cycle10] 2026-02-17T21:00:07Z another runner active
+[cycle10] 2026-02-17T21:01:07Z another runner active
+[cycle10] 2026-02-17T21:02:07Z another runner active
+[cycle10] 2026-02-17T21:03:07Z another runner active
+[cycle10] 2026-02-17T21:04:07Z another runner active
+[cycle10] 2026-02-17T21:05:07Z another runner active
+[cycle10] 2026-02-17T21:06:07Z another runner active
+[cycle10] 2026-02-17T21:07:07Z another runner active
+[cycle10] 2026-02-17T21:08:07Z another runner active
+[cycle10] 2026-02-17T21:09:07Z another runner active
+[cycle10] 2026-02-17T21:10:07Z another runner active
+[cycle10] 2026-02-17T21:11:07Z another runner active
+[cycle10] 2026-02-17T21:12:07Z another runner active
+[cycle10] 2026-02-17T21:13:07Z another runner active
+[cycle10] 2026-02-17T21:14:07Z another runner active
+[cycle10] 2026-02-17T21:15:07Z another runner active
+[cycle10] 2026-02-17T21:16:07Z another runner active
+[cycle10] 2026-02-17T21:17:08Z another runner active
+[cycle10] 2026-02-17T21:18:08Z another runner active
+[cycle10] 2026-02-17T21:19:08Z another runner active
+[cycle10] 2026-02-17T21:20:08Z another runner active
+[cycle10] 2026-02-17T21:21:08Z another runner active
+[cycle10] 2026-02-17T21:22:08Z another runner active
+[cycle10] 2026-02-17T21:23:08Z another runner active
+[cycle10] 2026-02-17T21:24:08Z another runner active
+[cycle10] 2026-02-17T21:25:08Z another runner active
+[cycle10] 2026-02-17T21:26:08Z another runner active
+[cycle10] 2026-02-17T21:27:08Z another runner active
+[cycle10] 2026-02-17T21:28:08Z another runner active
+[cycle10] 2026-02-17T21:29:08Z another runner active
+[cycle10] 2026-02-17T21:30:08Z another runner active
+[cycle10] 2026-02-17T21:31:08Z another runner active
+[cycle10] 2026-02-17T21:32:08Z another runner active
+[cycle10] 2026-02-17T21:33:08Z another runner active
+[cycle10] 2026-02-17T21:34:08Z another runner active
+[cycle10] 2026-02-17T21:35:08Z another runner active
+[cycle10] 2026-02-17T21:36:08Z another runner active
+[cycle10] 2026-02-17T21:37:08Z another runner active
+[cycle10] 2026-02-17T21:38:08Z another runner active
+[cycle10] 2026-02-17T21:39:08Z another runner active
+[cycle10] 2026-02-17T21:40:08Z another runner active
+[cycle10] 2026-02-17T21:41:08Z another runner active
+[cycle10] 2026-02-17T21:42:08Z another runner active
+[cycle10] 2026-02-17T21:43:08Z another runner active
+[cycle10] 2026-02-17T21:44:08Z another runner active
+[cycle10] 2026-02-17T21:45:08Z another runner active
+[cycle10] 2026-02-17T21:46:08Z another runner active
+[cycle10] 2026-02-17T21:47:08Z another runner active
+[cycle10] 2026-02-17T21:48:08Z another runner active
+[cycle10] 2026-02-17T21:49:08Z another runner active
+[cycle10] 2026-02-17T21:50:08Z another runner active
+[cycle10] 2026-02-17T21:51:09Z another runner active
+[cycle10] 2026-02-17T21:52:09Z another runner active
+[cycle10] 2026-02-17T21:53:09Z another runner active
+[cycle10] 2026-02-17T21:54:09Z another runner active
+[cycle10] 2026-02-17T21:55:09Z another runner active
+[cycle10] 2026-02-17T21:56:09Z another runner active
+[cycle10] 2026-02-17T21:57:09Z another runner active
+[cycle10] 2026-02-17T21:58:09Z another runner active
+[cycle10] 2026-02-17T21:59:09Z another runner active
+[cycle10] 2026-02-17T22:00:09Z another runner active
+[cycle10] 2026-02-17T22:01:09Z another runner active
+[cycle10] 2026-02-17T22:02:09Z another runner active
+[cycle10] 2026-02-17T22:03:09Z another runner active
+[cycle10] 2026-02-17T22:04:09Z another runner active
+[cycle10] 2026-02-17T22:05:09Z another runner active
+[cycle10] 2026-02-17T22:06:09Z another runner active
+[cycle10] 2026-02-17T22:07:09Z another runner active
+[cycle10] 2026-02-17T22:08:09Z another runner active
+[cycle10] 2026-02-17T22:09:09Z another runner active
+[cycle10] 2026-02-17T22:10:09Z another runner active
+[cycle10] 2026-02-17T22:11:09Z another runner active
+[cycle10] 2026-02-17T22:12:09Z another runner active
+[cycle10] 2026-02-17T22:13:09Z another runner active
+[cycle10] 2026-02-17T22:14:09Z another runner active
+[cycle10] 2026-02-17T22:15:09Z another runner active
+[cycle10] 2026-02-17T22:16:09Z another runner active
+[cycle10] 2026-02-17T22:17:09Z another runner active
+[cycle10] 2026-02-17T22:18:09Z another runner active
+[cycle10] 2026-02-17T22:19:09Z another runner active
+[cycle10] 2026-02-17T22:20:09Z another runner active
+[cycle10] 2026-02-17T22:21:09Z another runner active
+[cycle10] 2026-02-17T22:22:09Z another runner active
+[cycle10] 2026-02-17T22:23:09Z another runner active
+[cycle10] 2026-02-17T22:24:09Z another runner active
+[cycle10] 2026-02-17T22:25:09Z another runner active
+[cycle10] 2026-02-17T22:26:09Z another runner active
+[cycle10] 2026-02-17T22:27:10Z another runner active
+[cycle10] 2026-02-17T22:28:10Z another runner active
+[cycle10] 2026-02-17T22:29:10Z another runner active
+[cycle10] 2026-02-17T22:30:10Z another runner active
+[cycle10] 2026-02-17T22:31:10Z another runner active
+[cycle10] 2026-02-17T22:32:10Z another runner active
+[cycle10] 2026-02-17T22:33:10Z another runner active
+[cycle10] 2026-02-17T22:34:10Z another runner active
+[cycle10] 2026-02-17T22:35:10Z another runner active
+[cycle10] 2026-02-17T22:36:10Z another runner active
+[cycle10] 2026-02-17T22:37:10Z another runner active
+[cycle10] 2026-02-17T22:38:10Z another runner active
+[cycle10] 2026-02-17T22:39:10Z another runner active
+[cycle10] 2026-02-17T22:40:10Z another runner active
+[cycle10] 2026-02-17T22:41:10Z another runner active
+[cycle10] 2026-02-17T22:42:10Z another runner active
+[cycle10] 2026-02-17T22:43:10Z another runner active
+[cycle10] 2026-02-17T22:44:10Z another runner active
+[cycle10] 2026-02-17T22:45:10Z another runner active
+[cycle10] 2026-02-17T22:46:10Z another runner active
+[cycle10] 2026-02-17T22:47:10Z another runner active
+[cycle10] 2026-02-17T22:48:10Z another runner active
+[cycle10] 2026-02-17T22:49:10Z another runner active
+[cycle10] 2026-02-17T22:50:10Z another runner active
+[cycle10] 2026-02-17T22:51:10Z another runner active
+[cycle10] 2026-02-17T22:52:10Z another runner active
+[cycle10] 2026-02-17T22:53:10Z another runner active
+[cycle10] 2026-02-17T22:54:10Z another runner active
+[cycle10] 2026-02-17T22:55:10Z another runner active
+[cycle10] 2026-02-17T22:56:10Z another runner active
+[cycle10] 2026-02-17T22:57:10Z another runner active
+[cycle10] 2026-02-17T22:58:10Z another runner active
+[cycle10] 2026-02-17T22:59:10Z another runner active
+[cycle10] 2026-02-17T23:00:10Z another runner active
+[cycle10] 2026-02-17T23:01:11Z another runner active
+[cycle10] 2026-02-17T23:02:11Z another runner active
+[cycle10] 2026-02-17T23:03:11Z another runner active
+[cycle10] 2026-02-17T23:04:11Z another runner active
+[cycle10] 2026-02-17T23:05:11Z another runner active
+[cycle10] 2026-02-17T23:06:11Z another runner active
+[cycle10] 2026-02-17T23:07:11Z another runner active
+[cycle10] 2026-02-17T23:08:11Z another runner active
+[cycle10] 2026-02-17T23:09:11Z another runner active
+[cycle10] 2026-02-17T23:10:11Z another runner active
+[cycle10] 2026-02-17T23:11:11Z another runner active
+[cycle10] 2026-02-17T23:12:11Z another runner active
+[cycle10] 2026-02-17T23:13:11Z another runner active
+[cycle10] 2026-02-17T23:14:11Z another runner active
+[cycle10] 2026-02-17T23:15:11Z another runner active
+[cycle10] 2026-02-17T23:16:11Z another runner active
+[cycle10] 2026-02-17T23:17:11Z another runner active
+[cycle10] 2026-02-17T23:18:11Z another runner active
+[cycle10] 2026-02-17T23:19:11Z another runner active
+[cycle10] 2026-02-17T23:20:11Z another runner active
+[cycle10] 2026-02-17T23:21:11Z another runner active
+[cycle10] 2026-02-17T23:22:11Z another runner active
+[cycle10] 2026-02-17T23:23:11Z another runner active
+[cycle10] 2026-02-17T23:24:11Z another runner active
+[cycle10] 2026-02-17T23:25:11Z another runner active
+[cycle10] 2026-02-17T23:26:11Z another runner active
+[cycle10] 2026-02-17T23:27:11Z another runner active
+[cycle10] 2026-02-17T23:28:11Z another runner active
+[cycle10] 2026-02-17T23:29:11Z another runner active
+[cycle10] 2026-02-17T23:30:11Z another runner active
+[cycle10] 2026-02-17T23:31:11Z another runner active
+[cycle10] 2026-02-17T23:32:11Z another runner active
+[cycle10] 2026-02-17T23:33:11Z another runner active
+[cycle10] 2026-02-17T23:34:11Z another runner active
+[cycle10] 2026-02-17T23:35:12Z another runner active
+[cycle10] 2026-02-17T23:36:12Z another runner active
+[cycle10] 2026-02-17T23:37:12Z another runner active
+[cycle10] 2026-02-17T23:38:12Z another runner active
+[cycle10] 2026-02-17T23:39:12Z another runner active
+[cycle10] 2026-02-17T23:40:12Z another runner active
+[cycle10] 2026-02-17T23:41:12Z another runner active
+[cycle10] 2026-02-17T23:42:12Z another runner active
+[cycle10] 2026-02-17T23:43:12Z another runner active
+[cycle10] 2026-02-17T23:44:12Z another runner active
+[cycle10] git pull
+From https://github.com/brightlikethelight/HUSAI
+ * branch            main       -> FETCH_HEAD
+Already up to date.
+[cycle10] stage1: routed external recovery sweep
+[cycle10][routed] condition=c1 dsae=1024 k=48 experts=4 noise=0.03 cons=0.12 div=0.015 lr=0.0008 epochs=12
+/usr/local/lib/python3.12/dist-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'repr' attribute with value False was provided to the `Field()` function, which has no effect in the context it was used. 'repr' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'frozen' attribute with value True was provided to the `Field()` function, which has no effect in the context it was used. 'frozen' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+Routed frontier run complete
+Run dir: /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle10_recovery/run_20260217T234535Z
+Summary: /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle10_recovery/run_20260217T234535Z/summary.md
+[cycle10][routed] done c1 -> results/experiments/phase4b_routed_frontier_external_sweep_cycle10_recovery/run_20260217T234535Z
+[cycle10][routed] condition=c2 dsae=1024 k=48 experts=4 noise=0.02 cons=0.15 div=0.020 lr=0.0008 epochs=12
+/usr/local/lib/python3.12/dist-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'repr' attribute with value False was provided to the `Field()` function, which has no effect in the context it was used. 'repr' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'frozen' attribute with value True was provided to the `Field()` function, which has no effect in the context it was used. 'frozen' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+Routed frontier run complete
+Run dir: /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle10_recovery/run_20260218T000017Z
+Summary: /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle10_recovery/run_20260218T000017Z/summary.md
+[cycle10][routed] done c2 -> results/experiments/phase4b_routed_frontier_external_sweep_cycle10_recovery/run_20260218T000017Z
+[cycle10][routed] condition=c3 dsae=1280 k=48 experts=4 noise=0.025 cons=0.12 div=0.020 lr=0.00075 epochs=12
+/usr/local/lib/python3.12/dist-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'repr' attribute with value False was provided to the `Field()` function, which has no effect in the context it was used. 'repr' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'frozen' attribute with value True was provided to the `Field()` function, which has no effect in the context it was used. 'frozen' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+Routed frontier run complete
+Run dir: /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle10_recovery/run_20260218T001437Z
+Summary: /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle10_recovery/run_20260218T001437Z/summary.md
+[cycle10][routed] done c3 -> results/experiments/phase4b_routed_frontier_external_sweep_cycle10_recovery/run_20260218T001437Z
+[cycle10][routed] condition=c4 dsae=1024 k=56 experts=4 noise=0.03 cons=0.12 div=0.015 lr=0.00075 epochs=12
+/usr/local/lib/python3.12/dist-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'repr' attribute with value False was provided to the `Field()` function, which has no effect in the context it was used. 'repr' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'frozen' attribute with value True was provided to the `Field()` function, which has no effect in the context it was used. 'frozen' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+Routed frontier run complete
+Run dir: /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle10_recovery/run_20260218T002858Z
+Summary: /workspace/HUSAI/results/experiments/phase4b_routed_frontier_external_sweep_cycle10_recovery/run_20260218T002858Z/summary.md
+[cycle10][routed] done c4 -> results/experiments/phase4b_routed_frontier_external_sweep_cycle10_recovery/run_20260218T002858Z
+[cycle10] stage2: assignment-v3 supervised-proxy recovery sweep
+[cycle10][assignment] condition=s1 dsae=2048 k=48 epochs=24 lr=0.0005 sup_weight=0.05
+/usr/local/lib/python3.12/dist-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'repr' attribute with value False was provided to the `Field()` function, which has no effect in the context it was used. 'repr' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'frozen' attribute with value True was provided to the `Field()` function, which has no effect in the context it was used. 'frozen' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+Assignment consistency v3 complete
+Run dir: /workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T004251Z
+Summary: /workspace/HUSAI/results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T004251Z/summary.md
+[cycle10][assignment] done s1 -> results/experiments/phase4d_assignment_consistency_v3_cycle10_recovery/run_20260218T004251Z
+[cycle10][assignment] condition=s2 dsae=2048 k=48 epochs=24 lr=0.0005 sup_weight=0.10
+/usr/local/lib/python3.12/dist-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'repr' attribute with value False was provided to the `Field()` function, which has no effect in the context it was used. 'repr' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+/usr/local/lib/python3.12/dist-packages/pydantic/_internal/_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'frozen' attribute with value True was provided to the `Field()` function, which has no effect in the context it was used. 'frozen' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
