@@ -2,6 +2,67 @@
 
 This log records executed commands, outcomes, and artifact paths.
 
+## 2026-03-05 - Follow-Up Experiments Implementation (Tier 1 + Tier 2)
+
+Seven new experiment scripts implemented to strengthen the stability paper.
+All 143 tests pass (including 20 new test cases).
+
+### Implemented Experiments
+
+| Priority | ID | Script | Description |
+|----------|-----|--------|-------------|
+| 1 | 1.2 | `exp_1layer_ground_truth.py` | 1-layer vs 2-layer ground truth comparison (Fourier identifiability) |
+| 2 | 2.2 | `exp_subspace_stability.py` | Subspace stability (Grassmann distance) vs feature stability (PWMCC) |
+| 3 | 1.1 | `exp_pythia70m_stability.py` | Scale to Pythia-70M (5 TopK + 5 ReLU SAEs) |
+| 4 | 2.3 | `exp_effective_rank_predictor.py` | Universal curve: PWMCC ~ f(d_sae/eff_rank) |
+| 5 | 1.3 | `exp_contrastive_stability.py` | Multi-seed contrastive alignment loss |
+| 6 | 2.1 | `exp_intervention_stability.py` | Activation steering consistency across seeds |
+| 7 | 2.4 | `exp_dictionary_pinning.py` | Warm-start with frozen decoder columns |
+
+### Runner
+
+```bash
+# Run all (skip Pythia on CPU-only machines):
+bash scripts/experiments/run_all_followup_experiments.sh --skip-pythia
+
+# Run all including Pythia (needs patience or GPU):
+bash scripts/experiments/run_all_followup_experiments.sh
+```
+
+### Test Coverage
+
+```bash
+KMP_DUPLICATE_LIB_OK=TRUE python -m pytest tests/unit/test_followup_experiments.py -v
+# 20 tests covering: PWMCC, effective rank, subspace overlap, alignment loss,
+# dictionary pinning, random baselines, SAE shapes/sparsity
+```
+
+### Output Locations
+
+- Results: `results/experiments/<experiment_name>/run_<UTC>/manifest.json`
+- Figures: `figures/exp_<experiment_name>.pdf`
+
+### Pythia-70M GPU Run (RunPod B200)
+
+Ran Experiment 1.1 on RunPod B200 GPU with real text (wikitext-103).
+
+**Setup:** Pythia-70M, layer 0 hook_resid_pre, 200K activation vectors, 5 seeds, 10 epochs, d_sae sweep {256, 512, 1024, 2048, 4096}.
+
+**Key Results:**
+- Effective rank: 425.7 / 512 = 83.1%
+- TopK: 1.94× random at d_sae=256, decaying to 1.19× at d_sae=4096
+- ReLU: 1.34× random at d_sae=256, decaying to 1.01× at d_sae=4096
+- Pattern matches algorithmic tasks: d_sae/eff_rank > 5 = near random
+
+**Artifacts:**
+- `results/experiments/pythia70m_stability/run_20260305T184934Z/manifest.json` (random tokens)
+- `results/experiments/pythia70m_stability/run_realtext_20260305T185853Z/manifest.json` (real text + sweep)
+- `figures/exp_pythia70m_stability.pdf`
+- `figures/exp_pythia70m_realtext_sweep.pdf`
+- `scripts/experiments/exp_pythia70m_realtext.py` (real text variant)
+
+---
+
 ## 2026-02-12 - Smoke and Repro Validation
 
 ### Run 1: Baseline transformer smoke train

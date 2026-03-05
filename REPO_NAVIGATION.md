@@ -37,15 +37,32 @@ Updated: 2026-03-05
 - Smoke script: `scripts/ci/smoke_pipeline.sh`
 - Tests: `tests/`
 
-## 5) Writing and Presentation
+## 5) Follow-Up Experiments (Paper Section 4.11)
 
+- Runner: `scripts/experiments/run_all_followup_experiments.sh`
+- 1-layer ground truth: `scripts/experiments/exp_1layer_ground_truth.py`
+- Subspace stability: `scripts/experiments/exp_subspace_stability.py`
+- Effective rank predictor: `scripts/experiments/exp_effective_rank_predictor.py`
+- Contrastive stability: `scripts/experiments/exp_contrastive_stability.py`
+- Intervention stability: `scripts/experiments/exp_intervention_stability.py`
+- Dictionary pinning: `scripts/experiments/exp_dictionary_pinning.py`
+- Pythia-70M scaling: `scripts/experiments/exp_pythia70m_stability.py`
+- Tests: `tests/unit/test_followup_experiments.py`
+
+## 6) Writing and Presentation
+
+- Paper: `paper/sae_stability_paper.md`
+- Technical report: `paper/FINAL_PAPER.md`
 - Blog: `FINAL_BLOG.md`
-- Paper-style summary: `FINAL_PAPER.md`
 - Literature: `LIT_REVIEW.md`
-- Experiment plan: `EXPERIMENT_PLAN.md`
+- Experiment roadmap: `docs/04-Execution/EXPERIMENT_PLAN_2026_02_20.md`
 - Slide package: `docs/05-Presentation/cycle10_readout/`
 
-## 6) Evidence
+## 7) Evidence
 
 - Local evidence root: `docs/evidence/`
 - Evidence policy: `EVIDENCE_STATUS.md`
+
+## 8) Historical Documents
+
+Planning and review documents from earlier cycles are archived to `archive/project_docs_2026_02/` for traceability.

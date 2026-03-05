@@ -1,4 +1,4 @@
-.PHONY: help install install-dev setup test test-cov smoke lint format typecheck clean run-notebooks reproduce-phase4a ablate-core benchmark-slice benchmark-official audit-results adaptive-l0 adaptive-l0-control consistency-sweep transcoder-stress ood-stress release-gate-strict
+.PHONY: help install install-dev setup test test-cov smoke lint format typecheck clean run-notebooks reproduce-phase4a ablate-core benchmark-slice benchmark-official audit-results adaptive-l0 adaptive-l0-control consistency-sweep transcoder-stress ood-stress release-gate-strict run-followups run-followups-full test-followups
 
 .DEFAULT_GOAL := help
 
@@ -71,7 +71,7 @@ clean: ## Clean up generated files
 	@echo "Cleanup complete!"
 
 clean-data: ## Clean generated data (careful!)
-	@echo "⚠️  This will delete all generated data, results, and checkpoints!"
+	@echo "WARNING: This will delete all generated data, results, and checkpoints!"
 	@read -p "Are you sure? [y/N] " -n 1 -r; \
 	echo; \
 	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
@@ -117,7 +117,7 @@ docs-build: ## Build documentation
 
 # Git shortcuts
 commit: quality ## Run quality checks before committing
-	@echo "✅ Quality checks passed! Ready to commit."
+	@echo "Quality checks passed! Ready to commit."
 	@echo "Run: git add . && git commit -m 'your message'"
 
 # Environment info
@@ -156,10 +156,10 @@ wandb-init: ## Initialize W&B project
 
 # Quick start for new team members
 onboard: ## Quick onboarding for new team members
-	@echo "🚀 Welcome to HUSAI!"
+	@echo "Welcome to HUSAI!"
 	@echo ""
 	@echo "Onboarding checklist:"
-	@echo "1. Read docs/00-Foundations/mission.md"
+	@echo "1. Read START_HERE.md"
 	@echo "2. Set up environment: make setup"
 	@echo "3. Activate environment: conda activate husai"
 	@echo "4. Install dev tools: make install-dev"
@@ -205,6 +205,15 @@ ood-stress: ## Run ID-vs-OOD SAEBench stress evaluation (gate artifact)
 		--hook-layer 0 \
 		--hook-name blocks.0.hook_resid_pre \
 		--device cpu
+
+run-followups: ## Run all follow-up experiments (skip Pythia on CPU)
+	bash scripts/experiments/run_all_followup_experiments.sh --skip-pythia
+
+run-followups-full: ## Run all follow-up experiments including Pythia-70M
+	bash scripts/experiments/run_all_followup_experiments.sh
+
+test-followups: ## Run follow-up experiment unit tests
+	KMP_DUPLICATE_LIB_OK=TRUE pytest tests/unit/test_followup_experiments.py -v
 
 TRANSCODER_RESULTS ?=
 OOD_RESULTS ?=

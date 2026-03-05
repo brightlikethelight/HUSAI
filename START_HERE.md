@@ -2,40 +2,29 @@
 
 Updated: 2026-03-05
 
-This is the canonical orientation file for the current repository state.
+HUSAI is a reliability-first SAE research project. It evaluates whether SAE features satisfy strict release criteria: internal consistency, stress robustness, and external benchmark competitiveness.
 
-## 1) One-Screen Truth
+**Result: `pass_all=false`.** Internal and stress gates pass; external benchmarks do not meet strict thresholds.
 
-- HUSAI has completed a multi-cycle reliability program through the 2026-02-18 cycle-10 run window.
-- The strict release result is negative: `pass_all=false`.
-- Internal and stress claims are supported by local artifacts.
-- External benchmark competitiveness is still unsupported under strict thresholds.
+## Reading Order
 
-## 2) Read in This Order
+1. `EVIDENCE_STATUS.md` -- what is locally verified vs remote-reported
+2. `EXECUTIVE_SUMMARY.md` -- detailed status, gate outcomes, evidence paths
+3. `paper/sae_stability_paper.md` -- the paper (PWMCC = random baseline finding)
+4. `RUNBOOK.md` -- how to reproduce everything
+5. `EXPERIMENT_LOG.md` -- run-by-run history
 
-1. `CANONICAL_DOCS.md`
-2. `EVIDENCE_STATUS.md`
-3. `EXECUTIVE_SUMMARY.md`
-4. `RUNBOOK.md`
-5. `EXPERIMENT_LOG.md`
-6. `FINAL_PAPER.md`
-7. `FINAL_BLOG.md`
+## If You Are Extending the Project
 
-## 3) Evidence Discipline
+- `HIGH_IMPACT_FOLLOWUPS_REPORT.md` -- ranked next steps
+- `NOVEL_CONTRIBUTIONS.md` -- what is novel here
+- `docs/04-Execution/EXPERIMENT_PLAN_2026_02_20.md` -- experiment roadmap
+- `LIT_REVIEW.md` -- literature and competitive landscape
+- `scripts/experiments/run_all_followup_experiments.sh` -- run all 7 follow-up experiments (Section 4.11 of the paper)
 
-Before citing exact final-cycle candidate metrics, check `EVIDENCE_STATUS.md`.
+## Quick Validation
 
-Current evidence split:
-- Local verified selector/gate snapshot (2026-02-15): `topk_seed123`, `pass_all=false`.
-- Remote-reported cycle-10 final package (2026-02-18): `relu_seed42`, `pass_all=false`.
-
-The decision-level conclusion is consistent (`pass_all=false`), while candidate identity/metric values differ across tiers.
-
-## 4) If You Are Extending The Project
-
-Start with:
-- `HIGH_IMPACT_FOLLOWUPS_REPORT.md`
-- `EXPERIMENT_PLAN.md`
-- `LIT_REVIEW.md`
-
-Then use exact commands in `RUNBOOK.md`.
+```bash
+pytest tests -q
+make smoke
+```
