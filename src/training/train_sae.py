@@ -21,9 +21,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, TensorDataset
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
-import wandb
 from tqdm import tqdm
 
 from src.utils.config import SAEConfig
@@ -204,6 +203,9 @@ def train_sae(
     # Move activations to device
     activations = activations.to(device)
 
+    if activations.shape[0] == 0:
+        raise ValueError("No activations provided: activations must contain at least one sample.")
+
     # Create dataloader
     dataset = TensorDataset(activations)
     dataloader = DataLoader(
@@ -211,7 +213,7 @@ def train_sae(
         batch_size=config.batch_size,
         shuffle=True,
         num_workers=0,
-        drop_last=True  # Drop last incomplete batch
+        drop_last=False,
     )
 
     # Create optimizer
@@ -222,20 +224,29 @@ def train_sae(
 
     optimizer = torch.optim.Adam(params, lr=config.learning_rate)
 
-    # Initialize W&B
+    # Initialize W&B lazily so training works even when wandb is not installed.
+    wandb_module: Any | None = None
     if use_wandb:
+        try:
+            import wandb as wandb_module
+        except Exception as e:
+            if verbose:
+                print(f"Warning: W&B import failed: {e}")
+            use_wandb = False
+
+    if use_wandb and wandb_module is not None:
         if wandb_run_name is None:
             wandb_run_name = f"sae_{config.architecture}_seed{config.seed}"
 
         try:
-            wandb.init(
+            wandb_module.init(
                 project=wandb_project,
                 name=wandb_run_name,
                 config=config.model_dump(),
                 tags=[config.architecture, f"seed{config.seed}", "sae_training"]
             )
             if verbose:
-                print(f"W&B initialized: {wandb.run.get_url()}")
+                print(f"W&B initialized: {wandb_module.run.get_url()}")
         except Exception as e:
             if verbose:
                 print(f"Warning: W&B initialization failed: {e}")
@@ -268,6 +279,7 @@ def train_sae(
         epoch_loss = 0.0
         epoch_mse = 0.0
         epoch_sparsity = 0.0
+        epoch_aux = 0.0
         epoch_l0 = 0.0
         epoch_l1 = 0.0
         num_batches = 0
@@ -280,17 +292,26 @@ def train_sae(
 
         for (batch_acts,) in pbar:
             batch_acts = batch_acts.to(device)
+            aux_loss = torch.zeros((), device=batch_acts.device, dtype=batch_acts.dtype)
+
             # Forward pass (supports wrapper and raw SAE modules)
             try:
-                reconstructed, latents = sae(batch_acts, return_latents=True)
+                outputs = sae(batch_acts, return_latents=True)
             except TypeError:
                 outputs = sae(batch_acts)
-                if isinstance(outputs, tuple):
-                    reconstructed = outputs[0]
-                    latents = outputs[1] if len(outputs) > 1 else sae.encode(batch_acts)
-                else:
-                    reconstructed = outputs
-                    latents = sae.encode(batch_acts)
+
+            if isinstance(outputs, tuple):
+                reconstructed = outputs[0]
+                latents = outputs[1] if len(outputs) > 1 else sae.encode(batch_acts)
+                if len(outputs) > 2:
+                    aux_term = outputs[2]
+                    if torch.is_tensor(aux_term):
+                        aux_loss = aux_term.mean() if aux_term.ndim > 0 else aux_term
+                    elif isinstance(aux_term, (float, int)):
+                        aux_loss = torch.tensor(float(aux_term), device=batch_acts.device, dtype=batch_acts.dtype)
+            else:
+                reconstructed = outputs
+                latents = sae.encode(batch_acts)
 
             # Compute MSE loss
             mse_loss = F.mse_loss(reconstructed, batch_acts)
@@ -303,8 +324,8 @@ def train_sae(
                 k=config.k
             )
 
-            # Total loss
-            loss = mse_loss + sparsity_loss
+            # Total loss: include explicit auxiliary terms emitted by TopK variants.
+            loss = mse_loss + sparsity_loss + aux_loss
 
             # Backward pass
             optimizer.zero_grad()
@@ -331,6 +352,7 @@ def train_sae(
                 epoch_loss += loss.item()
                 epoch_mse += mse_loss.item()
                 epoch_sparsity += sparsity_loss.item()
+                epoch_aux += aux_loss.item()
                 epoch_l0 += l0
                 epoch_l1 += l1
                 num_batches += 1
@@ -339,13 +361,21 @@ def train_sae(
                 pbar.set_postfix({
                     'loss': f'{loss.item():.4f}',
                     'l0': f'{l0:.1f}',
-                    'mse': f'{mse_loss.item():.4f}'
+                    'mse': f'{mse_loss.item():.4f}',
+                    'aux': f'{aux_loss.item():.4f}',
                 })
 
         # Compute epoch averages
+        if num_batches == 0:
+            raise ValueError(
+                "No training batches were produced. "
+                f"batch_size={config.batch_size}, num_samples={len(dataset)}."
+            )
+
         avg_loss = epoch_loss / num_batches
         avg_mse = epoch_mse / num_batches
         avg_sparsity = epoch_sparsity / num_batches
+        avg_aux = epoch_aux / num_batches
         avg_l0 = epoch_l0 / num_batches
         avg_l1 = epoch_l1 / num_batches
 
@@ -378,11 +408,12 @@ def train_sae(
         metrics.dead_neuron_pct.append(dead_pct)
 
         # Log to W&B
-        if use_wandb:
-            wandb.log({
+        if use_wandb and wandb_module is not None:
+            wandb_module.log({
                 'train/loss': avg_loss,
                 'train/mse_loss': avg_mse,
                 'train/sparsity_loss': avg_sparsity,
+                'train/aux_loss': avg_aux,
                 'train/l0': avg_l0,
                 'train/l1': avg_l1,
                 'train/explained_variance': explained_var,
@@ -394,7 +425,10 @@ def train_sae(
         # Print epoch summary
         if verbose:
             print(f"\nEpoch {epoch+1}/{config.num_epochs}:")
-            print(f"  Loss: {avg_loss:.4f} (MSE: {avg_mse:.4f}, Sparsity: {avg_sparsity:.6f})")
+            print(
+                f"  Loss: {avg_loss:.4f} (MSE: {avg_mse:.4f}, "
+                f"Sparsity: {avg_sparsity:.6f}, Aux: {avg_aux:.6f})"
+            )
             print(f"  L0: {avg_l0:.2f}, L1: {avg_l1:.4f}")
             print(f"  Explained variance: {explained_var:.4f}")
             print(f"  Dead neurons: {dead_count}/{d_sae} ({dead_pct:.2f}%)")
@@ -430,8 +464,8 @@ def train_sae(
             print(f"\nFinal checkpoint saved: {final_path}")
 
     # Finish W&B
-    if use_wandb:
-        wandb.finish()
+    if use_wandb and wandb_module is not None:
+        wandb_module.finish()
 
     if verbose:
         print("\n✓ SAE training complete!")

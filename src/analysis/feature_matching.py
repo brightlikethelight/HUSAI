@@ -174,6 +174,16 @@ def compute_feature_statistics(
         overlap_matrix = compute_feature_overlap_matrix(saes, show_progress=False)
     
     n = len(saes)
+
+    if n < 2:
+        return {
+            "mean_overlap": float("nan"),
+            "std_overlap": float("nan"),
+            "min_overlap": float("nan"),
+            "max_overlap": float("nan"),
+            "median_overlap": float("nan"),
+            "above_threshold": float("nan"),
+        }
     
     # Get upper triangle (excluding diagonal)
     triu_indices = np.triu_indices(n, k=1)
@@ -288,13 +298,15 @@ def visualize_overlap_matrix(
     
     # Add statistics annotation
     n = len(overlap_matrix)
-    triu_indices = np.triu_indices(n, k=1)
-    off_diagonal = overlap_matrix[triu_indices]
-    mean_overlap = off_diagonal.mean()
-    std_overlap = off_diagonal.std()
-    
-    stats_text = f"Mean: {mean_overlap:.3f} ± {std_overlap:.3f}\n"
-    stats_text += f"Min: {off_diagonal.min():.3f}, Max: {off_diagonal.max():.3f}"
+    if n < 2:
+        stats_text = "Pairwise stats unavailable (need at least 2 SAEs)."
+    else:
+        triu_indices = np.triu_indices(n, k=1)
+        off_diagonal = overlap_matrix[triu_indices]
+        mean_overlap = off_diagonal.mean()
+        std_overlap = off_diagonal.std()
+        stats_text = f"Mean: {mean_overlap:.3f} ± {std_overlap:.3f}\n"
+        stats_text += f"Min: {off_diagonal.min():.3f}, Max: {off_diagonal.max():.3f}"
     
     ax.text(
         0.02, 0.98,

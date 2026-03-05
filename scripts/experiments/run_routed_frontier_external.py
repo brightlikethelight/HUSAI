@@ -112,8 +112,12 @@ def summary_stats(values: list[float | None]) -> dict[str, float | None]:
 
 
 def build_expert_slices(d_sae: int, num_experts: int) -> list[tuple[int, int]]:
+    if d_sae <= 0:
+        raise ValueError("d_sae must be positive")
     if num_experts <= 0:
         raise ValueError("num_experts must be positive")
+    if num_experts > d_sae:
+        raise ValueError(f"num_experts ({num_experts}) must be <= d_sae ({d_sae})")
 
     base = d_sae // num_experts
     rem = d_sae % num_experts
@@ -514,7 +518,16 @@ def main() -> None:
     if args.run_cebench and args.cebench_repo is None:
         raise ValueError("--cebench-repo is required when --run-cebench is set")
 
+    if args.d_sae <= 0:
+        raise ValueError("--d-sae must be positive")
+    if args.k <= 0:
+        raise ValueError("--k must be >= 1")
+    if args.num_experts <= 0 or args.num_experts > args.d_sae:
+        raise ValueError("--num-experts must satisfy 1 <= num_experts <= d_sae")
+
     seeds = parse_ints(args.seeds)
+    if not seeds:
+        raise ValueError("--seeds must include at least one integer seed")
     sae_dtype = dtype_from_name(args.dtype)
 
     run_id = datetime.now(timezone.utc).strftime("run_%Y%m%dT%H%M%SZ")

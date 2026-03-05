@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pytest
 import torch
 from torch import nn
 
@@ -98,3 +99,8 @@ def test_decoder_diversity_penalty_increases_for_duplicate_columns() -> None:
     )
     penalty = decoder_diversity_penalty(weight)
     assert penalty.item() > 0.1
+
+
+def test_build_expert_slices_rejects_num_experts_greater_than_d_sae() -> None:
+    with pytest.raises(ValueError, match="num_experts"):
+        build_expert_slices(d_sae=4, num_experts=5)

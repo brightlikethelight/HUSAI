@@ -23,10 +23,17 @@ from typing import Any
 import torch
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from scripts.experiments.benchmark_utils import (
+    ensure_free_space,
+    write_json_payload,
+    write_lines,
+)
+
 CACHE_ROOT = PROJECT_ROOT / "results" / "cache" / "external_benchmarks"
 DEFAULT_CEBENCH_ARTIFACTS = CACHE_ROOT / "ce_bench_artifacts"
-
-sys.path.insert(0, str(PROJECT_ROOT))
 
 from scripts.experiments.run_cebench_compat import (  # noqa: E402
     clean_run_local_outputs,
@@ -135,7 +142,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
-    args = build_arg_parser().parse_args()
+    parser = build_arg_parser()
+    args = parser.parse_args()
     args.cebench_repo = resolve_repo_path(args.cebench_repo).resolve()
     args.checkpoint = resolve_repo_path(args.checkpoint).resolve()
     args.output_folder = resolve_repo_path(args.output_folder).resolve()
@@ -188,17 +196,27 @@ def main() -> None:
         ce_bench_mod.SAE = tuple([*base_sae_type, type(sae)])
 
     config = ce_bench_mod.AutoInterpEvalConfig(model_name=args.model_name)
+    batch_size_map = getattr(ce_bench_mod.activation_collection, "LLM_NAME_TO_BATCH_SIZE", {})
+    dtype_map = getattr(ce_bench_mod.activation_collection, "LLM_NAME_TO_DTYPE", {})
+    if args.model_name not in batch_size_map or args.model_name not in dtype_map:
+        supported = sorted(set(batch_size_map.keys()) & set(dtype_map.keys()))
+        parser.error(
+            f"Unsupported --model-name '{args.model_name}'. "
+            f"Supported values include: {', '.join(supported[:20])}"
+        )
     if args.llm_batch_size is not None:
         config.llm_batch_size = args.llm_batch_size
     else:
-        config.llm_batch_size = ce_bench_mod.activation_collection.LLM_NAME_TO_BATCH_SIZE[args.model_name]
+        config.llm_batch_size = batch_size_map[args.model_name]
     if args.llm_dtype is not None:
         config.llm_dtype = args.llm_dtype
     else:
-        config.llm_dtype = ce_bench_mod.activation_collection.LLM_NAME_TO_DTYPE[args.model_name]
+        config.llm_dtype = dtype_map[args.model_name]
     if args.random_seed is not None:
         config.random_seed = args.random_seed
 
+    ensure_free_space(args.output_folder)
+    ensure_free_space(args.artifacts_path)
     args.output_folder.mkdir(parents=True, exist_ok=True)
     args.artifacts_path.mkdir(parents=True, exist_ok=True)
 
@@ -210,10 +228,10 @@ def main() -> None:
 
     old_cwd = Path.cwd()
     run_error: Exception | None = None
+    old_artifacts_path = getattr(ce_bench_mod.general_utils, "ARTIFACTS_PATH", None)
     try:
         # CE-Bench writes relative outputs. Keep them isolated under this run folder.
         clean_run_local_outputs(args.output_folder)
-        old_artifacts_path = getattr(ce_bench_mod.general_utils, "ARTIFACTS_PATH", None)
         ce_bench_mod.general_utils.ARTIFACTS_PATH = str(args.artifacts_path)
         os.chdir(args.output_folder)
         ce_bench_mod.run_eval_once(
@@ -223,11 +241,11 @@ def main() -> None:
             sae_id=sae,
             config=config,
         )
-        if old_artifacts_path is not None:
-            ce_bench_mod.general_utils.ARTIFACTS_PATH = old_artifacts_path
     except Exception as exc:
         run_error = exc
     finally:
+        if old_artifacts_path is not None:
+            ce_bench_mod.general_utils.ARTIFACTS_PATH = old_artifacts_path
         os.chdir(old_cwd)
 
     summary = summarize_cebench_outputs(args.output_folder)
@@ -279,7 +297,7 @@ def main() -> None:
 
     summary_json = args.output_folder / "husai_custom_cebench_summary.json"
     summary_md = args.output_folder / "husai_custom_cebench_summary.md"
-    summary_json.write_text(json.dumps(run_payload, indent=2) + "\n")
+    write_json_payload(summary_json, run_payload, "HUSAI custom CE-Bench summary")
 
     lines = [
         "# HUSAI Custom CE-Bench Summary",
@@ -332,7 +350,7 @@ def main() -> None:
             f"- Adapter summary JSON: `{repo_rel(summary_json)}`",
         ]
     )
-    summary_md.write_text("\n".join(lines) + "\n")
+    write_lines(summary_md, lines, "HUSAI custom CE-Bench summary markdown")
 
     print("HUSAI custom CE-Bench eval complete")
     print(f"Output folder: {args.output_folder}")

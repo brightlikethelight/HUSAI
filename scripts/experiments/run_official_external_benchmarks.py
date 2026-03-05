@@ -28,6 +28,15 @@ from pathlib import Path
 from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from scripts.experiments.benchmark_utils import (
+    ensure_free_space,
+    write_json_payload,
+    write_lines,
+)
+
 CACHE_ROOT = PROJECT_ROOT / "results" / "cache" / "external_benchmarks"
 DEFAULT_CEBENCH_ARTIFACTS = CACHE_ROOT / "ce_bench_artifacts"
 DEFAULT_HUSAI_SAEBENCH_RESULTS = CACHE_ROOT / "husai_saebench_probe_results"
@@ -88,6 +97,13 @@ def parse_csv_ints(text: str) -> list[int]:
 
 def build_shell_command(parts: list[str]) -> str:
     return " ".join(shlex.quote(part) for part in parts)
+
+
+def project_rel_or_abs(path: Path) -> str:
+    try:
+        return str(path.relative_to(PROJECT_ROOT))
+    except ValueError:
+        return str(path)
 
 
 def detect_saebench(repo_path: Path | None) -> dict[str, Any]:
@@ -211,6 +227,48 @@ def run_command(
             note="Command provided but not executed (missing --execute).",
         )
 
+    shell_operators = ("|", "&&", "||", ";", "$(", "`", ">", "<")
+    if any(op in command for op in shell_operators):
+        return CommandResult(
+            name=name,
+            attempted=False,
+            success=False,
+            returncode=None,
+            command=command,
+            cwd=str(cwd) if cwd else None,
+            stdout_log=None,
+            stderr_log=None,
+            note="Rejected command containing shell operators; provide a direct argv-style command.",
+        )
+
+    try:
+        argv = shlex.split(command)
+    except ValueError as exc:
+        return CommandResult(
+            name=name,
+            attempted=False,
+            success=False,
+            returncode=None,
+            command=command,
+            cwd=str(cwd) if cwd else None,
+            stdout_log=None,
+            stderr_log=None,
+            note=f"Invalid command string: {exc}",
+        )
+    if not argv:
+        return CommandResult(
+            name=name,
+            attempted=False,
+            success=False,
+            returncode=None,
+            command=command,
+            cwd=str(cwd) if cwd else None,
+            stdout_log=None,
+            stderr_log=None,
+            note="Empty command after parsing.",
+        )
+
+    ensure_free_space(logs_dir)
     logs_dir.mkdir(parents=True, exist_ok=True)
     stdout_path = logs_dir / f"{name}.stdout.log"
     stderr_path = logs_dir / f"{name}.stderr.log"
@@ -220,8 +278,8 @@ def run_command(
         stderr_path.open("w", encoding="utf-8") as stderr_file,
     ):
         proc = subprocess.run(
-            command,
-            shell=True,
+            argv,
+            shell=False,
             cwd=str(cwd) if cwd else None,
             stdout=stdout_file,
             stderr=stderr_file,
@@ -235,8 +293,8 @@ def run_command(
         returncode=proc.returncode,
         command=command,
         cwd=str(cwd) if cwd else None,
-        stdout_log=str(stdout_path.relative_to(PROJECT_ROOT)),
-        stderr_log=str(stderr_path.relative_to(PROJECT_ROOT)),
+        stdout_log=project_rel_or_abs(stdout_path),
+        stderr_log=project_rel_or_abs(stderr_path),
         note="completed",
     )
 
@@ -485,6 +543,7 @@ def main() -> None:
     run_id = datetime.now(timezone.utc).strftime("run_%Y%m%dT%H%M%SZ")
     run_dir = args.output_dir / run_id
     logs_dir = run_dir / "logs"
+    ensure_free_space(run_dir)
     run_dir.mkdir(parents=True, exist_ok=True)
 
     husai_custom_command = None
@@ -553,7 +612,7 @@ def main() -> None:
         "husai_custom_cebench_command": husai_custom_cebench_command,
         "execute": args.execute,
     }
-    (run_dir / "config.json").write_text(json.dumps(config_payload, indent=2) + "\n")
+    write_json_payload(run_dir / "config.json", config_payload, "run config")
 
     saebench = detect_saebench(args.saebench_repo)
     cebench = detect_cebench(args.cebench_repo)
@@ -620,14 +679,14 @@ def main() -> None:
     }
 
     preflight_path = run_dir / "preflight.json"
-    preflight_path.write_text(json.dumps(preflight, indent=2) + "\n")
+    write_json_payload(preflight_path, preflight, "preflight data")
 
     sae_index_path = run_dir / "local_sae_index.json"
-    sae_index_path.write_text(json.dumps(local_sae_index, indent=2) + "\n")
+    write_json_payload(sae_index_path, local_sae_index, "local SAE index")
 
     command_payload = [asdict(r) for r in command_results]
     commands_path = run_dir / "commands.json"
-    commands_path.write_text(json.dumps(command_payload, indent=2) + "\n")
+    write_json_payload(commands_path, command_payload, "command results")
 
     summary_lines = [
         "# Official External Benchmark Harness",
@@ -765,7 +824,7 @@ def main() -> None:
     )
 
     summary_path = run_dir / "summary.md"
-    summary_path.write_text("\n".join(summary_lines) + "\n")
+    write_lines(summary_path, summary_lines, "summary markdown")
 
     artifacts = [
         str((run_dir / "config.json").relative_to(PROJECT_ROOT)),
@@ -784,7 +843,7 @@ def main() -> None:
         },
         "artifacts": artifacts,
     }
-    (run_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+    write_json_payload(run_dir / "manifest.json", manifest, "manifest")
 
     print("Official benchmark harness complete")
     print(f"Run directory: {run_dir}")

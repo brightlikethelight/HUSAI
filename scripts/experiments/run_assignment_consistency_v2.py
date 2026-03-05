@@ -41,11 +41,17 @@ def utc_now() -> str:
 
 
 def parse_int_list(raw: str) -> list[int]:
-    return [int(x.strip()) for x in raw.split(",") if x.strip()]
+    values = [int(x.strip()) for x in raw.split(",") if x.strip()]
+    if not values:
+        raise ValueError("expected at least one integer value")
+    return values
 
 
 def parse_float_list(raw: str) -> list[float]:
-    return [float(x.strip()) for x in raw.split(",") if x.strip()]
+    values = [float(x.strip()) for x in raw.split(",") if x.strip()]
+    if not values:
+        raise ValueError("expected at least one float value")
+    return values
 
 
 def git_commit() -> str:
@@ -125,6 +131,8 @@ def bootstrap_ci(values: list[float], n_bootstrap: int = 10000, seed: int = 0) -
 
 def summarize(values: list[float], n_bootstrap: int = 10000, seed: int = 0) -> dict[str, float]:
     arr = np.asarray(values, dtype=np.float64)
+    if arr.size == 0:
+        raise ValueError("cannot summarize empty values")
     lo, hi = bootstrap_ci(values, n_bootstrap=n_bootstrap, seed=seed)
     std = float(arr.std(ddof=1)) if arr.size > 1 else 0.0
     return {
@@ -602,8 +610,14 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    train_seeds = parse_int_list(args.train_seeds)
-    lambdas = parse_float_list(args.lambdas)
+    try:
+        train_seeds = parse_int_list(args.train_seeds)
+    except ValueError as exc:
+        parser.error(f"--train-seeds {exc}")
+    try:
+        lambdas = parse_float_list(args.lambdas)
+    except ValueError as exc:
+        parser.error(f"--lambdas {exc}")
 
     run_id = datetime.now(timezone.utc).strftime("run_%Y%m%dT%H%M%SZ")
     run_dir = args.output_dir / run_id

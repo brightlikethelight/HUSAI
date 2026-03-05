@@ -90,3 +90,15 @@ def test_supervised_proxy_metrics_present() -> None:
     assert metrics["supervised_proxy_weight"] == 0.2
     assert metrics["supervised_proxy_loss_train"] == metrics["supervised_proxy_loss_train"]
     assert 0.0 <= metrics["supervised_proxy_accuracy_eval"] <= 1.0
+
+
+def test_parse_lists_reject_empty_values() -> None:
+    with pytest.raises(ValueError, match="at least one integer"):
+        assign_v2.parse_int_list(" , , ")
+    with pytest.raises(ValueError, match="at least one float"):
+        assign_v2.parse_float_list(" , ")
+
+
+def test_summarize_rejects_empty_values() -> None:
+    with pytest.raises(ValueError, match="empty values"):
+        assign_v2.summarize([])
