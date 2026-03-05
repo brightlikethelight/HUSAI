@@ -13,17 +13,12 @@ Use this index to avoid stale or conflicting documents.
 5. `REPO_NAVIGATION.md`
 6. `RUNBOOK.md`
 7. `EXPERIMENT_LOG.md`
-8. `AUDIT.md`
-9. `BUGS.md`
-10. `LIT_REVIEW.md`
-11. `EXPERIMENT_PLAN.md`
-12. `HIGH_IMPACT_FOLLOWUPS_REPORT.md`
-13. `NOVEL_CONTRIBUTIONS.md`
-14. `BLOG_OUTLINE.md`
-15. `PAPER_OUTLINE.md`
-16. `FINAL_BLOG.md`
-17. `FINAL_PAPER.md`
-18. `docs/05-Presentation/cycle10_readout/SLIDE_OUTLINE.md`
+8. `NOVEL_CONTRIBUTIONS.md`
+9. `HIGH_IMPACT_FOLLOWUPS_REPORT.md`
+10. `FINAL_BLOG.md`
+11. `paper/sae_stability_paper.md` (canonical paper)
+12. `paper/FINAL_PAPER.md` (cycle-10 technical report)
+13. `docs/04-Execution/EXPERIMENT_PLAN_2026_02_20.md`
 
 ## Canonical Evidence
 

@@ -1,55 +1,45 @@
-# Advisor Brief: HUSAI Live State
+# Advisor Brief: HUSAI Final State
 
-Date: 2026-02-16
+Date: 2026-02-18
 
-## 1) Core Question
+## Core Question
 
-Can we train SAEs that are both internally consistent across seeds and externally competitive under modern interpretability benchmarks (SAEBench + CE-Bench), with strict uncertainty-aware release gates?
+Can SAEs be made both internally reliable and externally benchmark-competitive under strict uncertainty-aware release gates?
 
-## 2) Where We Are Now
+## Final Outcome
 
-- Queue status:
-  - `cycle7`: running (`a2` assignment condition in progress)
-  - `cycle8`: queued and waiting; will pull latest `main` automatically
-- Engineering/reliability status: strong.
-- Scientific status:
-  - internal consistency improvements are real
-  - external metrics still negative under strict gates
+- Internal consistency: improved and reproducible.
+- Stress controls: pass.
+- External benchmarks: fail strict positivity thresholds.
+- Final release gate: `pass_all=false`.
 
-## 3) Strongest Current Evidence
+## Selected Final Candidate
 
-- Cycle7 routed complete:
-  - `results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/`
-- Cycle7 assignment a1 complete:
-  - `results/experiments/phase4d_assignment_consistency_v3_cycle7_pareto/run_20260216T142558Z/results.json`
-  - best lambda `0.15`, internal LCB `0.83984`, SAEBench delta `-0.04355`, CE-Bench delta `-34.46848`
-- Live monitoring snapshot:
-  - `docs/evidence/cycle7_live_snapshot_20260216T165714Z/monitoring_summary.md`
+- condition: `relu`
+- seed: `42`
+- checkpoint: `results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/relu_seed42/sae_final.pt`
 
-## 4) Critical Fixes Applied Today
+## Why Not Released
 
-Commit `14b6c59`:
-- fixed selection/gating handling of valid `0.0` values in assignment and selector logic
-- filtered non-finite values from assignment normalization path
+External metrics remained negative for the selected candidate:
 
-Commit `95f567c`:
-- added interval-cached Hungarian updates for assignment training (`--assignment-update-interval`)
-- threaded the flag through assignment-v3 and cycle queue scripts (`cycle4`..`cycle9`)
-- added unit coverage for interval behavior
-- full unit suite green (`104 passed`)
+- `saebench_delta = -0.029153650997086358`
+- `cebench_interp_delta_vs_baseline = -43.71286609575971`
 
-## 5) What Blocks "Finished"
+while non-external gates passed:
 
-1. External gates remain red under strict criteria.
-2. Need one candidate with credible SAEBench + CE-Bench joint improvement under grouped-LCB selection.
-3. Need closure on known-circuit confidence-bound criteria before final claim set.
+- `ood=true`, `transcoder=true`, `random_model=true`
 
-## 6) Immediate Next Program (after cycle7/cycle8)
+## Canonical Evidence
 
-1. Assignment-v4 supervised external proxy objective.
-2. Robust-routed expansion around cycle8 best condition.
-3. PolySAE-inspired matched-budget run.
-4. CI-LCB-first candidate selection and strict release gate rerun.
-5. Known-circuit closure rerun with explicit trained-vs-random lower-bound thresholds.
+- `results/final_packages/cycle10_final_20260218T141310Z/meta/FINAL_INDEX.md` (remote RunPod storage)
+- `results/experiments/release_stress_gates/run_20260218T070856Z/release_policy.json`
+- `results/experiments/release_candidate_selection_cycle10_recovery/run_20260218T070102Z/selected_candidate.json`
 
-Full plan: `CYCLE9_NOVELTY_PLAN.md`
+## Recommended Next Program
+
+1. External-positive objective sweep with explicit dual-target constraints.
+2. Larger grouped-LCB seed counts for selector robustness.
+3. Assignment objective v4/v5 with external-aware Pareto checkpointing.
+4. New architecture family under matched compute (RouteSAE variants first).
+5. Known-circuit closure with trained-vs-random confidence bounds.

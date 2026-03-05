@@ -89,6 +89,8 @@ Selection policy:
 2. Strict release gate must return `pass_all=true` to claim external readiness.
 3. If `pass_all=false`, write explicit failure reason and transition to assignment-v4 objective branch.
 
+Note: This is a historical target state. The final cycle10 gate result remained `pass_all=false`; see `CURRENT_STATUS_AND_STUDY_GUIDE.md` for the canonical post-cycle10 outcome.
+
 ## Runtime Estimate (B200, single GPU)
 
 Approximate wall-clock (order-of-magnitude):

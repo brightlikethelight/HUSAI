@@ -23,7 +23,7 @@ Date: 2026-03-05
 ### P1-Open-2: External strict gate remains failing
 - Impact: no release-ready external transfer claim.
 - Evidence: both evidence tiers report `pass_all=false`.
-- Suggested fix: execute `EXPERIMENT_PLAN.md` phase4b/4c/4d external-focused program.
+- Suggested fix: execute `docs/04-Execution/EXPERIMENT_PLAN_2026_02_20.md` phase4b/4c/4d external-focused program.
 
 ### P2-Open-1: Documentation drift risk in archived files
 - Impact: users may read stale historical docs as current status.

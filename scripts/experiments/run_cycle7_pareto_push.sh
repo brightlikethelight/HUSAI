@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd /workspace/HUSAI
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$ROOT_DIR"
 
 WAIT_SECONDS="${WAIT_SECONDS:-60}"
-CEBENCH_REPO="${CEBENCH_REPO:-/workspace/CE-Bench}"
-ACTIVATION_CACHE_DIR="${ACTIVATION_CACHE_DIR:-/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped}"
-SAEBENCH_MODEL_CACHE_PATH="${SAEBENCH_MODEL_CACHE_PATH:-/tmp/sae_bench_model_cache}"
+HUSAI_TMP_ROOT="${HUSAI_TMP_ROOT:-$ROOT_DIR/tmp}"
+mkdir -p "$HUSAI_TMP_ROOT"
+HUSAI_MPLCONFIGDIR="${HUSAI_MPLCONFIGDIR:-$HUSAI_TMP_ROOT/mpl}"
+mkdir -p "$HUSAI_MPLCONFIGDIR"
+CEBENCH_REPO="${CEBENCH_REPO:-$ROOT_DIR/../CE-Bench}"
+ACTIVATION_CACHE_DIR="${ACTIVATION_CACHE_DIR:-$HUSAI_TMP_ROOT/sae_bench_model_cache/model_activations_pythia-70m-deduped}"
+SAEBENCH_MODEL_CACHE_PATH="${SAEBENCH_MODEL_CACHE_PATH:-$HUSAI_TMP_ROOT/sae_bench_model_cache}"
 export CUBLAS_WORKSPACE_CONFIG="${CUBLAS_WORKSPACE_CONFIG:-:4096:8}"
 SAEBENCH_DATASETS="${SAEBENCH_DATASETS:-100_news_fake,105_click_bait,106_hate_hate,107_hate_offensive,110_aimade_humangpt3,113_movie_sent,114_nyc_borough_Manhattan,115_nyc_borough_Brooklyn,116_nyc_borough_Bronx,117_us_state_FL,118_us_state_CA,119_us_state_TX,120_us_timezone_Chicago,121_us_timezone_New_York,122_us_timezone_Los_Angeles,123_world_country_United_Kingdom}"
 ASSIGN_UPDATE_INTERVAL="${ASSIGN_UPDATE_INTERVAL:-4}"
@@ -45,7 +50,7 @@ run_routed_condition() {
   local epochs="$8"
 
   echo "[cycle7][routed] condition=${tag} dsae=${dsae} k=${k} experts=${experts} bal=${bal} ent=${ent} lr=${lr} epochs=${epochs}"
-  KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
+  KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR="$HUSAI_MPLCONFIGDIR" \
   python scripts/experiments/run_routed_frontier_external.py \
     --activation-cache-dir "$ACTIVATION_CACHE_DIR" \
     --activation-glob '*_blocks.0.hook_resid_pre.pt' \
@@ -70,9 +75,9 @@ run_routed_condition() {
     --cebench-max-rows 200 \
     --cebench-matched-baseline-summary "$default_baseline" \
     --saebench-datasets "$SAEBENCH_DATASETS" \
-    --saebench-results-path /tmp/husai_saebench_probe_results_cycle7_routed \
+    --saebench-results-path "$HUSAI_TMP_ROOT/husai_saebench_probe_results_cycle7_routed" \
     --saebench-model-cache-path "$SAEBENCH_MODEL_CACHE_PATH" \
-    --cebench-artifacts-path /tmp/ce_bench_artifacts_cycle7_routed \
+    --cebench-artifacts-path "$HUSAI_TMP_ROOT/ce_bench_artifacts_cycle7_routed" \
     --output-dir "$ROUTED_SWEEP_ROOT"
 
   local run_dir
@@ -105,7 +110,7 @@ run_assignment_condition() {
   local lr="$5"
 
   echo "[cycle7][assignment] condition=${tag} dsae=${dsae} k=${k} epochs=${epochs} lr=${lr}"
-  KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
+  KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR="$HUSAI_MPLCONFIGDIR" \
   python scripts/experiments/run_assignment_consistency_v3.py \
     --activation-cache-dir "$ACTIVATION_CACHE_DIR" \
     --activation-glob '*_blocks.0.hook_resid_pre.pt' \
@@ -127,9 +132,9 @@ run_assignment_condition() {
     --cebench-max-rows 200 \
     --cebench-matched-baseline-summary "$default_baseline" \
     --saebench-datasets "$SAEBENCH_DATASETS" \
-    --saebench-results-path /tmp/husai_saebench_probe_results_cycle7_assignment \
+    --saebench-results-path "$HUSAI_TMP_ROOT/husai_saebench_probe_results_cycle7_assignment" \
     --saebench-model-cache-path "$SAEBENCH_MODEL_CACHE_PATH" \
-    --cebench-artifacts-path /tmp/ce_bench_artifacts_cycle7_assignment \
+    --cebench-artifacts-path "$HUSAI_TMP_ROOT/ce_bench_artifacts_cycle7_assignment" \
     --external-checkpoint-policy external_score \
     --external-checkpoint-candidates-per-lambda 4 \
     --external-candidate-require-both \
@@ -234,7 +239,7 @@ print(
 PY
 )
 if [[ -n "$BEST_CHECKPOINT" && "$BEST_CHECKPOINT" != /* ]]; then
-  BEST_CHECKPOINT="/workspace/HUSAI/$BEST_CHECKPOINT"
+  BEST_CHECKPOINT="$ROOT_DIR/$BEST_CHECKPOINT"
 fi
 if [[ -z "$BEST_CHECKPOINT" || ! -f "$BEST_CHECKPOINT" ]]; then
   echo "[cycle7][error] selected checkpoint missing: $BEST_CHECKPOINT"
@@ -242,7 +247,7 @@ if [[ -z "$BEST_CHECKPOINT" || ! -f "$BEST_CHECKPOINT" ]]; then
 fi
 
 echo "[cycle7] stage4: OOD + strict release gate"
-KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
+KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR="$HUSAI_MPLCONFIGDIR" \
 python scripts/experiments/run_ood_stress_eval.py \
   --checkpoint "$BEST_CHECKPOINT" \
   --architecture "$BEST_ARCH" \
@@ -252,7 +257,7 @@ python scripts/experiments/run_ood_stress_eval.py \
   --hook-name "$BEST_HOOK_NAME" \
   --device cuda \
   --dtype float32 \
-  --results-path /tmp/husai_saebench_probe_results_ood_cycle7 \
+  --results-path "$HUSAI_TMP_ROOT/husai_saebench_probe_results_ood_cycle7" \
   --model-cache-path "$SAEBENCH_MODEL_CACHE_PATH" \
   --output-dir results/experiments/phase4e_ood_stress_b200 \
   --force-rerun
@@ -269,7 +274,7 @@ print((obj.get("best_condition") or {}).get("summary_path") or "")
 PY
 )"
   if [[ -n "$BEST_TRANSCODER_SUMMARY" && "$BEST_TRANSCODER_SUMMARY" != /* ]]; then
-    BEST_TRANSCODER_SUMMARY="/workspace/HUSAI/$BEST_TRANSCODER_SUMMARY"
+    BEST_TRANSCODER_SUMMARY="$ROOT_DIR/$BEST_TRANSCODER_SUMMARY"
   fi
 fi
 

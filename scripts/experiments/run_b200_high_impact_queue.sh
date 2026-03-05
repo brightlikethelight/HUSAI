@@ -12,7 +12,11 @@ LOG_PATH="$QUEUE_DIR/queue.log"
 exec > >(tee -a "$LOG_PATH") 2>&1
 
 WAIT_SECONDS="${WAIT_SECONDS:-60}"
-CEBENCH_REPO="${CEBENCH_REPO:-/workspace/CE-Bench}"
+HUSAI_TMP_ROOT="${HUSAI_TMP_ROOT:-$ROOT_DIR/tmp}"
+mkdir -p "$HUSAI_TMP_ROOT"
+HUSAI_MPLCONFIGDIR="${HUSAI_MPLCONFIGDIR:-$HUSAI_TMP_ROOT/mpl}"
+mkdir -p "$HUSAI_MPLCONFIGDIR"
+CEBENCH_REPO="${CEBENCH_REPO:-$ROOT_DIR/../CE-Bench}"
 MIN_SAEBENCH_DELTA="${MIN_SAEBENCH_DELTA:-0.0}"
 MIN_CEBENCH_DELTA="${MIN_CEBENCH_DELTA:-0.0}"
 MIN_SAEBENCH_DELTA_LCB="${MIN_SAEBENCH_DELTA_LCB:-0.0}"
@@ -62,9 +66,9 @@ else
   echo "[queue] CE-Bench baseline map not found, using default baseline only: $DEFAULT_CEBENCH_BASELINE"
 fi
 
-KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
+KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR="$HUSAI_MPLCONFIGDIR" \
 python scripts/experiments/run_external_metric_scaling_study.py \
-  --activation-cache-dir /tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped \
+  --activation-cache-dir "$HUSAI_TMP_ROOT/sae_bench_model_cache/model_activations_pythia-70m-deduped" \
   --activation-glob-template '*_blocks.{layer}.hook_resid_pre.pt' \
   --hook-name-template 'blocks.{layer}.hook_resid_pre' \
   --token-budgets 10000,30000 \
@@ -83,9 +87,9 @@ python scripts/experiments/run_external_metric_scaling_study.py \
   --cebench-max-rows 200 \
   "${SCALING_CEBENCH_ARGS[@]}" \
   --saebench-datasets "$SAEBENCH_DATASETS" \
-  --saebench-results-path /tmp/husai_saebench_probe_results_scaling_multiseed \
-  --saebench-model-cache-path /tmp/sae_bench_model_cache \
-  --cebench-artifacts-path /tmp/ce_bench_artifacts_scaling_multiseed \
+  --saebench-results-path "$HUSAI_TMP_ROOT/husai_saebench_probe_results_scaling_multiseed" \
+  --saebench-model-cache-path "$HUSAI_TMP_ROOT/sae_bench_model_cache" \
+  --cebench-artifacts-path "$HUSAI_TMP_ROOT/ce_bench_artifacts_scaling_multiseed" \
   --device cuda \
   --dtype float32 \
   --output-dir results/experiments/phase4e_external_scaling_study_multiseed
@@ -148,7 +152,7 @@ echo "[queue] best_hook_name=${BEST_HOOK_NAME}"
 echo "[queue] selected_candidate_json=${SELECTED_JSON}"
 
 echo "[queue] launching transcoder stress eval"
-KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
+KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR="$HUSAI_MPLCONFIGDIR" \
 python scripts/experiments/run_transcoder_stress_eval.py \
   --transformer-checkpoint results/transformer_5000ep/transformer_best.pt \
   --device cuda \
@@ -161,7 +165,7 @@ TRANSCODER_SUMMARY="$(ls -1dt results/experiments/phase4e_transcoder_stress_b200
 echo "[queue] transcoder_summary=${TRANSCODER_SUMMARY}"
 
 echo "[queue] launching OOD stress eval on selected candidate"
-KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
+KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR="$HUSAI_MPLCONFIGDIR" \
 python scripts/experiments/run_ood_stress_eval.py \
   --checkpoint "$BEST_CHECKPOINT" \
   --architecture "$BEST_ARCH" \
@@ -171,8 +175,8 @@ python scripts/experiments/run_ood_stress_eval.py \
   --hook-name "$BEST_HOOK_NAME" \
   --device cuda \
   --dtype float32 \
-  --results-path /tmp/husai_saebench_probe_results_ood_cycle3 \
-  --model-cache-path /tmp/sae_bench_model_cache \
+  --results-path "$HUSAI_TMP_ROOT/husai_saebench_probe_results_ood_cycle3" \
+  --model-cache-path "$HUSAI_TMP_ROOT/sae_bench_model_cache" \
   --output-dir results/experiments/phase4e_ood_stress_b200 \
   --force-rerun
 

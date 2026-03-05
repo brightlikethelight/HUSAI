@@ -1,6 +1,6 @@
 # Research Plan (Execution Index)
 
-This file is the execution index for the HUSAI research program.
+This file is the execution index for the HUSAI program.
 
 ## Current Goal
 
@@ -8,7 +8,7 @@ Establish whether SAE variants can improve internal consistency while also impro
 
 ## Primary Artifacts
 
-- `EXPERIMENT_PLAN.md`: canonical phase plan and hypotheses.
+- `archive/project_docs_2026_02/EXPERIMENT_PLAN.md`: historical phase plan and hypotheses.
 - `EXPERIMENT_LOG.md`: run-by-run commands, run IDs, and outcomes.
 - `EXECUTIVE_SUMMARY.md`: current scientific bottom line.
 - `HIGH_IMPACT_FOLLOWUPS_REPORT.md`: ranked next-step priorities.
@@ -26,17 +26,20 @@ Establish whether SAE variants can improve internal consistency while also impro
 - `scripts/experiments/run_cycle4_followups_after_queue.sh`
 - `scripts/experiments/run_cycle5_external_push.sh`
 - `scripts/experiments/run_cycle6_saeaware_push.sh`
+- `scripts/experiments/run_cycle7_pareto_push.sh`
+- `scripts/experiments/run_cycle8_robust_pareto_push.sh`
+- `scripts/experiments/run_cycle9_novelty_push.sh`
+- `scripts/experiments/run_cycle10_external_recovery.sh`
 
 ## Evidence Folders
 
-- `docs/evidence/cycle5_external_push_run_20260215T232351Z/`
-- `docs/evidence/cycle4_followups_run_20260215T220728Z/`
-- `docs/evidence/cycle3_queue_run_20260215T165724Z/`
+- `docs/evidence/`
+- `results/final_packages/cycle10_final_20260218T141310Z` (remote RunPod storage)
 
 ## Reading Order
 
 1. `START_HERE.md`
-2. `README.md`
-3. `LEARNING_PATH.md`
-4. `EXPERIMENT_LOG.md`
-5. `EXECUTIVE_SUMMARY.md`
+2. `EVIDENCE_STATUS.md`
+3. `EXECUTIVE_SUMMARY.md`
+4. `RUNBOOK.md`
+5. `EXPERIMENT_LOG.md`

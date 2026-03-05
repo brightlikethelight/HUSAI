@@ -23,6 +23,15 @@ from pathlib import Path
 from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from scripts.experiments.benchmark_utils import (
+    ensure_free_space,
+    write_json_payload,
+    write_lines,
+)
+
 CACHE_ROOT = PROJECT_ROOT / "results" / "cache" / "external_benchmarks"
 DEFAULT_CEBENCH_ARTIFACTS = CACHE_ROOT / "ce_bench_artifacts"
 
@@ -245,7 +254,7 @@ def summarize_cebench_outputs(output_folder: Path) -> dict[str, Any]:
             summary["scores_dump_count_error"] = str(exc)
 
     summary_path = output_folder / "cebench_metrics_summary.json"
-    summary_path.write_text(json.dumps(summary, indent=2) + "\n")
+    write_json_payload(summary_path, summary, "CE-Bench metrics summary")
 
     md_lines = [
         "# CE-Bench Metrics Summary",
@@ -267,7 +276,7 @@ def summarize_cebench_outputs(output_folder: Path) -> dict[str, Any]:
     if "scores_dump_count_error" in summary:
         md_lines.append(f"- scores_dump_count_error: `{summary['scores_dump_count_error']}`")
 
-    (output_folder / "cebench_metrics_summary.md").write_text("\n".join(md_lines) + "\n")
+    write_lines(output_folder / "cebench_metrics_summary.md", md_lines, "CE-Bench metrics summary markdown")
     return summary
 
 
@@ -302,6 +311,8 @@ def main() -> None:
     if not ce_bench_script.exists():
         raise FileNotFoundError(f"CE-Bench entrypoint not found: {ce_bench_script}")
 
+    ensure_free_space(args.output_folder)
+    ensure_free_space(args.artifacts_path)
     args.output_folder.mkdir(parents=True, exist_ok=True)
     args.artifacts_path.mkdir(parents=True, exist_ok=True)
 

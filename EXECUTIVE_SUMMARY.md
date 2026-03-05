@@ -22,9 +22,23 @@ Use `EVIDENCE_STATUS.md` for claim provenance.
 
 Conclusion-level claim is stable (`pass_all=false`), but exact final-candidate identity/metric values are tier-dependent until remote package contents are fully mirrored locally.
 
+## What Is Finished vs What Is Open
+
+**Finished:**
+- Internal track: trained-vs-random controls, k/d_sae ablations, assignment-aware objectives.
+- External track: SAEBench and CE-Bench adapter runs, architecture/frontier/scaling sweeps.
+- Reliability track: stress controls (random_model, transcoder, OOD), uncertainty-aware candidate selection, strict release gating.
+- Engineering: TopK aux-loss fix, small-batch training, optional wandb, input validation hardening, shell=True removal.
+
+**Open:**
+- External benchmark deltas remain negative under strict thresholds.
+- Remote final package not fully mirrored locally.
+- Seed-complete grouped-LCB external reruns needed for stable candidate ranking.
+- External-aware training objectives not yet explored.
+
 ## Repository Health Snapshot
 
-High-impact reliability fixes completed in this update:
+High-impact reliability fixes completed:
 - SAE trainer now includes TopK auxiliary loss in optimization.
 - SAE trainer no longer crashes when dataset size is smaller than batch size.
 - `wandb` import is now optional at runtime.
@@ -42,7 +56,9 @@ Targeted verification:
 
 - Orientation: `START_HERE.md`
 - Evidence ledger: `EVIDENCE_STATUS.md`
+- Paper: `paper/sae_stability_paper.md`
+- Technical report: `paper/FINAL_PAPER.md`
 - Runbook: `RUNBOOK.md`
 - Experiment log: `EXPERIMENT_LOG.md`
 - Literature review: `LIT_REVIEW.md`
-- Experiment roadmap: `EXPERIMENT_PLAN.md`
+- Experiment roadmap: `docs/04-Execution/EXPERIMENT_PLAN_2026_02_20.md`

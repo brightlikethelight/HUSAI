@@ -64,6 +64,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt -r requirements-dev.txt
 
+      - name: Pre-commit (all files)
+        run: pre-commit run --all-files
+
       - name: Lint (incremental gate)
         run: |
           flake8 src/utils/config.py src/data/modular_arithmetic.py \
@@ -88,4 +91,4 @@ jobs:
         run: mypy src/utils/config.py src/data/modular_arithmetic.py
 
       - name: Pytest
-        run: pytest tests -q
+        run: pytest tests -q -x --maxfail=1

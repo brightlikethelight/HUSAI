@@ -2,13 +2,13 @@
 
 Date: 2026-03-05
 
-This file is a working manuscript companion to the canonical root-level writeup in `FINAL_PAPER.md`.
+This file is the cycle-10 technical report companion to the canonical paper in `paper/sae_stability_paper.md`.
 
 ## Scope and Status
 
-- Canonical final narrative: `FINAL_PAPER.md`
+- Canonical paper: `paper/sae_stability_paper.md`
 - Canonical evidence policy: `EVIDENCE_STATUS.md`
-- Canonical plan for next experiments: `EXPERIMENT_PLAN.md`
+- Canonical plan for next experiments: `docs/04-Execution/EXPERIMENT_PLAN_2026_02_20.md`
 
 This draft intentionally avoids placeholders and only states claims that are currently evidence-backed.
 

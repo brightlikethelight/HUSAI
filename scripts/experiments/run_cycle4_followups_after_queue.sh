@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd /workspace/HUSAI
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cd "$ROOT_DIR"
 
 WAIT_SECONDS="${WAIT_SECONDS:-60}"
+HUSAI_TMP_ROOT="${HUSAI_TMP_ROOT:-$ROOT_DIR/tmp}"
+mkdir -p "$HUSAI_TMP_ROOT"
+HUSAI_MPLCONFIGDIR="${HUSAI_MPLCONFIGDIR:-$HUSAI_TMP_ROOT/mpl}"
+mkdir -p "$HUSAI_MPLCONFIGDIR"
 RESUME_FROM_STEP="${RESUME_FROM_STEP:-1}"
 
-CEBENCH_REPO="${CEBENCH_REPO:-/workspace/CE-Bench}"
-ACTIVATION_CACHE_DIR="${ACTIVATION_CACHE_DIR:-/tmp/sae_bench_model_cache/model_activations_pythia-70m-deduped}"
-SAEBENCH_MODEL_CACHE_PATH="${SAEBENCH_MODEL_CACHE_PATH:-/tmp/sae_bench_model_cache}"
+CEBENCH_REPO="${CEBENCH_REPO:-$ROOT_DIR/../CE-Bench}"
+ACTIVATION_CACHE_DIR="${ACTIVATION_CACHE_DIR:-$HUSAI_TMP_ROOT/sae_bench_model_cache/model_activations_pythia-70m-deduped}"
+SAEBENCH_MODEL_CACHE_PATH="${SAEBENCH_MODEL_CACHE_PATH:-$HUSAI_TMP_ROOT/sae_bench_model_cache}"
 export CUBLAS_WORKSPACE_CONFIG="${CUBLAS_WORKSPACE_CONFIG:-:4096:8}"
 
 MIN_TRANSCODER_DELTA_LCB="${MIN_TRANSCODER_DELTA_LCB:-0.0}"
@@ -75,7 +80,7 @@ if [[ "$RESUME_FROM_STEP" -le 1 ]]; then
   fi
 
   set +e
-  KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
+  KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR="$HUSAI_MPLCONFIGDIR" \
   python scripts/experiments/run_transcoder_stress_sweep.py "${TRANS_ARGS[@]}"
   TRANS_RC=$?
   set -e
@@ -87,7 +92,7 @@ TRANS_SWEEP_RUN="$(ls -1dt results/experiments/phase4e_transcoder_stress_sweep_b
 TRANS_SWEEP_RESULTS="${TRANS_SWEEP_RUN}/results.json"
 BEST_TRANSCODER_SUMMARY="$(resolve_best_transcoder_summary "$TRANS_SWEEP_RUN")"
 if [[ -n "$BEST_TRANSCODER_SUMMARY" && "$BEST_TRANSCODER_SUMMARY" != /* ]]; then
-  BEST_TRANSCODER_SUMMARY="/workspace/HUSAI/${BEST_TRANSCODER_SUMMARY}"
+  BEST_TRANSCODER_SUMMARY="$ROOT_DIR/${BEST_TRANSCODER_SUMMARY}"
 fi
 
 echo "[followups] transcoder_sweep_run=$TRANS_SWEEP_RUN"
@@ -95,7 +100,7 @@ echo "[followups] best_transcoder_summary=$BEST_TRANSCODER_SUMMARY"
 
 if [[ "$RESUME_FROM_STEP" -le 2 ]]; then
   echo "[followups] step2a: matryoshka frontier under matched budget"
-  KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
+  KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR="$HUSAI_MPLCONFIGDIR" \
   python scripts/experiments/run_matryoshka_frontier_external.py \
     --activation-cache-dir "$ACTIVATION_CACHE_DIR" \
     --seeds 42,123,456 \
@@ -111,13 +116,13 @@ if [[ "$RESUME_FROM_STEP" -le 2 ]]; then
     --cebench-max-rows 200 \
     --cebench-matched-baseline-summary docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json \
     --saebench-datasets "$SAEBENCH_DATASETS" \
-    --saebench-results-path /tmp/husai_saebench_probe_results_frontier_matryoshka \
+    --saebench-results-path "$HUSAI_TMP_ROOT/husai_saebench_probe_results_frontier_matryoshka" \
     --saebench-model-cache-path "$SAEBENCH_MODEL_CACHE_PATH" \
-    --cebench-artifacts-path /tmp/ce_bench_artifacts_frontier_matryoshka \
+    --cebench-artifacts-path "$HUSAI_TMP_ROOT/ce_bench_artifacts_frontier_matryoshka" \
     --output-dir results/experiments/phase4b_matryoshka_frontier_external
 
   echo "[followups] step2b: routed_topk frontier under matched budget"
-  KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
+  KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR="$HUSAI_MPLCONFIGDIR" \
   python scripts/experiments/run_routed_frontier_external.py \
     --activation-cache-dir "$ACTIVATION_CACHE_DIR" \
     --seeds 42,123,456 \
@@ -136,15 +141,15 @@ if [[ "$RESUME_FROM_STEP" -le 2 ]]; then
     --cebench-max-rows 200 \
     --cebench-matched-baseline-summary docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json \
     --saebench-datasets "$SAEBENCH_DATASETS" \
-    --saebench-results-path /tmp/husai_saebench_probe_results_frontier_routed \
+    --saebench-results-path "$HUSAI_TMP_ROOT/husai_saebench_probe_results_frontier_routed" \
     --saebench-model-cache-path "$SAEBENCH_MODEL_CACHE_PATH" \
-    --cebench-artifacts-path /tmp/ce_bench_artifacts_frontier_routed \
+    --cebench-artifacts-path "$HUSAI_TMP_ROOT/ce_bench_artifacts_frontier_routed" \
     --output-dir results/experiments/phase4b_routed_frontier_external
 fi
 
 if [[ "$RESUME_FROM_STEP" -le 3 ]]; then
   echo "[followups] step3: assignment-aware v3 with external-cache training + external-aware Pareto selection"
-  KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
+  KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR="$HUSAI_MPLCONFIGDIR" \
   python scripts/experiments/run_assignment_consistency_v3.py \
     --activation-cache-dir "$ACTIVATION_CACHE_DIR" \
     --activation-glob '*_blocks.0.hook_resid_pre.pt' \
@@ -165,9 +170,9 @@ if [[ "$RESUME_FROM_STEP" -le 3 ]]; then
     --cebench-max-rows 200 \
     --cebench-matched-baseline-summary docs/evidence/phase4e_cebench_matched200/cebench_matched200_summary.json \
     --saebench-datasets "$SAEBENCH_DATASETS" \
-    --saebench-results-path /tmp/husai_saebench_probe_results_assignv3_external \
+    --saebench-results-path "$HUSAI_TMP_ROOT/husai_saebench_probe_results_assignv3_external" \
     --saebench-model-cache-path "$SAEBENCH_MODEL_CACHE_PATH" \
-    --cebench-artifacts-path /tmp/ce_bench_artifacts_assignv3_external \
+    --cebench-artifacts-path "$HUSAI_TMP_ROOT/ce_bench_artifacts_assignv3_external" \
     --force-rerun-external \
     --require-external \
     --min-saebench-delta 0.0 \
@@ -227,11 +232,11 @@ PY
   )
 
   if [[ -n "$BEST_CHECKPOINT" && "$BEST_CHECKPOINT" != /* ]]; then
-    BEST_CHECKPOINT="/workspace/HUSAI/$BEST_CHECKPOINT"
+    BEST_CHECKPOINT="$ROOT_DIR/$BEST_CHECKPOINT"
   fi
 
   echo "[followups] run OOD stress on selected candidate"
-  KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR=/tmp/mpl \
+  KMP_DUPLICATE_LIB_OK=TRUE MPLCONFIGDIR="$HUSAI_MPLCONFIGDIR" \
   python scripts/experiments/run_ood_stress_eval.py \
     --checkpoint "$BEST_CHECKPOINT" \
     --architecture "$BEST_ARCH" \
@@ -241,7 +246,7 @@ PY
     --hook-name "$BEST_HOOK_NAME" \
     --device cuda \
     --dtype float32 \
-    --results-path /tmp/husai_saebench_probe_results_ood_cycle4 \
+    --results-path "$HUSAI_TMP_ROOT/husai_saebench_probe_results_ood_cycle4" \
     --model-cache-path "$SAEBENCH_MODEL_CACHE_PATH" \
     --output-dir results/experiments/phase4e_ood_stress_b200 \
     --force-rerun

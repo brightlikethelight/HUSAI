@@ -21,7 +21,7 @@ The repository is functionally strong on workflow breadth and experiment tooling
 | A7 | P1 | Correctness | Assignment-v2 accepted empty seeds/lambdas then failed later. | `scripts/experiments/run_assignment_consistency_v2.py` | Reject empty lists at parse time and in summarize. | 0.25 day | Fixed + tested |
 | A8 | P1 | Correctness | CE-Bench custom eval used opaque dict-key access for model mappings. | `scripts/experiments/run_husai_cebench_custom_eval.py` | Validate supported model names before lookup. | 0.25 day | Fixed |
 | A9 | P1 | Safety | Official benchmark harness executed commands using `shell=True`. | `scripts/experiments/run_official_external_benchmarks.py` | Parse argv, reject shell operators, run with `shell=False`. | 0.5 day | Fixed + tested |
-| A10 | P2 | Maintainability | Placeholder GitHub links and stale URLs remained in contributor/docs metadata. | `CONTRIBUTING.md`, `pyproject.toml` | Replace placeholders with real repository links. | 0.25 day | Fixed |
+| A10 | P2 | Maintainability | Placeholder GitHub links and stale URLs remained in contributor/docs metadata. | `pyproject.toml` | Replace placeholders with real repository links. | 0.25 day | Fixed |
 
 ## Residual Risks
 

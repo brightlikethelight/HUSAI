@@ -19,12 +19,17 @@ from typing import Any
 import torch
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from scripts.experiments.benchmark_utils import (
+    ensure_free_space,
+    write_json_payload,
+    write_lines,
+)
 CACHE_ROOT = PROJECT_ROOT / "results" / "cache" / "external_benchmarks"
 DEFAULT_HUSAI_SAEBENCH_RESULTS = CACHE_ROOT / "husai_saebench_probe_results"
 DEFAULT_SAEBENCH_MODEL_CACHE = CACHE_ROOT / "sae_bench_model_cache"
-
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
 
 from scripts.experiments.husai_custom_sae_adapter import (  # noqa: E402
     build_custom_sae_from_checkpoint,
@@ -153,6 +158,9 @@ def main() -> None:
     if args.device == "cuda" and not torch.cuda.is_available():
         raise RuntimeError("CUDA requested but not available")
 
+    ensure_free_space(args.output_dir)
+    ensure_free_space(args.results_path)
+    ensure_free_space(args.model_cache_path)
     args.output_dir.mkdir(parents=True, exist_ok=True)
     args.results_path.mkdir(parents=True, exist_ok=True)
     args.model_cache_path.mkdir(parents=True, exist_ok=True)
@@ -245,7 +253,7 @@ def main() -> None:
 
     summary_json = args.output_dir / "husai_custom_sae_summary.json"
     summary_md = args.output_dir / "husai_custom_sae_summary.md"
-    summary_json.write_text(json.dumps(run_payload, indent=2) + "\n")
+    write_json_payload(summary_json, run_payload, "HUSAI custom SAEBench summary")
 
     lines = [
         "# HUSAI Custom SAE SAEBench Summary",
@@ -272,7 +280,7 @@ def main() -> None:
         f"- SAEBench output dir: `{args.output_dir}`",
         f"- Raw probe results path: `{args.results_path}`",
     ]
-    summary_md.write_text("\n".join(lines) + "\n")
+    write_lines(summary_md, lines, "HUSAI custom SAEBench summary markdown")
 
     print("HUSAI custom SAEBench eval complete")
     print(f"Output dir: {args.output_dir}")
