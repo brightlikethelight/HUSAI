@@ -1,51 +1,52 @@
 # Blog Outline
 
-Working title:
-- *When SAE Features Reconstruct Well but Fail to Reproduce*
+Date: 2026-03-05
 
-## 1) Why this problem matters
-- SAEs are used as interpretability tools.
-- If features are not reproducible across seeds, conclusions are fragile.
+## Working Title
 
-## 2) What we set out to test
-- Do SAEs trained on the same data converge to similar features?
-- How does consistency relate to reconstruction quality?
+Why Our SAE Project Stayed Honest: Strong Internal Gains, Failed External Gate
 
-## 3) Experimental setup
-- Modular arithmetic transformer testbed.
-- Multi-seed SAE runs.
-- Metrics: PWMCC, random baseline, EV/MSE, sparsity stats.
+## Audience
 
-## 4) Core findings
-- Trained-vs-random stability gap is small in current baseline regime.
-- Reconstruction can be strong while consistency remains low.
-- Stability behavior depends on parameterization and regime.
+Applied ML researchers and interpretability engineers.
 
-## 5) What broke and what we fixed
-- Script execution pathing bugs.
-- Import/API drift in SAE path.
-- Test and doc drift that masked reliability issues.
+## Structure
 
-## 6) What we changed in engineering hygiene
-- Repro runbook and audit.
-- Clear critical path docs.
-- Experiment logging standards and manifest plan.
+1. Problem framing
+- Why internal metrics are insufficient.
+- Why strict release gates matter.
 
-## 7) What we tried next
-- Baseline suite.
-- Parameter sweeps and ablations.
-- Candidate SOTA variants and stress tests.
+2. What HUSAI built
+- Reproduction pipeline
+- External adapters (SAEBench/CE-Bench)
+- Stress-gated policy
 
-## 8) What worked, what did not
-- Include both positive and negative outcomes.
-- Discuss random baseline controls and causal checks.
+3. What we found
+- Internal signal: positive
+- Stress gates: pass
+- External gates: fail
+- Final decision: `pass_all=false`
 
-## 9) Practical recommendations
-- Always run multi-seed.
-- Always report random baselines.
-- Always tie claims to run manifests and artifact paths.
+4. Evidence integrity lesson
+- Local vs remote evidence tiers (`EVIDENCE_STATUS.md`)
+- Avoiding candidate/metric overclaims
 
-## 10) Reproduce in one page
-- minimal commands
-- expected artifacts
-- how to validate outputs
+5. Engineering fixes that mattered
+- TopK aux loss wiring
+- small-batch safety
+- safer benchmark execution
+
+6. Next experiments
+- seed-complete grouped-LCB reruns
+- external-aware objective branch
+- official benchmark slice
+
+7. Repro instructions
+- minimal commands from `RUNBOOK.md`
+- artifact locations
+
+## Figures/Tables To Include
+
+1. Gate result table (internal/stress/external).
+2. Evidence-tier map (local verified vs remote-reported).
+3. Experiment roadmap (phase4a-e).

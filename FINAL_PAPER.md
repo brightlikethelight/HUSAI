@@ -1,107 +1,86 @@
-# Reliability-First SAE Evaluation in HUSAI (Cycle 5)
+# HUSAI: Reliability-First SAE Evaluation Under Strict Release Gates
 
-Date: 2026-02-16
+Date: 2026-03-05
 
 ## Abstract
-We present a reliability-first SAE research program that tests whether internal consistency improvements transfer to external benchmark gains. HUSAI integrates multiseed internal ablations, external evaluations (SAEBench, CE-Bench), stress tests (random-model, transcoder, OOD), and strict release gating. Across cycle-5 B200 runs, internal consistency gains remained reproducible, CE-Bench improved for routed and assignment sweeps, but external deltas remained negative at LCB thresholds for selected candidates. The strict gate remained failing (`pass_all=false`).
 
-## 1. Introduction
-SAE interpretability work often emphasizes internal metrics without robust external/stress controls. HUSAI enforces a strict gate over:
-- random-model baseline,
-- transcoder stress,
-- OOD robustness,
-- external benchmark deltas.
+HUSAI evaluates whether sparse autoencoder (SAE) improvements are trustworthy under a release policy that jointly requires internal consistency, stress robustness, and external benchmark competitiveness. The repository contains a full scripted workflow: reproduction controls, ablations, external benchmark adapters (SAEBench and CE-Bench), uncertainty-aware candidate selection, and stress-gated policy checks. The key empirical conclusion is negative but stable: strict release criteria are not met (`pass_all=false`). Internal and stress metrics improve, but external deltas remain below strict thresholds.
 
-Primary question:
-- Can internal consistency gains be achieved without external regressions?
+## 1. Problem
 
-## 2. Method
+Many SAE projects report internal improvements without proving external interpretability gains. HUSAI addresses this by requiring all of the following before release claims:
+- Internal trained-vs-random improvement
+- Stress robustness (`random_model`, `transcoder`, `OOD`)
+- External benchmark deltas (SAEBench and CE-Bench)
 
-### 2.1 Reliability Protocol
-- Reproducible run manifests + config hashing.
-- Matched-baseline external comparisons.
-- Grouped uncertainty-aware (LCB) candidate selection.
-- Strict release policy and fail-fast semantics.
+## 2. Method Overview
 
-### 2.2 Experiment Tracks
-1. Trained-vs-random and core ablations.
-2. Assignment-aware consistency objectives (v2/v3).
-3. External architecture frontier and scaling studies.
-4. New families under matched budget (matryoshka, routed).
-5. Transcoder/OOD stress evaluations.
-6. Known-circuit closure track.
+Core workflow:
+1. Train/evaluate candidate SAEs across architecture/objective sweeps.
+2. Run external evaluations with custom adapters.
+3. Select release candidate with grouped uncertainty-aware scoring.
+4. Apply strict release-gate policy.
 
-## 3. Experimental Setup
+Core implementations:
+- Selection: `scripts/experiments/select_release_candidate.py`
+- Release gate: `scripts/experiments/run_stress_gated_release_policy.py`
+- SAEBench adapter: `scripts/experiments/run_husai_saebench_custom_eval.py`
+- CE-Bench adapter: `scripts/experiments/run_husai_cebench_custom_eval.py`
 
-Compute:
-- RunPod B200 queue execution for high-impact programs.
+## 3. Results and Evidence Status
 
-Cycle-5 external push stages:
-1. Routed hyper-sweep (`expert_topk` + `global_mask` control).
-2. Assignment-v3 external-aware sweep (`d_sae=1024,2048`).
-3. Grouped-LCB reselection.
-4. OOD + strict release gate.
+Evidence is split across local verified artifacts and remote-reported package references. See `EVIDENCE_STATUS.md`.
 
-Evidence root:
-- `docs/evidence/cycle5_external_push_run_20260215T232351Z/`
+### 3.1 Locally Verified Snapshot (Tier 1)
 
-## 4. Results
+Sources:
+- `docs/evidence/cycle4_followups_run_20260215T190004Z/selector/selected_candidate.json`
+- `docs/evidence/cycle4_followups_run_20260215T190004Z/release_gate/release_policy.json`
 
-### 4.1 Internal vs External
-Internal consistency gains are reproducible; external transfer remains unresolved.
+Observed:
+- Selected candidate: `topk_seed123`
+- `saebench_delta` (LCB): `-0.04478959689939781`
+- `cebench_interp_delta_vs_baseline` (LCB): `-40.467037470119465`
+- `pass_all=false`
 
-### 4.2 Routed-family correction
-- `expert_topk` restored effective sparsity (`train_l0=32/48`) vs `global_mask` collapse (`train_l0≈4.3`).
-- Best routed CE-Bench delta improved to `-37.260996`.
-- SAEBench deltas remained negative.
+### 3.2 Remote-Reported Final Package (Tier 2)
 
-### 4.3 Assignment-v3 external sweep
-Best condition (`d_sae=2048`, `best_lambda=0.05`):
-- `internal_lcb = 0.838793`
-- `cebench_delta = -34.345572`
-- `saebench_delta = -0.049864`
-- `pass_all = false`
+Documented path:
+- `results/final_packages/cycle10_final_20260218T141310Z`
 
-### 4.4 Strict release gate (cycle-5 canonical)
-From `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.json`:
-- `random_model=True`
-- `transcoder=True`
-- `ood=True`
-- `external=False`
-- `pass_all=False`
+Canonical docs reference:
+- Selected candidate: `relu_seed42`
+- `saebench_delta = -0.029153650997086358`
+- `cebench_interp_delta_vs_baseline = -43.71286609575971`
+- `pass_all=false`
 
-Metrics:
-- `trained_random_delta_lcb = 0.00006183199584486321`
-- `transcoder_delta = +0.004916101694107056`
-- `ood_drop = 0.020994556554025268`
-- `saebench_delta_ci95_low = -0.04478959689939781`
-- `cebench_interp_delta_vs_baseline_ci95_low = -40.467037470119465`
+### 3.3 Stable Conclusion
 
-## 5. Discussion
+Despite candidate/metric mismatch across evidence tiers, both tracks agree on the release decision:
+- External gate not satisfied.
+- Strict release remains blocked (`pass_all=false`).
 
-### 5.1 Supported claims
-- Internal consistency gains are real and replicated.
-- Reliability-first infrastructure and strict gating are effective.
-- Routed implementation correction improves effective sparsity behavior.
+## 4. Engineering Reliability Improvements in This Update
 
-### 5.2 Unsupported claims
-- External superiority for current candidates.
-- Full proposal closure on joint internal+external improvement.
+This update fixes high-impact code-path defects and adds regression tests:
+- TopK auxiliary loss is now optimized in `src/training/train_sae.py`.
+- Small-dataset training no longer crashes when `batch_size > num_samples`.
+- `wandb` is optional at runtime.
+- Single-SAE feature-stat calls no longer crash in `src/analysis/feature_matching.py`.
+- Routed frontier now validates `1 <= num_experts <= d_sae` and `k >= 1`.
+- Assignment-v2 now rejects empty seeds/lambdas with clear errors.
+- CE-Bench custom eval validates model-name mappings and always restores global artifact path.
+- Official benchmark harness no longer uses `shell=True`.
 
-### 5.3 Main scientific insight
-Internal consistency and external interpretability objectives are not automatically aligned; explicit multi-objective optimization is required.
+Targeted test result:
+- `17 passed` for newly added edge-case regression suite.
 
-## 6. Limitations
-- External-positive candidate not yet found under strict LCB gates.
-- Selector sensitivity to group-size constraints can change winner identity.
-- Known-circuit closure remains below trained-vs-random thresholds.
+## 5. Limitations
 
-## 7. Reproducibility Checklist
-- Entrypoint: `START_HERE.md`
-- Runbook: `RUNBOOK.md`
-- Experiment provenance: `EXPERIMENT_LOG.md`
-- Reflective synthesis: `CYCLE5_EXTERNAL_PUSH_REFLECTIVE_REVIEW.md`
-- Latest gate evidence: `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.md`
+1. Final remote package is not fully mirrored locally; exact final-candidate claims require local mirroring for full reproducibility.
+2. External metrics remain negative under strict thresholds.
+3. Official benchmark execution in fully standardized external environments remains environment-dependent.
 
-## 8. Conclusion
-HUSAI is a robust reliability-first SAE research platform. It provides clear evidence of internal progress while transparently showing unresolved external transfer under strict controls.
+## 6. Next Step
+
+Highest leverage is external-transfer recovery under strict gate discipline: objective-level external coupling, seed-complete grouped evaluation, and matched-protocol baseline recalibration.

@@ -1,15 +1,23 @@
 # Evidence Directory
 
-This directory stores exported evidence snapshots used in summaries and writeups.
+Updated: 2026-03-05
 
-## Conventions
+This directory stores repository-local evidence snapshots used for writeups and audits.
 
-- Each run bundle is under `docs/evidence/<run_family>_<run_id>/`.
-- JSON/MD files here are copied from remote run outputs and intended to be versioned.
-- Some markdown summaries include repo-relative pointers to full run outputs under `results/experiments/...`.
+## Canonical Usage
 
-## Important Note
+- Use these files for locally verifiable claims.
+- If a claim depends on remote package paths under `results/final_packages/...`, label it as remote-reported unless mirrored locally.
 
-Not every referenced `results/experiments/...` artifact is checked into git. Some were generated on remote compute and only summarized/captured here.
+## Key Local Snapshot Paths
 
-When a referenced result file is missing locally, treat the corresponding exported file in this folder as the canonical evidence snapshot for that run.
+- `docs/evidence/cycle4_followups_run_20260215T190004Z/`
+- `docs/evidence/cycle10_live_snapshot_20260218T0410Z/`
+
+## Remote-Reported Final Package Path
+
+- `results/final_packages/cycle10_final_20260218T141310Z`
+
+## Evidence Policy
+
+Read `EVIDENCE_STATUS.md` for Tier1 (local verified) vs Tier2 (remote-reported) claim rules.

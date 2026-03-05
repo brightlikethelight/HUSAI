@@ -1,110 +1,70 @@
-# HUSAI: Stable and Trustworthy SAE Features
+# HUSAI: Reliability-First SAE Research
 
-HUSAI studies whether sparse autoencoder (SAE) features are reproducible across seeds and whether internal consistency gains transfer to external interpretability benchmarks.
+HUSAI studies whether sparse autoencoder (SAE) features are trustworthy under strict release criteria: internal reproducibility, stress robustness, and external benchmark competitiveness.
 
-## Current Status (Live Queue State, 2026-02-17)
+## Current Bottom Line
 
-- Cycle-7 Pareto push is complete.
-- Cycle-8 robust Pareto push has completed assignment `a3` (`run_20260217T111709Z`).
-  - final acceptance: `pass_all=False`
-  - selected checkpoint (`lambda=0.1`): `saebench_delta=-0.0474`, `cebench_delta=-33.6772`, `ev_drop=0.2736`
-- Cycle-9 novelty push is now active on B200 in routed stage1 (`run_20260217T151852Z`).
-- Cycle-10 external-recovery queue script is prepared and validated for post-cycle9 launch:
-  - `scripts/experiments/run_cycle10_external_recovery.sh`
-- Assignment supervised-proxy extension (`eca2c32`) and queue conflict hardening (`d1ac12d`) are on `main` and used by the active queue.
-- Last fully completed strict release gate remains failing (`pass_all=False`) because external LCB criteria are not yet met.
+- Internal consistency signal: positive.
+- Stress controls (`random_model`, `transcoder`, `OOD`): passing in documented runs.
+- External transfer (`SAEBench`, `CE-Bench`): still below strict thresholds.
+- Strict release outcome: `pass_all=false`.
 
-Canonical live artifacts:
-- `START_HERE.md`
-- `EXECUTIVE_SUMMARY.md`
-- `CYCLE7_PARETO_PLAN.md`
-- `CYCLE8_ROBUST_PLAN.md`
-- `CYCLE10_EXTERNAL_RECOVERY_PLAN.md`
-- `docs/evidence/cycle8_cycle9_live_snapshot_20260217T152123Z/monitoring_summary.md`
-- `docs/evidence/cycle7_live_snapshot_20260216T165714Z/monitoring_summary.md`
-- `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.md`
+## Evidence Integrity Note
 
-## Main Research Question
+The repository currently has two evidence tiers:
+- Local verified artifacts in `docs/evidence/...`
+- Remote-reported final package paths under `results/final_packages/...` (not fully mirrored in this checkout)
 
-Can we improve SAE feature consistency in ways that also improve external benchmark performance?
+Use `EVIDENCE_STATUS.md` before citing exact candidate identity or final metric values.
 
-## What We Ran
+## Canonical Entry Points
 
-1. Internal baseline and ablations
+1. `START_HERE.md`
+2. `CANONICAL_DOCS.md`
+3. `EVIDENCE_STATUS.md`
+4. `EXECUTIVE_SUMMARY.md`
+5. `RUNBOOK.md`
+6. `EXPERIMENT_LOG.md`
+
+## Core Research Question
+
+Can we improve SAE internal consistency and still meet external benchmark gates (SAEBench + CE-Bench) under uncertainty-aware release policy?
+
+## Quick Validation
+
+```bash
+pytest tests -q
+make smoke
+```
+
+## Core Scripts
+
+Internal baselines and ablations:
 - `scripts/experiments/run_phase4a_reproduction.py`
 - `scripts/experiments/run_core_ablations.py`
 - `scripts/experiments/run_assignment_consistency_v2.py`
 - `scripts/experiments/run_assignment_consistency_v3.py`
 
-2. External benchmark program
+External benchmark program:
 - `scripts/experiments/run_husai_saebench_custom_eval.py`
 - `scripts/experiments/run_husai_cebench_custom_eval.py`
 - `scripts/experiments/run_architecture_frontier_external.py`
-- `scripts/experiments/run_external_metric_scaling_study.py`
 - `scripts/experiments/run_matryoshka_frontier_external.py`
 - `scripts/experiments/run_routed_frontier_external.py`
+- `scripts/experiments/run_external_metric_scaling_study.py`
 
-3. Stress and release policy
-- `scripts/experiments/run_transcoder_stress_eval.py`
-- `scripts/experiments/run_transcoder_stress_sweep.py`
-- `scripts/experiments/run_ood_stress_eval.py`
+Strict gating:
+- `scripts/experiments/select_release_candidate.py`
 - `scripts/experiments/run_stress_gated_release_policy.py`
 
-4. Queue orchestration
-- `scripts/experiments/run_b200_high_impact_queue.sh`
-- `scripts/experiments/run_cycle4_followups_after_queue.sh`
-- `scripts/experiments/run_cycle5_external_push.sh`
-- `scripts/experiments/run_cycle6_saeaware_push.sh`
-- `scripts/experiments/run_cycle7_pareto_push.sh`
-- `scripts/experiments/run_cycle8_robust_pareto_push.sh`
-- `scripts/experiments/run_cycle9_novelty_push.sh`
-- `scripts/experiments/run_cycle10_external_recovery.sh`
+## Documentation Artifacts
 
-## Latest Gate Metrics (Cycle 5)
-
-From `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.json`:
-
-- `random_model=True`
-- `transcoder=True`
-- `ood=True`
-- `external=False`
-- `pass_all=False`
-
-Selected metrics:
-- `trained_random_delta_lcb = 0.00006183199584486321`
-- `transcoder_delta = +0.004916101694107056`
-- `ood_drop = 0.020994556554025268`
-- `saebench_delta_ci95_low = -0.04478959689939781`
-- `cebench_interp_delta_vs_baseline_ci95_low = -40.467037470119465`
-
-## Why This Matters
-
-- Internal consistency gains alone are not enough for external validity.
-- CE-Bench and SAEBench respond differently to candidate improvements.
-- Strict gate policy prevents unsupported release claims.
-
-## Start Here (Reading Order)
-
-1. `START_HERE.md`
-2. `CURRENT_STATUS_AND_STUDY_GUIDE.md`
-3. `LEARNING_PATH.md`
-4. `PROJECT_STUDY_GUIDE.md`
-5. `EXECUTIVE_SUMMARY.md`
-6. `CYCLE5_EXTERNAL_PUSH_REFLECTIVE_REVIEW.md`
-7. `RUNBOOK.md`
-8. `EXPERIMENT_LOG.md`
-
-## Quick Commands
-
-```bash
-pytest tests -q
-make smoke
-
-make release-gate-strict \
-  TRANSCODER_RESULTS=<path/to/transcoder_stress_summary.json> \
-  OOD_RESULTS=<path/to/ood_stress_summary.json> \
-  EXTERNAL_SUMMARY=<path/to/external_summary.json>
-```
+- Final summary: `EXECUTIVE_SUMMARY.md`
+- Final paper-style writeup: `FINAL_PAPER.md`
+- Final blog-style writeup: `FINAL_BLOG.md`
+- Literature and SOTA review: `LIT_REVIEW.md`
+- Experiment roadmap: `EXPERIMENT_PLAN.md`
+- Presentation package: `docs/05-Presentation/cycle10_readout/`
 
 ## License
 

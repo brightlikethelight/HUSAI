@@ -1552,7 +1552,7 @@ python scripts/experiments/run_matryoshka_frontier_external.py \
   - `START_HERE.md`
   - `EXECUTIVE_SUMMARY.md`
   - `PROJECT_STUDY_GUIDE.md`
-  - `CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
+  - `archive/project_docs_2026_02/CYCLE4_FINAL_REFLECTIVE_REVIEW.md`
   - `ADVISOR_BRIEF.md`
   - `PROPOSAL_COMPLETENESS_REVIEW.md`
   - `REPO_NAVIGATION.md`
@@ -1714,7 +1714,7 @@ pytest -q tests/unit/test_husai_custom_sae_adapter.py tests/unit/test_known_circ
   - run dir: `results/experiments/cycle7_pareto_push/run_20260216T062213Z`
   - current behavior: waiting behind active cycle-6 runner (intentional).
 - Additional planning artifact:
-  - `CYCLE7_PARETO_PLAN.md`
+  - `archive/project_docs_2026_02/CYCLE7_PARETO_PLAN.md`
 
 ### Run 81: Cycle-6 stage transition snapshot + cycle-7 queue verification (in progress)
 - Snapshot time (UTC): `2026-02-16T06:48:14Z`
@@ -1767,7 +1767,7 @@ pytest -q tests/unit/test_husai_custom_sae_adapter.py tests/unit/test_known_circ
     - added tests for diversity penalty behavior (orthogonal vs duplicate columns).
   - `scripts/experiments/run_cycle8_robust_pareto_push.sh`
     - added new cycle-8 queue with robust routed sweep + assignment-v3 external-aware sweep + grouped-LCB selector + strict release gate.
-  - `CYCLE8_ROBUST_PLAN.md`
+  - `archive/project_docs_2026_02/CYCLE8_ROBUST_PLAN.md`
     - added cycle rationale, stage design, success criteria, and literature anchors.
 
 - Validation:
@@ -2060,7 +2060,7 @@ bash -n scripts/experiments/run_cycle10_external_recovery.sh
   - `CURRENT_STATUS_AND_STUDY_GUIDE.md`
   - `RUNBOOK.md`
   - `HIGH_IMPACT_FOLLOWUPS_REPORT.md`
-  - new plan file: `CYCLE10_EXTERNAL_RECOVERY_PLAN.md`
+  - new plan file: `archive/project_docs_2026_02/CYCLE10_EXTERNAL_RECOVERY_PLAN.md`
   - literature addendum: `LIT_REVIEW.md` section 9
 
 - Result:
@@ -2095,3 +2095,246 @@ bash -n scripts/experiments/run_cycle10_external_recovery.sh
 
 - Interpretation:
   - cycle8 did not clear strict external gates; cycle9+cycle10 remain required for external recovery.
+
+### Run 96: Cycle10 external-recovery completion and final gate verdict
+- Objective:
+  - complete end-to-end cycle10 execution and verify final strict gate outcome.
+
+- Final queue run:
+  - `results/experiments/cycle10_external_recovery/run_20260217T203407Z`
+
+- Completed stages:
+  1. routed external-recovery sweep (`c1..c4`)
+  2. assignment consistency v3 recovery sweep (`s1..s3`)
+  3. grouped-LCB selector
+  4. OOD + strict release gate
+
+- Selected candidate:
+  - `condition_id=relu`
+  - `architecture=relu`
+  - `seed=42`
+  - `checkpoint=results/experiments/phase4b_architecture_frontier_external_multiseed/run_20260214T202538Z/checkpoints/relu_seed42/sae_final.pt`
+
+- Final strict gate outcome:
+  - `pass_all=false`
+  - `external=false`
+  - `external_saebench=false`
+  - `external_cebench=false`
+  - `ood=true`
+  - `transcoder=true`
+  - `random_model=true`
+
+- Key metrics:
+  - `saebench_delta=-0.029153650997086358`
+  - `saebench_delta_ci95_low=-0.029153650997086358`
+  - `cebench_interp_delta_vs_baseline=-43.71286609575971`
+  - `cebench_interp_delta_vs_baseline_ci95_low=-43.71286609575971`
+  - `ood_drop=0.014523871478494321`
+  - `trained_random_delta_lcb=6.183199584486321e-05`
+  - `transcoder_delta=0.004916101694107056`
+
+- Interpretation:
+  - internal reliability and stress robustness are supported;
+  - external competitiveness remains unresolved under strict policy.
+
+### Run 97: Final evidence packaging on remote persistent storage
+- Objective:
+  - create a single authoritative, shutdown-safe artifact package for final review.
+
+- Package path:
+  - `/workspace/HUSAI/results/final_packages/cycle10_final_20260218T141310Z`
+
+- Included content:
+  - cycle10 queue manifest/logs
+  - routed and assignment summaries/results
+  - selector outputs
+  - OOD summary
+  - strict gate policy outputs
+  - final index with selected-candidate and gate fields
+
+- Canonical index:
+  - `/workspace/HUSAI/results/final_packages/cycle10_final_20260218T141310Z/meta/FINAL_INDEX.md`
+
+### Run 98: Repository documentation convergence to final state
+- Objective:
+  - replace stale "live queue" narratives with post-cycle10 final-state documentation.
+
+- Updated canonical docs:
+  - `README.md`
+  - `START_HERE.md`
+  - `EXECUTIVE_SUMMARY.md`
+  - `CURRENT_STATUS_AND_STUDY_GUIDE.md`
+  - `RUNBOOK.md`
+  - `REPO_NAVIGATION.md`
+  - `QUICK_START.md`
+  - `HIGH_IMPACT_FOLLOWUPS_REPORT.md`
+  - `ADVISOR_BRIEF.md`
+  - `FINAL_BLOG.md`
+  - `FINAL_PAPER.md`
+  - `FINAL_READINESS_REVIEW.md`
+  - `PROPOSAL_COMPLETENESS_REVIEW.md`
+  - `NOVEL_CONTRIBUTIONS.md`
+  - `docs/evidence/README.md`
+
+- Result:
+  - top-level repository narrative is now synchronized to final cycle10 evidence and strict-gate status.
+
+### Run 99: External benchmark reliability hardening + launcher path portability
+- Objective:
+  - eliminate brittle absolute paths in experiment launchers and harden external benchmark artifact writes.
+
+- Code changes:
+  - Added `scripts/experiments/benchmark_utils.py` with:
+    - free-space guard (`ensure_free_space`)
+    - safe JSON/markdown persistence helpers (`write_json_payload`, `write_lines`)
+  - Integrated safe write + disk guard into:
+    - `scripts/experiments/run_official_external_benchmarks.py`
+    - `scripts/experiments/run_husai_saebench_custom_eval.py`
+    - `scripts/experiments/run_cebench_compat.py`
+    - `scripts/experiments/run_husai_cebench_custom_eval.py`
+  - Removed fixed `/workspace/...` and `/tmp/...` assumptions from queue launchers:
+    - `scripts/experiments/run_b200_high_impact_queue.sh`
+    - `scripts/experiments/run_cycle4_followups_after_queue.sh`
+    - `scripts/experiments/run_cycle5_external_push.sh`
+    - `scripts/experiments/run_cycle6_saeaware_push.sh`
+    - `scripts/experiments/run_cycle7_pareto_push.sh`
+    - `scripts/experiments/run_cycle8_robust_pareto_push.sh`
+    - `scripts/experiments/run_cycle9_novelty_push.sh`
+    - `scripts/experiments/run_cycle10_external_recovery.sh`
+  - New defaults:
+    - `ROOT_DIR` inferred from script location
+    - `HUSAI_TMP_ROOT` defaulting to `$ROOT_DIR/tmp`
+    - `HUSAI_MPLCONFIGDIR` defaulting to `$HUSAI_TMP_ROOT/mpl`
+    - `CEBENCH_REPO` defaulting to `$ROOT_DIR/../CE-Bench`
+
+- Verification commands:
+```bash
+for f in scripts/experiments/run_b200_high_impact_queue.sh \
+  scripts/experiments/run_cycle4_followups_after_queue.sh \
+  scripts/experiments/run_cycle5_external_push.sh \
+  scripts/experiments/run_cycle6_saeaware_push.sh \
+  scripts/experiments/run_cycle7_pareto_push.sh \
+  scripts/experiments/run_cycle8_robust_pareto_push.sh \
+  scripts/experiments/run_cycle9_novelty_push.sh \
+  scripts/experiments/run_cycle10_external_recovery.sh; do
+  bash -n "$f" || exit 1
+done
+```
+
+```bash
+python -m py_compile \
+  scripts/experiments/benchmark_utils.py \
+  scripts/experiments/run_official_external_benchmarks.py \
+  scripts/experiments/run_husai_saebench_custom_eval.py \
+  scripts/experiments/run_cebench_compat.py \
+  scripts/experiments/run_husai_cebench_custom_eval.py
+```
+
+```bash
+pytest tests -q
+```
+
+- Outcome:
+  - `bash -n`: success for all patched launchers
+  - `py_compile`: success
+  - `pytest`: `113 passed, 2 warnings`
+
+### Run 100: CI fail-fast and hook parity update
+- Objective:
+  - align CI behavior with fail-fast and local pre-commit policy.
+
+- Change:
+  - Updated `.github/workflows/ci.yml`:
+    - added `pre-commit run --all-files`
+    - switched pytest invocation to `pytest tests -q -x --maxfail=1`
+
+- Local validation:
+```bash
+pytest -q tests/unit/test_release_policy_selector.py tests/unit/test_routed_frontier_modes.py
+```
+
+- Outcome:
+  - `11 passed`
+  - attempted local `pre-commit run --all-files`, but full hook execution was blocked in this environment because GitHub hook repos were not reachable.
+
+### Run 101: Official external benchmark harness preflight (write-path validation)
+- Objective:
+  - validate that the hardened harness writes manifest/config/preflight artifacts successfully in current environment.
+
+- Command:
+```bash
+KMP_DUPLICATE_LIB_OK=TRUE \
+python scripts/experiments/run_official_external_benchmarks.py \
+  --skip-saebench \
+  --skip-cebench
+```
+
+- Outcome: success
+- Artifact root:
+  - `results/experiments/phase4e_external_benchmark_official/run_20260220T063640Z`
+- Key artifacts:
+  - `config.json`
+  - `preflight.json`
+  - `local_sae_index.json`
+  - `commands.json`
+  - `summary.md`
+  - `manifest.json`
+
+### Run 102: Post-cycle10 active experiment-plan refresh
+- Objective:
+  - define a rigorous, execution-ready external-recovery experiment slate tied to strict release criteria.
+
+- Outputs:
+  - `docs/04-Execution/EXPERIMENT_PLAN_2026_02_20.md`
+  - `HIGH_IMPACT_FOLLOWUPS_REPORT.md` (ranked next-5 update + status of prior top-5)
+  - `NOVEL_CONTRIBUTIONS.md` (updated novelty opportunities with literature anchors)
+  - `archive/project_docs_2026_02/PHASE0_SUBAGENT_REPORTS_20260220.md`
+
+---
+
+## Run 2026-03-05: Reliability Hardening + Evidence Reconciliation Pass
+
+### Scope
+
+- Fixed high-impact training/evaluation reliability defects.
+- Added targeted edge-case regression tests.
+- Reconciled canonical docs around explicit evidence tiers.
+- Added updated paper/blog outlines and presentation package scaffold.
+
+### Key Commands
+
+```bash
+pytest -q tests/unit/test_train_sae_edge_cases.py \
+  tests/unit/test_feature_matching_edge_cases.py \
+  tests/unit/test_routed_frontier_modes.py \
+  tests/unit/test_assignment_consistency_v2.py \
+  tests/unit/test_official_external_benchmark_harness.py
+```
+
+### Result
+
+- Targeted regression suite: `17 passed`.
+
+### Core Code Changes
+
+- `src/training/train_sae.py`
+- `src/analysis/feature_matching.py`
+- `scripts/experiments/run_routed_frontier_external.py`
+- `scripts/experiments/run_assignment_consistency_v2.py`
+- `scripts/experiments/run_husai_cebench_custom_eval.py`
+- `scripts/experiments/run_official_external_benchmarks.py`
+
+### New Tests
+
+- `tests/unit/test_train_sae_edge_cases.py`
+- `tests/unit/test_feature_matching_edge_cases.py`
+- `tests/unit/test_official_external_benchmark_harness.py`
+- updates to `tests/unit/test_routed_frontier_modes.py`
+- updates to `tests/unit/test_assignment_consistency_v2.py`
+
+### Documentation Integrity Updates
+
+- Added evidence ledger: `EVIDENCE_STATUS.md`
+- Updated canonical docs and final writeups to enforce evidence-tier labeling.
+- Added phase outputs: `PHASE0_SUBAGENT_REPORTS.md`, `PHASE1_REPO_UNDERSTANDING.md`.
+- Added presentation scaffold under `docs/05-Presentation/cycle10_readout/`.

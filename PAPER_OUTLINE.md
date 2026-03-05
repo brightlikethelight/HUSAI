@@ -1,68 +1,57 @@
 # Paper Outline
 
-Working title:
-- *SAE Stability Under Controlled Tasks: Reproducibility, Baselines, and Tradeoffs*
+Date: 2026-03-05
 
-## Abstract
-- Problem, method, key results, and practical implications.
+## Title
 
-## 1. Introduction
-- Why reproducibility of SAE features is foundational.
-- Prior concern from consistency literature.
-- This paper's contributions.
+Reliability-First SAE Evaluation Under Strict Stress-Gated Release Criteria
 
-## 2. Related Work
-- SAE scaling work.
-- Consistency-focused work.
-- Benchmark-centric work (SAEBench/CE-Bench).
-- Theory-grounded recovery/identifiability work.
+## 1. Abstract
+- Problem
+- Method
+- Core result (`pass_all=false`)
+- Contribution (claim discipline + reproducible pipeline)
 
-## 3. Methods
-- Datasets/tasks and model setup.
-- SAE architectures and training settings.
-- Multi-seed protocol.
-- Metrics (PWMCC + random baselines + quality metrics).
+## 2. Introduction
+- Motivation for strict release policy
+- Failure mode of internal-only claims
+- Contributions list
 
-## 4. Reliability and Reproducibility Protocol
-- Environment controls and deterministic settings.
-- Command->artifact manifest strategy.
-- CI/test gates.
+## 3. Related Work
+- SAE instability literature
+- SAEBench/CE-Bench evaluation standards
+- Route/Nested/TopK architecture directions
+- Transcoder comparator line
+
+## 4. Method
+- Dataset and activation extraction
+- SAE families evaluated
+- Candidate selection protocol
+- Stress-gated release policy
+- Evidence-tier reporting policy
 
 ## 5. Experiments
-- 5.1 Baseline reproduction
-- 5.2 Baseline suite (ReLU/TopK/linear)
-- 5.3 Core ablations (`k`, `d_sae`, normalization, training dynamics)
-- 5.4 SOTA-chasing variants (JumpReLU/Matryoshka/JSAE-style)
-- 5.5 Stress tests (task/data/activation source)
+- Reproduction baseline (phase4a)
+- Baseline suite + external calibrations (phase4b)
+- Ablations (phase4c)
+- SOTA-chasing variants (phase4d)
+- Stress tests (phase4e)
 
 ## 6. Results
-- Main quantitative tables.
-- Stability-quality Pareto curves.
-- Trained-vs-random comparisons.
-- Cross-task and benchmark-lite validation.
+- Gate outcomes table
+- External deltas with confidence bounds
+- Tier1 vs Tier2 evidence reconciliation note
 
-## 7. Analysis
-- Regimes where stability improves/degrades.
-- Relationship to theory and benchmark observations.
-- Metric robustness and failure cases.
+## 7. Limitations
+- External deltas still negative
+- Remote package mirroring gap
+- Benchmark environment coupling constraints
 
-## 8. Limitations
-- Controlled-task scope.
-- Architecture/compute limits.
-- Remaining benchmark coverage gaps.
+## 8. Broader Impact
+- Positive: overclaim reduction and stronger reproducibility
+- Risk: false confidence from partial metric improvements
 
-## 9. Broader Impact
-- Scientific reliability implications for interpretability claims.
-- Cautions for deployment/safety narratives.
-
-## 10. Conclusion
-- Key takeaways and next steps.
-
-## Appendix A: Full Hyperparameters
-- Per-run config tables and seeds.
-
-## Appendix B: Reproducibility Checklist
-- Environment, data versions, commit hashes, scripts, manifests.
-
-## Appendix C: Additional Plots and Failure Cases
-- Negative results, sensitivity plots, and run diagnostics.
+## 9. Reproducibility Appendix
+- Exact commands
+- configs and hashes
+- artifact map and checklist

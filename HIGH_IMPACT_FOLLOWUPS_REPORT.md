@@ -1,70 +1,76 @@
-# High-Impact Follow-Ups Report (Cycle 7/8/9/10 Live)
+# High-Impact Follow-Ups Report
 
-Date: 2026-02-17
+Date: 2026-03-05
 
-## Current Queue Status
+## Previous Top-5 Status
 
-- `cycle7` run (`results/experiments/cycle7_pareto_push/run_20260216T062213Z`): complete.
-- `cycle8` run (`results/experiments/cycle8_robust_pareto_push/run_20260216T163502Z`): complete through `a3`.
-  - final assignment run: `results/experiments/phase4d_assignment_consistency_v3_cycle8_robust/run_20260217T111709Z`
-  - external completion: `sae_done=28`, `ce_done=28`
-  - final acceptance: `pass_all=false`
-- `cycle9` run (`results/experiments/cycle9_novelty_push/run_20260217T052929Z`): active.
-  - current stage: routed sweep active (`run_20260217T151852Z` completed, `run_20260217T153308Z` in progress)
-  - supervised-proxy assignment config (for stage2):
-    - `SUPERVISED_PROXY_MODE=file_id`
-    - `SUPERVISED_PROXY_WEIGHT=0.10`
-    - `SUPERVISED_PROXY_NUM_CLASSES=0`
-- `cycle10` queue script is prepared and syntax-validated for immediate post-cycle9 launch:
-  - `scripts/experiments/run_cycle10_external_recovery.sh`
+1. CI (lint + typecheck + pytest) and fail-fast smoke workflow.
+- Status: Completed.
+- Evidence: `.github/workflows/ci.yml`, `scripts/ci/smoke_pipeline.sh`.
 
-## What Is Already Complete (artifact-backed)
+2. Remove absolute paths in core experiment/analysis launchers.
+- Status: Completed for active launcher paths.
+- Evidence: current `scripts/experiments/*` and `scripts/analysis/*` no longer hardcode `/workspace` or user-home roots.
 
-1. Direct HUSAI-checkpoint CE-Bench adapter with matched baseline.
-- Evidence: `docs/evidence/high_impact_adapter_check/run_20260214T202232Z_husai_custom_cebench_summary.json`
+3. Execute phase4a multi-seed reproduction with manifest logging.
+- Status: Completed.
+- Evidence: `results/experiments/phase4a_trained_vs_random/` and entries in `EXPERIMENT_LOG.md`.
 
-2. Matched-budget architecture frontier on external benchmarks.
-- Evidence: `docs/evidence/cycle5_external_push_run_20260215T232351Z/routed/`
-- Additional cycle7 routed sweep complete in:
-  - `results/experiments/phase4b_routed_frontier_external_sweep_cycle7_pareto/`
+4. Run core ablations (`k`, `d_sae`) with confidence intervals.
+- Status: Completed.
+- Evidence: `results/experiments/phase4c_core_ablations/run_20260212T091848Z/`.
 
-3. External-metric scaling study (`token budget`, `hook layer`, `d_sae`).
-- Evidence: `docs/evidence/cycle3_queue_final/scaling_multiseed_results_run_20260214T212435Z.json`
+5. Add external benchmark-aligned slice before SOTA claims.
+- Status: Completed as harness + slice path; strict external gains still unresolved.
+- Evidence: `scripts/experiments/run_external_benchmark_slice.py`, `scripts/experiments/run_official_external_benchmarks.py`.
 
-4. Assignment-aware objective with external-aware checkpoint policy.
-- Evidence: `scripts/experiments/run_assignment_consistency_v3.py`
+## Highest-Leverage Next 5 (Ranked)
 
-5. Stress-gated release policy.
-- Evidence: `scripts/experiments/run_stress_gated_release_policy.py`
-- Prior strict-gate outputs: `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.json`
+1. Mirror remote final package into repo-local evidence and close the claim gap.
+- Why: current Tier1/Tier2 mismatch blocks fully auditable final-candidate claims.
+- Deliverable: local copy or export of `results/final_packages/cycle10_final_20260218T141310Z` metadata under `docs/evidence/` with checksum map.
 
-## Current Scientific Bottom Line
+2. Seed-complete external reruns (>=5 seeds/condition) under grouped-LCB selection.
+- Why: external ranking remains underpowered/unstable across candidate families.
+- Deliverable: harmonized multi-seed reruns for relu/topk/routed/assignment with CIs and LCB table.
 
-- Internal consistency: strong and reproducible.
-- External competitiveness: still below strict release gates.
-- Main open problem: improve SAEBench and CE-Bench deltas jointly under grouped-LCB selection.
+3. Matched-protocol CE-Bench and SAEBench calibration sweep.
+- Why: baseline/protocol mismatch can distort deltas and candidate comparisons.
+- Deliverable: protocol manifest that enforces matched row budgets, dataset slices, model hooks, and summary schema.
 
-## Cycle8 a3 Final Evidence
+4. External-aware objective branch (multi-objective SAEBench+CE with stress constraints).
+- Why: internal consistency optimization alone has not transferred externally.
+- Deliverable: training branch with weighted external proxies + stress regularization and ablation report.
 
-From `run_20260217T111709Z`:
-- best lambda: `0.10`
-- internal LCB: `0.8349106998182834` (passes internal)
-- `ev_drop`: `0.2736066937446594` (fails EV gate)
-- `saebench_delta`: `-0.04743732688749169` (fails SAEBench gate)
-- `cebench_delta`: `-33.67718325614929` (passes CE gate)
-- final gate: `pass_all=false`
+5. One official benchmark slice run end-to-end in a clean environment for claim hardening.
+- Why: custom adapters are strong, but a fully official run is still needed for stronger external comparability.
+- Deliverable: reproducible `--execute` run artifact bundle from `run_official_external_benchmarks.py` with command logs.
 
-Primary live snapshot:
-- `docs/evidence/cycle8_cycle9_live_snapshot_20260217T152123Z/monitoring_summary.md`
+## New Novel Contribution Opportunities
 
-## Updated Highest-Leverage Next 5 (Execution-Ready)
+1. Reliability-calibrated selector scoring.
+- Incorporate uncertainty and stress-consistency terms directly in candidate scoring, not only in post-hoc gates.
 
-1. Complete cycle9 routed + assignment + selector + strict gate, then compare directly against cycle8 a3 outcomes.
-2. Launch cycle10 external-recovery queue (`scripts/experiments/run_cycle10_external_recovery.sh`) immediately after cycle9.
-3. Use grouped-LCB selector + strict gate as immutable criterion for cycle10 candidate acceptance.
-4. If cycle10 remains external-negative, run assignment-v4 (relation-constrained objective + supervised proxy) under the same gate policy.
-5. Close known-circuit recovery with trained-vs-random confidence bounds as release prerequisite.
+2. Stress-aware curriculum training.
+- Use OOD/transcoder proxy penalties during training to reduce late-stage gate failures.
 
-Detailed plans:
-- `CYCLE9_NOVELTY_PLAN.md`
-- `CYCLE10_EXTERNAL_RECOVERY_PLAN.md`
+3. Cross-layer transfer diagnostics.
+- Train at one hook layer and evaluate transfer to adjacent layers to measure representation portability.
+
+4. Protocol-conditioned architecture frontier.
+- Compare routed, nested/matryoshka, and TopK variants under strict matched-compute and matched-benchmark protocols.
+
+5. Reconciliation-aware reporting standard.
+- Publish explicit claim tiers (local verified vs remote-reported) as part of reproducibility checklists.
+
+## Literature Anchors (Primary Sources)
+
+- SAEBench paper: https://arxiv.org/abs/2503.09532
+- SAEBench repo: https://github.com/adamkarvonen/SAEBench
+- CE-Bench paper: https://aclanthology.org/2025.blackboxnlp-1.1/
+- RouteSAE: https://arxiv.org/abs/2503.08200
+- Transcoders: https://arxiv.org/abs/2501.18823
+- Seed instability in SAEs: https://arxiv.org/abs/2501.16615
+- JumpReLU SAEs: https://arxiv.org/abs/2407.14435
+- BatchTopK SAEs: https://arxiv.org/abs/2412.06410
+- Nested/Matryoshka SAEs: https://arxiv.org/abs/2503.17547

@@ -1,10 +1,8 @@
 # Quick Start
 
-Updated: 2026-02-14
+Updated: 2026-03-05
 
-For the full operational path and troubleshooting, use `RUNBOOK.md`.
-For a learner-first understanding path, use `PROJECT_STUDY_GUIDE.md`.
-For canonical repository orientation, use `REPO_NAVIGATION.md`.
+Use this file for the fastest local verification path.
 
 ## 1) Setup
 
@@ -14,76 +12,52 @@ conda activate husai
 pip install -r requirements-dev.txt
 ```
 
-If needed on this machine:
+## 2) Deterministic Runtime Defaults
+
 ```bash
+export HUSAI_ROOT="$(pwd)"
+export HUSAI_TMP_ROOT="${HUSAI_TMP_ROOT:-$HUSAI_ROOT/tmp}"
+mkdir -p "$HUSAI_TMP_ROOT" "$HUSAI_TMP_ROOT/mpl"
+export TMPDIR="$HUSAI_TMP_ROOT"
+export MPLCONFIGDIR="$HUSAI_TMP_ROOT/mpl"
 export KMP_DUPLICATE_LIB_OK=TRUE
-export TMPDIR=/tmp
-export MPLCONFIGDIR=/tmp/mpl
+export CUBLAS_WORKSPACE_CONFIG=:4096:8
 ```
 
-## 2) Fail-Fast Smoke
-
-```bash
-make smoke
-```
-
-## 3) Core Reproduction Commands
-
-```bash
-# Phase 4a: trained vs random
-make reproduce-phase4a
-
-# Phase 4c: core ablations
-make ablate-core
-
-# Phase 4e: benchmark-aligned slice
-make benchmark-slice
-
-# Official benchmark harness preflight/execute
-make benchmark-official
-```
-
-## 4) Highest-Impact Follow-Ups
-
-```bash
-make adaptive-l0
-make adaptive-l0-control
-make consistency-sweep
-make audit-results
-```
-
-## 5) Key Outputs
-
-- `results/experiments/phase4a_trained_vs_random/`
-- `results/experiments/phase4c_core_ablations/`
-- `results/experiments/adaptive_l0_calibration/`
-- `results/experiments/consistency_objective_sweep/`
-- `results/analysis/experiment_consistency_report.md`
-
-## 6) Quality Gate
+## 3) Verify Health
 
 ```bash
 pytest tests -q
+make smoke
 ```
 
-## 7) Current Writeups
-
-- `FINAL_BLOG.md`
-- `FINAL_PAPER.md`
-- `HIGH_IMPACT_FOLLOWUPS_REPORT.md`
-
-## 8) Stress Gate Artifacts
+## 4) Minimal Reproduction Path
 
 ```bash
-# Transcoder stress artifact
-make transcoder-stress
-
-# OOD stress artifact
-make ood-stress
-
-# Strict release-gate evaluation (paths required)
-make release-gate-strict \
-  TRANSCODER_RESULTS=<path/to/transcoder_stress_summary.json> \
-  OOD_RESULTS=<path/to/ood_stress_summary.json> \
-  EXTERNAL_SUMMARY=<path/to/external_summary.json>
+python scripts/experiments/run_phase4a_reproduction.py
+python scripts/experiments/run_core_ablations.py
+python scripts/experiments/run_assignment_consistency_v3.py --device cpu
 ```
+
+## 5) External Evaluation Path
+
+```bash
+python scripts/experiments/run_husai_saebench_custom_eval.py \
+  --checkpoint <ckpt.pt> \
+  --model-name pythia-70m-deduped \
+  --hook-layer 0 \
+  --hook-name blocks.0.hook_resid_pre \
+  --device cuda
+
+python scripts/experiments/run_husai_cebench_custom_eval.py \
+  --cebench-repo <path/to/CE-Bench> \
+  --checkpoint <ckpt.pt> \
+  --model-name pythia-70m-deduped \
+  --hook-layer 0 \
+  --hook-name blocks.0.hook_resid_pre \
+  --device cuda
+```
+
+## 6) Claim Discipline
+
+Before citing final-cycle metrics, read `EVIDENCE_STATUS.md` to separate local verified artifacts from remote-reported package references.

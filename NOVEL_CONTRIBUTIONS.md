@@ -1,72 +1,46 @@
-# Novel Contributions and Highest-Leverage Follow-Ups
+# Novel Contributions and Opportunity Map
 
-Updated: 2026-02-16
+Updated: 2026-03-05
 
-## Scientific Baseline (Current Evidence)
+## Demonstrated Contributions
 
-What is true from completed artifact-backed runs:
-- Internal consistency gains are reproducible.
-- External competitiveness is not yet achieved (`external=False` in strict gate).
-- CE-Bench improved in cycle-5 routed/assignment sweeps, but SAEBench remains negative in selected-candidate regimes.
+1. Reliability-first release discipline.
+- Release claims are blocked unless internal, stress, and external gates all pass.
 
-Key artifact anchors:
-- `docs/evidence/cycle5_external_push_run_20260215T232351Z/cycle5_synthesis.md`
-- `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.json`
-- `docs/evidence/cycle5_external_push_run_20260215T232351Z/selector/selection_summary.json`
+2. Evidence-tier transparency.
+- `EVIDENCE_STATUS.md` formalizes local-verified versus remote-reported claim boundaries.
 
-## Updated Highest-Leverage Next 5 (Ranked)
+3. Reproducible benchmark adapters.
+- SAEBench and CE-Bench custom-eval paths are implemented with manifest outputs.
 
-1. SAEBench-aware assignment objective extension.
-- Goal: prevent CE-only improvements from degrading SAEBench.
-- Success criterion: grouped-LCB SAEBench delta >= 0 with no CE-Bench regression vs current best assignment run.
+4. Multi-family frontier tooling.
+- ReLU/TopK/BatchTopK/Matryoshka/Routed candidates are evaluated under shared orchestration.
 
-2. Seed-complete grouped selection policy.
-- Goal: align `min_seeds_per_group` with available seeds to avoid silent candidate exclusion.
-- Success criterion: no dropped target groups in selector diagnostics for planned families.
+5. Negative-result integrity.
+- The codebase keeps `pass_all=false` visible instead of inflating partial progress.
 
-3. Joint Pareto policy with explicit SAEBench floor.
-- Goal: require SAEBench floor + CE-Bench maximization jointly in candidate promotion.
-- Success criterion: selected candidate satisfies both external LCB thresholds.
+## Current Scientific State
 
-4. Routed family expansion around `expert_topk`.
-- Goal: push routed frontier after fixing effective sparsity collapse.
-- Success criterion: routed candidate beats current routed best on both SAEBench and CE-Bench deltas.
+- Internal signal: positive.
+- Stress controls: passing in documented runs.
+- External strict criteria: not met.
+- Overall decision: `pass_all=false`.
 
-5. Known-circuit closure with confidence bounds.
-- Goal: close original proposal scope on trained-vs-random circuit recovery.
-- Success criterion: trained-over-random deltas positive at CI lower bound for configured closure metrics.
+## Highest-Impact Novel Ideas (Ranked)
 
-## Concrete Novel Contributions We Can Still Claim (If Completed)
+1. External-aware training objective with stress constraints.
+2. Grouped-LCB selector that includes stress calibration terms.
+3. Cross-layer transfer and portability benchmark for SAE features.
+4. Matched-protocol hybrid frontier (routed + nested + TopK) under compute parity.
+5. Evidence-tier reporting standard as a reproducibility contribution.
 
-1. CI-gated interpretability workflow.
-- Novelty: strict automated claim gating that binds narrative to external/stress thresholds.
+## Primary References
 
-2. Tri-objective SAE selection under uncertainty.
-- Novelty: grouped-LCB selection over internal consistency + SAEBench + CE-Bench.
-
-3. External-aware consistency training.
-- Novelty: assignment-aware training coupled to external acceptance, not post-hoc filtering only.
-
-4. Matched-budget architecture frontier with routed/matryoshka families.
-- Novelty: apples-to-apples external comparisons under fixed token budget and hook protocol.
-
-5. Proposal-closure discipline for known-circuit recovery.
-- Novelty: explicit closure tests for mechanistic claims instead of benchmark-only narratives.
-
-## Evidence-Safe Literature Links (Verified)
-
-- SAEs trained on same data learn different features: https://arxiv.org/abs/2501.16615
-- Feature consistency priority: https://arxiv.org/abs/2505.20254
+- Seed instability in SAEs: https://arxiv.org/abs/2501.16615
 - SAEBench: https://arxiv.org/abs/2503.09532
-- CE-Bench: https://arxiv.org/abs/2509.00691
-- Route Sparse Autoencoders: https://arxiv.org/abs/2503.08200
-- Nested Sparse Autoencoders (Matryoshka): https://arxiv.org/abs/2503.17547
-- PolySAE: https://arxiv.org/abs/2602.01322
-- Transcoders vs SAEs: https://arxiv.org/abs/2501.18823
-- Random-control caution: https://arxiv.org/abs/2501.17727
-
-## Guardrails for Future Claims
-
-- No external-improvement claim unless matched-baseline deltas and CI bounds are non-negative.
-- No reliability claim unless strict stress gate passes (`random + transcoder + OOD + external`).
-- No proposal-complete claim until known-circuit closure track is green.
+- CE-Bench: https://aclanthology.org/2025.blackboxnlp-1.1/
+- RouteSAE: https://arxiv.org/abs/2503.08200
+- Transcoders: https://arxiv.org/abs/2501.18823
+- JumpReLU SAEs: https://arxiv.org/abs/2407.14435
+- BatchTopK SAEs: https://arxiv.org/abs/2412.06410
+- Nested/Matryoshka SAEs: https://arxiv.org/abs/2503.17547

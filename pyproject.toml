@@ -71,10 +71,10 @@ docs = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/HUSAI"
-Documentation = "https://github.com/yourusername/HUSAI/docs"
-Repository = "https://github.com/yourusername/HUSAI"
-Issues = "https://github.com/yourusername/HUSAI/issues"
+Homepage = "https://github.com/brightlikethelight/HUSAI"
+Documentation = "https://github.com/brightlikethelight/HUSAI/tree/main/docs"
+Repository = "https://github.com/brightlikethelight/HUSAI"
+Issues = "https://github.com/brightlikethelight/HUSAI/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]

@@ -1,68 +1,51 @@
-# Repository Navigation (Canonical Index)
+# Repository Navigation
 
-Updated: 2026-02-16
+Updated: 2026-03-05
 
-## 1) Primary Entry Points
+## 1) First Five Files To Read
 
 1. `START_HERE.md`
-2. `LEARNING_PATH.md`
+2. `EVIDENCE_STATUS.md`
 3. `EXECUTIVE_SUMMARY.md`
-4. `PROJECT_STUDY_GUIDE.md`
-5. `CYCLE5_EXTERNAL_PUSH_REFLECTIVE_REVIEW.md`
-6. `RUNBOOK.md`
-7. `EXPERIMENT_LOG.md`
+4. `RUNBOOK.md`
+5. `EXPERIMENT_LOG.md`
 
-## 2) Canonical Status Files
+## 2) Critical Research Path (Core 10 Files)
 
-- `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.md`
-- `docs/evidence/cycle5_external_push_run_20260215T232351Z/release/release_policy.json`
-- `docs/evidence/cycle5_external_push_run_20260215T232351Z/cycle5_synthesis.md`
-- `docs/evidence/cycle5_external_push_run_20260215T232351Z/selector/selection_summary.json`
-- `CYCLE5_EXTERNAL_PUSH_REFLECTIVE_REVIEW.md`
+1. `scripts/experiments/run_phase4a_reproduction.py`
+2. `scripts/experiments/run_core_ablations.py`
+3. `scripts/experiments/run_assignment_consistency_v3.py`
+4. `scripts/experiments/run_architecture_frontier_external.py`
+5. `scripts/experiments/run_routed_frontier_external.py`
+6. `scripts/experiments/run_husai_saebench_custom_eval.py`
+7. `scripts/experiments/run_husai_cebench_custom_eval.py`
+8. `scripts/experiments/select_release_candidate.py`
+9. `scripts/experiments/run_stress_gated_release_policy.py`
+10. `scripts/experiments/run_official_external_benchmarks.py`
 
-## 3) Core Code Path
+## 3) Core Library Code
 
-Main training/eval flow:
-1. Baseline model training: `scripts/training/train_baseline.py`
-2. Activation extraction: `scripts/analysis/extract_activations.py`
-3. SAE training: `scripts/training/train_sae.py`
-4. Experiment programs: `scripts/experiments/`
-5. Analysis/consistency checks: `scripts/analysis/`
+- Data: `src/data/modular_arithmetic.py`
+- Models: `src/models/simple_sae.py`
+- Training loop: `src/training/train_sae.py`
+- Stability metrics: `src/analysis/feature_matching.py`
+- Configs: `src/utils/config.py`
 
-## 4) Major Experiment Programs
-
-- `results/experiments/phase4a_trained_vs_random/`
-- `results/experiments/phase4c_core_ablations/`
-- `results/experiments/phase4d_assignment_consistency_v3_external_sweep/`
-- `results/experiments/phase4b_routed_frontier_external_sweep/`
-- `results/experiments/phase4b_architecture_frontier_external_multiseed/`
-- `results/experiments/phase4e_external_scaling_study_multiseed/`
-- `results/experiments/release_candidate_selection_cycle5/`
-- `results/experiments/release_stress_gates/`
-
-## 5) Evidence Mirrors (Local)
-
-- `docs/evidence/cycle5_external_push_run_20260215T232351Z/`
-- `docs/evidence/cycle4_followups_run_20260215T220728Z/`
-- `docs/evidence/cycle4_postfix_reruns/`
-- `docs/evidence/phase4e_cebench_matched200/`
-
-## 6) Reliability / Audit Docs
-
-- `ARCHITECTURE.md`
-- `AUDIT.md`
-- `BUGS.md`
-- `LIT_REVIEW.md`
-- `NOVEL_CONTRIBUTIONS.md`
-
-## 7) CI and Dev
+## 4) Quality and Reproducibility
 
 - CI workflow: `.github/workflows/ci.yml`
-- Task runner: `Makefile`
+- Smoke script: `scripts/ci/smoke_pipeline.sh`
 - Tests: `tests/`
 
-## 8) Final Writeups
+## 5) Writing and Presentation
 
 - Blog: `FINAL_BLOG.md`
-- Paper: `FINAL_PAPER.md`
-- Cycle-5 review: `CYCLE5_EXTERNAL_PUSH_REFLECTIVE_REVIEW.md`
+- Paper-style summary: `FINAL_PAPER.md`
+- Literature: `LIT_REVIEW.md`
+- Experiment plan: `EXPERIMENT_PLAN.md`
+- Slide package: `docs/05-Presentation/cycle10_readout/`
+
+## 6) Evidence
+
+- Local evidence root: `docs/evidence/`
+- Evidence policy: `EVIDENCE_STATUS.md`

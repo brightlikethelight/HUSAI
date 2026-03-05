@@ -1,85 +1,63 @@
-# Repository Architecture (Phase 0)
+# Architecture and Critical Path
 
-This document maps the code that is actually active for the SAE stability research workflow, plus current execution status after initial reliability fixes.
+Updated: 2026-03-05
 
-## 1) High-Level Structure
+## Repo Goal and Claims
 
-Core implementation:
-- `src/data/` - modular arithmetic dataset generation and dataloaders
-- `src/models/` - transformer wrapper and SAE wrappers/models
-- `src/training/` - shared SAE training loop
-- `src/analysis/` - feature matching, Fourier and analysis utilities
+### Explicit goal
 
-Orchestration scripts:
-- `scripts/training/` - baseline transformer and SAE training entry points
-- `scripts/analysis/` - extraction and stability analysis scripts
-- `scripts/experiments/` - experiment-level workflows and sweeps
+Evaluate whether SAE features can be trusted under a strict release standard combining:
+- internal consistency
+- stress robustness
+- external benchmark competitiveness
 
-Configuration and infra:
-- `configs/` - YAML experiment configs
-- `requirements*.txt`, `environment.yml`, `pyproject.toml` - environment definitions
-- `Makefile` - task shortcuts
+### Implicit claim discipline
 
-Outputs:
-- `results/` - trained checkpoints, metrics, JSON outputs
-- `figures/` - generated figures
-- `paper/` - manuscript draft
+No release claim is accepted unless all gates pass in one policy decision. Current decision remains `pass_all=false`.
 
-Historical/non-core:
-- `archive/` - old scripts/notes; useful context, not production path
-
-## 2) Main Data/Training Flow
+## How It Works (Data -> Artifacts)
 
 ```mermaid
 flowchart LR
-  A[ModularArithmeticDataset\nsrc/data/modular_arithmetic.py]
-  B[Train Transformer\nscripts/training/train_baseline.py]
-  C[Transformer Checkpoint\nresults/.../transformer_*.pt]
-  D[Extract Activations\nscripts/analysis/extract_activations.py]
-  E[Activation Tensor\nresults/activations/*.pt]
-  F[Train SAE\nscripts/training/train_sae.py\nsrc/training/train_sae.py]
-  G[SAE Checkpoints\nresults/saes/*]
-  H[Stability Analysis\nscripts/analysis/analyze_feature_stability.py]
-  I[Artifacts\nresults/analysis + figures + paper]
-
-  A --> B --> C --> D --> E --> F --> G --> H --> I
+  A[Data / Activations] --> B[Preprocessing / Cache]
+  B --> C[SAE Training Variants]
+  C --> D[Internal Metrics and Ablations]
+  C --> E[External Benchmarks: SAEBench + CE-Bench]
+  D --> F[Candidate Selection]
+  E --> F
+  F --> G[Stress-Gated Release Policy]
+  G --> H[Artifacts: results.json, summary.md, manifest.json, logs]
 ```
 
-## 3) Text Dependency Graph (Critical Modules)
+## Minimal Reproducible Demo
 
-- `scripts/training/train_baseline.py`
-  - imports `src/models/transformer.py`
-  - imports `src/data/modular_arithmetic.py`
-  - imports `src/utils/config.py`
-- `scripts/analysis/extract_activations.py`
-  - imports `src/models/transformer.py`
-  - imports `src/data/modular_arithmetic.py`
-  - imports `src/utils/config.py`
-- `scripts/training/train_sae.py`
-  - imports `src/models/sae.py`
-  - imports `src/training/train_sae.py`
-  - imports `src/utils/config.py`
-  - imports `scripts.analysis.extract_activations`
-- `scripts/analysis/analyze_feature_stability.py`
-  - imports `src/models/simple_sae.py`
-  - imports `src/analysis/feature_matching.py`
+```bash
+pytest tests -q
+python scripts/experiments/run_phase4a_reproduction.py
+python scripts/experiments/run_core_ablations.py
+```
 
-## 4) Current Execution Reality (Validated)
+## Critical Path Files (Top 10)
 
-Working:
-- Direct and module entrypoints now both run for baseline, extraction, and SAE training smoke tests.
-- `run_training.sh` runs successfully with corrected module path.
-- End-to-end pipeline script runs: `python tests/test_sae_pipeline.py --transformer-checkpoint ...`.
-- Full test suite passes: `83 passed` via `pytest tests -q`.
+1. `scripts/experiments/run_phase4a_reproduction.py` - trained vs random control baseline.
+2. `scripts/experiments/run_core_ablations.py` - core `k` and `d_sae` sweeps.
+3. `scripts/experiments/run_assignment_consistency_v3.py` - assignment-aware objective branch.
+4. `scripts/experiments/run_architecture_frontier_external.py` - external architecture frontier.
+5. `scripts/experiments/run_routed_frontier_external.py` - routed SAE frontier variant.
+6. `scripts/experiments/run_husai_saebench_custom_eval.py` - SAEBench adapter.
+7. `scripts/experiments/run_husai_cebench_custom_eval.py` - CE-Bench adapter.
+8. `scripts/experiments/select_release_candidate.py` - uncertainty-aware selection.
+9. `scripts/experiments/run_stress_gated_release_policy.py` - strict gate decision.
+10. `src/training/train_sae.py` - shared SAE training loop.
 
-Known caveats:
-- This machine still needs `KMP_DUPLICATE_LIB_OK=TRUE` due OpenMP runtime collision.
-- Some imports require `TMPDIR=/tmp` here due local temp-space constraints.
-- One-epoch SAE smoke quality is low (expected for short runs); this is a quality issue, not execution failure.
+## Hidden Assumptions / Operational Risks
 
-## 5) Remaining Portability Risks
+1. Remote package paths are not fully mirrored in this checkout (`EVIDENCE_STATUS.md`).
+2. Benchmark reproducibility depends on external repos/environments for SAEBench and CE-Bench.
+3. GPU availability and runtime env variables influence stability/performance.
 
-- Hardcoded absolute base paths still exist in auxiliary scripts outside the main experiment/analysis path.
-  - Example: `scripts/training/train_expanded_seeds.py:48`
-- Some long-form docs still contain stale paths or one-off local instructions.
-- Environment spec remains split across multiple files without a lockfile.
+## Evidence Pointers
+
+- Local verified snapshots: `docs/evidence/`
+- Evidence-tier policy: `EVIDENCE_STATUS.md`
+- Experiment trace log: `EXPERIMENT_LOG.md`

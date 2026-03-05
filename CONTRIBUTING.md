@@ -6,7 +6,7 @@ Thank you for your interest in contributing to HUSAI! This document provides gui
 
 1. **Read the mission:** Start with [`docs/00-Foundations/mission.md`](docs/00-Foundations/mission.md)
 2. **Set up environment:** Follow the setup instructions in [`README.md`](README.md)
-3. **Pick an issue:** Browse [open issues](https://github.com/yourusername/HUSAI/issues)
+3. **Pick an issue:** Browse [open issues](https://github.com/brightlikethelight/HUSAI/issues)
 4. **Join the discussion:** Reach out to the team before starting major work
 
 ## 🔄 Development Workflow
@@ -15,7 +15,7 @@ Thank you for your interest in contributing to HUSAI! This document provides gui
 
 ```bash
 # Fork the repository on GitHub, then:
-git clone https://github.com/yourusername/HUSAI.git
+git clone https://github.com/brightlikethelight/HUSAI.git
 cd HUSAI
 ```
 
@@ -353,8 +353,8 @@ All contributors will be recognized in:
 ## 📬 Questions?
 
 - **Email:** brightliu@college.harvard.edu
-- **GitHub Issues:** [Open an issue](https://github.com/yourusername/HUSAI/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/yourusername/HUSAI/discussions)
+- **GitHub Issues:** [Open an issue](https://github.com/brightlikethelight/HUSAI/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/brightlikethelight/HUSAI/discussions)
 
 ## 🎓 Learning Resources
 
