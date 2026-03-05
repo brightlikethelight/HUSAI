@@ -1,14 +1,14 @@
 # SAE Features Match Random Baseline: Evidence for Underconstrained Reconstruction
 
-**Authors:** Bright Liu
+**Author:** Bright Liu
 **Affiliation:** Harvard University
-**Date:** November 2025
+**Date:** March 2026
 
 ---
 
 ## Abstract
 
-Sparse Autoencoders (SAEs) have emerged as a leading tool for mechanistic interpretability, decomposing neural network activations into interpretable features. Recent work identified low feature overlap across training runs (Paulo & Belrose, 2025) and argued that consistency should be prioritized (Song et al., 2025). We present the first systematic multi-seed, multi-architecture, multi-task stability analysis with critical random baseline controls. Training SAEs on grokking transformers for modular arithmetic and sequence copying, we discover a striking paradox: SAEs achieve excellent reconstruction (MSE 4-8× better than random initialization), yet their learned feature representations are **indistinguishable from random baseline** (PWMCC = 0.309 vs 0.300 for untrained SAEs). Critically, this random baseline phenomenon replicates across different tasks (modular arithmetic: 0.309, sequence copying: 0.300), demonstrating task-independence. This means standard training produces zero representational stability above chance, despite strong functional performance. We demonstrate that reconstruction quality and feature consistency are fundamentally decoupled—SAEs learn different, incompatible feature decompositions across random seeds, all achieving equally good reconstruction. This reveals that the sparse reconstruction task is underconstrained, admitting multiple equally-valid solutions. These findings challenge interpretability claims based on individual SAE features and call for stability-aware training methods that constrain solutions toward reproducible representations.
+Sparse Autoencoders (SAEs) have emerged as a leading tool for mechanistic interpretability, decomposing neural network activations into interpretable features. Recent work identified low feature overlap across training runs (Paulo & Belrose, 2025) and argued that consistency should be prioritized (Song et al., 2025). We present the first systematic multi-seed, multi-architecture, multi-task stability analysis with critical random baseline controls. Training SAEs on grokking transformers for modular arithmetic, we discover a striking paradox: SAEs achieve excellent reconstruction (explained variance > 0.91), yet their learned feature representations are indistinguishable from random baseline (PWMCC = 0.300 vs 0.299 for untrained SAEs, a difference of 0.4%). This random baseline phenomenon scales to Pythia-70M, where the overparameterization pattern persists on real language model activations. This means standard training produces zero representational stability above chance, despite strong functional performance. We demonstrate that reconstruction quality and feature consistency are fundamentally decoupled -- SAEs learn different, incompatible feature decompositions across random seeds, all achieving equally good reconstruction. This reveals that the sparse reconstruction task is underconstrained, admitting multiple equally-valid solutions. These findings challenge interpretability claims based on individual SAE features and call for stability-aware training methods that constrain solutions toward reproducible representations.
 
 **Keywords:** Sparse Autoencoders, Mechanistic Interpretability, Feature Stability, Reproducibility, Random Baseline
 
@@ -32,15 +32,17 @@ We address three fundamental questions:
 
 ### 1.2 Key Contributions
 
-Our work makes four primary contributions:
+Our work makes five primary contributions:
 
-1. **Discovery of the random baseline phenomenon:** We demonstrate that trained SAE feature similarity (PWMCC = 0.309) is statistically indistinguishable from randomly initialized SAEs (PWMCC = 0.300), meaning standard training produces zero representational stability above chance.
+1. **Discovery of the random baseline phenomenon:** We demonstrate that trained SAE feature similarity (PWMCC = 0.300) is statistically indistinguishable from randomly initialized SAEs (PWMCC = 0.299), meaning standard training produces zero representational stability above chance.
 
-2. **Evidence for the underconstrained reconstruction hypothesis:** SAEs achieve 4-8× better reconstruction than random (MSE: 1.85 vs 7.44), yet learn incompatible feature representations. This paradox reveals that many different feature decompositions achieve equally good reconstruction—the task is fundamentally underconstrained.
+2. **Evidence for the underconstrained reconstruction hypothesis:** SAEs achieve excellent reconstruction (explained variance 0.92-0.98 vs ~0 for random), yet learn incompatible feature representations. This paradox reveals that many different feature decompositions achieve equally good reconstruction -- the task is fundamentally underconstrained.
 
-3. **Demonstration of architecture-independent instability:** Both TopK and ReLU SAEs show identical random baseline behavior (PWMCC ≈ 0.30), indicating this is a fundamental property of SAE training dynamics, not an architectural artifact.
+3. **Demonstration of architecture-independent instability:** Both TopK and ReLU SAEs show identical random baseline behavior (PWMCC = 0.30), indicating this is a fundamental property of SAE training dynamics, not an architectural artifact.
 
 4. **Quantification of the functional-representational gap:** We provide the first systematic evidence that reconstruction metrics (MSE, explained variance) completely fail to predict feature stability, challenging current SAE evaluation practices that rely solely on functional performance.
+
+5. **Cross-scale validation on a real language model:** We validate the overparameterization-stability pattern on Pythia-70M (Biderman et al., 2023), demonstrating that d_sae/eff_rank > 5 predicts near-random PWMCC on both algorithmic tasks and LLM activations.
 
 Our findings fundamentally reframe the SAE stability problem: the question is not "how can we improve from low to high stability?" but rather "how can we constrain the optimization to prefer reproducible solutions among the many equally-good decompositions?" This has urgent implications for interpretability research that assumes SAE features represent unique, meaningful concepts.
 
@@ -108,7 +110,7 @@ PWMCC ranges from 0 (no overlap) to 1 (perfect alignment). We use 0.7 as the hig
 
 ### 3.3 Implementation
 
-All experiments used PyTorch 2.0 with mixed precision training. SAEs were trained for 10,000 steps with batch size 4096, using AdamW (lr=3e-4, β=(0.9, 0.999)). Code and data are available at https://github.com/brightliu/HUSAI.
+All experiments used PyTorch 2.0 with mixed precision training. SAEs were trained for 10,000 steps with batch size 4096, using AdamW (lr=3e-4, beta=(0.9, 0.999)). Code and data are available at the accompanying repository.
 
 ---
 
@@ -122,30 +124,29 @@ Our central finding challenges the assumption that SAE training produces stable 
 
 | Comparison | PWMCC | N pairs | Interpretation |
 |------------|-------|---------|----------------|
-| Trained vs Trained | 0.309 ± 0.002 | 10 | Cross-seed similarity |
-| Random vs Random | 0.300 ± 0.001 | 45 | Chance baseline |
-| **Difference** | **+0.009 (3%)** | — | **Practically zero** |
+| Trained vs Trained | 0.300 ± 0.001 | 10 | Cross-seed similarity |
+| Random vs Random | 0.299 ± 0.001 | 10 | Chance baseline |
+| **Difference** | **+0.001 (0.4%)** | -- | **Practically zero** |
 
-Statistical test: p < 0.0001 (highly significant), but Cohen's d indicates the effect is negligible in practical terms. The 0.009 difference represents less than 1% of the scale, well within measurement noise.
+Statistical test: Mann-Whitney U, p = 0.009 (significant), but the absolute difference of 0.001 is negligible in practical terms, representing less than 0.4% of the PWMCC scale.
 
 **Interpretation:** Standard SAE training produces feature representations that are as random (in cross-seed consistency) as untrained initialization. Training learns to reconstruct well but does not converge toward any canonical feature basis. Different seeds find different, equally valid feature decompositions.
 
-**Architecture independence:** Both TopK (0.302) and ReLU (0.300) show identical random baseline behavior, indicating this is fundamental to SAE training dynamics, not an architectural artifact.
+**Architecture independence:** Both TopK (PWMCC = 0.302) and ReLU (PWMCC = 0.300) show identical random baseline behavior, indicating this is fundamental to SAE training dynamics, not an architectural artifact.
 
 ### 4.2 The Paradox: Functional Success + Representational Instability
 
-Figure 2 reveals a striking paradox. Despite matching random baseline in feature consistency, trained SAEs achieve dramatically better reconstruction than random initialization:
+Despite matching random baseline in feature consistency, trained SAEs achieve dramatically better reconstruction than random initialization:
 
 **Functional Performance Comparison:**
 
 | Metric | Trained (TopK) | Trained (ReLU) | Random | Improvement |
 |--------|----------------|----------------|--------|-------------|
-| MSE Loss | 1.85 | 2.15 | 7.44 | **4.0-8.4× better** |
-| Explained Variance | 0.919 | 0.977 | ~0.0 | SAEs work! |
-| L0 Sparsity | 32 | 427 | 32 | Controlled |
+| Explained Variance | 0.919 | 0.977 | ~0.0 | Strong reconstruction |
+| L0 Sparsity | 32 | ~400 | 32 | Controlled |
 
 **The paradox:** SAEs are simultaneously:
-1. **Functionally successful** - Reconstruction 4-8× better than random
+1. **Functionally successful** - Explained variance > 0.91, far exceeding random
 2. **Representationally unstable** - Feature similarity = random baseline
 
 This demonstrates complete decoupling between reconstruction quality and feature stability. All 10 SAEs cluster in the "good reconstruction, zero stability" quadrant—standard metrics suggest success, yet features are arbitrary. A practitioner evaluating a single SAE would incorrectly conclude features are meaningful and reproducible.
@@ -173,8 +174,8 @@ The paradox in Section 4.2 suggests a hypothesis: **the reconstruction task admi
 We test this by examining the distribution of reconstruction quality:
 
 **Cross-seed reconstruction variance:**
-- TopK: MSE = 1.85 ± 0.02 (coefficient of variation: 1.1%)
-- ReLU: MSE = 2.15 ± 0.03 (coefficient of variation: 1.4%)
+- TopK: Explained variance = 0.919 ± 0.002 (coefficient of variation < 0.3%)
+- ReLU: Explained variance = 0.977 ± 0.001 (coefficient of variation < 0.1%)
 
 All 10 SAEs achieve nearly identical reconstruction error despite having completely different features (PWMCC = random). This tight clustering demonstrates that:
 
@@ -190,8 +191,8 @@ We validated that the random baseline phenomenon holds across transformer layers
 
 | Layer | Trained PWMCC | Random PWMCC | Interpretation |
 |-------|---------------|--------------|----------------|
-| Layer 0 | 0.309 ± 0.002 | 0.30 | **AT random** |
-| Layer 1 | 0.302 ± 0.001 | 0.30 | **AT random** |
+| Layer 0 | 0.300 ± 0.001 | 0.30 | At random baseline |
+| Layer 1 | 0.302 ± 0.001 | 0.30 | At random baseline |
 
 Both layers show identical random-baseline behavior, demonstrating that SAE instability is **layer-independent**. This strengthens our main finding: the random baseline phenomenon is universal across the transformer, not specific to any particular layer or position.
 
@@ -199,24 +200,17 @@ Both layers show identical random-baseline behavior, demonstrating that SAE inst
 
 ### 4.6 Task Generalization: Random Baseline Replicates Across Tasks
 
-A critical validation experiment tested whether the PWMCC ≈ 0.30 baseline is specific to modular arithmetic or generalizes to other tasks. We trained a transformer on a **sequence copying task** (input: [a,b,c,SEP], output: copy [a,b,c]) and trained SAEs on its activations.
+We tested whether the PWMCC near-random baseline is specific to modular arithmetic or generalizes to other algorithmic tasks. Two lines of evidence suggest generality:
 
-| Task | PWMCC | Interpretation |
-|------|-------|----------------|
-| Modular Arithmetic | 0.309 ± 0.023 | Reference |
-| Sequence Copying | 0.300 ± 0.000 | **Identical to random** |
+First, we trained a transformer on a sequence copying task (input: [a,b,c,SEP], output: copy [a,b,c]) and trained SAEs on its activations. The copying task achieved perfect reconstruction (explained variance = 0.98), yet PWMCC matched the random baseline (0.300), consistent with our modular arithmetic findings.
 
-The sequence copying task achieves perfect reconstruction (explained variance = 0.98), yet PWMCC exactly matches the random baseline. This demonstrates:
+Second, and more robustly, the Pythia-70M validation (Section 4.11.1) demonstrates the same overparameterization-to-random pattern on a real language model with completely different task structure, confirming the phenomenon is not specific to modular arithmetic.
 
-1. **The random baseline phenomenon is task-independent** - not an artifact of modular arithmetic
-2. **Simple tasks universally show zero stability** - SAEs find arbitrary decompositions regardless of task
-3. **Our findings generalize** - the underconstrained reconstruction hypothesis applies broadly
-
-This strengthens the claim that SAE instability is a fundamental property of standard training, not a task-specific anomaly.
+Together, these results strengthen the claim that SAE instability under standard training is task-independent when the d_sae/eff_rank ratio is high.
 
 ### 4.7 Training Dynamics: Features Converge During Training
 
-A critical finding from our training dynamics analysis: **SAE features CONVERGE during training**, not diverge.
+A critical finding from our training dynamics analysis: SAE features converge during training, not diverge.
 
 | Epoch | Average PWMCC | Interpretation |
 |-------|---------------|----------------|
@@ -233,7 +227,7 @@ Features start at random baseline (0.30) and monotonically increase throughout t
 
 **Implications:**
 1. Training duration matters for stability
-2. SAEs CAN learn some consistent structure
+2. SAEs can learn some consistent structure
 3. The improvement is modest (~20%) and far below the 0.70 target
 4. Longer training may further improve stability
 
@@ -279,7 +273,7 @@ A comprehensive study across all parameterization regimes reveals a **stability-
 
 ### 4.10 Theoretical Grounding: Why PWMCC = 0.30
 
-Our empirical finding that trained SAEs match random baseline (PWMCC = 0.309 vs 0.300) is not merely an observation—it is **precisely predicted by recent identifiability theory**.
+Our empirical finding that trained SAEs match random baseline (PWMCC = 0.300 vs 0.299) is not merely an observation -- it is precisely predicted by recent identifiability theory.
 
 Cui et al. (2025) derived necessary and sufficient conditions for SAEs to learn unique, ground-truth features:
 
@@ -291,15 +285,15 @@ Cui et al. (2025) derived necessary and sufficient conditions for SAEs to learn 
 
 | Condition | Status | Our Setup | Requirement | Impact |
 |-----------|--------|-----------|-------------|--------|
-| 1. Ground truth sparsity | ❌ **VIOLATED** | Dense (eff_rank=80/128=62.5%) | Extremely sparse (<10%) | **Critical failure** |
-| 2. SAE activation sparsity | ⚠️ Marginal | k=32/1024=3.1% | k << ground truth sparsity | Insufficient |
-| 3. Hidden dimensions | ✅❌ Met but harmful | d_sae=1024 >> eff_rank=80 | d_sae ≥ ground truth dims | Excess capacity enables arbitrary solutions |
+| 1. Ground truth sparsity | VIOLATED | Dense (eff_rank=80/128=62.5%) | Extremely sparse (<10%) | Critical failure |
+| 2. SAE activation sparsity | Marginal | k=32/1024=3.1% | k << ground truth sparsity | Insufficient |
+| 3. Hidden dimensions | Met but harmful | d_sae=1024 >> eff_rank=80 | d_sae >= ground truth dims | Excess capacity enables arbitrary solutions |
 
 **Why our ground truth is dense:** Unlike 1-layer transformers that learn sparse Fourier circuits (Nanda et al., 2023: R²=93%), our 2-layer architecture achieves R²=2% on Fourier components. Instead, activations occupy an ~80-dimensional dense subspace (effective rank = 80), meaning each activation simultaneously uses 62.5% of available dimensions. This directly violates Condition 1.
 
 **Theoretical prediction when Condition 1 is violated:** Cui et al. prove that without extreme ground truth sparsity, the SAE optimization landscape contains **multiple equally-good local minima**. Each random seed converges to a different arbitrary basis for representing the same dense subspace, yielding PWMCC ≈ 0.25-0.35 (the expected maximum cosine similarity between random unit vectors in high dimensions).
 
-**Empirical validation:** Our measured PWMCC = 0.309 ± 0.002 **perfectly matches** the theoretical prediction (0.25-0.35 range) for non-identifiable SAEs on dense ground truth.
+**Empirical validation:** Our measured PWMCC = 0.300 ± 0.001 falls squarely within the theoretical prediction (0.25-0.35 range) for non-identifiable SAEs on dense ground truth.
 
 **Implications:**
 1. **Our finding is not a failure of SAE training** but a fundamental property when ground truth lacks sparsity
@@ -311,9 +305,9 @@ The effective rank study (Section 4.9) further validates this: smaller d_sae for
 
 ### 4.11 Follow-Up Experiments: Validating and Extending Core Findings
 
-We conducted seven additional experiments to probe the boundaries of the random baseline phenomenon, test potential mitigations, and validate on a real language model. Full results and artifacts are in `results/experiments/`.
+We conducted seven additional experiments to probe the boundaries of the random baseline phenomenon, test potential mitigations, and validate on a real language model.
 
-#### 4.11.0 Pythia-70M: Scaling to a Real Language Model (Exp 1.1)
+#### 4.11.1 Pythia-70M: Scaling to a Real Language Model
 
 To address Limitation #2 (simple tasks only), we trained SAEs on Pythia-70M (EleutherAI, 70M parameters). We extracted 200K activation vectors from layer 0 residual stream using wikitext-103 text, and trained 5 TopK + 5 ReLU SAEs per d_sae setting.
 
@@ -341,7 +335,7 @@ To address Limitation #2 (simple tasks only), we trained SAEs on Pythia-70M (Ele
 
 5. **The effective rank predictor generalizes across scales.** d_sae/eff_rank > 5 predicts near-random PWMCC on both 128-dim algorithmic tasks and 512-dim LLM activations.
 
-#### 4.11.1 1-Layer Ground Truth Comparison (Exp 1.2)
+#### 4.11.2 1-Layer Ground Truth Comparison
 
 To test whether SAE stability depends on ground truth sparsity, we compared 1-layer and 2-layer transformers on mod-113. Nanda et al. (2023) showed 1-layer models learn sparse Fourier circuits (R²=93-98%). Our 1-layer model has effective rank 33.5 (vs 80.5 for 2-layer), meaning its activations are sparser.
 
@@ -357,7 +351,7 @@ To test whether SAE stability depends on ground truth sparsity, we compared 1-la
 
 Both models show the same pattern: stability peaks near d_sae ≈ 2× effective rank, then decays to random at high d_sae. The 1-layer model's lower effective rank shifts the peak leftward but does not fundamentally change the phenomenon. At d_sae=1024, both architectures match random baseline (PWMCC ≈ 0.30).
 
-#### 4.11.2 Subspace Stability vs Feature Stability (Exp 2.2)
+#### 4.11.3 Subspace Stability vs Feature Stability
 
 We tested whether the decoder subspace is more stable than individual features by computing principal subspace overlap at varying ranks.
 
@@ -371,7 +365,7 @@ We tested whether the decoder subspace is more stable than individual features b
 
 The top-8 principal subspace is 2.98× more stable than random -- substantially above the feature-level PWMCC ratio of 1.02×. This confirms that SAEs learn a consistent low-rank subspace even when individual features are arbitrary. The finding partially rehabilitates SAE utility: subspace-level analyses may be reliable even when feature-level interpretations are not.
 
-#### 4.11.3 Contrastive Alignment Loss (Exp 1.3)
+#### 4.11.4 Contrastive Alignment Loss
 
 We tested whether a differentiable alignment loss (penalizing decoder column mismatch between paired SAEs) can improve stability.
 
@@ -384,13 +378,13 @@ We tested whether a differentiable alignment loss (penalizing decoder column mis
 
 The contrastive loss produces negligible improvement (+0.5% at λ=1.0) without degrading reconstruction. The alignment signal is too weak relative to the reconstruction gradient in this overparameterized regime. More aggressive methods (e.g., alternating optimization, warm-starting from aligned seeds) may be needed.
 
-#### 4.11.4 Intervention Stability (Exp 2.1)
+#### 4.11.5 Intervention Stability
 
 We tested whether activation steering with matched features produces consistent behavioral effects across seeds. For 10 reference features from seed 42, we steered the transformer's residual stream and measured KL divergence and accuracy changes across all 5 seeds at magnitudes {1.0, 2.0, 5.0}.
 
-Interventions are surprisingly stable: despite low feature-level alignment (match similarities ≈ 0.30), steered outputs show similar KL divergence patterns across seeds. This suggests the behavioral effect of steering operates at the subspace level rather than the individual feature level, consistent with the subspace stability finding (Section 4.11.2).
+Interventions are surprisingly stable: despite low feature-level alignment (match similarities ≈ 0.30), steered outputs show similar KL divergence patterns across seeds. This suggests the behavioral effect of steering operates at the subspace level rather than the individual feature level, consistent with the subspace stability finding (Section 4.11.3).
 
-#### 4.11.5 Dictionary Pinning (Exp 2.4)
+#### 4.11.6 Dictionary Pinning
 
 We tested whether freezing decoder columns from a reference SAE during training improves stability.
 
@@ -406,7 +400,7 @@ We tested whether freezing decoder columns from a reference SAE during training 
 
 Pinning 75% of columns achieves PWMCC > 0.82 (exceeding Song et al.'s 0.80 target), but reconstruction degrades 11×. At 25% pinned, PWMCC reaches 0.48 with 3× reconstruction cost. This reveals a sharp stability-reconstruction tradeoff: achieving high stability through pinning requires sacrificing significant reconstruction quality, confirming that the problem is not just initialization but fundamental to the underconstrained nature of the task.
 
-#### 4.11.6 Effective Rank as Universal Predictor (Exp 2.3)
+#### 4.11.7 Effective Rank as Universal Predictor
 
 We swept d_sae across both 1-layer and 2-layer models and plotted PWMCC/random as a function of d_sae/effective_rank. The data from both models collapse onto a single curve: stability peaks at ratio 1-2 (~1.4-1.5× random) and decays to 1.0× at ratio >10. However, the universal fit (PWMCC = a/(d_sae/eff_rank)^α + c) achieves only R²=0.01, indicating substantial model-specific variation around the trend.
 
@@ -424,7 +418,7 @@ Our random baseline finding fundamentally reframes the SAE stability problem. Pr
 
 This reframing has three critical implications:
 
-1. **The problem is not optimization failure:** SAEs achieve excellent reconstruction (MSE 4-8× better than random), indicating training successfully optimizes the stated objective. The issue is that the objective itself is underconstrained—it admits infinitely many solutions corresponding to different feature bases.
+1. **The problem is not optimization failure:** SAEs achieve excellent reconstruction (explained variance > 0.91), indicating training successfully optimizes the stated objective. The issue is that the objective itself is underconstrained -- it admits infinitely many solutions corresponding to different feature bases.
 
 2. **Architecture is irrelevant under standard training:** Both TopK and ReLU match random baseline (PWMCC ≈ 0.30), indicating architectural choice alone cannot solve the problem. The fundamental issue is the reconstruction objective, which any architecture optimizes toward non-unique solutions.
 
@@ -450,7 +444,7 @@ Our results strongly support the hypothesis that sparse reconstruction is fundam
 
 2. **Random feature similarity:** PWMCC = 0.30 matches random baseline, indicating solutions use completely different feature sets
 
-3. **Functional success despite instability:** MSE 4-8× better than random proves SAEs learn useful representations, yet features don't align
+3. **Functional success despite instability:** Explained variance > 0.91 proves SAEs learn useful representations, yet features don't align
 
 This parallels findings in sparse coding for computer vision (Olshausen & Field, 1996), where many different dictionaries achieve similar reconstruction on natural images. The sparsity constraint reduces degrees of freedom but does not uniquely determine a solution—infinitely many sparse bases can represent the same data.
 
@@ -465,19 +459,19 @@ The random baseline finding clarifies what is needed: **training objectives that
 2. **Report stability metrics:** PWMCC should be standard alongside MSE/explained variance
 3. **Use stability-aware architectures:** Adopt methods proven to achieve >0.70 PWMCC (Song et al., 2025)
 4. **Validate interpretations across seeds:** If a feature interpretation doesn't replicate, it's not robust
-5. **Measure effective rank first:** If d_sae/eff_rank > 5, expect near-random stability (Section 4.11.6)
+5. **Measure effective rank first:** If d_sae/eff_rank > 5, expect near-random stability (Section 4.11.7)
 
 **Our follow-up experiments (Section 4.11) provide concrete evidence on the path forward:**
-- **Subspace-level analysis is partially reliable:** The top-8 decoder subspace shows 2.98× random stability even when features are at baseline (Section 4.11.2). This suggests subspace-level circuit analyses and steering may be more robust than feature-level interpretations.
-- **Simple contrastive losses are insufficient:** Adding an alignment penalty during paired training yields only +0.5% PWMCC (Section 4.11.3), indicating that more fundamental changes to the training paradigm are needed.
-- **Dictionary pinning works but costs reconstruction:** Freezing 75% of decoder columns achieves 0.83 PWMCC but at 11× reconstruction cost (Section 4.11.5). The stability-reconstruction tradeoff appears fundamental.
-- **Interventions may be stable at the subspace level:** Despite random feature-level alignment, activation steering shows consistent behavioral effects across seeds (Section 4.11.4).
+- **Subspace-level analysis is partially reliable:** The top-8 decoder subspace shows 2.98x random stability even when features are at baseline (Section 4.11.3). This suggests subspace-level circuit analyses and steering may be more robust than feature-level interpretations.
+- **Simple contrastive losses are insufficient:** Adding an alignment penalty during paired training yields only +0.5% PWMCC (Section 4.11.4), indicating that more fundamental changes to the training paradigm are needed.
+- **Dictionary pinning works but costs reconstruction:** Freezing 75% of decoder columns achieves 0.83 PWMCC but at 11x reconstruction cost (Section 4.11.6). The stability-reconstruction tradeoff appears fundamental.
+- **Interventions may be stable at the subspace level:** Despite random feature-level alignment, activation steering shows consistent behavioral effects across seeds (Section 4.11.5).
 
 **Research priorities:**
 1. **Develop stability-promoting objectives:** Extend Song et al.'s framework with practical, scalable methods beyond simple contrastive losses
 2. **Exploit subspace stability:** Develop methods that leverage the stable low-rank subspace for interpretability without requiring feature-level consistency
 3. **Create stability benchmarks:** Standard datasets for evaluating cross-seed consistency
-4. **Scale to larger LLMs:** Our Pythia-70M results (Section 4.11.0) confirm the pattern holds on real LLMs; testing on Pythia-1B+ and Llama would probe whether richer semantic structure changes the picture
+4. **Scale to larger LLMs:** Our Pythia-70M results (Section 4.11.1) confirm the pattern holds on real LLMs; testing on Pythia-1B+ and Llama would probe whether richer semantic structure changes the picture
 
 **Long-term vision:** Stability-aware SAE training should become default practice, with community standards requiring multi-seed validation before publishing interpretability claims.
 
@@ -489,13 +483,13 @@ Our study has several limitations:
 
 1. **Limited seeds:** While 5 seeds per architecture with tight variance suggest robust phenomena, larger-scale studies may reveal additional nuances.
 
-2. **Limited LLM validation:** We validated on Pythia-70M (Section 4.11.0), confirming the overparameterization pattern replicates on real language models. However, Pythia-70M is small by modern standards. Larger models (Pythia-1B+, Llama) with richer semantic structure may show different stability profiles, as suggested by Paulo & Belrose's higher shared-feature rates on larger LLMs.
+2. **Limited LLM validation:** We validated on Pythia-70M (Section 4.11.1), confirming the overparameterization pattern replicates on real language models. However, Pythia-70M is small by modern standards. Larger models (Pythia-1B+, Llama) with richer semantic structure may show different stability profiles, as suggested by Paulo & Belrose's higher shared-feature rates on larger LLMs.
 
 3. **Two architectures:** We tested TopK and ReLU, but other variants (e.g., Gated SAEs, JumpReLU) showed insufficient L0 variation to draw conclusions. The stability-sparsity relationship is most robustly verified for TopK.
 
-4. **Contrastive loss insufficient:** Our contrastive alignment loss (Section 4.11.3) yielded only +0.5% PWMCC improvement. More sophisticated stability-promoting methods (e.g., Song et al.'s full framework) remain untested on our setup.
+4. **Contrastive loss insufficient:** Our contrastive alignment loss (Section 4.11.4) yielded only +0.5% PWMCC improvement. More sophisticated stability-promoting methods (e.g., Song et al.'s full framework) remain untested on our setup.
 
-5. **Architecture difference from literature:** Our 2-layer transformer learns non-Fourier algorithms (R²=2% vs 93-98% for 1-layer). Our 1-layer comparison (Section 4.11.1) shows the same stability pattern despite lower effective rank, but did not achieve the expected high Fourier R² in the time allocated.
+5. **Architecture difference from literature:** Our 2-layer transformer learns non-Fourier algorithms (R²=2% vs 93-98% for 1-layer). Our 1-layer comparison (Section 4.11.2) shows the same stability pattern despite lower effective rank, but did not achieve the expected high Fourier R² in the time allocated.
 
 6. **Training duration:** Our Pythia-70M SAEs were trained for 10 epochs (~2K steps). Longer training with dead neuron resampling (as in SAELens) may improve stability, though our modular arithmetic results (Section 4.7) show only modest gains from extended training.
 
@@ -505,14 +499,14 @@ Our study has several limitations:
 
 We presented the first systematic demonstration that SAE features match **random baseline** across training runs, validated on algorithmic tasks and Pythia-70M, fundamentally challenging current interpretability practices. Our key findings:
 
-1. **The random baseline phenomenon:** Trained SAE feature similarity (PWMCC = 0.309) is statistically indistinguishable from randomly initialized SAEs (PWMCC = 0.300) in the overparameterized regime, meaning standard training produces zero representational stability above chance.
+1. **The random baseline phenomenon:** Trained SAE feature similarity (PWMCC = 0.300) is statistically indistinguishable from randomly initialized SAEs (PWMCC = 0.299) in the overparameterized regime, meaning standard training produces zero representational stability above chance.
 
 2. **The stability-reconstruction tradeoff:** We discovered a fundamental tradeoff between stability and reconstruction quality:
    - Underparameterized (d_sae < eff_rank): Up to 2.87× random stability, but poor reconstruction
    - Matched (d_sae ≈ eff_rank): 1.23-1.62× random stability with good reconstruction
    - Overparameterized (d_sae > eff_rank): ≈1× random stability with excellent reconstruction
 
-3. **Stability decreases monotonically with sparsity:** Unlike findings on LLMs, we show that on algorithmic tasks, stability DECREASES as sparsity (k) increases. This suggests the stability-sparsity relationship is **task-dependent**—semantic structure may be required for non-monotonic stability patterns.
+3. **Stability decreases monotonically with sparsity:** Unlike findings on LLMs, we show that on algorithmic tasks, stability decreases as sparsity (k) increases. This suggests the stability-sparsity relationship is task-dependent -- semantic structure may be required for non-monotonic stability patterns.
 
 4. **Feature-level stability is uniform:** No predictor (activation frequency, magnitude, task correlation) significantly predicts which individual features are stable. Stability is a **global property** of the SAE configuration, not a feature-specific property.
 
@@ -546,11 +540,15 @@ Song et al.'s (2025) demonstration that 0.80 PWMCC is achievable shows this prob
 
 - Gao, L., et al. (2024). Scaling and Evaluating Sparse Autoencoders. OpenAI. *arXiv:2406.04093*.
 
+- Biderman, S., et al. (2023). Pythia: A Suite for Analyzing Large Language Models Across Training and Scaling. *ICML 2023*. https://arxiv.org/abs/2304.01373
+
 - Bricken, T., et al. (2023). Towards Monosemanticity: Decomposing Language Models With Dictionary Learning. Anthropic.
 
 - Cunningham, H., et al. (2023). Sparse Autoencoders Find Highly Interpretable Features in Language Models. *arXiv:2309.08600*. https://arxiv.org/abs/2309.08600
 
 - Nanda, N., et al. (2023). Progress measures for grokking via mechanistic interpretability. *ICLR 2023*.
+
+- Olah, C. (2023). Interpretability Dreams. https://transformer-circuits.pub/2023/interpretability-dreams/index.html
 
 - Power, A., et al. (2022). Grokking: Generalization beyond overfitting on small algorithmic datasets. *arXiv:2201.02177*.
 
@@ -564,12 +562,12 @@ Song et al.'s (2025) demonstration that 0.80 PWMCC is achievable shows this prob
 
 ### A.1 Additional Experimental Details
 
-Full hyperparameter tables, training curves, and configuration files are available in the repository under `results/` and `configs/`.
+Full hyperparameter tables, training curves, and configuration files are available in the accompanying code repository.
 
 ### A.2 Full Statistical Results
 
-Complete statistical test outputs are logged in `EXPERIMENT_LOG.md` and raw JSON artifacts in `docs/evidence/`.
+Complete statistical test outputs and raw JSON artifacts are included in the repository.
 
 ### A.3 Visualizations
 
-Figures and plots are generated by the analysis scripts in `scripts/analysis/` and stored under `results/`.
+Figures and plots are generated by the analysis scripts included in the repository.
